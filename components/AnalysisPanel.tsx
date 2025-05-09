@@ -124,7 +124,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
               undefined, // contentGaps
               undefined, // summary
               undefined, // relatedLinks
-              companyId
+              companyId || undefined
             )
             console.log('res from analysis', res)
             // localStorage.setItem('documentId', res.$id);
