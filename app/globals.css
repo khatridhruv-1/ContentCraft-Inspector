@@ -1,0 +1,232 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(to bottom right, #e3f2fd, #ffffff);
+  color: #1e3a8a;
+}
+
+/* Custom Scrollbar Styles */
+@layer utilities {
+  .custom-scrollbar {
+    @apply [&::-webkit-scrollbar]:w-2 
+           [&::-webkit-scrollbar-track]:bg-gray-100 
+           [&::-webkit-scrollbar-thumb]:bg-gray-300
+           [&::-webkit-scrollbar-thumb]:rounded-full
+           hover:[&::-webkit-scrollbar-thumb]:bg-gray-400
+           [&::-webkit-scrollbar]:h-2;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* CKEditor Styles */
+.ck-editor__editable {
+  min-height: 400px !important;
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--background)) !important;
+  font-family: inherit !important;
+}
+
+.ck.ck-editor__main>.ck-editor__editable {
+  background: hsl(var(--background)) !important;
+  border: none !important;
+}
+
+.ck.ck-toolbar {
+  background: hsl(var(--muted)) !important;
+  border: none !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+.ck.ck-button,
+.ck.ck-button.ck-on {
+  color: hsl(var(--foreground)) !important;
+  background: transparent !important;
+}
+
+.ck.ck-button:hover,
+.ck.ck-button.ck-off:hover,
+.ck.ck-button.ck-on {
+  background: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+.ck.ck-toolbar .ck.ck-toolbar__separator {
+  background: hsl(var(--border)) !important;
+}
+
+.ck.ck-dropdown__panel,
+.ck.ck-list {
+  background: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.ck-dropdown__panel .ck-list__item .ck-button {
+  color: hsl(var(--foreground)) !important;
+}
+
+.ck.ck-list__item:hover:not(.ck-disabled) {
+  background: hsl(var(--accent)) !important;
+}
+
+.ck.ck-editor__editable_inline {
+  padding: 1rem !important;
+}
+
+.ck.ck-editor__editable_inline > :first-child {
+  margin-top: 0 !important;
+}
+
+.ck-content h2, .ck-content h3, .ck-content h4 {
+  margin-top: 1em !important;
+  margin-bottom: 0.5em !important;
+}
+
+.ck-content p {
+  margin-bottom: 1em !important;
+}
+
+.ck-content blockquote {
+  border-left: 4px solid hsl(var(--border)) !important;
+  padding-left: 1em !important;
+  margin: 1em 0 !important;
+  font-style: italic !important;
+}
+
+/* Custom Styles */
+.cool-card {
+  @apply bg-white shadow-lg border border-gray-100;
+}
+
+.cool-text {
+  @apply text-blue-600;
+}
+
+.overflow-y-auto {
+  scrollbar-color: #bab9b9 #f0f0f0;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #bab9b9;
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #bab9b9;
+}
+
+h1, h2, h3 {
+  font-weight: 700;
+}
+
+.loading-screen {
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1e3a8a;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.btn-primary {
+  background: #1e3a8a;
+  color: white;
+  box-shadow: 0px 4px 10px rgba(30, 58, 138, 0.3);
+}
+
+.btn-primary:hover {
+  background: #1c3faa;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #1e3a8a;
+  border: 2px solid #1e3a8a;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+/* 🎨 Responsive & Centered Welcome Page */
+.welcome-container {
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.welcome-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1e3a8a;
+}
+
+.welcome-subtitle {
+  font-size: 1.25rem;
+  color: #3b82f6;
+  margin-bottom: 20px;
+}
