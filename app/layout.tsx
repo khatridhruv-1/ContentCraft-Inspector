@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import './globals.css';
+import { SessionProvider } from '@/components/SessionProvider';
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -9,7 +10,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="bg-gray-100">
-        {children}
+        <SessionProvider>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
