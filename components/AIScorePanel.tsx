@@ -72,7 +72,13 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
               humanizedVersion: result.humanizedVersion
             })
             console.log('res', res);
-            setResult(res);
+            setResult({
+              aiScore: res.aiScore,
+              humanScore: res.humanScore,
+              analysis: res.analysis,
+              suggestions: [],
+              humanizedVersion: res.humanizedVersion
+            });
             
           } else {
             const sessionToken = localStorage.getItem('sessionToken');
