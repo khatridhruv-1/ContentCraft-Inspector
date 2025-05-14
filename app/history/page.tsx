@@ -1,10 +1,19 @@
-'use client';
+"use client";
 
-import { fetchHistory, deleteHistoryItem, fetchContent } from "@/lib/content/appwrite";
+import {
+  fetchHistory,
+  deleteHistoryItem,
+  fetchContent,
+} from "@/lib/content/appwrite";
 import { getUser } from "@/lib/user/appwrite";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +21,7 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
+  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
@@ -26,7 +36,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
-import { deleteCompanyHistoryItem, getDataByMatchedOrganazationID } from "@/lib/companyHelper/companyHelpers";
+import {
+  deleteCompanyHistoryItem,
+  getDataByMatchedOrganazationID,
+} from "@/lib/companyHelper/companyHelpers";
 import { useCompanyId } from "@/hooks/useCompany";
 
 interface HistoryItem {
@@ -47,66 +60,72 @@ export default function HistoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
   const [showDetails, setShowDetails] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPagess, setTotalPagess] = useState(1);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
-  const ITEMS_PER_PAGE = 3;
-  const { companyId, companyloading, companyIderror } = useCompanyId();
-  const [companyData, setCompanyData] = useState<any>(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
+  const { companyId, companyloading, companyIderror } = useCompanyId();
+  // console.log("user" ,user?.$id as any);
+  const [companyData, setCompanyData] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // console.log( "companyid in history page" ,companyId );
+  const totalPages = Math.ceil(companyData?.length / itemsPerPage);
+  const currentItems = companyData?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
   useEffect(() => {
     const handleCheck = async () => {
       try {
+        console.log("conpanyId", companyId);
         const result = await getDataByMatchedOrganazationID(companyId as any);
-        const totalItems = result?.length || 0;
-        const newTotalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-        console.log('Fetched totalItems:', totalItems, 'Calculated newTotalPages:', newTotalPages);
-        setTotalPages(newTotalPages);
-
-        // If current page is out of bounds (e.g., after deletion), go to previous page
-        if (currentPage > newTotalPages) {
-          setCurrentPage(newTotalPages);
-          return; // Wait for next effect to update data
-        }
-
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-        const paginatedData = result?.slice(startIndex, endIndex) || [];
-        setCompanyData(paginatedData);
-        setErrorMessage('');
+        setCompanyData(result);
+        console.log("Company documents:", result);
+        setErrorMessage("");
       } catch (error) {
         console.error("Error in useEffect:", error);
-        setErrorMessage('Failed to load company data Or company Id is missing. Please try again later.');
+        setErrorMessage(
+          "Failed to load company data Or company Id is missing. Please try again later."
+        );
       }
     };
 
     handleCheck();
-  }, [user?.$id, companyId, currentPage]);
-
+  }, [ companyId]);
+  
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const sessionToken = localStorage.getItem('sessionToken');
+        const sessionToken = localStorage.getItem("sessionToken");
         if (!sessionToken) {
-          router.push('/auth/login');
-          throw new Error('No session found');
+          router.push("/auth/login");
+          throw new Error("No session found");
         }
 
         const userData = await getUser(sessionToken);
         setUser(userData);
 
         if (userData.$id) {
-          const historyData = await fetchHistory(userData.$id, currentPage, ITEMS_PER_PAGE);
-          setHistory(historyData?.documents || []);
-          setTotalPages(Math.ceil((historyData?.total || 0) / ITEMS_PER_PAGE));
+          const historyData = await fetchHistory(
+            userData.$id,
+            currentPage,
+            itemsPerPage
+          );
+          // Handle null case and convert to HistoryItem type
+          const historyItems = historyData ? (historyData as unknown as HistoryItem[]) : [];
+          setHistory(historyItems);
+          // Since we don't have total count in the response anymore,
+          // we'll set total pages based on whether we got a full page of results
+          setTotalPagess(historyItems.length === itemsPerPage ? currentPage + 1 : currentPage);
         }
       } catch (error) {
-        console.error('Profile or history fetch failed:', error);
-        setError('Failed to load your profile or history. Please try again.');
-        if ((error as Error).message === 'No session found') {
-          router.push('/auth/login');
+        console.error("Profile or history fetch failed:", error);
+        setError("Failed to load your profile or history. Please try again.");
+        if ((error as Error).message === "No session found") {
+          router.push("/auth/login");
         }
       } finally {
         setLoading(false);
@@ -119,7 +138,7 @@ export default function HistoryPage() {
   const handleViewDetails = async (item: HistoryItem) => {
     try {
       const contentData = await fetchContent(item.$id); // Fetch full content
-  
+
       const query = {
         id: item.$id,
         mode: item.mode, // Ensure mode is passed correctly
@@ -127,14 +146,16 @@ export default function HistoryPage() {
         documentId: item.$id,
         fromHistory: true,
         analysis: contentData?.document?.analysis || item.analysis,
+        triggerAnalysis: item.mode === 'analyze', // Add this to trigger analysis
+        triggerAIScore: item.mode === 'ai-score' // Add this to trigger AI score
       };
-  
-      localStorage.setItem('dashboardState', JSON.stringify(query)); // Store data
-      router.push('/dashboard'); // Redirect to dashboard
+
+      localStorage.setItem("dashboardState", JSON.stringify(query)); // Store data
+      router.push("/dashboard"); // Redirect to dashboard
     } catch (error) {
       console.error("Error fetching content details:", error);
     }
-  };  
+  };
 
   const handleDelete = async (documentId: string) => {
     setItemToDelete(documentId);
@@ -145,41 +166,57 @@ export default function HistoryPage() {
     if (!itemToDelete) return;
 
     try {
-      await deleteCompanyHistoryItem(itemToDelete)
-      const result = await getDataByMatchedOrganazationID(companyId as any);
-      setCompanyData(result);
+      if(companyId){
+        await deleteCompanyHistoryItem(itemToDelete);
+        const result = await getDataByMatchedOrganazationID(companyId as any);
+        setCompanyData(result);
+      } else {
+        await deleteHistoryItem(itemToDelete);
+        const historyData = await fetchHistory(user?.$id || '', currentPage, itemsPerPage);
+        // Handle null case and convert to HistoryItem type
+        const historyItems = historyData ? (historyData as unknown as HistoryItem[]) : [];
+        setHistory(historyItems);
+        
+        // Update total pages based on whether we got a full page of results
+        setTotalPagess(historyItems.length === itemsPerPage ? currentPage + 1 : currentPage);
+
+        // If current page is empty and not the first page, go to previous page
+        if (historyItems.length === 0 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
+      }
     } catch (error) {
-      console.error('Delete failed:', error);
-      setError('Failed to delete item. Please try again.');
+      console.error("Delete failed:", error);
+      setError("Failed to delete item. Please try again.");
     } finally {
       setShowDeleteAlert(false);
       setItemToDelete(null);
     }
-  };  
+  };
 
-  const getModeColor = (mode: HistoryItem['mode']) => {
+  const getModeColor = (mode: HistoryItem["mode"]) => {
     const colors = {
-      'ai-generate': 'bg-blue-100 text-blue-800',
-      'create': 'bg-green-100 text-green-800',
-      'analyze': 'bg-purple-100 text-purple-800',
-      'ai-score': 'bg-orange-100 text-orange-800'
+      "ai-generate": "bg-blue-100 text-blue-800",
+      create: "bg-green-100 text-green-800",
+      analyze: "bg-purple-100 text-purple-800",
+      "ai-score": "bg-orange-100 text-orange-800",
     };
     return colors[mode];
   };
 
-  const getModeLabel = (mode: HistoryItem['mode']) => {
+  const getModeLabel = (mode: HistoryItem["mode"]) => {
     const labels = {
-      'ai-generate': 'AI Generated',
-      'create': 'Created',
-      'analyze': 'Analyzed',
-      'ai-score': 'AI Scored'
+      "ai-generate": "AI Generated",
+      create: "Created",
+      analyze: "Analyzed",
+      "ai-score": "AI Scored",
     };
     return labels[mode];
   };
 
   const handleBack = () => {
-    localStorage.setItem('skipWelcome', 'true');
-    router.push('/dashboard');
+    localStorage.setItem("skipWelcome", "true");
+    router.push("/dashboard");
   };
 
   if (!user && !loading) {
@@ -189,9 +226,6 @@ export default function HistoryPage() {
       </div>
     );
   }
-
-  // Add debug log before rendering pagination
-  console.log('currentPage:', currentPage, 'totalPages:', totalPages, 'companyData:', companyData);
 
   return (
     <>
@@ -209,20 +243,27 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        {error && (
+        {/* {error && (
           <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
             {error}
           </div>
+        )} */}
+        {companyIderror && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
+            {companyIderror.toString()}
+          </div>
         )}
 
-        {loading ? (
+        {companyId ? (
+          <>
+                {companyloading ? (
           <div className="flex justify-center items-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
           </div>
-        ) : companyData?.length > 0 ? (
+        ) : currentItems?.length > 0 ? (
           <>
             <ul className="space-y-4">
-              {companyData.map((item: any) => (
+              {currentItems.map((item: any) => (
                 <li
                   key={item.$id}
                   className="border p-4 rounded-lg shadow hover:shadow-md transition-shadow bg-white"
@@ -247,23 +288,30 @@ export default function HistoryPage() {
                   </div>
 
                   <div className="prose max-w-none line-clamp-3 mb-3">
-                    <MarkdownRenderer content={selectedItem?.content ?? ""}  />
+                    <MarkdownRenderer content={selectedItem?.content ?? ""} />
                   </div>
 
                   {item.analysis && (
                     <div className="mb-3">
-                      <p className="text-sm text-gray-600 font-medium">Input:</p>
-                      <div className="text-sm text-gray-500 line-clamp-2">{item.content}</div>
-                      <p className="text-sm text-gray-600 font-medium">Analysis:</p>
-                      <div className="text-sm text-gray-500 line-clamp-2">{item.analysis}</div>
+                      <p className="text-sm text-gray-600 font-medium">
+                        Input:
+                      </p>
+                      <div className="text-sm text-gray-500 line-clamp-2">
+                        {item.content}
+                      </div>
+                      <p className="text-sm text-gray-600 font-medium">
+                        Analysis:
+                      </p>
+                      <div className="text-sm text-gray-500 line-clamp-2">
+                        {item.analysis}
+                      </div>
                     </div>
                   )}
 
                   <div className="flex justify-between items-center mt-4">
                     <div className="text-sm text-gray-500">
                       {item.updatedAt !== item.createdAt &&
-                        `Updated: ${new Date(item.updatedAt).toLocaleString()}`
-                      }
+                        `Updated: ${new Date(item.updatedAt).toLocaleString()}`}
                     </div>
                     <button
                       className="text-sm text-blue-600 hover:text-blue-800 font-medium"
@@ -276,30 +324,140 @@ export default function HistoryPage() {
               ))}
             </ul>
 
-            <div className="mt-6">
-              <Pagination>
-                <PaginationContent>
+            <Pagination className="mt-6">
+              <PaginationContent>
+                {currentPage > 1 && (
                   <PaginationItem>
                     <PaginationPrevious
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      onClick={() => setCurrentPage((p) => p - 1)}
                     />
                   </PaginationItem>
+                )}
+
+                {Array.from({ length: totalPages }).map((_, index) => (
+                  <PaginationItem key={index}>
+                    <PaginationLink
+                      isActive={currentPage === index + 1}
+                      onClick={() => setCurrentPage(index + 1)}
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                {currentPage < totalPages && (
                   <PaginationItem>
                     <PaginationNext
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      onClick={() => setCurrentPage((p) => p + 1)}
                     />
                   </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
+                )}
+              </PaginationContent>
+            </Pagination>
           </>
         ) : (
           <p className="text-gray-500">No history found.</p>
+        )}</>
+        ) : (
+          <>   {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+          ) : history.length > 0 ? (
+            <>
+              <ul className="space-y-4">
+                {history.map((item) => (
+                  <li
+                    key={item.$id}
+                    className="border p-4 rounded-lg shadow hover:shadow-md transition-shadow bg-white"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-2">
+                        <Badge className={getModeColor(item.mode)}>
+                          {getModeLabel(item.mode)}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(item.$id)}
+                          className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Created: {new Date(item.createdAt).toLocaleString()}
+                      </div>
+                    </div>
+  
+                    <div className="prose max-w-none line-clamp-3 mb-3">
+                    <MarkdownRenderer content={selectedItem?.content ?? ""}  />
+                    </div>
+  
+                    {item.analysis && (
+                      <div className="mb-3">
+                        <p className="text-sm text-gray-600 font-medium">Input:</p>
+                        <div className="text-sm text-gray-500 line-clamp-2">{item.content}</div>
+                        <p className="text-sm text-gray-600 font-medium">Analysis:</p>
+                        <div className="text-sm text-gray-500 line-clamp-2">{item.analysis}</div>
+                      </div>
+                    )}
+  
+                    <div className="flex justify-between items-center mt-4">
+                      <div className="text-sm text-gray-500">
+                        {item.updatedAt !== item.createdAt &&
+                          `Updated: ${new Date(item.updatedAt).toLocaleString()}`
+                        }
+                      </div>
+                      <button
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        onClick={() => handleViewDetails(item)}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+  
+              <div className="mt-6">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: totalPagess }).map((_, i) => (
+                      <PaginationItem key={i + 1}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(i + 1)}
+                          isActive={currentPage === i + 1}
+                          className="cursor-pointer"
+                        >
+                          {i + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPagess))}
+                        className={currentPage === totalPagess ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            </>
+          ) : (
+            <p className="text-gray-500">No history found.</p>
+          )}</>
         )}
+  
       </div>
 
+      {/* Details Modal */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader className="flex-shrink-0">
@@ -326,7 +484,9 @@ export default function HistoryPage() {
                 {selectedItem.analysis && (
                   <div className="prose max-w-none">
                     <h3 className="text-lg font-semibold mb-2">Analysis</h3>
-                    <div className="rounded-lg bg-gray-50 p-4">{selectedItem.analysis}</div>
+                    <div className="rounded-lg bg-gray-50 p-4">
+                      {selectedItem.analysis}
+                    </div>
                   </div>
                 )}
               </div>
@@ -335,17 +495,22 @@ export default function HistoryPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this content from your history.
+              This action cannot be undone. This will permanently delete this
+              content from your history.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

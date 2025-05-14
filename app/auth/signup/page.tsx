@@ -28,11 +28,6 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [companyInfo, setCompanyInfo] = useState<any>(null);
-console.log("companyName" ,companyName)
-console.log(
-  "companyInfo",companyInfo
-);
-
   const router = useRouter();
 
   const validateForm = (name: string, email: string, password: string): ValidationError | null => {

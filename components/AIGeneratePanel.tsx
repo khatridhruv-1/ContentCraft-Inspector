@@ -47,7 +47,6 @@ const  {companyId} :any  = useCompanyId();
   ];
 
   const generateContent = async () => {
-    debugger
     if (!title.trim()) return;
 
     setLoading(true);

@@ -17,6 +17,7 @@ import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 import MarkdownRenderer, { getDownloadableContent } from '@/components/MarkdownRenderer';
 import { marked } from 'marked';
+import { jsPDF } from 'jspdf';
 
 type AppMode = 'ai-generate' | 'create' | 'analyze' | 'ai-score';
 
@@ -36,6 +37,8 @@ export default function Dashboard() {
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [fromHistory, setFromHistory] = useState(false);
   const [title, setTitle] = useState<string>('GeneratedContent');
+  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
+  const downloadMenuRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -67,7 +70,7 @@ export default function Dashboard() {
       console.log('savedState', savedState);
       
       if (savedState) {
-        const { id, mode, content, documentId, fromHistory, analysis } = JSON.parse(savedState);
+        const { id, mode, content, documentId, fromHistory, analysis, triggerAnalysis, triggerAIScore } = JSON.parse(savedState);
   
         setMode(mode as AppMode);
         setContent(content);
@@ -77,13 +80,13 @@ export default function Dashboard() {
   
         switch (mode) {
           case 'analyze':
-            setTriggerAnalysis(true);
+            setTriggerAnalysis(triggerAnalysis || true);
             setShowStructured(true);
             setAnalysis(analysis);
             break;
   
           case 'ai-score':
-            setTriggerAIScore(true);
+            setTriggerAIScore(triggerAIScore || true);
             setShowStructured(true);
             setAnalysis(analysis);
             break;
@@ -104,6 +107,10 @@ export default function Dashboard() {
   
     loadHistoryState();
   }, []);
+
+  interface PdfExporterProps {
+    content: string; // The content to render
+  }
 
   const BackToHistoryButton = () => {
     if (!fromHistory) return null;
@@ -194,42 +201,70 @@ export default function Dashboard() {
   const downloadAsWord = () => {
     if (!generatedContent.trim()) return;
   
-    // Convert Markdown to structured text
-    const formattedContent = getDownloadableContent(generatedContent, 'docx');
+    // Get the content from the MarkdownRenderer
+    const contentToUse = content || generatedContent;
+    const formattedContent = getDownloadableContent(contentToUse, 'docx');
   
     const doc = new Document({
       sections: [
         {
+          properties: {},
           children: formattedContent.split('\n').map((line) => {
-            if (line.startsWith('--- ')) {
+            // Handle headers
+            if (line.startsWith('# ')) {
               return new Paragraph({
-                text: line.replace('--- ', ''),
+                text: line.replace('# ', ''),
                 heading: HeadingLevel.HEADING_1,
               });
-            } else if (line.startsWith('-- ')) {
+            } else if (line.startsWith('## ')) {
               return new Paragraph({
-                text: line.replace('-- ', ''),
+                text: line.replace('## ', ''),
                 heading: HeadingLevel.HEADING_2,
               });
-            } else if (line.startsWith('- ')) {
+            } else if (line.startsWith('### ')) {
               return new Paragraph({
-                text: line.replace('- ', ''),
+                text: line.replace('### ', ''),
                 heading: HeadingLevel.HEADING_3,
               });
-            } else if (line.startsWith('• ')) {
+            }
+            // Handle lists
+            else if (line.startsWith('- ')) {
               return new Paragraph({
-                children: [new TextRun(line.replace('• ', ''))],
+                children: [new TextRun(line.replace('- ', ''))],
                 bullet: { level: 0 },
               });
-            } else if (line.startsWith('1. ')) {
+            } else if (line.startsWith('* ')) {
               return new Paragraph({
-                children: [new TextRun(line.replace('1. ', ''))],
+                children: [new TextRun(line.replace('* ', ''))],
+                bullet: { level: 0 },
+              });
+            } else if (line.match(/^\d+\.\s/)) {
+              return new Paragraph({
+                children: [new TextRun(line.replace(/^\d+\.\s/, ''))],
                 numbering: { reference: "ordered-list", level: 0 },
               });
-            } else {
+            }
+            // Handle bold and italic
+            else if (line.includes('**') || line.includes('__')) {
+              const parts = line.split(/(\*\*|__)/);
+              const children = parts
+                .map((part, index) => {
+                  if (part === '**' || part === '__') return null;
+                  return new TextRun({
+                    text: part,
+                    bold: index % 2 === 1,
+                  });
+                })
+                .filter((part): part is TextRun => part !== null);
+              return new Paragraph({ children });
+            }
+            // Regular text
+            else if (line.trim()) {
               return new Paragraph(line);
             }
-          }),
+            // Empty lines
+            return new Paragraph({ text: '', spacing: { after: 200 } });
+          }).filter(Boolean),
         },
       ],
     });
@@ -238,6 +273,43 @@ export default function Dashboard() {
       saveAs(blob, `${title || 'GeneratedContent'}.docx`);
     });
   };
+
+  // PDF download handler (structured, paginated, improved formatting, direct HTML)
+  const handleDownloadAsPDF = () => {
+    const doc = new jsPDF('p', 'pt', 'a4');
+    const element = document.getElementById('pdf-content');
+    if (!element) return;
+
+    doc.html(element, {
+      callback: function (doc) {
+        doc.save('structured-content.pdf');
+      },
+      margin: [40, 40, 20, 40],
+      autoPaging: 'text',
+      x: 10,
+      y: 10,
+      width: 450, // match .pdf-export max-width
+      windowWidth: 600 // better fit for content
+    });
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target as Node)) {
+        setDownloadMenuOpen(false);
+      }
+    }
+    if (downloadMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [downloadMenuOpen]);
+
   const [dataFromChild, setDataFromChild] = useState("");
 
   function handleDataFromChild(data :any) {

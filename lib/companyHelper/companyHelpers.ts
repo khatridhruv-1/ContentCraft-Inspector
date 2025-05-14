@@ -2,7 +2,7 @@
 import {  Query } from "appwrite";
 import { Databases } from 'appwrite';
 import { Client } from 'appwrite';
-import { ID } from "appwrite";
+
     const client = new Client()
         .setEndpoint('https://appwrite.appunik-team.com/v1')
         .setProject('679a3be3000b571ae49b'); 
@@ -100,72 +100,3 @@ export async function deleteCompanyHistoryItem(documentId: string) {
 }
 
 
-
-export async function saveContentHistory(
-  content: string,
-  userId: string,
-  analysis?: string,
-  mode?: string,
-  contentScore?: number,
-  readability?: number,
-  tone?: string,
-  keyInsights?: string[],
-  improvements?: string[],
-  wordCount?: number,
-  readingTime?: number,
-  aiScore?: number,
-  humanScore?: number,
-  humanizedVersion?: string,
-  outline?: { level: number; text: string }[],
-  suggestions?: string[],
-  contentGaps?: string[],
-  summary?: string,
-  relatedLinks?: { title: string; url: string; description: string }[],
-  companyId?: string
-) {
-  try {
-
-    console.log("companyId to be saved:", companyId, typeof companyId);
-
-    const safeInt = (val: any) => (typeof val === 'number' && !isNaN(val) ? Math.round(val) : null);
-    debugger
-    const documentId = ID.unique();
-    const data = {
-      userId,
-      content,
-      analysis,
-      mode,
-      contentScore: contentScore ?? null,
-      readability: readability ?? null,
-      tone: tone ?? null,
-      keyInsights: keyInsights ?? [],
-      improvements: improvements ?? [],
-      wordCount: wordCount ?? null,
-      readingTime: readingTime ?? null,
-      aiScore: safeInt(aiScore),
-      humanScore: safeInt(humanScore),
-      humanizedVersion: humanizedVersion ?? null,
-      outline: outline ?? [],
-      suggestions: suggestions ?? [],
-      contentGaps: contentGaps ?? [],
-      summary: summary ?? null,
-      relatedLinks: relatedLinks ?? [],
-      companyId: companyId ?? null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    const result = await databases.createDocument(
-      '679d05d40027f6fec541', // Database ID
-      '679d05dd0028c7b34c31', // Collection ID
-      documentId,
-      data
-    );
-
-    console.log("Content saved:", result);
-    return result;
-  } catch (error) {
-    console.error("Error saving content:", error);
-    throw error;
-  }
-}

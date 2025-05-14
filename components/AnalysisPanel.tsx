@@ -7,7 +7,6 @@ import { motion } from 'framer-motion'
 import { saveContent, updateContent } from '@/lib/content/appwrite'
 import { getUser } from '@/lib/user/appwrite'
 import router from 'next/router'
-import { getCompanyIdbyUser } from '@/lib/companyHelper/companyHelpers'
 import { useCompanyId } from '@/hooks/useCompany'
 interface AnalysisResult {
   contentScore: number
@@ -48,7 +47,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   }, [dataFromChild]);
 
   // Trigger content analysis when dataFromChild and triggerAnalysis are present
-  // AND companyId is loaded (important change)
+
   useEffect(() => {
     // Only proceed if companyId is loaded and not null
     if (companyloading) return;

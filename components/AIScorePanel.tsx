@@ -184,43 +184,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
                   </div>
                 </motion.div>
 
-                {/* Analysis Section */}
-                <motion.div
-                  className="p-6 rounded-xl bg-gradient-to-br from-gray-50 to-white border border-gray-200"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <h3 className="text-lg font-semibold mb-4 text-gray-900">Analysis</h3>
-                  {typeof result.analysis === 'string' ? (
-                    <p className="text-gray-700 leading-relaxed">{result.analysis}</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {result.analysis.languagePatterns && result.analysis.languagePatterns.length > 0 && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-2">Language Patterns</h4>
-                          <ul className="list-disc list-inside space-y-1">
-                            {result.analysis.languagePatterns.map((pattern, index) => (
-                              <li key={index} className="text-gray-700">{pattern}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {result.analysis.tone && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-2">Tone</h4>
-                          <p className="text-gray-700">{result.analysis.tone}</p>
-                        </div>
-                      )}
-                      {result.analysis.style && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-2">Style</h4>
-                          <p className="text-gray-700">{result.analysis.style}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </motion.div>
+
 
                 {/* Suggestions Section */}
                 {/* {result.suggestions && result.suggestions.length > 0 && (
