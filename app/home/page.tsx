@@ -4,6 +4,45 @@ import { motion } from 'framer-motion';
 import { Edit, FileSearch, Wand2, Lightbulb, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+const MODES = [
+  {
+    mode: 'ai-generate',
+    icon: Wand2,
+    accent: 'from-blue-400 to-blue-600',
+    iconBg: 'bg-blue-100',
+    iconColor: 'text-blue-600',
+    labelColor: 'text-blue-500',
+    label: 'AI-Powered',
+    title: 'Generate with AI',
+    description: 'Create high-quality content instantly using our advanced AI technology',
+    delay: 0.1,
+  },
+  {
+    mode: 'create',
+    icon: Edit,
+    accent: 'from-green-400 to-emerald-600',
+    iconBg: 'bg-green-100',
+    iconColor: 'text-green-600',
+    labelColor: 'text-green-500',
+    label: 'Smart Editor',
+    title: 'Create Content',
+    description: 'Write and edit your content with our powerful editor tools',
+    delay: 0.2,
+  },
+  {
+    mode: 'analyze',
+    icon: FileSearch,
+    accent: 'from-purple-400 to-purple-600',
+    iconBg: 'bg-purple-100',
+    iconColor: 'text-purple-600',
+    labelColor: 'text-purple-500',
+    label: 'Deep Insights',
+    title: 'Analyze Content',
+    description: 'Get detailed insights and analysis of your content',
+    delay: 0.3,
+  },
+] as const;
+
 export default function Home() {
   const router = useRouter();
 
@@ -53,72 +92,28 @@ export default function Home() {
         </motion.div>
 
         {/* Mode cards */}
-        <div className="grid grid-cols-3 gap-8 w-full max-w-6xl mb-12">
-          {/* Generate with AI Card */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            whileHover={{ y: -8 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            onClick={() => handleModeChange('ai-generate')}
-            className="bg-white rounded-2xl border border-gray-100 shadow-lg cursor-pointer overflow-hidden"
-          >
-            <div className="h-1.5 bg-gradient-to-r from-blue-400 to-blue-600"></div>
-            <div className="flex flex-col items-center text-center p-8">
-              <div className="bg-blue-100 p-4 rounded-full mb-4">
-                <Wand2 className="h-12 w-12 text-blue-600" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mb-12">
+          {MODES.map(({ mode, icon: Icon, accent, iconBg, iconColor, labelColor, label, title, description, delay }) => (
+            <motion.div
+              key={mode}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              whileHover={{ y: -8, transition: { duration: 0.15, delay: 0 } }}
+              transition={{ duration: 0.5, delay }}
+              onClick={() => handleModeChange(mode)}
+              className="bg-white rounded-2xl border border-gray-100 shadow-lg cursor-pointer overflow-hidden"
+            >
+              <div className={`h-1.5 bg-gradient-to-r ${accent}`} />
+              <div className="flex flex-col items-center text-center p-8">
+                <div className={`${iconBg} p-4 rounded-full mb-4`}>
+                  <Icon className={`h-12 w-12 ${iconColor}`} />
+                </div>
+                <span className={`text-xs font-semibold uppercase tracking-wider ${labelColor} mb-2`}>{label}</span>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">{title}</h2>
+                <p className="text-gray-600">{description}</p>
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-500 mb-2">AI-Powered</span>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Generate with AI</h2>
-              <p className="text-gray-600">
-                Create high-quality content instantly using our advanced AI technology
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Create Content Card */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            whileHover={{ y: -8 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            onClick={() => handleModeChange('create')}
-            className="bg-white rounded-2xl border border-gray-100 shadow-lg cursor-pointer overflow-hidden"
-          >
-            <div className="h-1.5 bg-gradient-to-r from-green-400 to-emerald-600"></div>
-            <div className="flex flex-col items-center text-center p-8">
-              <div className="bg-green-100 p-4 rounded-full mb-4">
-                <Edit className="h-12 w-12 text-green-600" />
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-green-500 mb-2">Smart Editor</span>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Create Content</h2>
-              <p className="text-gray-600">
-                Write and edit your content with our powerful editor tools
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Analyze Content Card */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            whileHover={{ y: -8 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            onClick={() => handleModeChange('analyze')}
-            className="bg-white rounded-2xl border border-gray-100 shadow-lg cursor-pointer overflow-hidden"
-          >
-            <div className="h-1.5 bg-gradient-to-r from-purple-400 to-purple-600"></div>
-            <div className="flex flex-col items-center text-center p-8">
-              <div className="bg-purple-100 p-4 rounded-full mb-4">
-                <FileSearch className="h-12 w-12 text-purple-600" />
-              </div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-purple-500 mb-2">Deep Insights</span>
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Analyze Content</h2>
-              <p className="text-gray-600">
-                Get detailed insights and analysis of your content
-              </p>
-            </div>
-          </motion.div>
+            </motion.div>
+          ))}
         </div>
 
         {/* Tip banner card */}
@@ -139,18 +134,6 @@ export default function Home() {
           </div>
         </motion.div>
       </div>
-
-      <style jsx>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
-      `}</style>
     </div>
   );
 }
