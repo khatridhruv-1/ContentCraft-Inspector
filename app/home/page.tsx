@@ -43,6 +43,42 @@ const MODES = [
   },
 ] as const;
 
+function HomeHeader() {
+  return (
+    <header className="sticky top-0 z-20 backdrop-blur-md bg-white/70 border-b border-white/50 shadow-sm">
+      <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+        <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+          ContentCraft Inspector
+        </span>
+        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center shadow-md">
+          <User className="w-5 h-5 text-white" />
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function ProTipBanner() {
+  return (
+    <motion.div
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.4 }}
+      className="w-full max-w-6xl bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-2xl p-6 flex items-center gap-4 shadow-sm"
+    >
+      <div className="bg-yellow-100 p-3 rounded-full flex-shrink-0">
+        <Lightbulb className="h-6 w-6 text-yellow-500" />
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-700 mb-0.5">Pro Tip</p>
+        <p className="text-sm text-gray-600">
+          Start with <span className="font-medium text-blue-600">Generate with AI</span> to quickly draft content, then refine it in <span className="font-medium text-green-600">Create Content</span>, and use <span className="font-medium text-purple-600">Analyze Content</span> for optimization insights.
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Home() {
   const router = useRouter();
 
@@ -59,17 +95,7 @@ export default function Home() {
         <div className="absolute bottom-20 left-1/2 w-64 h-64 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
-      {/* Header with backdrop blur and user avatar placeholder */}
-      <header className="sticky top-0 z-20 backdrop-blur-md bg-white/70 border-b border-white/50 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-          <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-            ContentCraft Inspector
-          </span>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center shadow-md">
-            <User className="w-5 h-5 text-white" />
-          </div>
-        </div>
-      </header>
+      <HomeHeader />
 
       {/* Main content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-16">
@@ -116,23 +142,7 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Tip banner card */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="w-full max-w-6xl bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-2xl p-6 flex items-center gap-4 shadow-sm"
-        >
-          <div className="bg-yellow-100 p-3 rounded-full flex-shrink-0">
-            <Lightbulb className="h-6 w-6 text-yellow-500" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-700 mb-0.5">Pro Tip</p>
-            <p className="text-sm text-gray-600">
-              Start with <span className="font-medium text-blue-600">Generate with AI</span> to quickly draft content, then refine it in <span className="font-medium text-green-600">Create Content</span>, and use <span className="font-medium text-purple-600">Analyze Content</span> for optimization insights.
-            </p>
-          </div>
-        </motion.div>
+        <ProTipBanner />
       </div>
     </div>
   );
