@@ -1,0 +1,43 @@
+# PR Review & Fix Agent
+# Copy this file to your repo: .github/workflows/pr-agent.yml
+# Push to your base branch.
+# Requires AGENTS_TOKEN secret (see docs/setup-guide.md)
+
+name: PR Review & Fix Agent
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-review:
+    runs-on: [self-hosted, macOS]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout PR branch
+        run: gh pr checkout ${{ github.event.pull_request.number }}
+        env:
+          GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
+
+      - name: Pull agent code
+        run: |
+          rm -rf /tmp/innovation-agents
+          git clone --depth 1 https://x-access-token:${{ secrets.AGENTS_TOKEN }}@github.com/ad-net/innovation-agents.git /tmp/innovation-agents
+
+      - name: Run PR Review & Fix Agent
+        run: |
+          chmod +x /tmp/innovation-agents/actions/pr-review-fix/entrypoint.sh
+          /tmp/innovation-agents/actions/pr-review-fix/entrypoint.sh
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MAX_CYCLES: '5'
+          MAX_REVIEW_TURNS: '15'
+          MAX_FIX_TURNS: '20'
+          ACTION_PATH: /tmp/innovation-agents/actions/pr-review-fix
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}

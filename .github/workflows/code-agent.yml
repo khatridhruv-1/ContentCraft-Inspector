@@ -1,0 +1,49 @@
+# Code Agent
+# Copy this file to your repo: .github/workflows/code-agent.yml
+# Push to your base branch.
+# Requires AGENTS_TOKEN secret (see docs/setup-guide.md)
+#
+# Triggers:
+# - Add label "agent:implement" to an issue → agent implements it
+# - Manual: Actions tab → Code Agent → Run workflow → enter issue number
+
+name: Code Agent
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue-number:
+        description: 'Issue number to implement'
+        required: true
+
+jobs:
+  implement:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && github.event.label.name == 'agent:implement')
+    runs-on: [self-hosted, macOS]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pull agent code
+        run: |
+          rm -rf /tmp/innovation-agents
+          git clone --depth 1 https://x-access-token:${{ secrets.AGENTS_TOKEN }}@github.com/ad-net/innovation-agents.git /tmp/innovation-agents
+
+      - name: Run Code Agent
+        run: |
+          chmod +x /tmp/innovation-agents/actions/code-agent/entrypoint.sh
+          /tmp/innovation-agents/actions/code-agent/entrypoint.sh
+        env:
+          ISSUE_NUMBER: ${{ github.event.inputs.issue-number || github.event.issue.number }}
+          BASE_BRANCH: 'main'
+          MAX_TURNS: '100'
+          ACTION_PATH: /tmp/innovation-agents/actions/code-agent
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
