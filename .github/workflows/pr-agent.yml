@@ -36,8 +36,8 @@ jobs:
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           MAX_CYCLES: '5'
-          MAX_REVIEW_TURNS: '15'
-          MAX_FIX_TURNS: '20'
+          MAX_REVIEW_TURNS: '30'
+          MAX_FIX_TURNS: '50'
           ACTION_PATH: /tmp/innovation-agents/actions/pr-review-fix
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
