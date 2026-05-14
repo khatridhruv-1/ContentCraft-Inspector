@@ -36,8 +36,12 @@ jobs:
       - name: Configure git for push
         run: |
           git remote set-url origin "https://x-access-token:${{ secrets.AGENTS_TOKEN }}@github.com/${{ github.repository }}.git"
-          git config user.name "code-agent"
-          git config user.email "code-agent@users.noreply.github.com"
+          GIT_USER=$(gh api user --jq '.login' 2>/dev/null || echo "code-agent[bot]")
+          GIT_EMAIL=$(gh api user --jq '.email // (.login + "@users.noreply.github.com")' 2>/dev/null || echo "code-agent[bot]@users.noreply.github.com")
+          git config user.name "$GIT_USER"
+          git config user.email "$GIT_EMAIL"
+        env:
+          GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
 
       - name: Pull agent code
         run: |
