@@ -54,7 +54,6 @@ jobs:
           /tmp/innovation-agents/actions/code-agent/entrypoint.sh
         env:
           ISSUE_NUMBER: ${{ github.event.inputs.issue-number || github.event.issue.number }}
-          BASE_BRANCH: 'main'
           MAX_TURNS: '100'
           ACTION_PATH: /tmp/innovation-agents/actions/code-agent
           REPO: ${{ github.repository }}

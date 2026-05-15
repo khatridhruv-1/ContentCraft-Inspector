@@ -34,7 +34,7 @@ jobs:
           /tmp/innovation-agents/actions/qa/entrypoint.sh
         env:
           QA_SHA: ${{ github.sha }}
-          MAX_QA_TURNS: '12'
+          MAX_QA_TURNS: '50'
           ACTION_PATH: /tmp/innovation-agents/actions/qa
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
