@@ -4,10 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, Loader2, User, Mail, Lock } from "lucide-react";
+import { AlertCircle, Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 import { signup } from "@/lib/user/appwrite";
 import { createCompany, joinCompany, checkCompanyDomain } from "@/lib/companyHelper/companyHelpers";
@@ -21,6 +20,57 @@ type Step = "signup" | "company" | "done";
 
 const PUBLIC_DOMAINS = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "icloud.com"];
 
+const STEP_LABELS = [
+  { key: "signup", label: "Account" },
+  { key: "company", label: "Company" },
+];
+
+function ProgressBar({ step }: { step: Step }) {
+  const activeIndex = step === "signup" ? 0 : 1;
+
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-2">
+        {STEP_LABELS.map((s, i) => {
+          const isCompleted = i < activeIndex;
+          const isActive = i === activeIndex;
+          return (
+            <div key={s.key} className="flex items-center flex-1 last:flex-none">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <motion.div
+                  animate={{
+                    backgroundColor: isCompleted ? '#2563eb' : isActive ? '#3b82f6' : '#e5e7eb',
+                    scale: isActive ? 1.1 : 1,
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white"
+                >
+                  {isCompleted ? '✓' : i + 1}
+                </motion.div>
+                <span className={`text-xs font-medium transition-colors duration-300 ${isActive ? 'text-blue-600' : isCompleted ? 'text-blue-500' : 'text-gray-400'}`}>
+                  {s.label}
+                </span>
+              </div>
+              {i < STEP_LABELS.length - 1 && (
+                <motion.div
+                  className="flex-1 mx-2 h-0.5 rounded-full overflow-hidden bg-gray-200"
+                >
+                  <motion.div
+                    initial={{ width: '0%' }}
+                    animate={{ width: isCompleted ? '100%' : '0%' }}
+                    transition={{ duration: 0.4 }}
+                    className="h-full bg-blue-500 rounded-full"
+                  />
+                </motion.div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function Signup() {
   const [step, setStep] = useState<Step>("signup");
   const [error, setError] = useState<ValidationError | null>(null);
@@ -28,10 +78,9 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [companyInfo, setCompanyInfo] = useState<any>(null);
-console.log("companyName" ,companyName)
-console.log(
-  "companyInfo",companyInfo
-);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [nameValue, setNameValue] = useState("");
+  const [emailValue, setEmailValue] = useState("");
 
   const router = useRouter();
 
@@ -54,23 +103,38 @@ console.log(
 
   const renderPasswordStrength = () => {
     const strength = getPasswordStrength(password);
-    const bars = Array.from({ length: 4 }).map((_, i) => (
-      <div
-        key={i}
-        className={`h-1 w-full rounded-full transition-colors duration-300 ${
-          i < strength
-            ? ["bg-red-500", "bg-yellow-500", "bg-blue-500", "bg-green-500"][strength - 1]
-            : "bg-gray-200"
-        }`}
-      />
-    ));
+    const colors = ["bg-red-500", "bg-yellow-500", "bg-blue-500", "bg-green-500"];
+    const labels = ["Enter password", "Weak", "Fair", "Good", "Strong"];
 
     return (
-      <div className="space-y-2">
-        <div className="flex gap-1">{bars}</div>
-        <p className="text-xs text-gray-500">
-          {["Enter password", "Weak", "Fair", "Good", "Strong"][strength]}
-        </p>
+      <div className="space-y-1.5 mt-2">
+        <div className="flex gap-1">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="h-1 flex-1 rounded-full overflow-hidden bg-gray-200"
+            >
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: i < strength ? '100%' : '0%' }}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+                className={`h-full rounded-full ${i < strength ? colors[strength - 1] : ''}`}
+              />
+            </motion.div>
+          ))}
+        </div>
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={strength}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.2 }}
+            className="text-xs text-gray-500"
+          >
+            {labels[strength]}
+          </motion.p>
+        </AnimatePresence>
       </div>
     );
   };
@@ -104,10 +168,7 @@ console.log(
       } else {
         const matchedCompany = await checkCompanyDomain(domain);
         setCompanyInfo({ company: matchedCompany, user: session.userId, domain });
-
-     
       }
-   
 
       setStep("company");
     } catch (err) {
@@ -127,8 +188,7 @@ console.log(
     if (!companyInfo?.company || !companyInfo?.user) return;
     setLoading(true);
     try {
-      let joinedCompany = await joinCompany(companyInfo.company.$id, companyInfo.user);
-      console.log("joinedCompany" ,joinedCompany);
+      await joinCompany(companyInfo.company.$id, companyInfo.user);
       setStep("done");
       router.push("/home");
     } catch (err) {
@@ -145,15 +205,12 @@ console.log(
     }
     setLoading(true);
     try {
-      const newCompany = await createCompany({
+      await createCompany({
         name: companyName,
         domain: companyInfo.domain,
         users: [companyInfo.user],
       });
-      console.log("newCompany" ,newCompany);
-      
 
-  
       setStep("done");
       router.push("/home");
     } catch (err) {
@@ -164,7 +221,9 @@ console.log(
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow">
+    <div>
+      {step !== "done" && <ProgressBar step={step} />}
+
       <div className="text-center mb-6">
         <h3 className="text-xl font-semibold text-gray-700">
           {step === "signup" && "Create Account"}
@@ -181,41 +240,96 @@ console.log(
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
             className="space-y-4"
           >
-            <div>
-              <Label htmlFor="name">Full Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                <Input id="name" name="name" placeholder="John Doe" className="pl-10" />
+            {/* Name */}
+            <div className="relative">
+              <div className="absolute left-3 top-4 pointer-events-none z-10">
+                <User className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'name' ? 'text-blue-500' : 'text-gray-400'}`} />
               </div>
-              {error?.field === "name" && <p className="text-sm text-red-500">{error.message}</p>}
+              <Input
+                id="name"
+                name="name"
+                placeholder=" "
+                value={nameValue}
+                onChange={(e) => setNameValue(e.target.value)}
+                onFocus={() => setFocusedField('name')}
+                onBlur={() => setFocusedField(null)}
+                className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
+                  focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
+                  ${error?.field === 'name' ? 'border-red-500' : 'border-gray-300'}`}
+              />
+              <label
+                htmlFor="name"
+                className={`absolute left-10 pointer-events-none transition-all duration-200
+                  ${(focusedField === 'name' || nameValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
+              >
+                Full Name
+              </label>
+              {error?.field === "name" && (
+                <p className="mt-1 text-sm text-red-500">{error.message}</p>
+              )}
             </div>
 
-            <div>
-              <Label htmlFor="email">Email Address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                <Input id="email" name="email" type="email" placeholder="you@email.com" className="pl-10" />
+            {/* Email */}
+            <div className="relative">
+              <div className="absolute left-3 top-4 pointer-events-none z-10">
+                <Mail className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
               </div>
-              {error?.field === "email" && <p className="text-sm text-red-500">{error.message}</p>}
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder=" "
+                value={emailValue}
+                onChange={(e) => setEmailValue(e.target.value)}
+                onFocus={() => setFocusedField('email')}
+                onBlur={() => setFocusedField(null)}
+                className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
+                  focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
+                  ${error?.field === 'email' ? 'border-red-500' : 'border-gray-300'}`}
+              />
+              <label
+                htmlFor="email"
+                className={`absolute left-10 pointer-events-none transition-all duration-200
+                  ${(focusedField === 'email' || emailValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
+              >
+                Email Address
+              </label>
+              {error?.field === "email" && (
+                <p className="mt-1 text-sm text-red-500">{error.message}</p>
+              )}
             </div>
 
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  className="pl-10"
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+            {/* Password */}
+            <div className="relative">
+              <div className="absolute left-3 top-4 pointer-events-none z-10">
+                <Lock className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'password' ? 'text-blue-500' : 'text-gray-400'}`} />
               </div>
-              <div className="mt-2">{renderPasswordStrength()}</div>
-              {error?.field === "password" && <p className="text-sm text-red-500">{error.message}</p>}
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder=" "
+                onFocus={() => setFocusedField('password')}
+                onBlur={() => setFocusedField(null)}
+                className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
+                  focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
+                  ${error?.field === 'password' ? 'border-red-500' : 'border-gray-300'}`}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <label
+                htmlFor="password"
+                className={`absolute left-10 pointer-events-none transition-all duration-200
+                  ${(focusedField === 'password' || password) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
+              >
+                Password
+              </label>
+              {renderPasswordStrength()}
+              {error?.field === "password" && (
+                <p className="mt-1 text-sm text-red-500">{error.message}</p>
+              )}
             </div>
 
             {error?.field === "general" && (
@@ -224,8 +338,15 @@ console.log(
               </p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue"}
+            <Button
+              type="submit"
+              className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium group"
+              disabled={loading}
+            >
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
+              <span className="relative">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Continue"}
+              </span>
             </Button>
 
             <p className="text-center text-sm text-gray-600">
@@ -241,29 +362,44 @@ console.log(
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
             className="space-y-6"
           >
             {companyInfo?.company ? (
               <>
-                <p className="text-gray-700">
-                  Company <strong>{companyInfo.company.name}</strong> matches your email domain.
-                </p>
-                <Button onClick={handleJoinCompany} className="w-full" disabled={loading}>
+                <div className="flex flex-col items-center gap-3 py-2">
+                  <div className="bg-blue-100 p-4 rounded-2xl">
+                    <Building2 className="w-10 h-10 text-blue-600" />
+                  </div>
+                  <p className="text-gray-700 text-center">
+                    Company <strong>{companyInfo.company.name}</strong> matches your email domain.
+                    Join your team instantly.
+                  </p>
+                </div>
+                <Button onClick={handleJoinCompany} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" disabled={loading}>
                   {loading ? "Joining..." : `Join ${companyInfo.company.name}`}
                 </Button>
               </>
             ) : (
               <>
-                <p className="text-gray-700">No company found for your email domain. Create one:</p>
+                <div className="flex flex-col items-center gap-3 py-2">
+                  <div className="bg-purple-100 p-4 rounded-2xl">
+                    <UserPlus className="w-10 h-10 text-purple-600" />
+                  </div>
+                  <p className="text-gray-700 text-center">
+                    No company found for your email domain. Create one for your team:
+                  </p>
+                </div>
                 <Input
                   placeholder="Company Name"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
+                  className="focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0 transition-all duration-200"
                 />
                 {error?.field === "companyName" && (
                   <p className="text-sm text-red-500">{error.message}</p>
                 )}
-                <Button onClick={handleCreateCompany} className="w-full" disabled={loading}>
+                <Button onClick={handleCreateCompany} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" disabled={loading}>
                   {loading ? "Creating Company..." : "Create Company"}
                 </Button>
               </>
@@ -277,7 +413,8 @@ console.log(
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="text-center"
+            transition={{ duration: 0.3 }}
+            className="text-center py-4"
           >
             <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-600 mb-2" />
             <p className="text-gray-600">Redirecting to your dashboard...</p>
