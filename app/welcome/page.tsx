@@ -102,19 +102,19 @@ export default function Welcome() {
           >
             <button
               onClick={() => router.push('/auth/signup')}
-              className="relative bg-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-semibold
+              className={`relative bg-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-semibold
                hover:bg-indigo-500 transform hover:-translate-y-1 transition-all duration-200
                [box-shadow:0_0_0_1px_rgba(99,102,241,0.5),0_4px_24px_rgba(99,102,241,0.4),inset_0_1px_0_rgba(255,255,255,0.1)]
-               hover:[box-shadow:0_0_0_1px_rgba(99,102,241,0.7),0_8px_36px_rgba(99,102,241,0.55),inset_0_1px_0_rgba(255,255,255,0.15)]"
+               hover:[box-shadow:0_0_0_1px_rgba(99,102,241,0.7),0_8px_36px_rgba(99,102,241,0.55),inset_0_1px_0_rgba(255,255,255,0.15)]`}
             >
               Get Started - It&apos;s Free
             </button>
 
             <button
               onClick={() => router.push('/auth/login')}
-              className="bg-white/5 backdrop-blur-sm text-white px-8 py-4 rounded-xl text-lg font-semibold
+              className={`bg-white/5 backdrop-blur-sm text-white px-8 py-4 rounded-xl text-lg font-semibold
                hover:bg-white/10 transform hover:-translate-y-1 transition-all duration-200
-               border border-white/20 hover:border-indigo-500/50"
+               border border-white/20 hover:border-indigo-500/50`}
             >
               Sign In
             </button>
