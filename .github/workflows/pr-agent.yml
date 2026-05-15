@@ -41,6 +41,7 @@ jobs:
       - name: Run PR Review & Fix Agent
         run: |
           chmod +x /tmp/innovation-agents/actions/pr-review-fix/entrypoint.sh
+          chmod +x /tmp/innovation-agents/scripts/notify-slack.sh
           /tmp/innovation-agents/actions/pr-review-fix/entrypoint.sh
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -50,3 +51,5 @@ jobs:
           ACTION_PATH: /tmp/innovation-agents/actions/pr-review-fix
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_NOTIFY_USER_ID: ${{ secrets.SLACK_NOTIFY_USER_ID }}
