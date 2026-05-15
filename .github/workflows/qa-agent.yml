@@ -16,9 +16,19 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        run: |
+          set -euo pipefail
+          cd "${{ github.workspace }}"
+          git config --global --add safe.directory "${{ github.workspace }}"
+          ORIGIN="https://x-access-token:${{ secrets.AGENTS_TOKEN }}@github.com/${{ github.repository }}.git"
+          if [ ! -d .git ]; then
+            git init
+            git remote add origin "$ORIGIN"
+          else
+            git remote set-url origin "$ORIGIN"
+          fi
+          git fetch origin --prune
+          git checkout -f "${{ github.sha }}"
 
       - name: Pull agent code
         run: |
