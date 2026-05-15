@@ -18,6 +18,10 @@ on:
         description: 'Issue number to implement'
         required: true
 
+concurrency:
+  group: code-agent-${{ github.repository }}
+  cancel-in-progress: true
+
 jobs:
   implement:
     if: >

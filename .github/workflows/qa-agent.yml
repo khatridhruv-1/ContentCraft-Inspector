@@ -10,6 +10,10 @@ name: QA Agent
 on:
   push:
 
+concurrency:
+  group: qa-agent-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   qa:
     runs-on: [self-hosted, macOS]
