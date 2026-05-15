@@ -28,7 +28,7 @@ const faqs = [
   {
     question: 'Is my content private and secure?',
     answer:
-      'Yes. All data is encrypted in transit (TLS 1.3) and at rest (AES-256), and we follow SOC 2 Type II practices. Your drafts and projects are visible only to you — or to team members you explicitly invite.',
+      'Yes. All data is encrypted in transit and at rest using industry-standard encryption, and we follow security best practices to keep your information safe. Your drafts and projects are visible only to you — or to team members you explicitly invite.',
   },
   {
     question: 'Can I export my content to other formats?',
@@ -38,7 +38,7 @@ const faqs = [
   {
     question: 'Does ContentCraft Inspector support multiple languages?',
     answer:
-      'ContentCraft Inspector supports content generation and analysis in over 25 languages, including English, Spanish, French, German, Portuguese, and Japanese. Simply select your target language before generating or paste existing content for multilingual SEO analysis.',
+      'ContentCraft Inspector supports content generation and analysis in multiple languages, including English, Spanish, French, German, Portuguese, and Japanese. Simply select your target language before generating or paste existing content for multilingual SEO analysis.',
   },
   {
     question: "How do I get started if I'm not a writer?",
@@ -72,11 +72,11 @@ export default function FaqSection() {
         {faqs.map((faq, index) => {
           const isOpen = openIndex === index;
           return (
-            <div key={index} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div key={faq.question} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <button
+                id={`faq-btn-${index}`}
                 onClick={() => toggle(index)}
                 aria-expanded={isOpen}
-                aria-controls={`faq-panel-${index}`}
                 className="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-2xl"
               >
                 <span className="text-base font-semibold text-gray-900 pr-4">{faq.question}</span>
@@ -94,6 +94,7 @@ export default function FaqSection() {
                   <motion.div
                     id={`faq-panel-${index}`}
                     role="region"
+                    aria-labelledby={`faq-btn-${index}`}
                     key="content"
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
