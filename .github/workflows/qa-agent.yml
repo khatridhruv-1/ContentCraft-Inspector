@@ -10,15 +10,29 @@ name: QA Agent
 on:
   push:
 
+concurrency:
+  group: qa-agent-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   qa:
     runs-on: [self-hosted, macOS]
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        run: |
+          set -euo pipefail
+          cd "${{ github.workspace }}"
+          git config --global --add safe.directory "${{ github.workspace }}"
+          ORIGIN="https://x-access-token:${{ secrets.AGENTS_TOKEN }}@github.com/${{ github.repository }}.git"
+          if [ ! -d .git ]; then
+            git init
+            git remote add origin "$ORIGIN"
+          else
+            git remote set-url origin "$ORIGIN"
+          fi
+          git fetch origin --prune
+          git checkout -f "${{ github.sha }}"
 
       - name: Pull agent code
         run: |
@@ -34,9 +48,10 @@ jobs:
           /tmp/innovation-agents/actions/qa/entrypoint.sh
         env:
           QA_SHA: ${{ github.sha }}
-          MAX_QA_TURNS: '50'
+          MAX_QA_TURNS: '100'
           ACTION_PATH: /tmp/innovation-agents/actions/qa
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
-          BASE_BRANCH: 'master'
+          # Each run: ensure ~/.claude/skills/gstack/browse/dist/browse exists — clone+build
+          # only on first run; otherwise no-op (fast). Requires bun + network on first install.
           QA_BOOTSTRAP_GSTACK: '1'

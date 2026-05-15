@@ -18,6 +18,10 @@ on:
         description: 'Issue number to implement'
         required: true
 
+concurrency:
+  group: code-agent-${{ github.repository }}
+  cancel-in-progress: true
+
 jobs:
   implement:
     if: >
@@ -26,12 +30,22 @@ jobs:
     runs-on: [self-hosted, macOS]
 
     steps:
+      # Self-hosted macOS: actions/checkout@v4 often fails with
+      # "Missing file .../_runner_file_commands/set_output" after git already succeeded.
       - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-          token: ${{ secrets.AGENTS_TOKEN }}
+        run: |
+          set -euo pipefail
+          cd "${{ github.workspace }}"
+          git config --global --add safe.directory "${{ github.workspace }}"
+          ORIGIN="https://x-access-token:${{ secrets.AGENTS_TOKEN }}@github.com/${{ github.repository }}.git"
+          if [ ! -d .git ]; then
+            git init
+            git remote add origin "$ORIGIN"
+          else
+            git remote set-url origin "$ORIGIN"
+          fi
+          git fetch origin --prune
+          git checkout -f "${{ github.sha }}"
 
       - name: Configure git for push
         run: |

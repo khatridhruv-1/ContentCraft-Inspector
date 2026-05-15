@@ -2,75 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Wand2, Edit, FileSearch, Sparkles, ArrowRight } from 'lucide-react';
-import Head from 'next/head';
-
-const PARTICLES = [
-  { id: 0, size: 4, left: 8, top: 20, duration: 20, delay: 0 },
-  { id: 1, size: 3, left: 18, top: 65, duration: 25, delay: 1 },
-  { id: 2, size: 5, left: 30, top: 40, duration: 18, delay: 2.5 },
-  { id: 3, size: 2, left: 45, top: 10, duration: 22, delay: 0.5 },
-  { id: 4, size: 4, left: 55, top: 80, duration: 28, delay: 3 },
-  { id: 5, size: 3, left: 70, top: 25, duration: 20, delay: 1.5 },
-  { id: 6, size: 5, left: 82, top: 55, duration: 24, delay: 4 },
-  { id: 7, size: 2, left: 92, top: 70, duration: 19, delay: 0.8 },
-  { id: 8, size: 4, left: 25, top: 85, duration: 23, delay: 2 },
-  { id: 9, size: 3, left: 60, top: 90, duration: 17, delay: 1.2 },
-  { id: 10, size: 4, left: 75, top: 45, duration: 21, delay: 3.5 },
-  { id: 11, size: 2, left: 38, top: 60, duration: 26, delay: 0.3 },
-  { id: 12, size: 5, left: 12, top: 45, duration: 16, delay: 4.5 },
-  { id: 13, size: 3, left: 48, top: 30, duration: 29, delay: 2.8 },
-  { id: 14, size: 4, left: 85, top: 15, duration: 22, delay: 1.7 },
-  { id: 15, size: 2, left: 65, top: 75, duration: 20, delay: 0.6 },
-  { id: 16, size: 5, left: 95, top: 35, duration: 18, delay: 3.2 },
-  { id: 17, size: 3, left: 20, top: 92, duration: 24, delay: 1.9 },
-  { id: 18, size: 4, left: 42, top: 5, duration: 27, delay: 4.2 },
-  { id: 19, size: 2, left: 78, top: 88, duration: 21, delay: 2.3 },
-];
-
-const heroVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.2 } },
-};
-
-const heroItemVariants = {
-  hidden: { y: -20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.8 } },
-};
-
-const cardContainerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
-
-const cardVariants = {
-  hidden: { y: 30, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.6 } },
-};
-
-const features = [
-  {
-    icon: Wand2,
-    title: 'AI-Powered',
-    description: 'Generate high-quality content with advanced AI technology',
-    bg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
-  },
-  {
-    icon: Edit,
-    title: 'Smart Editor',
-    description: 'Create and edit content with powerful tools',
-    bg: 'bg-purple-100',
-    iconColor: 'text-purple-600',
-  },
-  {
-    icon: FileSearch,
-    title: 'Deep Analysis',
-    description: 'Get detailed insights and content optimization tips',
-    bg: 'bg-pink-100',
-    iconColor: 'text-pink-600',
-  },
-];
+import { Wand2, Edit, FileSearch, Sparkles } from 'lucide-react';
+import Head from 'next/head'; // Import next/head
+import FaqSection from './FaqSection';
 
 export default function Welcome() {
   const router = useRouter();
@@ -175,7 +109,10 @@ export default function Welcome() {
             ))}
           </motion.div>
 
-          {/* CTA Buttons */}
+          {/* FAQ Section */}
+          <FaqSection />
+
+          {/* Action Buttons */}
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
