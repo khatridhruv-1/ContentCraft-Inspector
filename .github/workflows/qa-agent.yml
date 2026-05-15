@@ -38,6 +38,5 @@ jobs:
           ACTION_PATH: /tmp/innovation-agents/actions/qa
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
-          # Each run: ensure ~/.claude/skills/gstack/browse/dist/browse exists — clone+build
-          # only on first run; otherwise no-op (fast). Requires bun + network on first install.
+          BASE_BRANCH: 'master'
           QA_BOOTSTRAP_GSTACK: '1'
