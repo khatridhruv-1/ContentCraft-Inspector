@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from 'lucide-react';
 
@@ -9,29 +10,55 @@ interface LayoutProps {
 }
 
 export default function AuthLayout({ children }: LayoutProps) {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const { clientX, clientY } = e;
+    setMousePos({
+      x: (clientX / window.innerWidth - 0.5) * 24,
+      y: (clientY / window.innerHeight - 0.5) * 24,
+    });
+  }, []);
+
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-6">
-          {/* Background decorative elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 left-20 w-64 h-64 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-            <div className="absolute top-40 right-20 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-            <div className="absolute -bottom-8 left-1/3 w-64 h-64 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div
+          className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-6 relative overflow-hidden"
+          onMouseMove={handleMouseMove}
+        >
+          {/* Parallax blobs */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div
+              className="absolute top-20 left-20 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob transition-transform duration-75 ease-out"
+              style={{ transform: `translate(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px)` }}
+            />
+            <div
+              className="absolute top-40 right-20 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-2000 transition-transform duration-75 ease-out"
+              style={{ transform: `translate(${mousePos.x * -0.4}px, ${mousePos.y * -0.4}px)` }}
+            />
+            <div
+              className="absolute -bottom-8 left-1/3 w-64 h-64 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-4000 transition-transform duration-75 ease-out"
+              style={{ transform: `translate(${mousePos.x * 0.3}px, ${mousePos.y * 0.5}px)` }}
+            />
           </div>
 
           <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 0.92, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className="relative z-10 w-full max-w-md"
           >
-            <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl p-8 border border-white/20">
+            <div className="bg-white/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-8 border border-white/40 ring-1 ring-inset ring-white/60">
               <div className="text-center mb-6">
                 <div className="flex justify-center mb-4">
-                  <div className="bg-blue-100 p-3 rounded-xl">
+                  <motion.div
+                    className="bg-blue-100 p-3 rounded-xl animate-pulse-glow"
+                    animate={{ rotate: [0, 8, -8, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  >
                     <Sparkles className="w-8 h-8 text-blue-600" />
-                  </div>
+                  </motion.div>
                 </div>
                 <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
                   ContentCraft Inspector
@@ -41,7 +68,6 @@ export default function AuthLayout({ children }: LayoutProps) {
             </div>
           </motion.div>
 
-          {/* Add animation keyframes */}
           <style jsx global>{`
             @keyframes blob {
               0% { transform: translate(0px, 0px) scale(1); }
@@ -49,14 +75,21 @@ export default function AuthLayout({ children }: LayoutProps) {
               66% { transform: translate(-20px, 20px) scale(0.9); }
               100% { transform: translate(0px, 0px) scale(1); }
             }
-            .animate-blob {
-              animation: blob 7s infinite;
+            .animate-blob { animation: blob 7s infinite; }
+            .animation-delay-2000 { animation-delay: 2s; }
+            .animation-delay-4000 { animation-delay: 4s; }
+
+            @keyframes pulse-glow {
+              0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+              50% { box-shadow: 0 0 20px 6px rgba(99, 102, 241, 0.25); }
             }
-            .animation-delay-2000 {
-              animation-delay: 2s;
-            }
-            .animation-delay-4000 {
-              animation-delay: 4s;
+            .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+            @media (prefers-reduced-motion: reduce) {
+              .animate-blob,
+              .animate-pulse-glow {
+                animation: none !important;
+              }
             }
           `}</style>
         </div>
