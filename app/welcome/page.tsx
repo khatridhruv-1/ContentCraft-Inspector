@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Wand2, Edit, FileSearch, Sparkles } from 'lucide-react';
 import Head from 'next/head'; // Import next/head
+import FaqSection from './FaqSection';
 
 export default function Welcome() {
   const router = useRouter();
@@ -84,6 +85,9 @@ export default function Welcome() {
               <p className="text-gray-600">Get detailed insights and content optimization tips</p>
             </div>
           </motion.div>
+
+          {/* FAQ Section */}
+          <FaqSection />
 
           {/* Action Buttons */}
           <motion.div
