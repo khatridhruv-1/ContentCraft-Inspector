@@ -12,14 +12,14 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center px-6">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
         className="text-center mb-16"
       >
-        <h1 className="text-6xl font-bold text-gray-900 mb-6">
+        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
           Welcome to ContentCraft Inspector
         </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -27,7 +27,7 @@ export default function Home() {
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-3 gap-8 w-full max-w-6xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
         {/* Generate with AI Card */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
