@@ -11,6 +11,8 @@ on:
 
 jobs:
   pr-review:
+    # Skip PRs created by the Agent Pipeline (scheduler handles review already)
+    if: "!startsWith(github.event.pull_request.head.ref, 'code-agent/')"
     runs-on: [self-hosted, macOS]
 
     steps:

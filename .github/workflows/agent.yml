@@ -1,0 +1,58 @@
+# Agent Pipeline
+# Copy this file to your repo: .github/workflows/agent.yml
+# Push to your base branch.
+# Requires AGENTS_TOKEN secret (see docs/setup-guide.md)
+#
+# This replaces code-agent.yml and pr-agent.yml — runs the full pipeline:
+#   Pick issue → Code Agent → QA → PR → PR Review + Fix → Close → Next
+#
+# Triggers:
+# - Add label "agent:implement" to an issue → pipeline runs automatically
+# - Manual: Actions tab → Agent Pipeline → Run workflow
+
+name: Agent Pipeline
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      max-issues:
+        description: 'Max issues to process (default: 10)'
+        default: '10'
+      label:
+        description: 'Issue label to pick up (default: agent:implement)'
+        default: 'agent:implement'
+
+concurrency:
+  group: agent-pipeline-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && github.event.label.name == 'agent:implement')
+    runs-on: [self-hosted, macOS]
+
+    steps:
+      - name: Pull agent code
+        run: |
+          rm -rf /tmp/innovation-agents
+          git clone --depth 1 https://x-access-token:${{ secrets.AGENTS_TOKEN }}@github.com/ad-net/innovation-agents.git /tmp/innovation-agents
+
+      - name: Run Agent Pipeline
+        run: |
+          chmod +x /tmp/innovation-agents/actions/scheduler/entrypoint.sh
+          chmod +x /tmp/innovation-agents/actions/code-agent/entrypoint.sh
+          chmod +x /tmp/innovation-agents/actions/pr-review-fix/entrypoint.sh
+          chmod +x /tmp/innovation-agents/scripts/notify-slack.sh
+          chmod +x /tmp/innovation-agents/scripts/ensure-gstack-browse.sh
+          /tmp/innovation-agents/actions/scheduler/entrypoint.sh
+        env:
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
+          MAX_ISSUES: ${{ github.event.inputs.max-issues }}
+          LABEL: ${{ github.event.inputs.label }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_NOTIFY_USER_ID: ${{ secrets.SLACK_NOTIFY_USER_ID }}
