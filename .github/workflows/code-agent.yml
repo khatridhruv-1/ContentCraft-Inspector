@@ -1,4 +1,4 @@
-# Code Agent
+# Code Agent (implementation + inline QA before push/PR)
 # Copy this file to your repo: .github/workflows/code-agent.yml
 # Push to your base branch.
 # Requires AGENTS_TOKEN secret (see docs/setup-guide.md)
@@ -65,10 +65,13 @@ jobs:
       - name: Run Code Agent
         run: |
           chmod +x /tmp/innovation-agents/actions/code-agent/entrypoint.sh
+          chmod +x /tmp/innovation-agents/scripts/ensure-gstack-browse.sh
           /tmp/innovation-agents/actions/code-agent/entrypoint.sh
         env:
           ISSUE_NUMBER: ${{ github.event.inputs.issue-number || github.event.issue.number }}
           MAX_TURNS: '100'
+          MAX_QA_TURNS: '100'
+          MAX_QA_CYCLES: '3'
           ACTION_PATH: /tmp/innovation-agents/actions/code-agent
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
