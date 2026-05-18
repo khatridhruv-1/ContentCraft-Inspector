@@ -13,6 +13,8 @@ const categoryColors: Record<Category, string> = {
   'Privacy & Security': 'bg-orange-100 text-orange-700',
 };
 
+const SUPPORT_EMAIL = 'support@contentcraft-inspector.com';
+
 const faqs: { question: string; answer: string; category: Category }[] = [
   {
     question: 'What types of content can I generate with ContentCraft Inspector?',
@@ -63,6 +65,64 @@ const faqs: { question: string; answer: string; category: Category }[] = [
     category: 'Content Generation',
   },
 ];
+
+type FaqItemProps = {
+  faq: { question: string; answer: string; category: Category; originalIndex: number };
+  isOpen: boolean;
+  onToggle: () => void;
+};
+
+function FaqItem({ faq, isOpen, onToggle }: FaqItemProps) {
+  return (
+    <div
+      className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-200 ${
+        isOpen ? 'border-l-4 border-l-blue-500' : ''
+      }`}
+    >
+      <button
+        id={`faq-btn-${faq.originalIndex}`}
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        aria-controls={`faq-panel-${faq.originalIndex}`}
+        className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-2xl transition-colors"
+      >
+        <div className="flex flex-col gap-1.5 pr-4">
+          <span className="text-base font-semibold text-gray-900">{faq.question}</span>
+          <span
+            className={`text-xs font-medium px-2 py-0.5 rounded-full self-start ${categoryColors[faq.category]}`}
+          >
+            {faq.category}
+          </span>
+        </div>
+        <motion.span
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="flex-shrink-0 text-gray-500"
+        >
+          <ChevronDown className="w-5 h-5" />
+        </motion.span>
+      </button>
+
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            id={`faq-panel-${faq.originalIndex}`}
+            role="region"
+            aria-labelledby={`faq-btn-${faq.originalIndex}`}
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <p className="px-6 pb-5 text-gray-600 leading-relaxed">{faq.answer}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function FaqSection() {
   const [openIndices, setOpenIndices] = useState<Set<number>>(new Set());
@@ -129,6 +189,7 @@ export default function FaqSection() {
       <div className="relative max-w-3xl mx-auto mb-6">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         <input
+          aria-label="Search frequently asked questions"
           type="text"
           placeholder="Search questions..."
           value={searchQuery}
@@ -143,59 +204,14 @@ export default function FaqSection() {
             No results found for &ldquo;{searchQuery}&rdquo;
           </p>
         ) : (
-          filteredFaqs.map(faq => {
-            const isOpen = openIndices.has(faq.originalIndex);
-            return (
-              <div
-                key={faq.question}
-                className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-200 ${
-                  isOpen ? 'border-l-4 border-l-blue-500' : ''
-                }`}
-              >
-                <button
-                  id={`faq-btn-${faq.originalIndex}`}
-                  onClick={() => toggle(faq.originalIndex)}
-                  aria-expanded={isOpen}
-                  aria-controls={`faq-panel-${faq.originalIndex}`}
-                  className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-2xl transition-colors"
-                >
-                  <div className="flex flex-col gap-1.5 pr-4">
-                    <span className="text-base font-semibold text-gray-900">{faq.question}</span>
-                    <span
-                      className={`text-xs font-medium px-2 py-0.5 rounded-full self-start ${categoryColors[faq.category]}`}
-                    >
-                      {faq.category}
-                    </span>
-                  </div>
-                  <motion.span
-                    animate={{ rotate: isOpen ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex-shrink-0 text-gray-500"
-                  >
-                    <ChevronDown className="w-5 h-5" />
-                  </motion.span>
-                </button>
-
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      id={`faq-panel-${faq.originalIndex}`}
-                      role="region"
-                      aria-labelledby={`faq-btn-${faq.originalIndex}`}
-                      key="content"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: 'easeInOut' }}
-                      className="overflow-hidden"
-                    >
-                      <p className="px-6 pb-5 text-gray-600 leading-relaxed">{faq.answer}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })
+          filteredFaqs.map(faq => (
+            <FaqItem
+              key={faq.originalIndex}
+              faq={faq}
+              isOpen={openIndices.has(faq.originalIndex)}
+              onToggle={() => toggle(faq.originalIndex)}
+            />
+          ))
         )}
       </div>
 
@@ -206,7 +222,7 @@ export default function FaqSection() {
           Can&apos;t find the answer you&apos;re looking for? Our support team is here to help.
         </p>
         <a
-          href="mailto:support@contentcraft-inspector.com"
+          href={`mailto:${SUPPORT_EMAIL}`}
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
         >
           Contact Support
