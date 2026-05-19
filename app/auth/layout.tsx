@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useState, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Sparkles } from 'lucide-react';
 
 interface LayoutProps {
@@ -11,6 +11,7 @@ interface LayoutProps {
 
 export default function AuthLayout({ children }: LayoutProps) {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const prefersReducedMotion = useReducedMotion();
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const { clientX, clientY } = e;
@@ -49,22 +50,37 @@ export default function AuthLayout({ children }: LayoutProps) {
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className="relative z-10 w-full max-w-md"
           >
-            <div className="bg-white/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-8 border border-white/40 ring-1 ring-inset ring-white/60">
-              <div className="text-center mb-6">
-                <div className="flex justify-center mb-4">
-                  <motion.div
-                    className="bg-blue-100 p-3 rounded-xl animate-pulse-glow"
-                    animate={{ rotate: [0, 8, -8, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    <Sparkles className="w-8 h-8 text-blue-600" />
-                  </motion.div>
+            {/* Animated gradient border wrapper */}
+            <div className="relative p-[2px] rounded-2xl overflow-hidden">
+              <motion.div
+                className="absolute inset-0"
+                style={{
+                  background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #f59e0b, #3b82f6)',
+                }}
+                animate={prefersReducedMotion ? {} : { rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+              />
+              <motion.div
+                whileHover={{ boxShadow: '0 0 32px 8px rgba(99, 102, 241, 0.25)' }}
+                transition={{ duration: 0.3 }}
+                className="bg-white/90 backdrop-blur-2xl rounded-[14px] shadow-2xl p-8 relative"
+              >
+                <div className="text-center mb-6">
+                  <div className="flex justify-center mb-4">
+                    <motion.div
+                      className="bg-blue-100 p-3 rounded-xl animate-pulse-glow"
+                      animate={{ rotate: [0, 8, -8, 0] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      <Sparkles className="w-8 h-8 text-blue-600" />
+                    </motion.div>
+                  </div>
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+                    ContentCraft Inspector
+                  </h2>
                 </div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
-                  ContentCraft Inspector
-                </h2>
-              </div>
-              {children}
+                {children}
+              </motion.div>
             </div>
           </motion.div>
 
@@ -85,9 +101,19 @@ export default function AuthLayout({ children }: LayoutProps) {
             }
             .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 
+            @keyframes shimmer-text {
+              0% { background-position: 200% center; }
+              100% { background-position: -200% center; }
+            }
+            .animate-shimmer-text {
+              animation: shimmer-text 3s linear infinite;
+              background-size: 200% auto;
+            }
+
             @media (prefers-reduced-motion: reduce) {
               .animate-blob,
-              .animate-pulse-glow {
+              .animate-pulse-glow,
+              .animate-shimmer-text {
                 animation: none !important;
               }
             }

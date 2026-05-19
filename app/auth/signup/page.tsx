@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { AlertCircle, Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,12 @@ const STEP_LABELS = [
   { key: "signup", label: "Account" },
   { key: "company", label: "Company" },
 ];
+
+const fadeUp = (delay: number) => ({
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  transition: { type: 'spring' as const, stiffness: 300, damping: 24, delay },
+});
 
 function ProgressBar({ step }: { step: Step }) {
   const activeIndex = step === "signup" ? 0 : 1;
@@ -81,6 +87,7 @@ export default function Signup() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [nameValue, setNameValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
+  const shakeControls = useAnimation();
 
   const router = useRouter();
 
@@ -173,12 +180,19 @@ export default function Signup() {
       setStep("company");
     } catch (err) {
       const msg = (err as Error).message;
+      const isEmailError = msg.includes("already exists");
       setError({
-        field: msg.includes("already exists") ? "email" : "general",
-        message: msg.includes("already exists")
+        field: isEmailError ? "email" : "general",
+        message: isEmailError
           ? "This email is already registered"
           : "Failed to create account. Please try again.",
       });
+      if (!isEmailError) {
+        shakeControls.start({
+          x: [-8, 8, -6, 6, -3, 3, 0],
+          transition: { duration: 0.5, ease: 'easeInOut' },
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -234,158 +248,275 @@ export default function Signup() {
 
       <AnimatePresence mode="wait">
         {step === "signup" && (
-          <motion.form
+          <motion.div
             key="signup"
-            onSubmit={handleSubmit}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
-            className="space-y-4"
+            initial={{ opacity: 0, x: -20, scale: 0.97 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 20, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 24 }}
           >
-            {/* Name */}
-            <div className="relative">
-              <div className="absolute left-3 top-4 pointer-events-none z-10">
-                <User className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'name' ? 'text-blue-500' : 'text-gray-400'}`} />
-              </div>
-              <Input
-                id="name"
-                name="name"
-                placeholder=" "
-                value={nameValue}
-                onChange={(e) => setNameValue(e.target.value)}
-                onFocus={() => setFocusedField('name')}
-                onBlur={() => setFocusedField(null)}
-                className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
-                  focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
-                  ${error?.field === 'name' ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              <label
-                htmlFor="name"
-                className={`absolute left-10 pointer-events-none transition-all duration-200
-                  ${(focusedField === 'name' || nameValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
-              >
-                Full Name
-              </label>
-              {error?.field === "name" && (
-                <p className="mt-1 text-sm text-red-500">{error.message}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="relative">
-              <div className="absolute left-3 top-4 pointer-events-none z-10">
-                <Mail className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
-              </div>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder=" "
-                value={emailValue}
-                onChange={(e) => setEmailValue(e.target.value)}
-                onFocus={() => setFocusedField('email')}
-                onBlur={() => setFocusedField(null)}
-                className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
-                  focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
-                  ${error?.field === 'email' ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              <label
-                htmlFor="email"
-                className={`absolute left-10 pointer-events-none transition-all duration-200
-                  ${(focusedField === 'email' || emailValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
-              >
-                Email Address
-              </label>
-              {error?.field === "email" && (
-                <p className="mt-1 text-sm text-red-500">{error.message}</p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div className="relative">
-              <div className="absolute left-3 top-4 pointer-events-none z-10">
-                <Lock className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'password' ? 'text-blue-500' : 'text-gray-400'}`} />
-              </div>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder=" "
-                onFocus={() => setFocusedField('password')}
-                onBlur={() => setFocusedField(null)}
-                className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
-                  focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
-                  ${error?.field === 'password' ? 'border-red-500' : 'border-gray-300'}`}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <label
-                htmlFor="password"
-                className={`absolute left-10 pointer-events-none transition-all duration-200
-                  ${(focusedField === 'password' || password) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
-              >
-                Password
-              </label>
-              {renderPasswordStrength()}
-              {error?.field === "password" && (
-                <p className="mt-1 text-sm text-red-500">{error.message}</p>
-              )}
-            </div>
-
-            {error?.field === "general" && (
-              <p className="text-sm text-red-500 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" /> {error.message}
-              </p>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium group"
-              disabled={loading}
+            <motion.form
+              onSubmit={handleSubmit}
+              animate={shakeControls}
+              className="space-y-4"
             >
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
-              <span className="relative">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Continue"}
-              </span>
-            </Button>
+              {/* Name */}
+              <motion.div {...fadeUp(0.05)} className="relative">
+                <div className="absolute left-3 top-4 pointer-events-none z-10">
+                  <User className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'name' ? 'text-blue-500' : 'text-gray-400'}`} />
+                </div>
+                <motion.div
+                  animate={{
+                    boxShadow: focusedField === 'name'
+                      ? '0 0 0 3px rgba(59, 130, 246, 0.2)'
+                      : '0 0 0 0px rgba(59, 130, 246, 0)',
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="relative rounded-md"
+                >
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder=" "
+                    value={nameValue}
+                    onChange={(e) => setNameValue(e.target.value)}
+                    onFocus={() => setFocusedField('name')}
+                    onBlur={() => setFocusedField(null)}
+                    className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
+                      focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
+                      ${focusedField === 'name' ? 'bg-blue-50/30' : ''}
+                      ${error?.field === 'name' ? 'border-red-500' : 'border-gray-300'}`}
+                  />
+                  <label
+                    htmlFor="name"
+                    className={`absolute left-10 pointer-events-none transition-all duration-200
+                      ${(focusedField === 'name' || nameValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
+                  >
+                    Full Name
+                  </label>
+                </motion.div>
+                <AnimatePresence>
+                  {error?.field === "name" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-1 text-sm text-red-500 flex items-center gap-1"
+                    >
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      {error.message}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
 
-            <p className="text-center text-sm text-gray-600">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="text-blue-600 hover:underline">Sign in</Link>
-            </p>
-          </motion.form>
+              {/* Email */}
+              <motion.div {...fadeUp(0.12)} className="relative">
+                <div className="absolute left-3 top-4 pointer-events-none z-10">
+                  <Mail className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
+                </div>
+                <motion.div
+                  animate={{
+                    boxShadow: focusedField === 'email'
+                      ? '0 0 0 3px rgba(59, 130, 246, 0.2)'
+                      : '0 0 0 0px rgba(59, 130, 246, 0)',
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="relative rounded-md"
+                >
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder=" "
+                    value={emailValue}
+                    onChange={(e) => setEmailValue(e.target.value)}
+                    onFocus={() => setFocusedField('email')}
+                    onBlur={() => setFocusedField(null)}
+                    className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
+                      focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
+                      ${focusedField === 'email' ? 'bg-blue-50/30' : ''}
+                      ${error?.field === 'email' ? 'border-red-500' : 'border-gray-300'}`}
+                  />
+                  <label
+                    htmlFor="email"
+                    className={`absolute left-10 pointer-events-none transition-all duration-200
+                      ${(focusedField === 'email' || emailValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
+                  >
+                    Email Address
+                  </label>
+                </motion.div>
+                <AnimatePresence>
+                  {error?.field === "email" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-1 text-sm text-red-500 flex items-center gap-1"
+                    >
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      {error.message}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* Password */}
+              <motion.div {...fadeUp(0.19)} className="relative">
+                <div className="absolute left-3 top-4 pointer-events-none z-10">
+                  <Lock className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'password' ? 'text-blue-500' : 'text-gray-400'}`} />
+                </div>
+                <motion.div
+                  animate={{
+                    boxShadow: focusedField === 'password'
+                      ? '0 0 0 3px rgba(59, 130, 246, 0.2)'
+                      : '0 0 0 0px rgba(59, 130, 246, 0)',
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="relative rounded-md"
+                >
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder=" "
+                    onFocus={() => setFocusedField('password')}
+                    onBlur={() => setFocusedField(null)}
+                    className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
+                      focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
+                      ${focusedField === 'password' ? 'bg-blue-50/30' : ''}
+                      ${error?.field === 'password' ? 'border-red-500' : 'border-gray-300'}`}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <label
+                    htmlFor="password"
+                    className={`absolute left-10 pointer-events-none transition-all duration-200
+                      ${(focusedField === 'password' || password) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
+                  >
+                    Password
+                  </label>
+                </motion.div>
+                {renderPasswordStrength()}
+                <AnimatePresence>
+                  {error?.field === "password" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-1 text-sm text-red-500 flex items-center gap-1"
+                    >
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      {error.message}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              <AnimatePresence>
+                {error?.field === "general" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="p-3 rounded-lg bg-red-50 border border-red-200"
+                  >
+                    <p className="text-sm text-red-600 flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4" /> {error.message}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <motion.div {...fadeUp(0.26)}>
+                <motion.div whileTap={!loading ? { scale: 0.97 } : {}}>
+                  <Button
+                    type="submit"
+                    className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium group"
+                    disabled={loading}
+                  >
+                    <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
+                    <span className="relative">
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Continue"}
+                    </span>
+                  </Button>
+                </motion.div>
+
+                <AnimatePresence>
+                  {loading && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="h-1 bg-gray-200 rounded-full mt-2 overflow-hidden"
+                    >
+                      <motion.div
+                        initial={{ width: '0%' }}
+                        animate={{ width: '85%' }}
+                        transition={{ duration: 2.5, ease: 'easeInOut' }}
+                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              <motion.p {...fadeUp(0.33)} className="text-center text-sm text-gray-600">
+                Already have an account?{" "}
+                <Link href="/auth/login" className="text-blue-600 relative group">
+                  Sign in
+                  <span className="absolute bottom-0 left-0 h-[1px] bg-blue-600 w-0 group-hover:w-full transition-all duration-300" />
+                </Link>
+              </motion.p>
+            </motion.form>
+          </motion.div>
         )}
 
         {step === "company" && (
           <motion.div
             key="company"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, x: 20, scale: 0.97 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -20, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 24 }}
             className="space-y-6"
           >
             {companyInfo?.company ? (
               <>
                 <div className="flex flex-col items-center gap-3 py-2">
-                  <div className="bg-blue-100 p-4 rounded-2xl">
+                  <motion.div
+                    initial={{ scale: 0, rotate: -15 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 12, delay: 0.1 }}
+                    className="bg-blue-100 p-4 rounded-2xl"
+                  >
                     <Building2 className="w-10 h-10 text-blue-600" />
-                  </div>
+                  </motion.div>
                   <p className="text-gray-700 text-center">
                     Company <strong>{companyInfo.company.name}</strong> matches your email domain.
                     Join your team instantly.
                   </p>
                 </div>
-                <Button onClick={handleJoinCompany} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" disabled={loading}>
-                  {loading ? "Joining..." : `Join ${companyInfo.company.name}`}
-                </Button>
+                <motion.div whileTap={!loading ? { scale: 0.97 } : {}}>
+                  <Button
+                    onClick={handleJoinCompany}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                    disabled={loading}
+                  >
+                    {loading ? "Joining..." : `Join ${companyInfo.company.name}`}
+                  </Button>
+                </motion.div>
               </>
             ) : (
               <>
                 <div className="flex flex-col items-center gap-3 py-2">
-                  <div className="bg-purple-100 p-4 rounded-2xl">
+                  <motion.div
+                    initial={{ scale: 0, rotate: 15 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 12, delay: 0.1 }}
+                    className="bg-purple-100 p-4 rounded-2xl"
+                  >
                     <UserPlus className="w-10 h-10 text-purple-600" />
-                  </div>
+                  </motion.div>
                   <p className="text-gray-700 text-center">
                     No company found for your email domain. Create one for your team:
                   </p>
@@ -396,12 +527,28 @@ export default function Signup() {
                   onChange={(e) => setCompanyName(e.target.value)}
                   className="focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0 transition-all duration-200"
                 />
-                {error?.field === "companyName" && (
-                  <p className="text-sm text-red-500">{error.message}</p>
-                )}
-                <Button onClick={handleCreateCompany} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" disabled={loading}>
-                  {loading ? "Creating Company..." : "Create Company"}
-                </Button>
+                <AnimatePresence>
+                  {error?.field === "companyName" && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-sm text-red-500 flex items-center gap-1"
+                    >
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      {error.message}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+                <motion.div whileTap={!loading ? { scale: 0.97 } : {}}>
+                  <Button
+                    onClick={handleCreateCompany}
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                    disabled={loading}
+                  >
+                    {loading ? "Creating Company..." : "Create Company"}
+                  </Button>
+                </motion.div>
               </>
             )}
           </motion.div>
@@ -410,10 +557,10 @@ export default function Signup() {
         {step === "done" && (
           <motion.div
             key="done"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, x: 20, scale: 0.97 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -20, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 24 }}
             className="text-center py-4"
           >
             <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-600 mb-2" />
