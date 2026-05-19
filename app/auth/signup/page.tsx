@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import { AlertCircle, Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
+import { motion, AnimatePresence, useAnimation, useReducedMotion } from "framer-motion";
+import { AlertCircle, Loader2, User, Mail, Lock, Building2, UserPlus, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -88,6 +88,10 @@ export default function Signup() {
   const [nameValue, setNameValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
   const shakeControls = useAnimation();
+  const prefersReducedMotion = useReducedMotion();
+
+  const isNameValid = nameValue.length >= 2;
+  const isEmailValid = Boolean(emailValue.match(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/));
 
   const router = useRouter();
 
@@ -282,7 +286,7 @@ export default function Signup() {
                     onChange={(e) => setNameValue(e.target.value)}
                     onFocus={() => setFocusedField('name')}
                     onBlur={() => setFocusedField(null)}
-                    className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
+                    className={`peer pl-10 pr-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
                       focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
                       ${focusedField === 'name' ? 'bg-blue-50/30' : ''}
                       ${error?.field === 'name' ? 'border-red-500' : 'border-gray-300'}`}
@@ -294,6 +298,20 @@ export default function Signup() {
                   >
                     Full Name
                   </label>
+                  <div className="absolute right-3 top-4 pointer-events-none z-10">
+                    <AnimatePresence>
+                      {isNameValid && error?.field !== 'name' && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                        >
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </motion.div>
                 <AnimatePresence>
                   {error?.field === "name" && (
@@ -333,7 +351,7 @@ export default function Signup() {
                     onChange={(e) => setEmailValue(e.target.value)}
                     onFocus={() => setFocusedField('email')}
                     onBlur={() => setFocusedField(null)}
-                    className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
+                    className={`peer pl-10 pr-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
                       focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
                       ${focusedField === 'email' ? 'bg-blue-50/30' : ''}
                       ${error?.field === 'email' ? 'border-red-500' : 'border-gray-300'}`}
@@ -345,6 +363,20 @@ export default function Signup() {
                   >
                     Email Address
                   </label>
+                  <div className="absolute right-3 top-4 pointer-events-none z-10">
+                    <AnimatePresence>
+                      {isEmailValid && error?.field !== 'email' && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                        >
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </motion.div>
                 <AnimatePresence>
                   {error?.field === "email" && (
@@ -428,7 +460,7 @@ export default function Signup() {
               </AnimatePresence>
 
               <motion.div {...fadeUp(0.26)}>
-                <motion.div whileTap={!loading ? { scale: 0.97 } : {}}>
+                <motion.div whileTap={!loading && !prefersReducedMotion ? { scale: 0.97 } : {}}>
                   <Button
                     type="submit"
                     className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium group"
@@ -496,7 +528,7 @@ export default function Signup() {
                     Join your team instantly.
                   </p>
                 </div>
-                <motion.div whileTap={!loading ? { scale: 0.97 } : {}}>
+                <motion.div whileTap={!loading && !prefersReducedMotion ? { scale: 0.97 } : {}}>
                   <Button
                     onClick={handleJoinCompany}
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
@@ -540,7 +572,7 @@ export default function Signup() {
                     </motion.p>
                   )}
                 </AnimatePresence>
-                <motion.div whileTap={!loading ? { scale: 0.97 } : {}}>
+                <motion.div whileTap={!loading && !prefersReducedMotion ? { scale: 0.97 } : {}}>
                   <Button
                     onClick={handleCreateCompany}
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"

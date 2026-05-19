@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { login } from '@/lib/user/appwrite';
-import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation, useReducedMotion } from 'framer-motion';
 import { AlertCircle, Loader2, Mail, Lock, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -29,6 +29,7 @@ export default function Login() {
   const [passwordValue, setPasswordValue] = useState('');
   const router = useRouter();
   const shakeControls = useAnimation();
+  const prefersReducedMotion = useReducedMotion();
 
   const isEmailValid = Boolean(emailValue.match(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/));
   const isPasswordValid = passwordValue.length >= 6;
@@ -240,7 +241,7 @@ export default function Login() {
         </AnimatePresence>
 
         <motion.div {...fadeUp(0.21)} className="pt-2">
-          <motion.div whileTap={!loading && !success ? { scale: 0.97 } : {}}>
+          <motion.div whileTap={!loading && !success && !prefersReducedMotion ? { scale: 0.97 } : {}}>
             <Button
               type="submit"
               disabled={loading || success}
