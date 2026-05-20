@@ -1,0 +1,1 @@
+# QA browser screenshot storage — automated PNGs from QA Agent E2E runs. Paths: .qa/screenshots/<commit-sha>/.
