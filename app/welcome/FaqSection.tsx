@@ -54,6 +54,49 @@ export default function FaqSection() {
     setOpenIndex(prev => (prev === index ? null : index));
   };
 
+  const renderItem = (faq: (typeof faqs)[0], index: number) => {
+    const isOpen = openIndex === index;
+    return (
+      <div key={faq.question} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <button
+          id={`faq-btn-${index}`}
+          onClick={() => toggle(index)}
+          aria-expanded={isOpen}
+          className="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-2xl"
+        >
+          <span className="text-base font-semibold text-gray-900 pr-4">{faq.question}</span>
+          <motion.span
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="flex-shrink-0 text-gray-500"
+          >
+            <ChevronDown className="w-5 h-5" />
+          </motion.span>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              id={`faq-panel-${index}`}
+              role="region"
+              aria-labelledby={`faq-btn-${index}`}
+              key="content"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <p className="px-6 pb-5 text-gray-600 leading-relaxed">{faq.answer}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
+
+  const mid = Math.ceil(faqs.length / 2);
+
   return (
     <motion.div
       initial={{ y: 20, opacity: 0 }}
@@ -68,47 +111,13 @@ export default function FaqSection() {
         </p>
       </div>
 
-      <div className="space-y-3 max-w-3xl mx-auto">
-        {faqs.map((faq, index) => {
-          const isOpen = openIndex === index;
-          return (
-            <div key={faq.question} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <button
-                id={`faq-btn-${index}`}
-                onClick={() => toggle(index)}
-                aria-expanded={isOpen}
-                className="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-2xl"
-              >
-                <span className="text-base font-semibold text-gray-900 pr-4">{faq.question}</span>
-                <motion.span
-                  animate={{ rotate: isOpen ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex-shrink-0 text-gray-500"
-                >
-                  <ChevronDown className="w-5 h-5" />
-                </motion.span>
-              </button>
-
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    id={`faq-panel-${index}`}
-                    role="region"
-                    aria-labelledby={`faq-btn-${index}`}
-                    key="content"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                    className="overflow-hidden"
-                  >
-                    <p className="px-6 pb-5 text-gray-600 leading-relaxed">{faq.answer}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-3">
+          {faqs.slice(0, mid).map((faq, i) => renderItem(faq, i))}
+        </div>
+        <div className="space-y-3">
+          {faqs.slice(mid).map((faq, i) => renderItem(faq, mid + i))}
+        </div>
       </div>
     </motion.div>
   );
