@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Wand2, Edit, FileSearch, Sparkles, ArrowRight } from 'lucide-react';
 import Head from 'next/head';
 import FaqSection from './FaqSection';
+import UserGuideSection from './UserGuideSection';
 
 const PARTICLES = [
   { id: 0, size: 4, left: 8, top: 20, duration: 20, delay: 0 },
@@ -175,6 +176,9 @@ export default function Welcome() {
               </motion.div>
             ))}
           </motion.div>
+
+          {/* User Guide Section */}
+          <UserGuideSection />
 
           {/* FAQ Section */}
           <FaqSection />
