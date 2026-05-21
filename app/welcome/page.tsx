@@ -6,6 +6,7 @@ import { Wand2, Edit, FileSearch, Sparkles, ArrowRight } from 'lucide-react';
 import Head from 'next/head';
 import FaqSection from './FaqSection';
 import UserGuideSection from './UserGuideSection';
+import { ModeToggle } from '@/components/mode-toggle';
 
 const PARTICLES = [
   { id: 0, size: 4, left: 8, top: 20, duration: 20, delay: 0 },
@@ -55,22 +56,22 @@ const features = [
     icon: Wand2,
     title: 'AI-Powered',
     description: 'Generate high-quality content with advanced AI technology',
-    bg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
+    bg: 'bg-blue-100 dark:bg-blue-900/40',
+    iconColor: 'text-blue-600 dark:text-blue-400',
   },
   {
     icon: Edit,
     title: 'Smart Editor',
     description: 'Create and edit content with powerful tools',
-    bg: 'bg-purple-100',
-    iconColor: 'text-purple-600',
+    bg: 'bg-purple-100 dark:bg-purple-900/40',
+    iconColor: 'text-purple-600 dark:text-purple-400',
   },
   {
     icon: FileSearch,
     title: 'Deep Analysis',
     description: 'Get detailed insights and content optimization tips',
-    bg: 'bg-pink-100',
-    iconColor: 'text-pink-600',
+    bg: 'bg-pink-100 dark:bg-pink-900/40',
+    iconColor: 'text-pink-600 dark:text-pink-400',
   },
 ];
 
@@ -88,14 +89,22 @@ export default function Welcome() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Top header bar */}
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3 bg-background/80 backdrop-blur-sm border-b border-border">
+        <span className="text-base font-semibold text-foreground">ContentCraft-Inspector</span>
+        <div data-testid="welcome-theme-toggle">
+          <ModeToggle />
+        </div>
+      </header>
+
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950 flex flex-col items-center pt-20 pb-16 px-6 relative overflow-x-hidden">
         {/* Blobs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob" />
-          <div className="absolute top-40 right-20 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-2000" />
-          <div className="absolute bottom-20 left-1/2 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-4000" />
-          <div className="absolute top-1/3 left-1/4 w-48 h-48 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-3000" />
-          <div className="absolute bottom-1/3 right-1/4 w-56 h-56 bg-cyan-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-5000" />
+          <div className="absolute top-20 left-20 w-72 h-72 bg-blue-200 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-60 dark:opacity-20 animate-blob" />
+          <div className="absolute top-40 right-20 w-64 h-64 bg-purple-200 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-60 dark:opacity-20 animate-blob animation-delay-2000" />
+          <div className="absolute bottom-20 left-1/2 w-80 h-80 bg-pink-200 dark:bg-pink-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-50 dark:opacity-15 animate-blob animation-delay-4000" />
+          <div className="absolute top-1/3 left-1/4 w-48 h-48 bg-indigo-200 dark:bg-indigo-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-40 dark:opacity-15 animate-blob animation-delay-3000" />
+          <div className="absolute bottom-1/3 right-1/4 w-56 h-56 bg-cyan-200 dark:bg-cyan-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-40 dark:opacity-15 animate-blob animation-delay-5000" />
         </div>
 
         {/* Floating particles */}
@@ -103,7 +112,7 @@ export default function Welcome() {
           {PARTICLES.map((p) => (
             <div
               key={p.id}
-              className="absolute rounded-full bg-blue-400/20 animate-float-particle"
+              className="absolute rounded-full bg-blue-400/20 dark:bg-blue-400/10 animate-float-particle"
               style={{
                 width: p.size,
                 height: p.size,
@@ -127,15 +136,18 @@ export default function Welcome() {
           >
             <motion.div variants={heroItemVariants} className="flex justify-center mb-6">
               <motion.div
-                className="bg-white p-4 rounded-2xl shadow-xl"
+                className="bg-card p-4 rounded-2xl shadow-xl border border-border"
                 animate={{ rotate: [0, 5, -5, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <Sparkles className="w-16 h-16 text-blue-600" />
+                <Sparkles className="w-16 h-16 text-blue-600 dark:text-blue-400" />
               </motion.div>
             </motion.div>
 
-            <motion.h1 variants={heroItemVariants} className="text-6xl font-bold text-gray-900 mb-6">
+            <motion.h1
+              variants={heroItemVariants}
+              className="text-4xl md:text-6xl font-bold text-foreground mb-6"
+            >
               Welcome to{' '}
               <span className="animate-gradient-x bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-[length:200%_auto] text-transparent bg-clip-text">
                 ContentCraft-Inspector
@@ -144,7 +156,7 @@ export default function Welcome() {
 
             <motion.p
               variants={heroItemVariants}
-              className="text-xl text-gray-600 max-w-2xl mx-auto"
+              className="text-xl text-muted-foreground max-w-2xl mx-auto"
             >
               Your all-in-one platform for creating, analyzing, and optimizing content with the power of AI
             </motion.p>
@@ -156,14 +168,14 @@ export default function Welcome() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
-            className="grid grid-cols-3 gap-6 mb-16"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
           >
             {features.map(({ icon: Icon, title, description, bg, iconColor }) => (
               <motion.div
                 key={title}
                 variants={cardVariants}
                 whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
-                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl border border-transparent hover:border-indigo-100 transition-all duration-200 cursor-default"
+                className="bg-card text-card-foreground rounded-2xl p-6 shadow-lg hover:shadow-xl border border-border hover:border-indigo-200 dark:hover:border-indigo-700 transition-all duration-200 cursor-default"
               >
                 <motion.div
                   className={`${bg} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}
@@ -171,8 +183,8 @@ export default function Welcome() {
                 >
                   <Icon className={`w-6 h-6 ${iconColor}`} />
                 </motion.div>
-                <h3 className="text-lg font-semibold mb-2">{title}</h3>
-                <p className="text-gray-600">{description}</p>
+                <h3 className="text-lg font-semibold mb-2 text-foreground">{title}</h3>
+                <p className="text-muted-foreground">{description}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -188,7 +200,7 @@ export default function Welcome() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex justify-center gap-6"
+            className="flex flex-wrap justify-center gap-4 sm:gap-6"
           >
             <motion.button
               onClick={() => router.push('/auth/signup')}
@@ -209,7 +221,7 @@ export default function Welcome() {
               onClick={() => router.push('/auth/login')}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="bg-white text-gray-800 px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl border border-gray-200 transition-shadow"
+              className="bg-card text-foreground px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl border border-border transition-shadow"
             >
               Sign In
             </motion.button>

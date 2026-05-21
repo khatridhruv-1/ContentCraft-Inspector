@@ -39,8 +39,8 @@ export default function UserGuideSection() {
   return (
     <section data-testid="homepage-user-guide" className="mb-16">
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-gray-900 mb-3">How to get started</h2>
-        <p className="text-gray-600 max-w-xl mx-auto">
+        <h2 className="text-3xl font-bold text-foreground mb-3">How to get started</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto">
           From sign-up to publishing — four simple steps to your first piece of AI-powered content.
         </p>
       </div>
@@ -56,14 +56,14 @@ export default function UserGuideSection() {
             key={number}
             variants={cardVariants}
             whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
-            className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl border border-transparent hover:border-indigo-100 transition-all duration-200 cursor-default flex gap-4"
+            className="bg-card text-card-foreground rounded-2xl p-6 shadow-lg hover:shadow-xl border border-border hover:border-indigo-200 dark:hover:border-indigo-700 transition-all duration-200 cursor-default flex gap-4"
           >
             <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
               {number}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">{title}</h3>
-              <p className="text-gray-600">{description}</p>
+              <h3 className="text-lg font-semibold text-foreground mb-1">{title}</h3>
+              <p className="text-muted-foreground">{description}</p>
             </div>
           </motion.div>
         ))}

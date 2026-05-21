@@ -63,8 +63,8 @@ export default function FaqSection() {
       className="mb-16"
     >
       <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-gray-900 mb-3">Frequently asked questions</h2>
-        <p className="text-gray-600 max-w-xl mx-auto">
+        <h2 className="text-3xl font-bold text-foreground mb-3">Frequently asked questions</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto">
           Everything you need to know before getting started with ContentCraft Inspector.
         </p>
       </div>
@@ -73,18 +73,18 @@ export default function FaqSection() {
         {faqs.map((faq, index) => {
           const isOpen = openIndex === index;
           return (
-            <div key={faq.question} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div key={faq.question} className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
               <button
                 id={`faq-btn-${index}`}
                 onClick={() => toggle(index)}
                 aria-expanded={isOpen}
-                className="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-2xl"
+                className="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-2xl"
               >
-                <span className="text-base font-semibold text-gray-900 pr-4">{faq.question}</span>
+                <span className="text-base font-semibold text-foreground pr-4">{faq.question}</span>
                 <motion.span
                   animate={{ rotate: isOpen ? 180 : 0 }}
                   transition={{ duration: 0.2 }}
-                  className="flex-shrink-0 text-gray-500"
+                  className="flex-shrink-0 text-muted-foreground"
                 >
                   <ChevronDown className="w-5 h-5" />
                 </motion.span>
@@ -103,7 +103,7 @@ export default function FaqSection() {
                     transition={{ duration: 0.25, ease: 'easeInOut' }}
                     className="overflow-hidden"
                   >
-                    <p className="px-6 pb-5 text-gray-600 leading-relaxed">{faq.answer}</p>
+                    <p className="px-6 pb-5 text-muted-foreground leading-relaxed">{faq.answer}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
