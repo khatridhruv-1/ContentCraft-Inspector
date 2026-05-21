@@ -52,6 +52,8 @@ jobs:
         env:
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
+          AGENT_BASE_BRANCH: agent-qa
+          BASE_BRANCH: agent-qa
           MAX_ISSUES: ${{ github.event.inputs.max-issues }}
           LABEL: ${{ github.event.inputs.label }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
