@@ -102,9 +102,9 @@ export default function Welcome() {
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-20 w-72 h-72 bg-blue-200 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-60 dark:opacity-20 animate-blob" />
           <div className="absolute top-40 right-20 w-64 h-64 bg-purple-200 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-60 dark:opacity-20 animate-blob animation-delay-2000" />
-          <div className="absolute bottom-20 left-1/2 w-80 h-80 bg-pink-200 dark:bg-pink-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-50 dark:opacity-15 animate-blob animation-delay-4000" />
-          <div className="absolute top-1/3 left-1/4 w-48 h-48 bg-indigo-200 dark:bg-indigo-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-40 dark:opacity-15 animate-blob animation-delay-3000" />
-          <div className="absolute bottom-1/3 right-1/4 w-56 h-56 bg-cyan-200 dark:bg-cyan-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-40 dark:opacity-15 animate-blob animation-delay-5000" />
+          <div className="absolute bottom-20 left-1/2 w-80 h-80 bg-pink-200 dark:bg-pink-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-50 dark:opacity-[0.15] animate-blob animation-delay-4000" />
+          <div className="absolute top-1/3 left-1/4 w-48 h-48 bg-indigo-200 dark:bg-indigo-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-40 dark:opacity-[0.15] animate-blob animation-delay-3000" />
+          <div className="absolute bottom-1/3 right-1/4 w-56 h-56 bg-cyan-200 dark:bg-cyan-900 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-xl opacity-40 dark:opacity-[0.15] animate-blob animation-delay-5000" />
         </div>
 
         {/* Floating particles */}
