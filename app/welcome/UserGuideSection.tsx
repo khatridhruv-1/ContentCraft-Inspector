@@ -6,7 +6,7 @@ const steps = [
   {
     number: 1,
     title: 'Create your account',
-    description: 'Sign up free at /auth/signup or sign in if you already have an account.',
+    description: 'Sign up free or sign in if you already have an account to get started.',
   },
   {
     number: 2,
@@ -48,8 +48,7 @@ export default function UserGuideSection() {
       <motion.div
         variants={containerVariants}
         initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-50px' }}
+        animate="visible"
         className="grid grid-cols-1 sm:grid-cols-2 gap-6"
       >
         {steps.map(({ number, title, description }) => (
