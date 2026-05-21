@@ -141,6 +141,13 @@ export default function Welcome() {
               </span>
             </motion.h1>
 
+            <span
+              data-testid="qa-pipeline-badge-v3"
+              className="inline-block bg-blue-600 text-white text-sm font-semibold px-4 py-1 rounded-full mb-6"
+            >
+              QA-PIPELINE-v3-PASS
+            </span>
+
             <motion.p
               variants={heroItemVariants}
               className="text-xl text-gray-600 max-w-2xl mx-auto"
