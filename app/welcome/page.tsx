@@ -87,7 +87,7 @@ export default function Welcome() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-start p-6 relative">
         {/* Blobs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-20 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob" />
@@ -155,7 +155,7 @@ export default function Welcome() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
-            className="grid grid-cols-3 gap-6 mb-16"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16"
           >
             {features.map(({ icon: Icon, title, description, bg, iconColor }) => (
               <motion.div
@@ -211,6 +211,29 @@ export default function Welcome() {
             </motion.button>
           </motion.div>
         </div>
+
+        {/* Footer */}
+        <footer
+          data-testid="homepage-footer"
+          className="relative z-10 w-full mt-16 border-t border-gray-200 bg-white/60 backdrop-blur-sm"
+        >
+          <div className="max-w-4xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-gray-500">
+              &copy; {new Date().getFullYear()} ContentCraft-Inspector. All rights reserved.
+            </p>
+            <nav className="flex items-center gap-6">
+              <a href="/auth/signup" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                Sign Up
+              </a>
+              <a href="/auth/login" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                Sign In
+              </a>
+              <a href="#faq" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                FAQ
+              </a>
+            </nav>
+          </div>
+        </footer>
 
         <style jsx>{`
           @keyframes blob {
