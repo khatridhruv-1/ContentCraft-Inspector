@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
-// pipeline-smoke-v7-frontend
-
 const faqs = [
   {
     question: 'What types of content can I generate with ContentCraft Inspector?',

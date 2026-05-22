@@ -1,7 +1,5 @@
 import axios from "axios";
 
-// pipeline-smoke-v7-backend
-
 export async function POST(req: Request) {
   const { content } = await req.json();
 
