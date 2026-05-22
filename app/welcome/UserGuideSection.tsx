@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+// pipeline-smoke-independent-frontend
 
 const steps = [
   {
