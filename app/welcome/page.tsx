@@ -148,6 +148,8 @@ export default function Welcome() {
             >
               Your all-in-one platform for creating, analyzing, and optimizing content with the power of AI
             </motion.p>
+
+            <span data-testid="pipeline-dep-marker-a" aria-hidden="true" className="sr-only">DEP-CHAIN-A</span>
           </motion.div>
 
           {/* Feature Cards */}
