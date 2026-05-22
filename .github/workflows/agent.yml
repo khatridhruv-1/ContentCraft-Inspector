@@ -56,5 +56,7 @@ jobs:
           BASE_BRANCH: agent-qa
           MAX_ISSUES: ${{ github.event.inputs.max-issues }}
           LABEL: ${{ github.event.inputs.label }}
+          TRIGGER_EVENT: ${{ github.event_name }}
+          TRIGGER_ISSUE_NUMBER: ${{ github.event.issue.number || '' }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_NOTIFY_USER_ID: ${{ secrets.SLACK_NOTIFY_USER_ID }}
