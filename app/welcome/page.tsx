@@ -193,6 +193,7 @@ export default function Welcome() {
             className="flex justify-center gap-6"
           >
             <motion.button
+              data-testid="welcome-get-started"
               onClick={() => router.push('/auth/signup')}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
