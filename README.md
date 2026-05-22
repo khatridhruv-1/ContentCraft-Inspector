@@ -21,6 +21,10 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+### Agent pipeline smoke test
+
+Each sub-issue runs its own unit QA pass on the latest commit before merging into the epic branch. Once all subs are implemented, an integration QA pass validates the full branch end-to-end. A single pull request is then opened against `master` from `code-agent/epic-58`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
