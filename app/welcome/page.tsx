@@ -149,14 +149,7 @@ export default function Welcome() {
               Your all-in-one platform for creating, analyzing, and optimizing content with the power of AI
             </motion.p>
 
-            <motion.div variants={heroItemVariants} className="flex justify-center mt-4">
-              <span
-                data-testid="pipeline-dep-marker-a"
-                className="inline-block text-xs font-mono font-semibold px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-700"
-              >
-                DEP-CHAIN-A
-              </span>
-            </motion.div>
+            <span data-testid="pipeline-dep-marker-a" aria-hidden="true" className="sr-only">DEP-CHAIN-A</span>
           </motion.div>
 
           {/* Feature Cards */}
