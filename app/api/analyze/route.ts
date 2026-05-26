@@ -1,8 +1,30 @@
 import axios from "axios";
+import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  const { content } = await req.json();
+async function validateContent(req: Request): Promise<string | NextResponse> {
+  let content: unknown;
+  try {
+    const body = await req.json();
+    content = body?.content;
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
+  if (!content || typeof content !== "string" || !content.trim()) {
+    return NextResponse.json({ error: "Content is required" }, { status: 400 });
+  }
+
+  if (content.length > 10000) {
+    return NextResponse.json(
+      { error: "Content exceeds maximum length of 10000 characters" },
+      { status: 400 }
+    );
+  }
+
+  return content;
+}
+
+async function fetchAnalysis(content: string): Promise<object | NextResponse> {
   const response = await axios.post(
     "https://api.openai.com/v1/chat/completions",
     {
@@ -11,8 +33,8 @@ export async function POST(req: Request) {
         {
           role: "system",
           content: `
-            You are a powerful AI assistant that analyzes content and provides detailed insights and scores. 
-            Your task is to evaluate the given content and returnF the following results in JSON format:
+            You are a powerful AI assistant that analyzes content and provides detailed insights and scores.
+            Your task is to evaluate the given content and return the following results in JSON format:
             {
               "contentScore": number, // Overall vibe of the content (0-100, with 100 being the best). Calculate this score based on these factors:
                 - Readability (weight: 30%)
@@ -20,7 +42,7 @@ export async function POST(req: Request) {
                 - Tone appropriateness (weight: 20%)
                 - Use of engaging and concise language (weight: 20%)
               "wordCount": number, // Total word count of the content
-              "readingTime": number, // Estimated reading time in minutes F(assume 150 words per minute)
+              "readingTime": number, // Estimated reading time in minutes (assume 150 words per minute)
               "readability": number, // Readability score (0-100, with 100 being the easiest to read)
               "tone": string, // The tone of the content (e.g., "formal", "casual", "persuasive", etc.)
               "keyInsights": string[], // Key insights from the content (up to 5 points)
@@ -38,17 +60,45 @@ export async function POST(req: Request) {
     {
       headers: {
         "Content-Type": "application/json",
-        Authorization:
-          `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
     }
   );
 
   const data = response.data.choices[0].message.content;
-  const analysis = JSON.parse(data); // Parse the JSON string into a JS object
+  try {
+    return JSON.parse(data);
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid analysis response" },
+      { status: 502 }
+    );
+  }
+}
 
-  return new Response(JSON.stringify(analysis), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+export async function POST(req: Request) {
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json(
+      { error: "Server configuration error" },
+      { status: 500 }
+    );
+  }
+
+  const validated = await validateContent(req);
+  if (validated instanceof NextResponse) {
+    return validated;
+  }
+
+  try {
+    const analysis = await fetchAnalysis(validated);
+    if (analysis instanceof NextResponse) {
+      return analysis;
+    }
+    return NextResponse.json(analysis);
+  } catch {
+    return NextResponse.json(
+      { error: "Analysis service unavailable" },
+      { status: 502 }
+    );
+  }
 }
