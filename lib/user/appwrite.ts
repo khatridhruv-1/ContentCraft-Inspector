@@ -24,7 +24,7 @@ export async function signup(email: string, password: string, name: string) {
       headers: {
         'Content-Type': 'application/json',
         'X-Appwrite-Project': projectId,
-        'X-Appwrite-Key': apiKey,
+        'X-Appwrite-Key': apiKey!,
       },
       body: JSON.stringify({
         userId: ID.unique(),
@@ -56,7 +56,7 @@ export async function login(email: string, password: string) {
       headers: {
         'Content-Type': 'application/json',
         'X-Appwrite-Project': projectId,
-        'X-Appwrite-Key': apiKey,
+        'X-Appwrite-Key': apiKey!,
       },
       body: JSON.stringify({
         email,
