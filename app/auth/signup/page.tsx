@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
+import { Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
+import { ErrorAlert } from "@/components/auth/ErrorAlert";
 import { Button } from "@/components/ui/button";
 import AuthTextField from "@/components/auth/AuthTextField";
 
@@ -30,37 +31,40 @@ function ProgressBar({ step }: { step: Step }) {
   const activeIndex = step === "signup" ? 0 : 1;
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center gap-2">
+    <div className="mb-8">
+      <div className="flex items-center">
         {STEP_LABELS.map((s, i) => {
           const isCompleted = i < activeIndex;
           const isActive = i === activeIndex;
           return (
             <div key={s.key} className="flex items-center flex-1 last:flex-none">
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex flex-col items-center gap-1">
                 <motion.div
                   animate={{
-                    backgroundColor: isCompleted ? '#2563eb' : isActive ? '#3b82f6' : '#e5e7eb',
-                    scale: isActive ? 1.1 : 1,
+                    backgroundColor: isCompleted || isActive ? '#2563eb' : '#e2e8f0',
                   }}
-                  transition={{ duration: 0.3 }}
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white"
+                  transition={{ duration: 0.25 }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white"
                 >
                   {isCompleted ? '✓' : i + 1}
                 </motion.div>
-                <span className={`text-xs font-medium transition-colors duration-300 ${isActive ? 'text-blue-600' : isCompleted ? 'text-blue-500' : 'text-gray-400'}`}>
+                <span
+                  className={`text-xs font-medium transition-colors duration-200 ${
+                    isActive ? 'text-blue-600' : isCompleted ? 'text-blue-500' : 'text-slate-400'
+                  }`}
+                >
                   {s.label}
                 </span>
               </div>
               {i < STEP_LABELS.length - 1 && (
-                <motion.div className="flex-1 mx-2 h-0.5 rounded-full overflow-hidden bg-gray-200">
+                <div className="flex-1 mx-3 mb-4 h-px bg-slate-200 relative overflow-hidden">
                   <motion.div
                     initial={{ width: '0%' }}
                     animate={{ width: isCompleted ? '100%' : '0%' }}
-                    transition={{ duration: 0.4 }}
-                    className="h-full bg-blue-500 rounded-full"
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-y-0 left-0 bg-blue-500"
                   />
-                </motion.div>
+                </div>
               )}
             </div>
           );
@@ -229,12 +233,18 @@ export default function Signup() {
     <div>
       {step !== "done" && <ProgressBar step={step} />}
 
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-semibold text-gray-700">
-          {step === "signup" && "Create Account"}
-          {step === "company" && "Company Setup"}
-          {step === "done" && "Finalizing..."}
-        </h3>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-slate-900">
+          {step === "signup" && "Create your account"}
+          {step === "company" && "Set up your company"}
+          {step === "done" && "Almost there..."}
+        </h1>
+        {step === "signup" && (
+          <p className="text-sm text-slate-500 mt-1">Fill in your details to get started</p>
+        )}
+        {step === "company" && (
+          <p className="text-sm text-slate-500 mt-1">Connect to your team or create a new workspace</p>
+        )}
       </div>
 
       <AnimatePresence mode="wait">
@@ -289,37 +299,22 @@ export default function Signup() {
               {renderPasswordStrength()}
             </div>
 
-            <AnimatePresence>
-              {error?.field === "general" && (
-                <motion.div
-                  role="alert"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="p-3 rounded-lg bg-red-50 border border-red-200"
-                >
-                  <p className="text-sm text-red-600 flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    {error.message}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <ErrorAlert message={error?.field === "general" ? error.message : ""} />
 
-            <Button
-              type="submit"
-              className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium group"
-              disabled={loading}
-            >
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
-              <span className="relative">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Continue"}
-              </span>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Continue"
+              )}
             </Button>
 
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-slate-600">
               Already have an account?{" "}
-              <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+              <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-700 transition-colors">
                 Sign in
               </Link>
             </p>
@@ -335,22 +330,7 @@ export default function Signup() {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <AnimatePresence>
-              {error?.field === "general" && (
-                <motion.div
-                  role="alert"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="p-3 rounded-lg bg-red-50 border border-red-200"
-                >
-                  <p className="text-sm text-red-600 flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    {error.message}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <ErrorAlert message={error?.field === "general" ? error.message : ""} />
 
             {companyInfo?.company ? (
               <>
@@ -358,27 +338,20 @@ export default function Signup() {
                   <div className="bg-blue-100 p-4 rounded-2xl">
                     <Building2 className="w-10 h-10 text-blue-600" />
                   </div>
-                  <p className="text-gray-700 text-center">
+                  <p className="text-slate-700 text-center text-sm">
                     Company <strong>{companyInfo.company.name}</strong> matches your email domain.
                     Join your team instantly.
                   </p>
                 </div>
-                <Button
-                  onClick={handleJoinCompany}
-                  className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white group"
-                  disabled={loading}
-                >
-                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
-                  <span className="relative">
-                    {loading ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Joining...
-                      </span>
-                    ) : (
-                      `Join ${companyInfo.company.name}`
-                    )}
-                  </span>
+                <Button onClick={handleJoinCompany} className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Joining...
+                    </>
+                  ) : (
+                    `Join ${companyInfo.company.name}`
+                  )}
                 </Button>
               </>
             ) : (
@@ -387,7 +360,7 @@ export default function Signup() {
                   <div className="bg-purple-100 p-4 rounded-2xl">
                     <UserPlus className="w-10 h-10 text-purple-600" />
                   </div>
-                  <p className="text-gray-700 text-center">
+                  <p className="text-slate-700 text-center text-sm">
                     No company found for your email domain. Create one for your team:
                   </p>
                 </div>
@@ -403,22 +376,15 @@ export default function Signup() {
                   autoComplete="organization"
                 />
 
-                <Button
-                  onClick={handleCreateCompany}
-                  className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white group"
-                  disabled={loading}
-                >
-                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
-                  <span className="relative">
-                    {loading ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Creating Company...
-                      </span>
-                    ) : (
-                      "Create Company"
-                    )}
-                  </span>
+                <Button onClick={handleCreateCompany} className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating company...
+                    </>
+                  ) : (
+                    "Create Company"
+                  )}
                 </Button>
               </>
             )}
@@ -435,7 +401,7 @@ export default function Signup() {
             className="text-center py-4"
           >
             <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-600 mb-2" />
-            <p className="text-gray-600">Redirecting to your dashboard...</p>
+            <p className="text-slate-600">Redirecting to your dashboard...</p>
           </motion.div>
         )}
       </AnimatePresence>

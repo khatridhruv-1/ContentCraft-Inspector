@@ -4,8 +4,9 @@ import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { login } from '@/lib/user/appwrite';
-import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-import { AlertCircle, Loader2, Mail, Lock } from 'lucide-react';
+import { motion, useAnimation } from 'framer-motion';
+import { Loader2, Mail, Lock } from 'lucide-react';
+import { ErrorAlert } from '@/components/auth/ErrorAlert';
 import Link from 'next/link';
 import AuthTextField from '@/components/auth/AuthTextField';
 import { useGuestGuard } from '@/hooks/useAuthRedirect';
@@ -77,9 +78,9 @@ function LoginForm() {
 
   return (
     <div>
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-semibold text-gray-700">Welcome Back!</h3>
-        <p className="text-sm text-gray-500 mt-1">Sign in to continue to your account</p>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-slate-900">Welcome back</h1>
+        <p className="text-sm text-slate-500 mt-1">Sign in to your account to continue</p>
       </div>
 
       <motion.form onSubmit={handleSubmit} animate={shakeControls} className="space-y-5">
@@ -109,47 +110,25 @@ function LoginForm() {
           required
         />
 
-        <AnimatePresence>
-          {error?.field === 'general' && (
-            <motion.div
-              role="alert"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="p-3 rounded-lg bg-red-50 border border-red-200"
-            >
-              <p className="text-sm text-red-600 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                {error.message}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <ErrorAlert message={error?.field === 'general' ? error.message : ''} />
 
         <div className="pt-2">
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-2.5 rounded-lg font-medium transition-all duration-200 group"
-          >
-            <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
-            <span className="relative">
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Signing in...
-                </span>
-              ) : (
-                'Sign in'
-              )}
-            </span>
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              'Sign in'
+            )}
           </Button>
 
-          <p className="mt-4 text-center text-sm text-gray-600">
+          <p className="mt-4 text-center text-sm text-slate-600">
             Don&apos;t have an account?{' '}
             <Link
               href="/auth/signup"
-              className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
             >
               Sign up
             </Link>
