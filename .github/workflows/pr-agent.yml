@@ -71,6 +71,8 @@ jobs:
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           AGENT_BASE_BRANCH: agent-implement
+          PR_MERGED_FROM_EVENT: "true"
+          PR_BASE_REF_FROM_EVENT: ${{ github.event.pull_request.base.ref }}
         run: |
           set -euo pipefail
           rm -rf /tmp/innovation-agents
