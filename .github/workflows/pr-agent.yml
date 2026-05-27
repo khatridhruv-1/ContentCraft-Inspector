@@ -1,18 +1,19 @@
-# PR Review & Fix Agent
+# PR Review & Fix Agent + auto-close issues on merge to agent-implement
 # Copy this file to your repo: .github/workflows/pr-agent.yml
-# Push to your base branch.
 # Requires AGENTS_TOKEN secret (see docs/setup-guide.md)
 
 name: PR Review & Fix Agent
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, closed]
 
 jobs:
   pr-review:
-    # Skip PRs created by the Agent Pipeline (scheduler handles review already)
-    if: "!startsWith(github.event.pull_request.head.ref, 'code-agent/')"
+    # Review on open/update only; skip agent-pipeline PRs (scheduler handles those)
+    if: >-
+      github.event.action != 'closed' &&
+      !startsWith(github.event.pull_request.head.ref, 'code-agent/')
     runs-on: [self-hosted, macOS]
 
     steps:
@@ -55,3 +56,26 @@ jobs:
           GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_NOTIFY_USER_ID: ${{ secrets.SLACK_NOTIFY_USER_ID }}
+
+  close-issues:
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'agent-implement'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Close linked issues
+        env:
+          GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          AGENT_BASE_BRANCH: agent-implement
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/innovation-agents
+          git clone --depth 1 \
+            "https://x-access-token:${GH_TOKEN}@github.com/ad-net/innovation-agents.git" \
+            /tmp/innovation-agents
+          chmod +x /tmp/innovation-agents/scripts/close-issues-on-merge.sh
+          /tmp/innovation-agents/scripts/close-issues-on-merge.sh
