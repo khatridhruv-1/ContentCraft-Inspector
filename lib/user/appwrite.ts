@@ -2,20 +2,21 @@
 
 import { ID } from "appwrite";
 
-function getAppwriteConfig() {
+function getAppwriteConfig({ requireApiKey = false } = {}) {
   const endpoint = process.env.APPWRITE_ENDPOINT;
   const projectId = process.env.APPWRITE_PROJECT_ID;
-  const apiKey = process.env.API_SECRET_KEY;
 
   if (!endpoint) throw new Error('Missing APPWRITE_ENDPOINT environment variable');
   if (!projectId) throw new Error('Missing APPWRITE_PROJECT_ID environment variable');
-  if (!apiKey) throw new Error('Missing API_SECRET_KEY environment variable');
+
+  const apiKey = process.env.API_SECRET_KEY;
+  if (requireApiKey && !apiKey) throw new Error('Missing API_SECRET_KEY environment variable');
 
   return { endpoint, projectId, apiKey };
 }
 
 export async function signup(email: string, password: string, name: string) {
-  const { endpoint, projectId, apiKey } = getAppwriteConfig();
+  const { endpoint, projectId, apiKey } = getAppwriteConfig({ requireApiKey: true });
 
   try {
     const response = await fetch(`${endpoint}/account`, {
@@ -47,7 +48,7 @@ export async function signup(email: string, password: string, name: string) {
 }
 
 export async function login(email: string, password: string) {
-  const { endpoint, projectId, apiKey } = getAppwriteConfig();
+  const { endpoint, projectId, apiKey } = getAppwriteConfig({ requireApiKey: true });
 
   try {
     const response = await fetch(`${endpoint}/account/sessions/email`, {
