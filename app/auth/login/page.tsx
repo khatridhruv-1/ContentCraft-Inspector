@@ -4,8 +4,9 @@ import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { login } from '@/lib/user/appwrite';
-import { motion, AnimatePresence, useAnimation } from 'framer-motion';
-import { AlertCircle, Loader2, Mail, Lock } from 'lucide-react';
+import { motion, useAnimation } from 'framer-motion';
+import { Loader2, Mail, Lock } from 'lucide-react';
+import { ErrorAlert } from '@/components/auth/ErrorAlert';
 import Link from 'next/link';
 import AuthTextField from '@/components/auth/AuthTextField';
 import { useGuestGuard } from '@/hooks/useAuthRedirect';
@@ -109,20 +110,7 @@ function LoginForm() {
           required
         />
 
-        <AnimatePresence>
-          {error?.field === 'general' && (
-            <motion.div
-              role="alert"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 flex items-center gap-2"
-            >
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              {error.message}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <ErrorAlert message={error?.field === 'general' ? error.message : ''} />
 
         <div className="pt-2">
           <Button type="submit" disabled={loading} className="w-full">

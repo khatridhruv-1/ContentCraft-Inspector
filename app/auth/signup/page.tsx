@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
+import { Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
+import { ErrorAlert } from "@/components/auth/ErrorAlert";
 import { Button } from "@/components/ui/button";
 import AuthTextField from "@/components/auth/AuthTextField";
 
@@ -298,20 +299,7 @@ export default function Signup() {
               {renderPasswordStrength()}
             </div>
 
-            <AnimatePresence>
-              {error?.field === "general" && (
-                <motion.div
-                  role="alert"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 flex items-center gap-2"
-                >
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  {error.message}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <ErrorAlert message={error?.field === "general" ? error.message : ""} />
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
@@ -342,20 +330,7 @@ export default function Signup() {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <AnimatePresence>
-              {error?.field === "general" && (
-                <motion.div
-                  role="alert"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 flex items-center gap-2"
-                >
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  {error.message}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <ErrorAlert message={error?.field === "general" ? error.message : ""} />
 
             {companyInfo?.company ? (
               <>
