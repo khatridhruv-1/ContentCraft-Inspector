@@ -3,8 +3,10 @@
 import { motion } from 'framer-motion';
 import { Edit, FileSearch, Wand2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useAuthGuard } from '@/hooks/useAuthRedirect';
 
 export default function Home() {
+  useAuthGuard();
   const router = useRouter();
 
   const handleModeChange = (mode: string) => {

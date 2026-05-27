@@ -1,27 +1,30 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { login } from '@/lib/user/appwrite';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { AlertCircle, Loader2, Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
+import AuthTextField from '@/components/auth/AuthTextField';
+import { useGuestGuard } from '@/hooks/useAuthRedirect';
 
 interface ValidationError {
   field: string;
   message: string;
 }
 
-export default function Login() {
+function LoginForm() {
   const [error, setError] = useState<ValidationError | null>(null);
   const [loading, setLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null);
   const [emailValue, setEmailValue] = useState('');
   const [passwordValue, setPasswordValue] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
   const shakeControls = useAnimation();
+
+  useGuestGuard();
 
   const validateForm = (email: string, password: string) => {
     if (!email.match(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/)) {
@@ -52,11 +55,16 @@ export default function Login() {
     try {
       const session = await login(email, password);
       localStorage.setItem('sessionToken', session.secret);
-      router.push('/home');
+      const returnUrl = searchParams.get('returnUrl');
+      const safeUrl =
+        returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//')
+          ? returnUrl
+          : '/home';
+      router.push(safeUrl);
     } catch {
       setError({
         field: 'general',
-        message: 'Invalid email or password. Please try again.'
+        message: 'Invalid email or password. Please try again.',
       });
       shakeControls.start({
         x: [-8, 8, -6, 6, -3, 3, 0],
@@ -75,100 +83,43 @@ export default function Login() {
       </div>
 
       <motion.form onSubmit={handleSubmit} animate={shakeControls} className="space-y-5">
-        {/* Email */}
-        <div className="relative">
-          <div className="absolute left-3 top-4 pointer-events-none z-10 transition-colors duration-200">
-            <Mail className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
-          </div>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            placeholder=" "
-            value={emailValue}
-            onChange={(e) => setEmailValue(e.target.value)}
-            onFocus={() => setFocusedField('email')}
-            onBlur={() => setFocusedField(null)}
-            className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
-              focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
-              ${error?.field === 'email' ? 'border-red-500 focus-visible:ring-red-500/40' : 'border-gray-300'}`}
-          />
-          <label
-            htmlFor="email"
-            className={`absolute left-10 pointer-events-none transition-all duration-200 origin-left
-              ${(focusedField === 'email' || emailValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
-          >
-            Email Address
-          </label>
-          <AnimatePresence>
-            {error?.field === 'email' && (
-              <motion.p
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-1 text-sm text-red-500 flex items-center gap-1"
-              >
-                <AlertCircle className="h-4 w-4" />
-                {error.message}
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </div>
+        <AuthTextField
+          id="email"
+          name="email"
+          type="email"
+          label="Email Address"
+          icon={<Mail className="h-5 w-5" />}
+          value={emailValue}
+          onChange={(e) => setEmailValue(e.target.value)}
+          error={error?.field === 'email' ? error.message : undefined}
+          autoComplete="email"
+          required
+        />
 
-        {/* Password */}
-        <div className="relative">
-          <div className="absolute left-3 top-4 pointer-events-none z-10">
-            <Lock className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'password' ? 'text-blue-500' : 'text-gray-400'}`} />
-          </div>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            placeholder=" "
-            value={passwordValue}
-            onChange={(e) => setPasswordValue(e.target.value)}
-            onFocus={() => setFocusedField('password')}
-            onBlur={() => setFocusedField(null)}
-            className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
-              focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
-              ${error?.field === 'password' ? 'border-red-500 focus-visible:ring-red-500/40' : 'border-gray-300'}`}
-          />
-          <label
-            htmlFor="password"
-            className={`absolute left-10 pointer-events-none transition-all duration-200 origin-left
-              ${(focusedField === 'password' || passwordValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
-          >
-            Password
-          </label>
-          <AnimatePresence>
-            {error?.field === 'password' && (
-              <motion.p
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-1 text-sm text-red-500 flex items-center gap-1"
-              >
-                <AlertCircle className="h-4 w-4" />
-                {error.message}
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </div>
+        <AuthTextField
+          id="password"
+          name="password"
+          type="password"
+          label="Password"
+          icon={<Lock className="h-5 w-5" />}
+          value={passwordValue}
+          onChange={(e) => setPasswordValue(e.target.value)}
+          error={error?.field === 'password' ? error.message : undefined}
+          autoComplete="current-password"
+          required
+        />
 
         <AnimatePresence>
           {error?.field === 'general' && (
             <motion.div
+              role="alert"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               className="p-3 rounded-lg bg-red-50 border border-red-200"
             >
               <p className="text-sm text-red-600 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="h-4 w-4 shrink-0" />
                 {error.message}
               </p>
             </motion.div>
@@ -206,5 +157,13 @@ export default function Login() {
         </div>
       </motion.form>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
