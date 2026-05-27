@@ -59,7 +59,7 @@ export default function AuthTextField({
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
           className={cn(
-            icon ? 'pl-9' : '',
+            icon ? 'pl-10' : '',
             isPasswordField ? 'pr-10' : '',
             error ? 'border-red-400 focus-visible:ring-red-400/30' : ''
           )}
