@@ -178,7 +178,7 @@ export default function Signup() {
         field: msg.includes("already exists") ? "email" : "general",
         message: msg.includes("already exists")
           ? "This email is already registered"
-          : "Failed to create account. Please try again.",
+          : msg,
       });
     } finally {
       setLoading(false);

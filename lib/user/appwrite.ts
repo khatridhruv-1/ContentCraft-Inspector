@@ -2,14 +2,28 @@
 
 import { ID } from "appwrite";
 
+function getAppwriteConfig() {
+  const endpoint = process.env.APPWRITE_ENDPOINT;
+  const projectId = process.env.APPWRITE_PROJECT_ID;
+  const apiKey = process.env.API_SECRET_KEY;
+
+  if (!endpoint) throw new Error('Missing APPWRITE_ENDPOINT environment variable');
+  if (!projectId) throw new Error('Missing APPWRITE_PROJECT_ID environment variable');
+  if (!apiKey) throw new Error('Missing API_SECRET_KEY environment variable');
+
+  return { endpoint, projectId, apiKey };
+}
+
 export async function signup(email: string, password: string, name: string) {
+  const { endpoint, projectId, apiKey } = getAppwriteConfig();
+
   try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account`, {
+    const response = await fetch(`${endpoint}/account`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
-        'X-Appwrite-Key': process.env.API_SECRET_KEY ?? "",
+        'X-Appwrite-Project': projectId,
+        'X-Appwrite-Key': apiKey,
       },
       body: JSON.stringify({
         userId: ID.unique(),
@@ -25,22 +39,23 @@ export async function signup(email: string, password: string, name: string) {
       throw new Error(data.message || 'Signup failed.');
     }
 
-    // Automatically log in the user after signup
     return await login(email, password);
   } catch (error) {
     console.error('❌ Signup error:', error);
-    throw new Error('Signup Failed')
+    throw error instanceof Error ? error : new Error('Signup failed.');
   }
 }
 
 export async function login(email: string, password: string) {
+  const { endpoint, projectId, apiKey } = getAppwriteConfig();
+
   try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account/sessions/email`, {
+    const response = await fetch(`${endpoint}/account/sessions/email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
-        'X-Appwrite-Key': process.env.API_SECRET_KEY ?? "",
+        'X-Appwrite-Project': projectId,
+        'X-Appwrite-Key': apiKey,
       },
       body: JSON.stringify({
         email,
@@ -48,26 +63,28 @@ export async function login(email: string, password: string) {
       }),
     });
 
-    const data = await response.json();    
+    const data = await response.json();
 
     if (!response.ok) {
       throw new Error(data.message || 'Login failed.');
     }
 
-    return data; // Returns session object
+    return data;
   } catch (error) {
     console.error('❌ Login error:', error);
-    throw new Error('Login failed.');
+    throw error instanceof Error ? error : new Error('Login failed.');
   }
 }
 
 export async function logout(sessionToken: string) {
+  const { endpoint, projectId } = getAppwriteConfig();
+
   try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account/sessions/current`, {
+    const response = await fetch(`${endpoint}/account/sessions/current`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
+        'X-Appwrite-Project': projectId,
         'X-Appwrite-Session': sessionToken
       },
     });
@@ -79,42 +96,46 @@ export async function logout(sessionToken: string) {
     return { message: 'Logged out successfully' };
   } catch (error) {
     console.error('❌ Logout error:', error);
-    throw new Error('Logout failed.');
+    throw error instanceof Error ? error : new Error('Logout failed.');
   }
 }
 
 export async function getUser(sessionToken: string) {
+  const { endpoint, projectId } = getAppwriteConfig();
+
   try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account`, {
+    const response = await fetch(`${endpoint}/account`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
+        'X-Appwrite-Project': projectId,
         'X-Appwrite-Session': sessionToken,
       },
     });
-    
+
     const data = await response.json();
 
     if (!response.ok) {
       throw new Error(data.message || 'Fetching user failed.');
     }
 
-    return data; // Returns user object
+    return data;
   } catch (error) {
     console.error('❌ Get user error:', error);
-    throw new Error('User retrieval failed.');
+    throw error instanceof Error ? error : new Error('User retrieval failed.');
   }
 }
-  
+
 export async function updateUserName(sessionToken: string, newName: string) {
+  const { endpoint, projectId } = getAppwriteConfig();
+
   try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account/name`, {
+    const response = await fetch(`${endpoint}/account/name`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
-        'X-Appwrite-session': sessionToken, // Use session token
+        'X-Appwrite-Project': projectId,
+        'X-Appwrite-session': sessionToken,
       },
       body: JSON.stringify({
         name: newName,
@@ -126,10 +147,9 @@ export async function updateUserName(sessionToken: string, newName: string) {
       throw new Error(data.message || 'Failed to update name.');
     }
 
-    return data; // Returns updated user data
+    return data;
   } catch (error) {
     console.error('❌ Update Name error:', error);
-    throw new Error('Failed to update name.');
+    throw error instanceof Error ? error : new Error('Failed to update name.');
   }
 }
-
