@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle, Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
+import { Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
+import { ErrorAlert } from "@/components/auth/ErrorAlert";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import AuthTextField from "@/components/auth/AuthTextField";
 
 import { signup } from "@/lib/user/appwrite";
 import { createCompany, joinCompany, checkCompanyDomain } from "@/lib/companyHelper/companyHelpers";
+import { useGuestGuard } from "@/hooks/useAuthRedirect";
 
 interface ValidationError {
   field: string;
@@ -29,39 +31,40 @@ function ProgressBar({ step }: { step: Step }) {
   const activeIndex = step === "signup" ? 0 : 1;
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center gap-2">
+    <div className="mb-8">
+      <div className="flex items-center">
         {STEP_LABELS.map((s, i) => {
           const isCompleted = i < activeIndex;
           const isActive = i === activeIndex;
           return (
             <div key={s.key} className="flex items-center flex-1 last:flex-none">
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex flex-col items-center gap-1">
                 <motion.div
                   animate={{
-                    backgroundColor: isCompleted ? '#2563eb' : isActive ? '#3b82f6' : '#e5e7eb',
-                    scale: isActive ? 1.1 : 1,
+                    backgroundColor: isCompleted || isActive ? '#2563eb' : '#e2e8f0',
                   }}
-                  transition={{ duration: 0.3 }}
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold text-white"
+                  transition={{ duration: 0.25 }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white"
                 >
                   {isCompleted ? '✓' : i + 1}
                 </motion.div>
-                <span className={`text-xs font-medium transition-colors duration-300 ${isActive ? 'text-blue-600' : isCompleted ? 'text-blue-500' : 'text-gray-400'}`}>
+                <span
+                  className={`text-xs font-medium transition-colors duration-200 ${
+                    isActive ? 'text-blue-600' : isCompleted ? 'text-blue-500' : 'text-slate-400'
+                  }`}
+                >
                   {s.label}
                 </span>
               </div>
               {i < STEP_LABELS.length - 1 && (
-                <motion.div
-                  className="flex-1 mx-2 h-0.5 rounded-full overflow-hidden bg-gray-200"
-                >
+                <div className="flex-1 mx-3 mb-4 h-px bg-slate-200 relative overflow-hidden">
                   <motion.div
                     initial={{ width: '0%' }}
                     animate={{ width: isCompleted ? '100%' : '0%' }}
-                    transition={{ duration: 0.4 }}
-                    className="h-full bg-blue-500 rounded-full"
+                    transition={{ duration: 0.3 }}
+                    className="absolute inset-y-0 left-0 bg-blue-500"
                   />
-                </motion.div>
+                </div>
               )}
             </div>
           );
@@ -72,13 +75,14 @@ function ProgressBar({ step }: { step: Step }) {
 }
 
 export default function Signup() {
+  useGuestGuard();
+
   const [step, setStep] = useState<Step>("signup");
   const [error, setError] = useState<ValidationError | null>(null);
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [companyInfo, setCompanyInfo] = useState<any>(null);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
   const [nameValue, setNameValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
 
@@ -108,12 +112,9 @@ export default function Signup() {
 
     return (
       <div className="space-y-1.5 mt-2">
-        <div className="flex gap-1">
+        <div className="flex gap-1" role="img" aria-label={`Password strength: ${labels[strength]}`}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="h-1 flex-1 rounded-full overflow-hidden bg-gray-200"
-            >
+            <motion.div key={i} className="h-1 flex-1 rounded-full overflow-hidden bg-gray-200">
               <motion.div
                 initial={{ width: '0%' }}
                 animate={{ width: i < strength ? '100%' : '0%' }}
@@ -186,23 +187,29 @@ export default function Signup() {
 
   const handleJoinCompany = async () => {
     if (!companyInfo?.company || !companyInfo?.user) return;
+    setError(null);
     setLoading(true);
     try {
       await joinCompany(companyInfo.company.$id, companyInfo.user);
       setStep("done");
       router.push("/home");
     } catch (err) {
-      console.error(err);
+      setError({
+        field: "general",
+        message: "Failed to join company. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreateCompany = async () => {
-    if (!companyName || !companyInfo?.user) {
+    if (!companyName.trim()) {
       setError({ field: "companyName", message: "Please enter your company name" });
       return;
     }
+    if (!companyInfo?.user) return;
+    setError(null);
     setLoading(true);
     try {
       await createCompany({
@@ -210,11 +217,13 @@ export default function Signup() {
         domain: companyInfo.domain,
         users: [companyInfo.user],
       });
-
       setStep("done");
       router.push("/home");
     } catch (err) {
-      console.error(err);
+      setError({
+        field: "general",
+        message: "Failed to create company. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -224,12 +233,18 @@ export default function Signup() {
     <div>
       {step !== "done" && <ProgressBar step={step} />}
 
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-semibold text-gray-700">
-          {step === "signup" && "Create Account"}
-          {step === "company" && "Company Setup"}
-          {step === "done" && "Finalizing..."}
-        </h3>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-slate-900">
+          {step === "signup" && "Create your account"}
+          {step === "company" && "Set up your company"}
+          {step === "done" && "Almost there..."}
+        </h1>
+        {step === "signup" && (
+          <p className="text-sm text-slate-500 mt-1">Fill in your details to get started</p>
+        )}
+        {step === "company" && (
+          <p className="text-sm text-slate-500 mt-1">Connect to your team or create a new workspace</p>
+        )}
       </div>
 
       <AnimatePresence mode="wait">
@@ -243,115 +258,65 @@ export default function Signup() {
             transition={{ duration: 0.3 }}
             className="space-y-4"
           >
-            {/* Name */}
-            <div className="relative">
-              <div className="absolute left-3 top-4 pointer-events-none z-10">
-                <User className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'name' ? 'text-blue-500' : 'text-gray-400'}`} />
-              </div>
-              <Input
-                id="name"
-                name="name"
-                placeholder=" "
-                value={nameValue}
-                onChange={(e) => setNameValue(e.target.value)}
-                onFocus={() => setFocusedField('name')}
-                onBlur={() => setFocusedField(null)}
-                className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
-                  focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
-                  ${error?.field === 'name' ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              <label
-                htmlFor="name"
-                className={`absolute left-10 pointer-events-none transition-all duration-200
-                  ${(focusedField === 'name' || nameValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
-              >
-                Full Name
-              </label>
-              {error?.field === "name" && (
-                <p className="mt-1 text-sm text-red-500">{error.message}</p>
-              )}
-            </div>
+            <AuthTextField
+              id="name"
+              name="name"
+              label="Full Name"
+              icon={<User className="h-5 w-5" />}
+              value={nameValue}
+              onChange={(e) => setNameValue(e.target.value)}
+              error={error?.field === "name" ? error.message : undefined}
+              autoComplete="name"
+              required
+            />
 
-            {/* Email */}
-            <div className="relative">
-              <div className="absolute left-3 top-4 pointer-events-none z-10">
-                <Mail className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'email' ? 'text-blue-500' : 'text-gray-400'}`} />
-              </div>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder=" "
-                value={emailValue}
-                onChange={(e) => setEmailValue(e.target.value)}
-                onFocus={() => setFocusedField('email')}
-                onBlur={() => setFocusedField(null)}
-                className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
-                  focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
-                  ${error?.field === 'email' ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              <label
-                htmlFor="email"
-                className={`absolute left-10 pointer-events-none transition-all duration-200
-                  ${(focusedField === 'email' || emailValue) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
-              >
-                Email Address
-              </label>
-              {error?.field === "email" && (
-                <p className="mt-1 text-sm text-red-500">{error.message}</p>
-              )}
-            </div>
+            <AuthTextField
+              id="email"
+              name="email"
+              type="email"
+              label="Email Address"
+              icon={<Mail className="h-5 w-5" />}
+              value={emailValue}
+              onChange={(e) => setEmailValue(e.target.value)}
+              error={error?.field === "email" ? error.message : undefined}
+              autoComplete="email"
+              required
+            />
 
-            {/* Password */}
-            <div className="relative">
-              <div className="absolute left-3 top-4 pointer-events-none z-10">
-                <Lock className={`h-5 w-5 transition-colors duration-200 ${focusedField === 'password' ? 'text-blue-500' : 'text-gray-400'}`} />
-              </div>
-              <Input
+            <div>
+              <AuthTextField
                 id="password"
                 name="password"
                 type="password"
-                placeholder=" "
-                onFocus={() => setFocusedField('password')}
-                onBlur={() => setFocusedField(null)}
-                className={`peer pl-10 h-14 pt-5 pb-1 text-sm transition-all duration-200
-                  focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0
-                  ${error?.field === 'password' ? 'border-red-500' : 'border-gray-300'}`}
+                label="Password"
+                icon={<Lock className="h-5 w-5" />}
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                error={error?.field === "password" ? error.message : undefined}
+                autoComplete="new-password"
+                required
               />
-              <label
-                htmlFor="password"
-                className={`absolute left-10 pointer-events-none transition-all duration-200
-                  ${(focusedField === 'password' || password) ? 'top-2 text-xs text-blue-600' : 'top-4 text-sm text-gray-500'}`}
-              >
-                Password
-              </label>
               {renderPasswordStrength()}
-              {error?.field === "password" && (
-                <p className="mt-1 text-sm text-red-500">{error.message}</p>
-              )}
             </div>
 
-            {error?.field === "general" && (
-              <p className="text-sm text-red-500 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" /> {error.message}
-              </p>
-            )}
+            <ErrorAlert message={error?.field === "general" ? error.message : ""} />
 
-            <Button
-              type="submit"
-              className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium group"
-              disabled={loading}
-            >
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
-              <span className="relative">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Continue"}
-              </span>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Continue"
+              )}
             </Button>
 
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-slate-600">
               Already have an account?{" "}
-              <Link href="/auth/login" className="text-blue-600 hover:underline">Sign in</Link>
+              <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                Sign in
+              </Link>
             </p>
           </motion.form>
         )}
@@ -365,19 +330,28 @@ export default function Signup() {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
+            <ErrorAlert message={error?.field === "general" ? error.message : ""} />
+
             {companyInfo?.company ? (
               <>
                 <div className="flex flex-col items-center gap-3 py-2">
                   <div className="bg-blue-100 p-4 rounded-2xl">
                     <Building2 className="w-10 h-10 text-blue-600" />
                   </div>
-                  <p className="text-gray-700 text-center">
+                  <p className="text-slate-700 text-center text-sm">
                     Company <strong>{companyInfo.company.name}</strong> matches your email domain.
                     Join your team instantly.
                   </p>
                 </div>
-                <Button onClick={handleJoinCompany} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" disabled={loading}>
-                  {loading ? "Joining..." : `Join ${companyInfo.company.name}`}
+                <Button onClick={handleJoinCompany} className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Joining...
+                    </>
+                  ) : (
+                    `Join ${companyInfo.company.name}`
+                  )}
                 </Button>
               </>
             ) : (
@@ -386,21 +360,31 @@ export default function Signup() {
                   <div className="bg-purple-100 p-4 rounded-2xl">
                     <UserPlus className="w-10 h-10 text-purple-600" />
                   </div>
-                  <p className="text-gray-700 text-center">
+                  <p className="text-slate-700 text-center text-sm">
                     No company found for your email domain. Create one for your team:
                   </p>
                 </div>
-                <Input
-                  placeholder="Company Name"
+
+                <AuthTextField
+                  id="companyName"
+                  name="companyName"
+                  label="Company Name"
+                  icon={<Building2 className="h-5 w-5" />}
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  className="focus-visible:ring-2 focus-visible:ring-blue-500/40 focus-visible:ring-offset-0 transition-all duration-200"
+                  error={error?.field === "companyName" ? error.message : undefined}
+                  autoComplete="organization"
                 />
-                {error?.field === "companyName" && (
-                  <p className="text-sm text-red-500">{error.message}</p>
-                )}
-                <Button onClick={handleCreateCompany} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" disabled={loading}>
-                  {loading ? "Creating Company..." : "Create Company"}
+
+                <Button onClick={handleCreateCompany} className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating company...
+                    </>
+                  ) : (
+                    "Create Company"
+                  )}
                 </Button>
               </>
             )}
@@ -417,7 +401,7 @@ export default function Signup() {
             className="text-center py-4"
           >
             <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-600 mb-2" />
-            <p className="text-gray-600">Redirecting to your dashboard...</p>
+            <p className="text-slate-600">Redirecting to your dashboard...</p>
           </motion.div>
         )}
       </AnimatePresence>
