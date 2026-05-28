@@ -9,9 +9,6 @@ import {
   Scale,
   Zap,
   Shield,
-  Download,
-  Globe,
-  Rocket,
   HelpCircle,
   MessageCircle,
   Bot,
@@ -28,32 +25,18 @@ type FaqItem = {
 
 const faqs: FaqItem[] = [
   {
-    question: 'What types of content can I generate with ContentCraft Inspector?',
+    question: 'What types of content can I generate?',
     answer:
-      'You can generate blog posts, social media captions, product descriptions, ad copy, email drafts, and long-form articles. Simply provide a topic or brief, choose your tone and format, and the AI produces a ready-to-edit draft in seconds.',
+      'Blog posts, social media captions, product descriptions, ad copy, email drafts, and long-form articles. Provide a topic or brief, choose your tone and format, and get a ready-to-edit draft in seconds.',
     icon: Sparkles,
     tag: 'Generation',
   },
   {
     question: 'How does the SEO analysis work?',
     answer:
-      'ContentCraft Inspector scans your content for keyword density, readability score, meta-tag completeness, and heading structure — then scores each factor against current search-engine best practices. You get a prioritised list of fixes so you know exactly what to change to improve ranking potential.',
+      'ContentCraft Inspector scans your content for keyword density, readability score, meta-tag completeness, and heading structure — then scores each factor against current best practices. You get a prioritised list of fixes so you know exactly what to change to improve ranking potential.',
     icon: Search,
     tag: 'SEO',
-  },
-  {
-    question: 'Does ContentCraft Inspector support multiple languages?',
-    answer:
-      'Yes — content generation and analysis are supported in multiple languages, including English, Spanish, French, German, Portuguese, and Japanese. Select your target language before generating, or paste existing content for multilingual SEO analysis.',
-    icon: Globe,
-    tag: 'Languages',
-  },
-  {
-    question: "How do I get started if I'm not a writer?",
-    answer:
-      "No writing experience is needed. Choose a content type, fill in a short prompt describing your topic and audience, and the AI handles the rest. The built-in editor lets you refine the output with one-click suggestions, so you can produce polished content even if you're starting from scratch.",
-    icon: Rocket,
-    tag: 'Getting started',
   },
   {
     question: 'Who owns the content I create?',
@@ -83,30 +66,23 @@ const faqs: FaqItem[] = [
     icon: Bot,
     tag: 'vs ChatGPT',
   },
-  {
-    question: 'Can I export my content to other formats?',
-    answer:
-      'Yes — export any piece of content as plain text, Markdown, or HTML directly from the editor. Copy-to-clipboard is available for every format, making it easy to paste into your CMS, email tool, or document editor.',
-    icon: Download,
-    tag: 'Export',
-  },
 ];
 
 const FAQ_COLUMNS = [
   {
     id: 'product',
     label: 'Product & features',
-    description: 'Generation, SEO, languages, and getting started',
-    items: faqs.slice(0, 4),
+    description: 'What you can generate, SEO analysis, and content ownership',
+    items: faqs.slice(0, 3),
     startIndex: 0,
     gradient: 'from-violet-500 to-cyan-500',
   },
   {
     id: 'account',
-    label: 'Plans, privacy & more',
-    description: 'Pricing, security, ownership, export, and comparisons',
-    items: faqs.slice(4),
-    startIndex: 4,
+    label: 'Plans & security',
+    description: 'Pricing, data privacy, and how we compare to ChatGPT',
+    items: faqs.slice(3),
+    startIndex: 3,
     gradient: 'from-cyan-500 to-blue-500',
   },
 ] as const;
