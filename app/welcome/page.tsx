@@ -2,74 +2,57 @@
 
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Wand2, Edit, FileSearch, Sparkles, ArrowRight } from 'lucide-react';
-import Head from 'next/head';
+import { Wand2, Edit, FileSearch, Sparkles, ArrowRight, Zap, Shield, BarChart3 } from 'lucide-react';
 import FaqSection from './FaqSection';
 
-const PARTICLES = [
-  { id: 0, size: 4, left: 8, top: 20, duration: 20, delay: 0 },
-  { id: 1, size: 3, left: 18, top: 65, duration: 25, delay: 1 },
-  { id: 2, size: 5, left: 30, top: 40, duration: 18, delay: 2.5 },
-  { id: 3, size: 2, left: 45, top: 10, duration: 22, delay: 0.5 },
-  { id: 4, size: 4, left: 55, top: 80, duration: 28, delay: 3 },
-  { id: 5, size: 3, left: 70, top: 25, duration: 20, delay: 1.5 },
-  { id: 6, size: 5, left: 82, top: 55, duration: 24, delay: 4 },
-  { id: 7, size: 2, left: 92, top: 70, duration: 19, delay: 0.8 },
-  { id: 8, size: 4, left: 25, top: 85, duration: 23, delay: 2 },
-  { id: 9, size: 3, left: 60, top: 90, duration: 17, delay: 1.2 },
-  { id: 10, size: 4, left: 75, top: 45, duration: 21, delay: 3.5 },
-  { id: 11, size: 2, left: 38, top: 60, duration: 26, delay: 0.3 },
-  { id: 12, size: 5, left: 12, top: 45, duration: 16, delay: 4.5 },
-  { id: 13, size: 3, left: 48, top: 30, duration: 29, delay: 2.8 },
-  { id: 14, size: 4, left: 85, top: 15, duration: 22, delay: 1.7 },
-  { id: 15, size: 2, left: 65, top: 75, duration: 20, delay: 0.6 },
-  { id: 16, size: 5, left: 95, top: 35, duration: 18, delay: 3.2 },
-  { id: 17, size: 3, left: 20, top: 92, duration: 24, delay: 1.9 },
-  { id: 18, size: 4, left: 42, top: 5, duration: 27, delay: 4.2 },
-  { id: 19, size: 2, left: 78, top: 88, duration: 21, delay: 2.3 },
-];
-
-const heroVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.2 } },
-};
-
-const heroItemVariants = {
-  hidden: { y: -20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.8 } },
-};
-
-const cardContainerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
-
-const cardVariants = {
-  hidden: { y: 30, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.6 } },
+const stagger = { visible: { transition: { staggerChildren: 0.12 } } };
+const fadeUp = {
+  hidden: { y: 24, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
 };
 
 const features = [
   {
     icon: Wand2,
     title: 'AI-Powered',
-    description: 'Generate high-quality content with advanced AI technology',
-    bg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
+    description: 'Generate high-quality content with advanced AI in seconds.',
+    gradient: 'from-violet-500 to-purple-600',
+    glow: 'rgba(139,92,246,0.35)',
   },
   {
     icon: Edit,
     title: 'Smart Editor',
-    description: 'Create and edit content with powerful tools',
-    bg: 'bg-purple-100',
-    iconColor: 'text-purple-600',
+    description: 'Rich text editing with real-time structure and formatting tools.',
+    gradient: 'from-indigo-500 to-blue-600',
+    glow: 'rgba(99,102,241,0.35)',
   },
   {
     icon: FileSearch,
     title: 'Deep Analysis',
-    description: 'Get detailed insights and content optimization tips',
-    bg: 'bg-pink-100',
-    iconColor: 'text-pink-600',
+    description: 'Detailed readability, tone, and quality scoring for every piece.',
+    gradient: 'from-pink-500 to-rose-600',
+    glow: 'rgba(236,72,153,0.35)',
+  },
+  {
+    icon: BarChart3,
+    title: 'Realness Score',
+    description: 'Detect AI vs human writing patterns with precision scoring.',
+    gradient: 'from-emerald-500 to-teal-600',
+    glow: 'rgba(16,185,129,0.35)',
+  },
+  {
+    icon: Zap,
+    title: 'Info Gain',
+    description: 'Live web research to measure your content\'s informational value.',
+    gradient: 'from-amber-500 to-orange-600',
+    glow: 'rgba(245,158,11,0.35)',
+  },
+  {
+    icon: Shield,
+    title: 'Plagiarism Check',
+    description: 'Scan for originality and get an improved rewrite instantly.',
+    gradient: 'from-cyan-500 to-sky-600',
+    glow: 'rgba(6,182,212,0.35)',
   },
 ];
 
@@ -77,169 +60,140 @@ export default function Welcome() {
   const router = useRouter();
 
   return (
-    <>
-      <Head>
-        <title>Welcome to ContentCraft-Inspector</title>
-        <meta
-          name="description"
-          content="Content creation with ContentCraft-Inspector's AI platform. Create, analyze, and optimize content with smart editing tools and deep insights. Try it free today!"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
+    <div className="min-h-screen bg-[#0a0a12] text-white overflow-x-hidden">
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        {/* Blobs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob" />
-          <div className="absolute top-40 right-20 w-64 h-64 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-blob animation-delay-2000" />
-          <div className="absolute bottom-20 left-1/2 w-80 h-80 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-blob animation-delay-4000" />
-          <div className="absolute top-1/3 left-1/4 w-48 h-48 bg-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-3000" />
-          <div className="absolute bottom-1/3 right-1/4 w-56 h-56 bg-cyan-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob animation-delay-5000" />
+      {/* ── Noise texture overlay ── */}
+      <div className="pointer-events-none fixed inset-0 opacity-[0.03]"
+        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }} />
+
+      {/* ── Glow orbs ── */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full opacity-20"
+          style={{ background: 'radial-gradient(circle, #7c3aed 0%, transparent 70%)' }} />
+        <div className="absolute -top-20 right-0 w-[500px] h-[500px] rounded-full opacity-15"
+          style={{ background: 'radial-gradient(circle, #4f46e5 0%, transparent 70%)' }} />
+        <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] rounded-full opacity-10"
+          style={{ background: 'radial-gradient(circle, #ec4899 0%, transparent 70%)' }} />
+      </div>
+
+      {/* ── Nav ── */}
+      <nav className="relative z-10 flex items-center justify-between px-8 py-5 border-b border-white/[0.06]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-semibold text-sm tracking-tight">ContentCraft</span>
         </div>
-
-        {/* Floating particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          {PARTICLES.map((p) => (
-            <div
-              key={p.id}
-              className="absolute rounded-full bg-blue-400/20 animate-float-particle"
-              style={{
-                width: p.size,
-                height: p.size,
-                left: `${p.left}%`,
-                top: `${p.top}%`,
-                animationDuration: `${p.duration}s`,
-                animationDelay: `${p.delay}s`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Main content */}
-        <div className="relative z-10 max-w-4xl w-full">
-          {/* Hero */}
-          <motion.div
-            variants={heroVariants}
-            initial="hidden"
-            animate="visible"
-            className="text-center mb-16"
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push('/auth/login')}
+            className="text-sm text-white/60 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-white/[0.06]"
           >
-            <motion.div variants={heroItemVariants} className="flex justify-center mb-6">
-              <motion.div
-                className="bg-white p-4 rounded-2xl shadow-xl"
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <Sparkles className="w-16 h-16 text-blue-600" />
-              </motion.div>
-            </motion.div>
+            Sign in
+          </button>
+          <button
+            onClick={() => router.push('/auth/signup')}
+            className="text-sm font-medium bg-violet-600 hover:bg-violet-500 transition-colors px-4 py-2 rounded-lg"
+          >
+            Get started
+          </button>
+        </div>
+      </nav>
 
-            <motion.h1 variants={heroItemVariants} className="text-6xl font-bold text-gray-900 mb-6">
-              Welcome to{' '}
-              <span className="animate-gradient-x bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-[length:200%_auto] text-transparent bg-clip-text">
-                ContentCraft-Inspector
-              </span>
-            </motion.h1>
+      {/* ── Hero ── */}
+      <section className="relative z-10 max-w-5xl mx-auto px-8 pt-28 pb-24 text-center">
+        <motion.div variants={stagger} initial="hidden" animate="visible">
 
-            <motion.p
-              variants={heroItemVariants}
-              className="text-xl text-gray-600 max-w-2xl mx-auto"
-            >
-              Your all-in-one platform for creating, analyzing, and optimizing content with the power of AI
-            </motion.p>
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 text-xs font-medium text-violet-300 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-8">
+            <Sparkles className="w-3.5 h-3.5" />
+            AI-powered content intelligence
           </motion.div>
 
-          {/* Feature Cards */}
-          <motion.div
-            variants={cardContainerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            className="grid grid-cols-3 gap-6 mb-16"
-          >
-            {features.map(({ icon: Icon, title, description, bg, iconColor }) => (
-              <motion.div
-                key={title}
-                variants={cardVariants}
-                whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
-                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl border border-transparent hover:border-indigo-100 transition-all duration-200 cursor-default"
-              >
-                <motion.div
-                  className={`${bg} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}
-                  whileHover={{ rotate: 12, scale: 1.15, transition: { type: 'spring', stiffness: 300, damping: 15 } }}
-                >
-                  <Icon className={`w-6 h-6 ${iconColor}`} />
-                </motion.div>
-                <h3 className="text-lg font-semibold mb-2">{title}</h3>
-                <p className="text-gray-600">{description}</p>
-              </motion.div>
-            ))}
-          </motion.div>
+          <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.08] mb-6">
+            Create. Analyze.{' '}
+            <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
+              Elevate.
+            </span>
+          </motion.h1>
 
-          {/* FAQ Section */}
-          <FaqSection />
+          <motion.p variants={fadeUp} className="text-lg text-white/50 max-w-xl mx-auto mb-10 leading-relaxed">
+            Your all-in-one platform for AI content generation, deep analysis, plagiarism detection, and realness scoring.
+          </motion.p>
 
-          {/* Action Buttons */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex justify-center gap-6"
-          >
+          <motion.div variants={fadeUp} className="flex items-center justify-center gap-4">
             <motion.button
               onClick={() => router.push('/auth/signup')}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl transition-shadow group"
+              className="group relative flex items-center gap-2 bg-violet-600 hover:bg-violet-500 transition-colors text-white font-semibold px-7 py-3.5 rounded-xl text-sm shadow-lg shadow-violet-900/40"
             >
-              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12" />
-              <span className="relative flex items-center gap-2">
-                Get Started - It&apos;s Free
-                <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">
-                  <ArrowRight className="w-5 h-5" />
-                </span>
-              </span>
+              Get Started Free
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </motion.button>
-
             <motion.button
               onClick={() => router.push('/auth/login')}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="bg-white text-gray-800 px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-xl border border-gray-200 transition-shadow"
+              className="flex items-center gap-2 text-white/70 hover:text-white transition-colors font-medium px-7 py-3.5 rounded-xl text-sm border border-white/10 hover:border-white/20 hover:bg-white/[0.04]"
             >
-              Sign In
+              Sign in
             </motion.button>
           </motion.div>
+
+        </motion.div>
+      </section>
+
+      {/* ── Features grid ── */}
+      <section className="relative z-10 max-w-5xl mx-auto px-8 pb-24">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+          variants={stagger}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
+          {features.map(({ icon: Icon, title, description, gradient, glow }) => (
+            <motion.div
+              key={title}
+              variants={fadeUp}
+              whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
+              className="group relative rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6 cursor-default overflow-hidden"
+            >
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"
+                style={{ background: `radial-gradient(circle at 30% 30%, ${glow} 0%, transparent 70%)` }} />
+              <div className={`relative w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 shadow-lg`}>
+                <Icon className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="relative text-sm font-semibold text-white mb-1.5">{title}</h3>
+              <p className="relative text-xs text-white/45 leading-relaxed">{description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="relative z-10 max-w-3xl mx-auto px-8 pb-24">
+        <h2 className="text-2xl font-bold text-center mb-8 text-white/90">Frequently asked questions</h2>
+        <FaqSection />
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="relative z-10 max-w-3xl mx-auto px-8 pb-28 text-center">
+        <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-12">
+          <h2 className="text-3xl font-bold mb-3">Ready to craft better content?</h2>
+          <p className="text-white/50 mb-8 text-sm">Join teams already using ContentCraft to write, analyze, and improve.</p>
+          <motion.button
+            onClick={() => router.push('/auth/signup')}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="group inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-500 transition-colors text-white font-semibold px-8 py-3.5 rounded-xl text-sm shadow-lg shadow-violet-900/40"
+          >
+            Get Started Free
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+          </motion.button>
         </div>
+      </section>
 
-        <style jsx>{`
-          @keyframes blob {
-            0% { transform: translate(0px, 0px) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-            100% { transform: translate(0px, 0px) scale(1); }
-          }
-          .animate-blob { animation: blob 7s infinite; }
-          .animation-delay-2000 { animation-delay: 2s; }
-          .animation-delay-3000 { animation-delay: 3s; }
-          .animation-delay-4000 { animation-delay: 4s; }
-          .animation-delay-5000 { animation-delay: 5s; }
-
-          @keyframes float-particle {
-            0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.4; }
-            33% { transform: translateY(-15px) translateX(8px); opacity: 0.8; }
-            66% { transform: translateY(-8px) translateX(-6px); opacity: 0.6; }
-          }
-          .animate-float-particle { animation: float-particle ease-in-out infinite; }
-
-          @media (prefers-reduced-motion: reduce) {
-            .animate-blob,
-            .animate-float-particle {
-              animation: none !important;
-            }
-          }
-        `}</style>
-      </div>
-    </>
+    </div>
   );
 }

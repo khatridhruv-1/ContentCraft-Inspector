@@ -1,8 +1,63 @@
 "use server";
 
-import { ID } from "appwrite";
+import { supabase } from '@/lib/supabase/client';
 
-export async function saveContent  (
+function toRow(data: Record<string, any>) {
+  return {
+    user_id: data.userId,
+    company_id: data.companyId ?? null,
+    content: data.content ?? null,
+    analysis: data.analysis ?? null,
+    mode: data.mode ?? null,
+    content_score: data.contentScore ?? null,
+    readability: data.readability != null ? String(data.readability) : null,
+    tone: data.tone ?? null,
+    key_insights: data.keyInsights ?? [],
+    improvements: data.improvements ?? [],
+    word_count: data.wordCount ?? null,
+    reading_time: data.readingTime ?? null,
+    ai_score: data.aiScore != null ? Math.round(data.aiScore) : null,
+    human_score: data.humanScore != null ? Math.round(data.humanScore) : null,
+    humanized_version: data.humanizedVersion ?? null,
+    outline: data.outline ?? null,
+    suggestions: data.suggestions ?? [],
+    content_gaps: data.contentGaps ?? [],
+    summary: data.summary ?? null,
+    related_links: data.relatedLinks ?? [],
+  };
+}
+
+function fromRow(row: any) {
+  if (!row) return null;
+  return {
+    $id: row.id,
+    id: row.id,
+    userId: row.user_id,
+    companyId: row.company_id,
+    content: row.content,
+    analysis: row.analysis,
+    mode: row.mode,
+    contentScore: row.content_score,
+    readability: row.readability,
+    tone: row.tone,
+    keyInsights: row.key_insights ?? [],
+    improvements: row.improvements ?? [],
+    wordCount: row.word_count,
+    readingTime: row.reading_time,
+    aiScore: row.ai_score,
+    humanScore: row.human_score,
+    humanizedVersion: row.humanized_version,
+    outline: row.outline,
+    suggestions: row.suggestions ?? [],
+    contentGaps: row.content_gaps ?? [],
+    summary: row.summary,
+    relatedLinks: row.related_links ?? [],
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export async function saveContent(
   content: string,
   userId: string,
   analysis?: string,
@@ -17,7 +72,7 @@ export async function saveContent  (
   aiScore?: number,
   humanScore?: number,
   humanizedVersion?: string,
-  outline?: { level: number; text: string }[], 
+  outline?: { level: number; text: string }[],
   suggestions?: string[],
   contentGaps?: string[],
   summary?: string,
@@ -25,111 +80,58 @@ export async function saveContent  (
   companyId?: string
 ) {
   try {
-    debugger;
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "", // Replace with your Appwrite API Key
-        },
-        body: JSON.stringify({
-          documentId: ID.unique(),
-          data: {
-            userId,
-            content,
-            analysis,
-            mode,
-            contentScore: contentScore ?? null, // Ensure null instead of undefined
-            readability: readability ?? null,
-            tone: tone ?? null,
-            keyInsights: keyInsights ?? [],
-            improvements: improvements ?? [],
-            wordCount: wordCount ?? null,
-            readingTime: readingTime ?? null,
-            aiScore: aiScore ?? null,
-            humanScore: humanScore ?? null,
-            humanizedVersion: humanizedVersion ?? null,
-            outline: outline ? JSON.stringify(outline) : null,
-            suggestions: suggestions ?? [],
-            contentGaps: contentGaps ?? [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            companyId: companyId,
-          },
-          
-        }),
-      }
-    );
+    const { data, error } = await supabase
+      .from('content')
+      .insert(toRow({
+        userId, content, analysis, mode, contentScore, readability, tone,
+        keyInsights, improvements, wordCount, readingTime, aiScore, humanScore,
+        humanizedVersion, outline, suggestions, contentGaps, summary, relatedLinks, companyId,
+      }))
+      .select()
+      .single();
 
-    debugger
-    console.log("response", response);
-
-    if (!response.ok) {
-      console.log(await response.json());
-      throw new Error("Failed to save content");
-    }
-    const result = await response.json();
-    console.log("result saved from save content", result);
-    return result
+    if (error) throw error;
+    return fromRow(data);
   } catch (error) {
-    console.error("Error saving content:", error);
+    console.error('Error saving content:', error);
+    throw error;
   }
 }
 
 export async function fetchHistory(userId: string, page: number, limit: number) {
   try {
-
     const offset = (page - 1) * limit;
 
-    const queryParams = {
-      queries: JSON.stringify([`equal("userId", "${userId}")`]),
-      limit: limit.toString(),
-      offset: offset.toString(),
-      orderAttributes: '["createdAt"]',
-      orderTypes: '["DESC"]',
-    }
+    const { data, error, count } = await supabase
+      .from('content')
+      .select('*', { count: 'exact' })
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents`,
-      {
-        method: "GET",
-        headers: {
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "",
-        }
-      }
-    );
+    if (error) throw error;
 
-    if (!response.ok) throw new Error("Failed to fetch history");
-    // console.log('res', await response.json());
-    return await response.json();
+    return {
+      documents: (data ?? []).map(fromRow).filter((d): d is NonNullable<ReturnType<typeof fromRow>> => d !== null),
+      total: count ?? 0,
+    };
   } catch (error) {
-    console.error("Error fetching history:", error);
+    console.error('Error fetching history:', error);
     throw error;
   }
 }
 
 export async function deleteHistoryItem(documentId: string) {
-  debugger
   try {
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents/${documentId}`,
-      {
-        method: "DELETE",
-        headers: {
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "",
-        },
-      }
-    );
+    const { error } = await supabase
+      .from('content')
+      .delete()
+      .eq('id', documentId);
 
-    if (!response.ok) throw new Error("Failed to delete item");
+    if (error) throw error;
     return true;
   } catch (error) {
-    console.error("Error deleting item:", error);
+    console.error('Error deleting item:', error);
     throw error;
   }
 }
@@ -172,89 +174,59 @@ export async function updateContent(
     suggestions?: string[];
     contentGaps?: string[];
     summary?: string;
-    relatedLinks?: {
-      url: string;
-      title: string;
-      content: string;
-      score: number;
-      raw_content: string | null;
-    }[];
+    relatedLinks?: { url: string; title: string; content: string; score: number; raw_content: string | null }[];
     companyId?: any;
   }
 ) {
   try {
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents/${documentId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "", // Replace with your Appwrite API Key
-        },
-        body: JSON.stringify({
-          data: {
-            ...(input && { content: input }),
-            ...(analysis && { analysis }),
-            ...(contentScore !== undefined && {
-              contentScore: Math.round(contentScore),
-            }),
-            ...(readability && { readability }),
-            ...(tone && { tone }),
-            ...(keyInsights && { keyInsights }),
-            ...(improvements && { improvements }),
-            ...(wordCount !== undefined && { wordCount }),
-            ...(readingTime !== undefined && { readingTime }),
-            ...(aiScore !== undefined && { aiScore }),
-            ...(humanScore !== undefined && { humanScore }),
-            ...(humanizedVersion && { humanizedVersion }),
-            ...(outline && {
-              outline: outline.map(
-                (item) => `Level ${item.level}: ${item.text}`
-              ),
-            }),
-            ...(suggestions && { suggestions }),
-            ...(contentGaps && { contentGaps }),
-            ...(summary && { summary }),
-            ...(companyId && { companyId }),
-            relatedLinks: relatedLinks
-              ? relatedLinks.map((link) => JSON.stringify(link))
-              : [], // Convert objects to strings
-            updatedAt: new Date().toISOString(),
-          },
-        }),
-      }
-    );
+    const updates: Record<string, any> = { updated_at: new Date().toISOString() };
 
-    if (!response.ok) {
-      console.log(await response.json());
-      throw new Error("Failed to save content");
-    }
+    if (input !== undefined) updates.content = input;
+    if (analysis !== undefined) updates.analysis = analysis;
+    if (contentScore !== undefined) updates.content_score = Math.round(contentScore);
+    if (readability !== undefined) updates.readability = readability;
+    if (tone !== undefined) updates.tone = tone;
+    if (keyInsights !== undefined) updates.key_insights = keyInsights;
+    if (improvements !== undefined) updates.improvements = improvements;
+    if (wordCount !== undefined) updates.word_count = wordCount;
+    if (readingTime !== undefined) updates.reading_time = readingTime;
+    if (aiScore !== undefined) updates.ai_score = Math.round(aiScore);
+    if (humanScore !== undefined) updates.human_score = Math.round(humanScore);
+    if (humanizedVersion !== undefined) updates.humanized_version = humanizedVersion;
+    if (outline !== undefined) updates.outline = outline;
+    if (suggestions !== undefined) updates.suggestions = suggestions;
+    if (contentGaps !== undefined) updates.content_gaps = contentGaps;
+    if (summary !== undefined) updates.summary = summary;
+    if (relatedLinks !== undefined) updates.related_links = relatedLinks;
+    if (companyId !== undefined) updates.company_id = companyId;
 
-    return await response.json();
+    const { data, error } = await supabase
+      .from('content')
+      .update(updates)
+      .eq('id', documentId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return fromRow(data);
   } catch (error) {
-    console.error("Error saving content:", error);
+    console.error('Error updating content:', error);
+    throw error;
   }
 }
 
 export async function fetchContent(documentId: string) {
   try {
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents/${documentId}`,
-      {
-        method: "GET",
-        headers: {
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "",
-        }
-      }
-    );
+    const { data, error } = await supabase
+      .from('content')
+      .select('*')
+      .eq('id', documentId)
+      .single();
 
-    if (!response.ok) throw new Error("Failed to fetch content");
-
-    return await response.json();
+    if (error) throw error;
+    return { document: fromRow(data) };
   } catch (error) {
-    console.error("Error fetching content:", error);
+    console.error('Error fetching content:', error);
     throw error;
   }
 }

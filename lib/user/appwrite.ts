@@ -1,135 +1,108 @@
 'use server';
 
-import { ID } from "appwrite";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+const authHeaders = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_ANON_KEY,
+};
+
+function mapUser(user: any) {
+  return {
+    $id: user.id,
+    name: user.user_metadata?.name || user.email,
+    email: user.email,
+    $createdAt: user.created_at,
+    $updatedAt: user.updated_at || user.created_at,
+  };
+}
 
 export async function signup(email: string, password: string, name: string) {
-  try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
-        'X-Appwrite-Key': process.env.API_SECRET_KEY ?? "",
-      },
-      body: JSON.stringify({
-        userId: ID.unique(),
-        email,
-        password,
-        name,
-      }),
-    });
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    method: 'POST',
+    headers: authHeaders,
+    body: JSON.stringify({ email, password, data: { name } }),
+  });
 
-    const data = await response.json();
+  const data = await res.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Signup failed.');
-    }
-
-    // Automatically log in the user after signup
-    return await login(email, password);
-  } catch (error) {
-    console.error('❌ Signup error:', error);
-    throw new Error('Signup Failed')
+  if (!res.ok) {
+    throw new Error(data.msg || data.error_description || 'Signup failed.');
   }
+
+  return await login(email, password);
 }
 
 export async function login(email: string, password: string) {
-  try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account/sessions/email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
-        'X-Appwrite-Key': process.env.API_SECRET_KEY ?? "",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: authHeaders,
+    body: JSON.stringify({ email, password }),
+  });
 
-    const data = await response.json();    
+  const data = await res.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Login failed.');
-    }
-
-    return data; // Returns session object
-  } catch (error) {
-    console.error('❌ Login error:', error);
-    throw new Error('Login failed.');
+  if (!res.ok) {
+    throw new Error(data.error_description || data.msg || 'Login failed.');
   }
+
+  return {
+    secret: data.access_token,
+    userId: data.user?.id,
+  };
 }
 
 export async function logout(sessionToken: string) {
   try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account/sessions/current`, {
-      method: 'DELETE',
+    await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+      method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
-        'X-Appwrite-Session': sessionToken
+        ...authHeaders,
+        'Authorization': `Bearer ${sessionToken}`,
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Logout failed.');
-    }
-
-    return { message: 'Logged out successfully' };
-  } catch (error) {
-    console.error('❌ Logout error:', error);
-    throw new Error('Logout failed.');
+  } catch {
+    // Ignore network errors — token may already be expired/invalid
   }
+  return { message: 'Logged out successfully' };
 }
 
 export async function getUser(sessionToken: string) {
-  try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
-        'X-Appwrite-Session': sessionToken,
-      },
-    });
-    
-    const data = await response.json();
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'GET',
+    headers: {
+      ...authHeaders,
+      'Authorization': `Bearer ${sessionToken}`,
+    },
+  });
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Fetching user failed.');
-    }
+  const data = await res.json();
 
-    return data; // Returns user object
-  } catch (error) {
-    console.error('❌ Get user error:', error);
-    throw new Error('User retrieval failed.');
+  if (!res.ok) {
+    const msg: string = data.msg || data.error_description || 'Fetching user failed.';
+    const isExpired = msg.toLowerCase().includes('expired') || msg.toLowerCase().includes('invalid jwt');
+    throw new Error(isExpired ? 'SESSION_EXPIRED' : msg);
   }
+
+  return mapUser(data);
 }
-  
+
 export async function updateUserName(sessionToken: string, newName: string) {
-  try {
-    const response = await fetch(`${process.env.APPWRITE_ENDPOINT}/account/name`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Appwrite-Project': process.env.APPWRITE_PROJECT_ID ?? "",
-        'X-Appwrite-session': sessionToken, // Use session token
-      },
-      body: JSON.stringify({
-        name: newName,
-      }),
-    });
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'PUT',
+    headers: {
+      ...authHeaders,
+      'Authorization': `Bearer ${sessionToken}`,
+    },
+    body: JSON.stringify({ data: { name: newName } }),
+  });
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to update name.');
-    }
+  const data = await res.json();
 
-    return data; // Returns updated user data
-  } catch (error) {
-    console.error('❌ Update Name error:', error);
-    throw new Error('Failed to update name.');
+  if (!res.ok) {
+    throw new Error(data.msg || 'Failed to update name.');
   }
-}
 
+  return mapUser(data);
+}

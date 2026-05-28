@@ -1,20 +1,10 @@
 'use client';
 
-import { fetchHistory, deleteHistoryItem, fetchContent } from "@/lib/content/appwrite";
+import { fetchContent } from "@/lib/content/appwrite";
 import { getUser } from "@/lib/user/appwrite";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { ArrowLeft, Trash2, Search } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +15,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { deleteCompanyHistoryItem, getDataByMatchedOrganazationID } from "@/lib/companyHelper/companyHelpers";
 import { useCompanyId } from "@/hooks/useCompany";
 
@@ -42,19 +31,18 @@ interface HistoryItem {
 export default function HistoryPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ $id: string } | null>(null);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const ITEMS_PER_PAGE = 3;
-  const { companyId, companyloading, companyIderror } = useCompanyId();
+  const { companyId } = useCompanyId();
   const [companyData, setCompanyData] = useState<any>(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [activeFilter, setActiveFilter] = useState<HistoryItem['mode'] | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     const handleCheck = async () => {
@@ -62,7 +50,6 @@ export default function HistoryPage() {
         const result = await getDataByMatchedOrganazationID(companyId as any);
         const totalItems = result?.length || 0;
         const newTotalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-        console.log('Fetched totalItems:', totalItems, 'Calculated newTotalPages:', newTotalPages);
         setTotalPages(newTotalPages);
 
         // If current page is out of bounds (e.g., after deletion), go to previous page
@@ -75,10 +62,10 @@ export default function HistoryPage() {
         const endIndex = startIndex + ITEMS_PER_PAGE;
         const paginatedData = result?.slice(startIndex, endIndex) || [];
         setCompanyData(paginatedData);
-        setErrorMessage('');
+        setError('');
       } catch (error) {
         console.error("Error in useEffect:", error);
-        setErrorMessage('Failed to load company data Or company Id is missing. Please try again later.');
+        setError('Failed to load company data Or company Id is missing. Please try again later.');
       }
     };
 
@@ -91,30 +78,30 @@ export default function HistoryPage() {
         const sessionToken = localStorage.getItem('sessionToken');
         if (!sessionToken) {
           router.push('/auth/login');
-          throw new Error('No session found');
+          return;
         }
 
         const userData = await getUser(sessionToken);
         setUser(userData);
-
-        if (userData.$id) {
-          const historyData = await fetchHistory(userData.$id, currentPage, ITEMS_PER_PAGE);
-          setHistory(historyData?.documents || []);
-          setTotalPages(Math.ceil((historyData?.total || 0) / ITEMS_PER_PAGE));
-        }
-      } catch (error) {
-        console.error('Profile or history fetch failed:', error);
-        setError('Failed to load your profile or history. Please try again.');
-        if ((error as Error).message === 'No session found') {
+        setAuthChecked(true);
+      } catch (err: unknown) {
+        console.error('Profile fetch failed:', err);
+        const msg = (err as Error)?.message ?? '';
+        if (msg === 'SESSION_EXPIRED') {
+          localStorage.removeItem('sessionToken');
+          localStorage.removeItem('documentId');
           router.push('/auth/login');
+          return;
         }
+        setAuthChecked(true);
+        setError('Failed to load your profile. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [router, currentPage]);
+  }, [router]);
 
   const handleViewDetails = async (item: HistoryItem) => {
     try {
@@ -159,10 +146,10 @@ export default function HistoryPage() {
 
   const getModeColor = (mode: HistoryItem['mode']) => {
     const colors = {
-      'ai-generate': 'bg-blue-100 text-blue-800',
-      'create': 'bg-green-100 text-green-800',
-      'analyze': 'bg-purple-100 text-purple-800',
-      'ai-score': 'bg-orange-100 text-orange-800'
+      'ai-generate': 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+      'create':      'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+      'analyze':     'bg-pink-500/10 text-pink-400 border-pink-500/20',
+      'ai-score':    'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
     };
     return colors[mode];
   };
@@ -182,170 +169,191 @@ export default function HistoryPage() {
     router.push('/dashboard');
   };
 
+  if (!authChecked) return null;
+
   if (!user && !loading) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
-        <p className="text-gray-500">Please log in to view your history.</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'hsl(var(--sidebar-background))' }}>
+        <p className="text-sm" style={{ color: 'hsl(var(--sidebar-foreground))' }}>Please log in to view your history.</p>
       </div>
     );
   }
 
-  // Add debug log before rendering pagination
-  console.log('currentPage:', currentPage, 'totalPages:', totalPages, 'companyData:', companyData);
-
   return (
     <>
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Back to Dashboard</span>
-            </button>
-            <h2 className="text-2xl font-semibold">History</h2>
+      <div className="min-h-screen" style={{ background: 'hsl(var(--sidebar-background))' }}>
+        <div className="max-w-3xl mx-auto p-6">
+
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                style={{ color: 'hsl(var(--sidebar-foreground))' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </button>
+              <div>
+                <h2 className="text-lg font-bold text-white">History</h2>
+                <p className="text-xs" style={{ color: 'hsl(var(--sidebar-foreground))' }}>Your past analyses and generations</p>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-4">
-            {error}
+          {/* Filter tabs */}
+          {(() => {
+            const filters: { label: string; value: HistoryItem['mode'] | 'all' }[] = [
+              { label: 'All', value: 'all' },
+              { label: 'AI Generated', value: 'ai-generate' },
+              { label: 'Analyzed', value: 'analyze' },
+              { label: 'AI Score', value: 'ai-score' },
+              { label: 'Created', value: 'create' },
+            ];
+            return (
+              <div className="flex gap-2 flex-wrap mb-6">
+                {filters.map(f => (
+                  <button
+                    key={f.value}
+                    onClick={() => setActiveFilter(f.value)}
+                    className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                      activeFilter === f.value
+                        ? 'bg-violet-500/15 text-violet-400 border-violet-500/30'
+                        : 'border-border text-muted-foreground hover:text-foreground hover:border-border/80'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
+
+          {/* Search input */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search history..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full bg-secondary border border-border rounded-xl pl-9 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/60 transition-all"
+            />
           </div>
-        )}
 
-        {loading ? (
-          <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          </div>
-        ) : companyData?.length > 0 ? (
-          <>
-            <ul className="space-y-4">
-              {companyData.map((item: any) => (
-                <li
-                  key={item.$id}
-                  className="border p-4 rounded-lg shadow hover:shadow-md transition-shadow bg-white"
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-2">
-                      <Badge className={getModeColor(item.mode)}>
-                        {getModeLabel(item.mode)}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(item.$id)}
-                        className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Created: {new Date(item.createdAt).toLocaleString()}
-                    </div>
-                  </div>
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-xl mb-5">
+              {error}
+            </div>
+          )}
 
-                  <div className="prose max-w-none line-clamp-3 mb-3">
-                    <MarkdownRenderer content={selectedItem?.content ?? ""}  />
-                  </div>
-
-                  {item.analysis && (
-                    <div className="mb-3">
-                      <p className="text-sm text-gray-600 font-medium">Input:</p>
-                      <div className="text-sm text-gray-500 line-clamp-2">{item.content}</div>
-                      <p className="text-sm text-gray-600 font-medium">Analysis:</p>
-                      <div className="text-sm text-gray-500 line-clamp-2">{item.analysis}</div>
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-2 border-violet-500/20 border-t-violet-500 rounded-full animate-spin" />
+                <p className="text-xs" style={{ color: 'hsl(var(--sidebar-foreground))' }}>Loading history...</p>
+              </div>
+            </div>
+          ) : companyData?.length > 0 ? (
+            <>
+              <ul className="space-y-3">
+                {(activeFilter === 'all' ? companyData : companyData.filter((item: any) => item.mode === activeFilter))
+                  .filter((item: any) => !searchQuery || item.content?.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map((item: any) => (
+                  <li
+                    key={item.$id}
+                    className="rounded-2xl border p-5 transition-all cursor-pointer"
+                    style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'hsl(var(--sidebar-border))' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLLIElement).style.borderColor = 'rgba(139,92,246,0.3)'; (e.currentTarget as HTMLLIElement).style.background = 'rgba(139,92,246,0.05)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLLIElement).style.borderColor = 'hsl(var(--sidebar-border))'; (e.currentTarget as HTMLLIElement).style.background = 'rgba(255,255,255,0.03)'; }}
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${getModeColor(item.mode)}`}>
+                          {getModeLabel(item.mode)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px]" style={{ color: 'hsl(var(--sidebar-foreground))' }}>
+                          {new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        <button
+                          onClick={e => { e.stopPropagation(); handleDelete(item.$id); }}
+                          className="p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
-                  )}
 
-                  <div className="flex justify-between items-center mt-4">
-                    <div className="text-sm text-gray-500">
-                      {item.updatedAt !== item.createdAt &&
-                        `Updated: ${new Date(item.updatedAt).toLocaleString()}`
-                      }
-                    </div>
+                    {item.content && (
+                      <p className="text-xs leading-relaxed line-clamp-2 mb-3" style={{ color: 'hsl(var(--sidebar-foreground))' }}>
+                        {item.content.replace(/<[^>]*>/g, '').slice(0, 200)}
+                      </p>
+                    )}
+
                     <button
-                      className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      className="text-xs font-medium text-violet-400 hover:text-violet-300 transition-colors"
                       onClick={() => handleViewDetails(item)}
                     >
-                      View Details
+                      View details →
                     </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
 
-            <div className="mt-6">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                    />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-30"
+                  style={{ color: 'hsl(var(--sidebar-foreground))' }}
+                  onMouseEnter={e => { if (currentPage !== 1) { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Previous
+                </button>
+                <span className="text-xs" style={{ color: 'hsl(var(--sidebar-foreground))' }}>
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-30"
+                  style={{ color: 'hsl(var(--sidebar-foreground))' }}
+                  onMouseEnter={e => { if (currentPage !== totalPages) { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
+                >
+                  Next <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-16">
+              <div className="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-4">
+                <ArrowLeft className="h-6 w-6 text-violet-400 rotate-180" />
+              </div>
+              <p className="text-sm font-medium text-white mb-1">No history yet</p>
+              <p className="text-xs" style={{ color: 'hsl(var(--sidebar-foreground))' }}>Your analyses and generations will appear here.</p>
             </div>
-          </>
-        ) : (
-          <p className="text-gray-500">No history found.</p>
-        )}
+          )}
+        </div>
       </div>
 
-      <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-          <DialogHeader className="flex-shrink-0">
-            <DialogTitle>Content Details</DialogTitle>
-            {selectedItem && (
-              <Badge className={`mt-2 ${getModeColor(selectedItem.mode)}`}>
-                {getModeLabel(selectedItem.mode)}
-              </Badge>
-            )}
-          </DialogHeader>
-
-          <div className="flex-1 overflow-auto mt-4">
-            {!selectedItem ? (
-              <div className="flex justify-center items-center py-6">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="prose max-w-none">
-                  <h3 className="text-lg font-semibold mb-2">Input</h3>
-                  <MarkdownRenderer content={selectedItem.content} />
-                </div>
-
-                {selectedItem.analysis && (
-                  <div className="prose max-w-none">
-                    <h3 className="text-lg font-semibold mb-2">Analysis</h3>
-                    <div className="rounded-lg bg-gray-50 p-4">{selectedItem.analysis}</div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-foreground">Delete this item?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               This action cannot be undone. This will permanently delete this content from your history.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogCancel className="border-border">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

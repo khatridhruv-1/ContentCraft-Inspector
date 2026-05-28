@@ -1,13 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from './ui/button';
 import { Brain, RefreshCw, Sparkles, AlertTriangle } from 'lucide-react';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 import { getUser } from '@/lib/user/appwrite';
 
 interface AIScorePanelProps {
@@ -31,6 +28,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
   content,
   triggerAIScore,
 }) => {
+  const router = useRouter();
   const [result, setResult] = useState<AIScoreResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,32 +56,27 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
         }
 
         const result = await response.json();
-        console.log('result', result);
-        
         setResult(result);
 
         const documentId = localStorage.getItem('documentId')
           if (documentId) {
-            const res = await updateContent(documentId, {
+            await updateContent(documentId, {
               analysis: content,
               input: content,
               aiScore: result.aiScore,
               humanScore: result.humanScore,
               humanizedVersion: result.humanizedVersion
-            })
-            console.log('res', res);
-            setResult(res);
-            
+            });
           } else {
             const sessionToken = localStorage.getItem('sessionToken');
             if (!sessionToken) {
               router.push('/auth/login');
-              throw new Error('No session found');
+              return;
             }
             const user = await getUser(sessionToken)
             const res = await saveContent(content, user.$id, content, 'ai-score')
 
-            localStorage.setItem('documentId', res.$id);
+            if (res) localStorage.setItem('documentId', res.$id);
           }
       } catch (error) {
         console.error('Error checking AI score:', error);
@@ -99,189 +92,152 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <motion.div
-          className="w-16 h-16 border-t-4 border-blue-600 rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
+        <div className="flex flex-col items-center gap-3">
+          <motion.div
+            className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+          />
+          <p className="text-xs text-muted-foreground">Scoring content...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-500 font-medium">{error}</p>
-        </motion.div>
+      <div className="h-full flex items-center justify-center p-6">
+        <div className="text-center">
+          <AlertTriangle className="w-8 h-8 text-destructive mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">{error}</p>
+        </div>
       </div>
     );
   }
 
   if (!result) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-md mx-auto p-8"
-        >
-          <Brain className="w-16 h-16 text-blue-600 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">AI Content Analysis</h2>
-          <p className="text-gray-600">
-            Click on &quot;Verify&quot; button to analyze your content for AI influence and get a humanized version.
-          </p>
-        </motion.div>
+      <div className="h-full flex items-center justify-center p-6">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+            <Brain className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-sm font-semibold text-foreground mb-1">Realness Score</h2>
+          <p className="text-xs text-muted-foreground max-w-xs">Click &quot;Check Score&quot; to detect AI vs human writing patterns and get a humanized rewrite.</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="h-full flex flex-col relative">
-      <div 
-        className="absolute inset-0 overflow-y-auto"
-        style={{
-          scrollbarColor: '#bab9b9 #f0f0f0',
-        }}
-      >
-        <div className="p-6 space-y-6">
-          <Card className="border-none shadow-lg bg-gradient-to-br from-white to-gray-50">
-            <CardHeader className="bg-white border-b border-gray-100">
-              <CardTitle className="flex items-center text-xl text-gray-900">
-                <Brain className="mr-2 text-blue-600" />
-                AI Content Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-6">
-                {/* AI Score Section */}
-                <motion.div
-                  className="p-6 rounded-xl bg-gradient-to-br from-gray-50 to-white border border-gray-200"
-                  initial={{ scale: 0.95 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="font-medium text-gray-700">AI Influence</span>
-                        <span className="font-bold text-blue-600">{result.aiScore}%</span>
-                      </div>
-                      <Progress value={result.aiScore} className="h-3 bg-blue-100" />
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="font-medium text-gray-700">Human Touch</span>
-                        <span className="font-bold text-green-600">{result.humanScore}%</span>
-                      </div>
-                      <Progress value={result.humanScore} className="h-3 bg-green-100" />
-                    </div>
-                  </div>
-                </motion.div>
+      <div className="absolute inset-0 overflow-y-auto">
+        <div className="p-4 space-y-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
 
-                {/* Analysis Section */}
-                <motion.div
-                  className="p-6 rounded-xl bg-gradient-to-br from-gray-50 to-white border border-gray-200"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <h3 className="text-lg font-semibold mb-4 text-gray-900">Analysis</h3>
-                  {typeof result.analysis === 'string' ? (
-                    <p className="text-gray-700 leading-relaxed">{result.analysis}</p>
-                  ) : (
-                    <div className="space-y-4">
-                      {result.analysis.languagePatterns && result.analysis.languagePatterns.length > 0 && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-2">Language Patterns</h4>
-                          <ul className="list-disc list-inside space-y-1">
-                            {result.analysis.languagePatterns.map((pattern, index) => (
-                              <li key={index} className="text-gray-700">{pattern}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      {result.analysis.tone && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-2">Tone</h4>
-                          <p className="text-gray-700">{result.analysis.tone}</p>
-                        </div>
-                      )}
-                      {result.analysis.style && (
-                        <div>
-                          <h4 className="font-medium text-gray-800 mb-2">Style</h4>
-                          <p className="text-gray-700">{result.analysis.style}</p>
-                        </div>
-                      )}
+            {/* Score bars */}
+            <div className="bg-secondary border border-border rounded-xl p-4 mb-3">
+              <div className="flex items-center gap-2 mb-4">
+                <Brain className="h-4 w-4 text-primary" />
+                <h3 className="text-xs font-semibold text-foreground">Content Analysis</h3>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-xs mb-2">
+                    <span className="text-muted-foreground font-medium">AI Influence</span>
+                    <span className="font-bold text-primary">{result.aiScore}%</span>
+                  </div>
+                  <div className="h-2 bg-border rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-600"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${result.aiScore}%` }}
+                      transition={{ duration: 0.8, ease: 'easeOut' }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs mb-2">
+                    <span className="text-muted-foreground font-medium">Human Touch</span>
+                    <span className="font-bold text-emerald-500">{result.humanScore}%</span>
+                  </div>
+                  <div className="h-2 bg-border rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-600"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${result.humanScore}%` }}
+                      transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Analysis */}
+            <div className="bg-secondary border border-border rounded-xl p-4 mb-3">
+              <h3 className="text-xs font-semibold text-foreground mb-3">Writing Pattern Analysis</h3>
+              {typeof result.analysis === 'string' ? (
+                <p className="text-xs text-muted-foreground leading-relaxed">{result.analysis}</p>
+              ) : (
+                <div className="space-y-3">
+                  {result.analysis.languagePatterns && result.analysis.languagePatterns.length > 0 && (
+                    <div>
+                      <h4 className="text-[11px] font-semibold text-foreground mb-1.5">Language Patterns</h4>
+                      <ul className="space-y-1">
+                        {result.analysis.languagePatterns.map((p, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                            <span className="text-primary shrink-0 mt-0.5">•</span>{p}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
-                </motion.div>
+                  {result.analysis.tone && (
+                    <div>
+                      <h4 className="text-[11px] font-semibold text-foreground mb-1">Tone</h4>
+                      <p className="text-xs text-muted-foreground">{result.analysis.tone}</p>
+                    </div>
+                  )}
+                  {result.analysis.style && (
+                    <div>
+                      <h4 className="text-[11px] font-semibold text-foreground mb-1">Style</h4>
+                      <p className="text-xs text-muted-foreground">{result.analysis.style}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
-                {/* Suggestions Section */}
-                {/* {result.suggestions && result.suggestions.length > 0 && (
+            {/* Humanized Version */}
+            <div className="bg-secondary border border-border rounded-xl overflow-hidden">
+              <button
+                onClick={() => setShowHumanized(!showHumanized)}
+                className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-foreground hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  Humanized Version
+                </div>
+                <RefreshCw className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ${showHumanized ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {showHumanized && (
                   <motion.div
-                    className="p-6 rounded-xl bg-gradient-to-br from-gray-50 to-white border border-gray-200"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 }}
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="overflow-hidden"
                   >
-                    <h3 className="text-lg font-semibold mb-4 text-gray-900">Suggestions</h3>
-                    <ul className="space-y-3">
-                      {result.suggestions.map((suggestion, index) => (
-                        <li key={index} className="flex gap-3 text-gray-700">
-                          <span className="text-blue-500">•</span>
-                          <span>{suggestion}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="px-4 pb-4 border-t border-border">
+                      <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap pt-3">{result.humanizedVersion}</p>
+                    </div>
                   </motion.div>
-                )} */}
+                )}
+              </AnimatePresence>
+            </div>
 
-                {/* Humanized Version Section */}
-                <motion.div
-                  className="space-y-4"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">Humanized Version</h3>
-                    <Button
-                      onClick={() => setShowHumanized(!showHumanized)}
-                      variant="outline"
-                      className="gap-2"
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      {showHumanized ? 'Hide' : 'Show'}
-                    </Button>
-                  </div>
-                  
-                  <AnimatePresence>
-                    {showHumanized && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="p-6 rounded-xl bg-gradient-to-br from-purple-50 to-white border border-purple-100">
-                          <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                            {result.humanizedVersion}
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
+          </motion.div>
         </div>
       </div>
     </div>

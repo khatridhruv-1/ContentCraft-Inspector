@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { List, Lightbulb, AlertTriangle } from 'lucide-react';
+import { List, Lightbulb, AlertTriangle, Copy, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
-import router from 'next/router';
+import { useRouter } from 'next/navigation';
 import { getUser } from '@/lib/user/appwrite';
 
 interface OutlinePanelProps {
   content: string;
   triggerOutline: boolean;
-  dataFromChild :string
-
+  dataFromChild: string;
 }
 
 interface OutlineItem {
@@ -25,16 +23,23 @@ interface OutlineResult {
 }
 
 const OutlinePanel: React.FC<OutlinePanelProps> = ({
-  content,
+  content: _content,
   triggerOutline,
-  
   dataFromChild
 }) => {
+  const router = useRouter();
   const [outlineResult, setOutlineResult] = useState<OutlineResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  console.log("OutlinePanel" ,dataFromChild);
-  
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (result: OutlineResult) => {
+    const text = result.outline.map(item => `${'  '.repeat(item.level - 1)}• ${item.text}`).join('\n');
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   useEffect(() => {
     const generateOutline = async () => {
       if (!triggerOutline || !dataFromChild.trim()) {
@@ -68,11 +73,13 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
           const sessionToken = localStorage.getItem('sessionToken');
           if (!sessionToken) {
             router.push('/auth/login');
-            throw new Error('No session found');
+            return;
           }
           const user = await getUser(sessionToken);
           const res = await saveContent(dataFromChild, user.$id, dataFromChild, 'analyze', result.outline, result.suggestions, result.contentGaps);
-          localStorage.setItem('documentId', res.$id);
+          if (res) {
+            localStorage.setItem('documentId', res.$id);
+          }
         }
       } catch (error) {
         console.error('Error generating outline:', error);
@@ -89,7 +96,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
     return (
       <div className="h-full flex items-center justify-center">
         <motion.div
-          className="w-16 h-16 border-t-4 border-blue-600 rounded-full"
+          className="w-16 h-16 border-t-4 border-violet-500 rounded-full"
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         />
@@ -100,7 +107,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
   if (error) {
     return (
       <div className="h-full flex items-center justify-center">
-        <p className="text-red-500">{error}</p>
+        <p className="text-destructive">{error}</p>
       </div>
     );
   }
@@ -109,8 +116,8 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Content Outline</h2>
-          <p className="text-muted-foreground text-center max-w-md">
+          <h2 className="text-2xl font-bold text-foreground">Content Outline</h2>
+          <p className="text-muted-foreground text-center max-w-md mt-2">
             Click on &quot;Analyze&quot; button to get detailed insights about your content.
           </p>
         </div>
@@ -121,102 +128,103 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
   return (
     <div className="h-full flex flex-col relative">
       <div className="absolute inset-0 overflow-y-auto">
-      <div className="p-6 space-y-6">
-      <motion.div 
-        className="flex-1 overflow-y-auto custom-scrollbar"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card>
-          <CardHeader className="bg-white border-b border-gray-200 sticky top-0 z-10">
-            <CardTitle className="flex items-center text-xl text-gray-900">
-              <List className="mr-2" />
-              Content Structure
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6 bg-white">
-            {outlineResult.outline.length > 0 ? (
-              <ul className="space-y-4">
-                {outlineResult.outline.map((item, index) => (
-                  <motion.li
-                    key={index}
-                    className="flex items-start gap-3 text-base"
-                    style={{ marginLeft: `${(item.level - 1) * 20}px` }}
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <motion.span
-                      className="w-2 h-2 rounded-full bg-blue-600 mr-2 mt-2"
-                      style={{ opacity: 1 - (item.level - 1) * 0.2 }}
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    />
-                    <span className="text-gray-700">{item.text}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-600">
-                No outline structure detected. Consider adding headers to organize your content.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="bg-white border-b border-gray-200 sticky top-0 z-10">
-            <CardTitle className="flex items-center text-xl text-gray-900">
-              <Lightbulb className="mr-2" />
-              Improvement Suggestions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6 bg-white">
-            <ul className="space-y-4">
-              {outlineResult.suggestions.map((suggestion, index) => (
-                <motion.li
-                  key={index}
-                  className="flex items-start gap-3 text-base border-b border-gray-200 pb-3 last:border-0 last:pb-0"
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
+        <div className="p-5 space-y-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
+            {/* Content Structure */}
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <List className="text-violet-400 w-4 h-4" />
+                  <span className="text-sm font-semibold text-foreground">Content Structure</span>
+                </div>
+                <button
+                  onClick={() => handleCopy(outlineResult)}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span className="text-gray-700">{suggestion}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+              <div className="p-4">
+                {outlineResult.outline.length > 0 ? (
+                  <ul className="space-y-3">
+                    {outlineResult.outline.map((item, index) => (
+                      <motion.li
+                        key={index}
+                        className="flex items-start gap-2 text-sm text-muted-foreground"
+                        style={{ marginLeft: `${(item.level - 1) * 16}px` }}
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-violet-500 shrink-0 mt-1.5" />
+                        <span>{item.text}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No outline structure detected. Consider adding headers to organize your content.
+                  </p>
+                )}
+              </div>
+            </div>
 
-        <Card>
-          <CardHeader className="bg-white border-b border-gray-200 sticky top-0 z-10">
-            <CardTitle className="flex items-center text-xl text-gray-900">
-              <AlertTriangle className="mr-2" />
-              Content Gaps
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6 bg-white">
-            <ul className="space-y-4">
-              {outlineResult.contentGaps.map((gap, index) => (
-                <motion.li
-                  key={index}
-                  className="flex items-start gap-3 text-base border-b border-gray-200 pb-3 last:border-0 last:pb-0"
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span className="text-gray-700">{gap}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </div>
-    </div>
+            {/* Improvement Suggestions */}
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+                <Lightbulb className="text-violet-400 w-4 h-4" />
+                <span className="text-sm font-semibold text-foreground">Improvement Suggestions</span>
+              </div>
+              <div className="p-4">
+                <ul className="space-y-3">
+                  {outlineResult.suggestions.map((suggestion, index) => (
+                    <motion.li
+                      key={index}
+                      className="flex items-start gap-2 text-sm text-muted-foreground border-b border-border pb-3 last:border-0 last:pb-0"
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <span className="text-violet-400 mt-0.5">•</span>
+                      <span>{suggestion}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Content Gaps */}
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+                <AlertTriangle className="text-violet-400 w-4 h-4" />
+                <span className="text-sm font-semibold text-foreground">Content Gaps</span>
+              </div>
+              <div className="p-4">
+                <ul className="space-y-3">
+                  {outlineResult.contentGaps.map((gap, index) => (
+                    <motion.li
+                      key={index}
+                      className="flex items-start gap-2 text-sm text-muted-foreground border-b border-border pb-3 last:border-0 last:pb-0"
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <span className="text-violet-400 mt-0.5">•</span>
+                      <span>{gap}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 };

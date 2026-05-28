@@ -1,13 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertCircle, Type, Clock, Zap } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { saveContent, updateContent } from '@/lib/content/appwrite'
 import { getUser } from '@/lib/user/appwrite'
-import router from 'next/router'
-import { getCompanyIdbyUser } from '@/lib/companyHelper/companyHelpers'
+import { useRouter } from 'next/navigation'
 import { useCompanyId } from '@/hooks/useCompany'
 interface AnalysisResult {
   contentScore: number
@@ -28,6 +26,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   triggerAnalysis,
   dataFromChild
 }) => {
+  const router = useRouter()
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [wordCount, setWordCount] = useState(0)
   const [readingTime, setReadingTime] = useState(0)
@@ -83,7 +82,6 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
 
           const documentId = localStorage.getItem('documentId')
           if (documentId) {
-            console.log('Updating with companyId:', companyId);
             await updateContent(documentId, {
               input: dataFromChild,
               analysis: dataFromChild,
@@ -100,34 +98,31 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
             const sessionToken = localStorage.getItem('sessionToken');
             if (!sessionToken) {
               router.push('/auth/login');
-              throw new Error('No session found');
+              return;
             }
             const user = await getUser(sessionToken)
-            console.log('Saving with companyId:', companyId);
-            const res = await saveContent(
-              dataFromChild, 
-              user.$id, 
-              dataFromChild, 
-              'analyze', 
-              result.contentScore, 
-              result.readability, 
-              result.tone, 
-              result.keyInsights, 
-              result.improvements, 
-              wordCount, 
+            await saveContent(
+              dataFromChild,
+              user.$id,
+              dataFromChild,
+              'analyze',
+              result.contentScore,
+              result.readability,
+              result.tone,
+              result.keyInsights,
+              result.improvements,
+              wordCount,
               readingTime,
-              undefined, // aiScore
-              undefined, // humanScore
-              undefined, // humanizedVersion
-              undefined, // outline
-              undefined, // suggestions
-              undefined, // contentGaps
-              undefined, // summary
-              undefined, // relatedLinks
-              companyId
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              undefined,
+              companyId ?? undefined
             )
-            console.log('res from analysis', res)
-            // localStorage.setItem('documentId', res.$id);
           }
         } catch (error) {
           console.error('Error analyzing content:', error)
@@ -148,32 +143,40 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <motion.div
-          className="w-16 h-16 border-t-4 border-blue-600 rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
+        <div className="flex flex-col items-center gap-3">
+          <motion.div
+            className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+          />
+          <p className="text-xs text-muted-foreground">Analyzing content...</p>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <p className="text-red-500">{error}</p>
+      <div className="h-full flex items-center justify-center p-6">
+        <div className="text-center">
+          <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center mx-auto mb-3">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+          </div>
+          <p className="text-sm text-muted-foreground">{error}</p>
+        </div>
       </div>
     )
   }
 
   if (!analysis) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full flex items-center justify-center p-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold">Analyze Content</h2>
-          <p className="text-muted-foreground text-center max-w-md">
-            Click the &quot;Analyze&quot; button to get a analysis of your
-            content.
-          </p>
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
+            <Zap className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-sm font-semibold text-foreground mb-1">Deep Analysis</h2>
+          <p className="text-xs text-muted-foreground max-w-xs">Click &quot;Analyze&quot; to get readability score, tone, insights and improvement suggestions.</p>
         </div>
       </div>
     )
@@ -182,193 +185,100 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   return (
     <div className="h-full flex flex-col relative">
       <div className="absolute inset-0 overflow-y-auto">
-        <div className="p-6 space-y-6">
-          <motion.div
-            className="flex-1 overflow-y-auto p-6 space-y-6 pr-4"
-            style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: '#3b82f6 #f3f4f6',
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Card className="border-none shadow-lg bg-gradient-to-br from-white to-gray-50">
-              <CardHeader className="bg-white border-b border-gray-100 sticky top-0 z-10">
-                <CardTitle className="flex items-center text-xl text-gray-900">
-                  <Zap className="mr-2 text-blue-600" />
-                  Content Score
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-center">
-                  <motion.div
-                    className="relative w-48 h-48"
-                    initial={{ scale: 0.9 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 10 }}
-                  >
-                    <svg className="w-full h-full" viewBox="0 0 100 100">
-                      {/* Define the gradient */}
-                      <defs>
-                        <linearGradient
-                          id="scoreGradient"
-                          x1="0%"
-                          y1="0%"
-                          x2="100%"
-                          y2="0%"
-                        >
-                          <stop
-                            offset="0%"
-                            style={{ stopColor: '#3b82f6', stopOpacity: 1 }}
-                          />
-                          <stop
-                            offset="100%"
-                            style={{ stopColor: '#60a5fa', stopOpacity: 1 }}
-                          />
-                        </linearGradient>
-                      </defs>
+        <div className="p-4 space-y-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
 
-                      {/* Background circle */}
-                      <circle
-                        className="text-gray-200"
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="transparent"
-                        strokeWidth="8"
-                        stroke="currentColor"
-                      />
-
-                      {/* Score circle */}
-                      <motion.circle
-                        stroke="url(#scoreGradient)"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="transparent"
-                        transform="rotate(-90 50 50)"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: analysis.contentScore / 100 }}
-                        transition={{ duration: 1, ease: 'easeOut' }}
-                      />
-                    </svg>
-
-                    {/* Score text */}
-                    <motion.div
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-gray-900"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 }}
-                    >
-                      {Math.round(analysis.contentScore)}
-                    </motion.div>
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-2 gap-4">
-              <MetricCard icon={<Type />} label="Word Count" value={wordCount} />
-              <MetricCard
-                icon={<Clock />}
-                label="Reading Time"
-                value={`${readingTime} min`}
-              />
-              <MetricCard
-                icon={<Type />}
-                label="Readability"
-                value={`${Math.round(analysis.readability)}%`}
-              />
-              <MetricCard
-                icon={<AlertCircle />}
-                label="Tone"
-                value={analysis.tone}
-              />
+            {/* Score ring */}
+            <div className="flex flex-col items-center py-4 mb-2">
+              <div className="relative w-32 h-32">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                  <defs>
+                    <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" style={{ stopColor: 'hsl(250,84%,60%)', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: 'hsl(280,84%,70%)', stopOpacity: 1 }} />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="50" cy="50" r="40" fill="transparent" strokeWidth="8" stroke="hsl(var(--border))" />
+                  <motion.circle
+                    stroke="url(#scoreGrad)" strokeWidth="8" strokeLinecap="round"
+                    cx="50" cy="50" r="40" fill="transparent"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: analysis.contentScore / 100 }}
+                    transition={{ duration: 1, ease: 'easeOut' }}
+                  />
+                </svg>
+                <motion.div
+                  className="absolute inset-0 flex flex-col items-center justify-center"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                >
+                  <span className="text-2xl font-bold text-foreground">{Math.round(analysis.contentScore)}</span>
+                  <span className="text-[10px] text-muted-foreground">Score</span>
+                </motion.div>
+              </div>
             </div>
 
-            <Card className="border-none shadow-lg bg-gradient-to-br from-white to-gray-50">
-              <CardHeader className="bg-white border-b border-gray-100 sticky top-0 z-10">
-                <CardTitle className="flex items-center text-xl text-gray-900">
-                  <AlertCircle className="mr-2 text-blue-600" />
-                  Key Insights
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <ul className="space-y-4">
-                  {analysis.keyInsights.map((insight, index) => (
-                    <motion.li
-                      key={index}
-                      className="flex items-start gap-3 text-base border-b border-gray-200 pb-3 last:border-0 last:pb-0"
-                      initial={{ x: -20, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <span className="text-blue-500 mt-1">•</span>
-                      <span className="text-gray-700">{insight}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            {/* Metrics grid */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {[
+                { label: 'Words', value: wordCount, icon: <Type className="h-3.5 w-3.5" /> },
+                { label: 'Read Time', value: `${readingTime}m`, icon: <Clock className="h-3.5 w-3.5" /> },
+                { label: 'Readability', value: `${Math.round(analysis.readability)}%`, icon: <Zap className="h-3.5 w-3.5" /> },
+                { label: 'Tone', value: analysis.tone, icon: <AlertCircle className="h-3.5 w-3.5" /> },
+              ].map(({ label, value, icon }) => (
+                <motion.div
+                  key={label}
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-secondary border border-border rounded-xl p-3"
+                >
+                  <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                    {icon}
+                    <span className="text-[11px] font-medium">{label}</span>
+                  </div>
+                  <span className="text-sm font-bold text-primary truncate block">{value}</span>
+                </motion.div>
+              ))}
+            </div>
 
-            <Card className="border-none shadow-lg bg-gradient-to-br from-white to-gray-50">
-              <CardHeader className="bg-white border-b border-gray-100 sticky top-0 z-10">
-                <CardTitle className="flex items-center text-xl text-gray-900">
-                  <Zap className="mr-2 text-blue-600" />
-                  Suggested Improvements
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <ul className="space-y-4">
-                  {analysis.improvements.map((improvement, index) => (
-                    <motion.li
-                      key={index}
-                      className="flex items-start gap-3 text-base border-b border-gray-200 pb-3 last:border-0 last:pb-0"
-                      initial={{ x: -20, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <span className="text-blue-500 mt-1">•</span>
-                      <span className="text-gray-700">{improvement}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            {/* Key Insights */}
+            <div className="bg-secondary border border-border rounded-xl p-4 mb-3">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertCircle className="h-4 w-4 text-primary" />
+                <h3 className="text-xs font-semibold text-foreground">Key Insights</h3>
+              </div>
+              <ul className="space-y-2">
+                {analysis.keyInsights.map((insight, i) => (
+                  <motion.li key={i} initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.08 }}
+                    className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                    <span className="text-primary mt-0.5 shrink-0">•</span>
+                    <span>{insight}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Improvements */}
+            <div className="bg-secondary border border-border rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="h-4 w-4 text-primary" />
+                <h3 className="text-xs font-semibold text-foreground">Improvements</h3>
+              </div>
+              <ul className="space-y-2">
+                {analysis.improvements.map((item, i) => (
+                  <motion.li key={i} initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.08 }}
+                    className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                    <span className="text-primary mt-0.5 shrink-0">•</span>
+                    <span>{item}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+
           </motion.div>
         </div>
       </div>
     </div>
   )
 }
-
-const MetricCard: React.FC<{
-  icon: React.ReactNode
-  label: string
-  value: number | string
-}> = ({ icon, label, value }) => (
-  <motion.div
-    initial={{ scale: 0.9 }}
-    animate={{ scale: 1 }}
-    transition={{ type: 'spring', stiffness: 200, damping: 10 }}
-  >
-    <Card className="border-none shadow-lg bg-gradient-to-br from-white to-gray-50">
-      <CardHeader className="bg-white border-b border-gray-100 p-2">
-        <CardTitle className="flex items-center text-lg text-gray-900">
-          {icon}
-          <span className="ml-2">{label}</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold text-blue-600">{value}</span>
-        </div>
-      </CardContent>
-    </Card>
-  </motion.div>
-)
 
 export default AnalysisPanel

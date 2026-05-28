@@ -1,47 +1,68 @@
-import axios from 'axios';
+import { NextResponse } from "next/server";
+
+function extractJSON(text: string): string {
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  return match ? match[1].trim() : text.trim();
+}
+
+function cleanContent(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 8000);
+}
 
 export async function POST(req: Request) {
-  const { content } = await req.json();
+  try {
+    const { content } = await req.json();
+    const plainContent = cleanContent(content);
 
-  const response = await axios.post(
-    'https://api.openai.com/v1/chat/completions',
-    {
-      model: 'gpt-3.5-turbo',
-      messages: [
-        {
-          role: 'system',
-          content: `
-            You are a powerful AI assistant specialized in detecting and fixing plagiarism.
-            Analyze the given content and provide the following in JSON format:
-            {
-              "plagiarismScore": number, // 0-100, where 100 means plagiarized
-              "uniquenessScore": number, // 0-100, where 100 means unique
-              "analysis": string, // Detailed analysis of potential plagiarism issues
-              "suggestions": string[], // List of suggestions to make the content more original
-              "improvedVersion": string // A rewritten version that maintains the meaning but is more original
-            }
-          `,
-        },
-        {
-          role: 'user',
-          content: `Analyze this content for plagiarism and suggest improvements: ${content}`,
-        },
-      ],
-    },
-    {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization:
-          `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: `You are a plagiarism detection assistant. Return ONLY a JSON object with these exact keys:
+{
+  "plagiarismScore": number (0-100, 100 means fully plagiarized),
+  "uniquenessScore": number (0-100, 100 means fully unique),
+  "analysis": string,
+  "suggestions": string[],
+  "improvedVersion": string
+}`,
+          },
+          {
+            role: "user",
+            content: `Analyze this content for plagiarism: ${plainContent}`,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      console.error("Groq error in plagiarism:", errData);
+      return NextResponse.json({ error: errData?.error?.message || "Error checking plagiarism" }, { status: 500 });
     }
-  );
 
-  const data = response.data.choices[0].message.content;
-  const analysis = JSON.parse(data);
+    const data = await response.json();
+    const raw = data.choices[0].message.content;
 
-  return new Response(JSON.stringify(analysis), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+    let analysis;
+    try {
+      analysis = JSON.parse(extractJSON(raw));
+    } catch {
+      console.error("JSON parse failed in plagiarism:", raw);
+      return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
+    }
+
+    return NextResponse.json(analysis);
+  } catch (error) {
+    console.error("Error in plagiarism check:", error);
+    return NextResponse.json({ error: "Error checking plagiarism" }, { status: 500 });
+  }
 }

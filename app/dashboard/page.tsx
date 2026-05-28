@@ -1,22 +1,25 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AnalysisPanel from '@/components/AnalysisPanel';
 import OutlinePanel from '@/components/OutlinePanel';
 import InfoGainPanel from '@/components/InfoGainPanel';
 import AIScorePanel from '@/components/AIScorePanel';
 import { motion } from 'framer-motion';
-import { Edit, FileSearch, LogOut, Notebook as Robot, UserCircle, Wand2, History, ArrowLeft } from 'lucide-react';
+import { Edit, FileSearch, LogOut, Notebook as Robot, UserCircle, Wand2, History, ArrowLeft, Menu, X } from 'lucide-react';
 import { cn, htmlToMarkdown } from '@/lib/utils';
 import ContentEditor from '@/components/ContentEditor';
 import { useRouter } from 'next/navigation';
-import { logout } from '@/lib/user/appwrite';
+import { logout, getUser } from '@/lib/user/appwrite';
+import { updateContent } from '@/lib/content/appwrite';
 import AIGeneratePanel from '@/components/AIGeneratePanel';
 import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 import MarkdownRenderer, { getDownloadableContent } from '@/components/MarkdownRenderer';
 import { marked } from 'marked';
+import { Suspense } from 'react';
+import DashboardParams from '@/components/DashboardParams';
 
 type AppMode = 'ai-generate' | 'create' | 'analyze' | 'ai-score';
 
@@ -36,11 +39,41 @@ export default function Dashboard() {
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [fromHistory, setFromHistory] = useState(false);
   const [title, setTitle] = useState<string>('GeneratedContent');
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
 
   const hasContent = content.trim().length > 0 || generatedContent.trim().length > 0;
+
+  // Session check on mount — redirect to login if token is expired
+  useEffect(() => {
+    const checkAuth = async () => {
+      const sessionToken = localStorage.getItem('sessionToken');
+      if (!sessionToken) {
+        router.push('/auth/login');
+        return;
+      }
+      try {
+        await getUser(sessionToken);
+        setAuthChecked(true);
+      } catch (err: unknown) {
+        const msg = (err as Error)?.message ?? '';
+        if (msg === 'SESSION_EXPIRED') {
+          localStorage.removeItem('sessionToken');
+          localStorage.removeItem('documentId');
+          router.push('/auth/login');
+        } else {
+          setAuthChecked(true);
+        }
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
   useEffect(() => {
     localStorage.removeItem("documentId");
   }, [])
@@ -64,10 +97,9 @@ export default function Dashboard() {
   useEffect(() => {
     const loadHistoryState = () => {
       const savedState = localStorage.getItem('dashboardState');
-      console.log('savedState', savedState);
-      
+
       if (savedState) {
-        const { id, mode, content, documentId, fromHistory, analysis } = JSON.parse(savedState);
+        const { mode, content, documentId, analysis } = JSON.parse(savedState);
   
         setMode(mode as AppMode);
         setContent(content);
@@ -120,18 +152,16 @@ export default function Dashboard() {
   };
 
   const handleLogout = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const sessionToken = localStorage.getItem('sessionToken');
-      if (sessionToken) {
-        await logout(sessionToken);
-        localStorage.removeItem('sessionToken');
-      }
-      router.push('/auth/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
+      if (sessionToken) await logout(sessionToken);
+    } catch {
+      // ignore logout errors
     } finally {
-      setLoading(false);
+      localStorage.removeItem('sessionToken');
+      localStorage.removeItem('documentId');
+      router.push('/auth/login');
     }
   };
 
@@ -184,7 +214,7 @@ export default function Dashboard() {
   };
 
   const handleGeneratedContent = (generatedContent: string) => {
-    // Assume generatedContent is Markdown, convert to HTML for the editor
+    if (!generatedContent) return;
     const generatedHtmlContent = marked(generatedContent) as string;
     handleContentChange(generatedHtmlContent);
     setHasGeneratedContent(true);
@@ -243,152 +273,181 @@ export default function Dashboard() {
   function handleDataFromChild(data :any) {
     setDataFromChild(data);
   }
-  // console.log("jaldip" ,dataFromChild)
+
+  const handleAutoSave = async (currentContent: string) => {
+    const documentId = localStorage.getItem('documentId');
+    if (!documentId || !currentContent.trim()) return;
+    setAutoSaveStatus('saving');
+    try {
+      await updateContent(documentId, { input: currentContent, analysis: currentContent });
+      setAutoSaveStatus('saved');
+      setTimeout(() => setAutoSaveStatus('idle'), 2000);
+    } catch {
+      setAutoSaveStatus('idle');
+    }
+  };
+
+  if (!authChecked) return null;
+
   return (
-    <div className="min-h-screen h-screen flex bg-white">
+    <div className="min-h-screen h-screen flex bg-background">
+      <Suspense fallback={null}>
+        <DashboardParams setMode={setMode} />
+      </Suspense>
       {/* Sidebar */}
-      <div className="w-80 border-r border-gray-100 p-8 shrink-0 bg-gray-50 flex flex-col h-screen">
-        <h2 className="text-2xl font-semibold mb-8 text-gray-900">Content Tools</h2>
-
-        <div className="space-y-4 flex-grow">
-          {/* AI Generate Button */}
+      <>
+        {/* Mobile overlay backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        <div
+          className={`fixed lg:relative z-30 lg:z-auto w-72 shrink-0 flex flex-col h-screen transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          style={{ background: 'hsl(var(--sidebar-background))' }}
+        >
+        {/* Logo */}
+        <div className="relative px-6 py-6 border-b" style={{ borderColor: 'hsl(var(--sidebar-border))' }}>
           <button
-            onClick={() => handleModeChange('ai-generate')}
-            className={cn(
-              'w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg',
-              mode === 'ai-generate'
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-gray-100 text-gray-700'
-            )}
+            className="lg:hidden absolute top-4 right-4 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
+            onClick={() => setSidebarOpen(false)}
           >
-            <Wand2 className="h-7 w-7" />
-            AI-Powered
+            <X className="h-4 w-4" />
           </button>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-violet-500 flex items-center justify-center shrink-0">
+              <Wand2 className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-base font-semibold text-white tracking-tight">ContentCraft</span>
+          </div>
+        </div>
 
-          {/* Create Content Button */}
-          <button
-            onClick={() => handleModeChange('create')}
-            className={cn(
-              'w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg',
-              mode === 'create'
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-gray-100 text-gray-700'
-            )}
-          >
-            <Edit className="h-7 w-7" />
-            Smart Editor
-          </button>
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+          <p className="text-xs font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: 'hsl(var(--sidebar-foreground) / 0.45)' }}>Tools</p>
 
-          {/* Analyze Content Button */}
-          <button
-            onClick={() => handleModeChange('analyze')}
-            className={cn(
-              'w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg',
-              mode === 'analyze'
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-gray-100 text-gray-700'
-            )}
-          >
-            <FileSearch className="h-7 w-7" />
-            Deep Analysis
-          </button>
+          {(([
+            { mode: 'ai-generate' as AppMode, label: 'AI-Powered', icon: Wand2, disabled: false },
+            { mode: 'create'      as AppMode, label: 'Smart Editor', icon: Edit, disabled: false },
+            { mode: 'analyze'     as AppMode, label: 'Deep Analysis', icon: FileSearch, disabled: false },
+            { mode: 'ai-score'    as AppMode, label: 'Realness Score', icon: Robot, disabled: !hasContent },
+          ]) as Array<{ mode: AppMode; label: string; icon: React.ElementType; disabled: boolean }>).map(({ mode: m, label, icon: Icon, disabled }) => (
+            <button
+              key={m}
+              onClick={() => !disabled && handleModeChange(m)}
+              disabled={disabled}
+              className={cn(
+                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+                mode === m
+                  ? 'text-white'
+                  : disabled
+                  ? 'opacity-40 cursor-not-allowed'
+                  : 'hover:text-white'
+              )}
+              style={
+                mode === m
+                  ? { background: 'hsl(var(--sidebar-primary))', color: 'white' }
+                  : { color: 'hsl(var(--sidebar-foreground))' }
+              }
+              onMouseEnter={e => { if (mode !== m && !disabled) (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; }}
+              onMouseLeave={e => { if (mode !== m) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {label}
+            </button>
+          ))}
 
-          {/* AI Score Button */}
-          <button
-            onClick={() => handleModeChange('ai-score')}
-            disabled={!hasContent}
-            className={cn(
-              'w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg',
-              mode === 'ai-score'
-                ? 'bg-blue-600 text-white'
-                : hasContent
-                  ? 'hover:bg-gray-100 text-gray-700'
-                  : 'opacity-50 cursor-not-allowed text-gray-400'
-            )}
-          >
-            <Robot className="h-7 w-7" />
-            Realness Score
-          </button>
-
-          {/* History Button at Bottom & Centered */}
-          <div className="flex flex-col items-center mt-auto">
+          <div className="pt-4">
+            <p className="text-xs font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: 'hsl(var(--sidebar-foreground) / 0.45)' }}>Account</p>
             <button
               onClick={handleHistory}
-              className="w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg hover:bg-gray-100 text-gray-700"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+              style={{ color: 'hsl(var(--sidebar-foreground))' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
             >
-              <History className="h-7 w-7" />
+              <History className="h-4 w-4 shrink-0" />
               History
             </button>
           </div>
+        </nav>
+
+        {/* Profile at bottom */}
+        <div className="px-3 py-4 border-t" style={{ borderColor: 'hsl(var(--sidebar-border))' }} ref={menuRef}>
+          <button
+            onClick={() => setProfileMenuOpen(prev => !prev)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+            style={{ color: 'hsl(var(--sidebar-foreground))' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
+          >
+            <UserCircle className="h-4 w-4 shrink-0" />
+            Profile
+          </button>
+          {profileMenuOpen && (
+            <div className="mt-1 rounded-lg overflow-hidden shadow-lg border" style={{ background: 'hsl(var(--sidebar-accent))', borderColor: 'hsl(var(--sidebar-border))' }}>
+              <button
+                onClick={handleShowProfile}
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors"
+                style={{ color: 'hsl(var(--sidebar-foreground))' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
+              >
+                <UserCircle className="h-4 w-4" />
+                Show Profile
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </div>
+      </>
 
       {/* Main Content */}
-      <div className="flex-1 p-10 overflow-hidden bg-gray-50">
+      <div className="flex-1 overflow-hidden bg-background w-full">
         <motion.div
-          className="h-full flex flex-col max-w-[1800px] mx-auto"
-          initial={{ opacity: 0, y: -20 }}
+          className="h-full flex flex-col"
+          initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
         >
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-4">
-              <BackToHistoryButton />
-              <motion.h1
-                className="text-5xl font-bold text-gray-900"
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 10 }}
-              >
-                ContentCraft Inspector
-              </motion.h1>
-            </div>
-
-            <div className="relative" ref={menuRef}>
+          <div className="flex justify-between items-center px-8 py-4 border-b bg-card">
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setProfileMenuOpen((prev) => !prev)}
-                className="flex items-center gap-4 px-6 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                className="lg:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                onClick={() => setSidebarOpen(prev => !prev)}
               >
-                <UserCircle className="h-7 w-7" />
-                Profile
+                <Menu className="h-5 w-5" />
               </button>
-
-              {profileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  <button
-                    onClick={handleShowProfile}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  >
-                    <UserCircle className="h-5 w-5" />
-                    Show Profile
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-gray-100 rounded-b-lg"
-                  >
-                    <LogOut className="h-5 w-5" />
-                    Sign Out
-                  </button>
-                </div>
-              )}
+              <BackToHistoryButton />
+              <div>
+                <h1 className="text-xl font-bold text-foreground tracking-tight">ContentCraft Inspector</h1>
+                <p className="text-xs text-muted-foreground capitalize">{mode.replace('-', ' ')} mode</p>
+              </div>
             </div>
           </div>
 
-          {/* Content Area */}
-          <div className="flex-1">
+          {/* Content area wrapper + Content Area */}
+          <div className="flex-1 p-6 overflow-hidden flex flex-col">
             {mode === 'ai-generate' && !hasGeneratedContent ? (
-              // Initial full-screen input view for AI Generate
               <div className="flex-1 flex items-center justify-center h-full">
                 <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
+                  initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-[80%] h-[80%] bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden"
+                  transition={{ duration: 0.35 }}
+                  className="w-[80%] h-[80%] bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
                 >
-                  <div className="h-full flex flex-col p-8">
-                    <div className="p-4 border-b border-gray-100">
-                      <h2 className="text-xl font-semibold">AI-Powered Content</h2>
+                  <div className="h-full flex flex-col">
+                    <div className="px-6 py-4 border-b border-border">
+                      <h2 className="text-base font-semibold text-foreground">AI-Powered Content</h2>
                     </div>
                     <div className="flex-1 overflow-auto p-6">
                       <AIGeneratePanel onContentGenerated={handleGeneratedContent} />
@@ -397,81 +456,59 @@ export default function Dashboard() {
                 </motion.div>
               </div>
             ) : mode === 'ai-generate' && hasGeneratedContent ? (
-              // Two-column layout after content generation
-              <div className="grid grid-cols-2 gap-10 h-full">
-                {/* Left Column - Input Panel */}
+              <div className="grid grid-cols-2 gap-5 h-full">
                 <motion.div
-                  initial={{ x: -50, opacity: 0 }}
+                  initial={{ x: -30, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-lg h-full overflow-hidden flex flex-col"
+                  transition={{ duration: 0.35, delay: 0.1 }}
+                  className="bg-card rounded-2xl border border-border shadow-sm h-full overflow-hidden flex flex-col"
                 >
-                  <div className="p-4 border-b border-gray-100 flex-shrink-0">
-                    <h2 className="text-xl font-semibold">Generate New Content</h2>
+                  <div className="px-5 py-3.5 border-b border-border flex-shrink-0">
+                    <h2 className="text-sm font-semibold text-foreground">Generate New Content</h2>
                   </div>
-                  <div className="flex-1 overflow-auto p-6">
+                  <div className="flex-1 overflow-auto p-5">
                     <AIGeneratePanel onContentGenerated={handleGeneratedContent} />
                   </div>
                 </motion.div>
 
-                {/* Right Column - Output and Analysis */}
                 <motion.div
-                  initial={{ x: 50, opacity: 0 }}
+                  initial={{ x: 30, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-lg h-full flex flex-col"
+                  transition={{ duration: 0.35, delay: 0.2 }}
+                  className="bg-card rounded-2xl border border-border shadow-sm h-full flex flex-col"
                 >
-                  <div className="p-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
-                    <h2 className="text-xl font-semibold">Generated Content</h2>
+                  <div className="px-5 py-3.5 border-b border-border flex justify-between items-center flex-shrink-0">
+                    <h2 className="text-sm font-semibold text-foreground">Generated Content</h2>
                     <div className="flex gap-2">
-                      <button
-                        onClick={handleAnalyze}
-                        className="gap-2 px-4 py-2 rounded-lg flex items-center bg-blue-600 text-white hover:bg-blue-700"
-                      >
-                        <FileSearch className="h-5 w-5" />
-                        Analyze
+                      <button onClick={handleAnalyze} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                        <FileSearch className="h-3.5 w-3.5" /> Analyze
                       </button>
-                      <button
-                        onClick={handleAIScore}
-                        className="gap-2 px-4 py-2 rounded-lg flex items-center bg-blue-600 text-white hover:bg-blue-700"
-                      >
-                        <Robot className="h-5 w-5" />
-                        AI Score
+                      <button onClick={handleAIScore} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                        <Robot className="h-3.5 w-3.5" /> AI Score
                       </button>
-                      <button
-                        onClick={downloadAsWord}
-                        className="gap-2 px-4 py-2 rounded-lg flex items-center bg-green-600 text-white hover:bg-green-700"
-                      >
-                        📄 Download as Word
+                      <button onClick={downloadAsWord} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-emerald-600 text-white hover:opacity-90 transition-opacity">
+                        📄 Download
                       </button>
                     </div>
                   </div>
-                  {/* Scrollable Content */}
-                  <div className="flex-1 p-6 overflow-auto" style={{ position: 'relative', overflowY: 'auto', scrollbarColor: '#bab9b9 #f0f0f0' }}>
-                    <div className="prose max-w-none" style={{ position: 'absolute', paddingRight: '10px' }}>
+                  <div className="flex-1 p-5 overflow-auto">
+                    <div className="prose prose-sm max-w-none">
                       <MarkdownRenderer content={htmlToMarkdown(generatedContent)} />
                     </div>
                   </div>
-                  {/* Analysis/Score Panel */}
                   {(showAIGenerateAnalysis || showAIGenerateScore) && (
-                    <div className="border-t border-gray-100 flex-1 overflow-hidden">
+                    <div className="border-t border-border flex-1 overflow-hidden">
                       {showAIGenerateAnalysis && (
                         <Tabs defaultValue="analysis" className="h-full flex flex-col">
-                          <TabsList className="grid w-full grid-cols-3 bg-white p-4 border-b border-gray-100">
-                            <TabsTrigger value="analysis">Analysis 📊</TabsTrigger>
-                            <TabsTrigger value="outline">Outline 📝</TabsTrigger>
-                            <TabsTrigger value="infogain">Info Gain 🧠</TabsTrigger>
+                          <TabsList className="grid w-full grid-cols-3 rounded-none border-b border-border bg-muted/50 p-0 h-10">
+                            <TabsTrigger value="analysis" className="rounded-none text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Analysis</TabsTrigger>
+                            <TabsTrigger value="outline"  className="rounded-none text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Outline</TabsTrigger>
+                            <TabsTrigger value="infogain" className="rounded-none text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Info Gain</TabsTrigger>
                           </TabsList>
                           <div className="flex-1 overflow-auto">
-                            <TabsContent value="analysis" className="p-4">
-                              <AnalysisPanel content={content} triggerAnalysis={showAIGenerateAnalysis} dataFromChild={content}/>
-                            </TabsContent>
-                            <TabsContent value="outline" className="p-4">
-                              <OutlinePanel content={content} triggerOutline={showAIGenerateAnalysis} dataFromChild={content}/>
-                            </TabsContent>
-                            <TabsContent value="infogain" className="p-4">
-                              <InfoGainPanel content={content} triggerInfoGain={showAIGenerateAnalysis} dataFromChild={content}/>
-                            </TabsContent>
+                            <TabsContent value="analysis" className="p-4"><AnalysisPanel content={content} triggerAnalysis={showAIGenerateAnalysis} dataFromChild={content}/></TabsContent>
+                            <TabsContent value="outline"  className="p-4"><OutlinePanel  content={content} triggerOutline={showAIGenerateAnalysis}  dataFromChild={content}/></TabsContent>
+                            <TabsContent value="infogain" className="p-4"><InfoGainPanel content={content} triggerInfoGain={showAIGenerateAnalysis} dataFromChild={content}/></TabsContent>
                           </div>
                         </Tabs>
                       )}
@@ -485,13 +522,12 @@ export default function Dashboard() {
                 </motion.div>
               </div>
             ) : mode === 'create' && !showStructured ? (
-              // Single centered box for initial create mode
               <div className="flex-1 flex items-center justify-center h-full">
                 <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
+                  initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-lg h-full overflow-hidden"
+                  transition={{ duration: 0.35 }}
+                  className="bg-card rounded-2xl border border-border shadow-sm h-full overflow-hidden w-full"
                 >
                   <ContentEditor
                     initialContent={analysis}
@@ -501,18 +537,18 @@ export default function Dashboard() {
                     onCreate={() => setShowStructured(true)}
                     onAnalyze={() => setTriggerAnalysis(prev => !prev)}
                     onAIScore={() => setTriggerAIScore(true)}
-                    />
+                    onAutoSave={handleAutoSave}
+                    autoSaveStatus={autoSaveStatus}
+                  />
                 </motion.div>
               </div>
             ) : (
-              // Two-column layout for other modes and after create
-              <div className="grid grid-cols-2 gap-10 h-full">
-                {/* Left Box */}
+              <div className="grid grid-cols-2 gap-5 h-full">
                 <motion.div
-                  initial={{ x: -50, opacity: 0 }}
+                  initial={{ x: -30, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-lg h-[calc(100vh-200px)] overflow-hidden"
+                  transition={{ duration: 0.35, delay: 0.1 }}
+                  className="bg-card rounded-2xl border border-border shadow-sm h-[calc(100vh-140px)] overflow-hidden"
                 >
                   <ContentEditor
                     initialContent={content}
@@ -522,108 +558,55 @@ export default function Dashboard() {
                     onCreate={() => setShowStructured(true)}
                     onAnalyze={() => setTriggerAnalysis(prev => !prev)}
                     onAIScore={() => setTriggerAIScore(true)}
+                    onAutoSave={handleAutoSave}
+                    autoSaveStatus={autoSaveStatus}
                   />
                 </motion.div>
 
-                {/* Right Column */}
                 <div className="h-full flex flex-col">
                   {mode === 'analyze' && (
-                    <Tabs defaultValue="analysis" className="h-[calc(100vh-200px)] flex flex-col">
-                      <div className="flex items-center justify-between gap-4 mb-4">
-                        <TabsList className="grid w-full grid-cols-3 bg-white p-0 rounded-xl border border-gray-100 shadow-lg">
-                          <TabsTrigger
-                            value="analysis"
-                            className={cn(
-                              "rounded-l-xl text-lg py-3",
-                              "data-[state=active]:bg-blue-600 data-[state=active]:text-white",
-                              "data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600"
-                            )}
-                          >
-                            Analysis 📊
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="outline"
-                            className={cn(
-                              "text-lg py-3",
-                              "data-[state=active]:bg-blue-600 data-[state=active]:text-white",
-                              "data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600"
-                            )}
-                          >
-                            Outline 📝
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="infogain"
-                            className={cn(
-                              "rounded-r-xl text-lg py-3",
-                              "data-[state=active]:bg-blue-600 data-[state=active]:text-white",
-                              "data-[state=inactive]:bg-white data-[state=inactive]:text-gray-600"
-                            )}
-                          >
-                            Info Gain 🧠
-                          </TabsTrigger>
+                    <Tabs defaultValue="analysis" className="h-[calc(100vh-140px)] flex flex-col">
+                      <div className="mb-3">
+                        <TabsList className="grid w-full grid-cols-3 bg-card border border-border rounded-xl p-1 shadow-sm h-10">
+                          <TabsTrigger value="analysis" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Analysis 📊</TabsTrigger>
+                          <TabsTrigger value="outline"  className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Outline 📝</TabsTrigger>
+                          <TabsTrigger value="infogain" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Info Gain 🧠</TabsTrigger>
                         </TabsList>
                       </div>
-
                       <motion.div
-                        initial={{ x: 50, opacity: 0 }}
+                        initial={{ x: 30, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 0.4 }}
-                        className="bg-white rounded-2xl border border-gray-100 shadow-lg flex-1 overflow-hidden"
+                        transition={{ duration: 0.35, delay: 0.2 }}
+                        className="bg-card rounded-2xl border border-border shadow-sm flex-1 overflow-hidden"
                       >
-                        <TabsContent value="analysis" className="h-full m-0 p-4 overflow-auto">
-                          <AnalysisPanel
-                            content={analysis}
-                            triggerAnalysis={triggerAnalysis}
-                            dataFromChild={dataFromChild}
-                          />
-                        </TabsContent>
-                        <TabsContent value="outline" className="h-full m-0 p-4 overflow-auto">
-                          <OutlinePanel
-                            content={analysis}
-                            triggerOutline={triggerAnalysis}
-                            dataFromChild={dataFromChild}
-                          />
-                        </TabsContent>
-                        <TabsContent value="infogain" className="h-full m-0 p-4 overflow-auto">
-                          <InfoGainPanel
-                            content={analysis}
-                            triggerInfoGain={triggerAnalysis}
-                            dataFromChild={dataFromChild}
-                          />
-                        </TabsContent>
+                        <TabsContent value="analysis" className="h-full m-0 p-4 overflow-auto"><AnalysisPanel content={analysis} triggerAnalysis={triggerAnalysis} dataFromChild={dataFromChild}/></TabsContent>
+                        <TabsContent value="outline"  className="h-full m-0 p-4 overflow-auto"><OutlinePanel  content={analysis} triggerOutline={triggerAnalysis}  dataFromChild={dataFromChild}/></TabsContent>
+                        <TabsContent value="infogain" className="h-full m-0 p-4 overflow-auto"><InfoGainPanel content={analysis} triggerInfoGain={triggerAnalysis} dataFromChild={dataFromChild}/></TabsContent>
                       </motion.div>
                     </Tabs>
                   )}
 
                   {mode === 'create' && showStructured && (
                     <motion.div
-                      initial={{ x: 50, opacity: 0 }}
+                      initial={{ x: 30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                      className="bg-white rounded-2xl border border-gray-100 shadow-lg h-[calc(100vh-200px)] overflow-hidden"
+                      transition={{ duration: 0.35, delay: 0.2 }}
+                      className="bg-card rounded-2xl border border-border shadow-sm h-[calc(100vh-140px)] overflow-hidden"
                     >
                       <div className="h-full flex flex-col">
-                        <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                          <h2 className="text-xl font-semibold">Structured Content</h2>
+                        <div className="px-5 py-3.5 border-b border-border flex justify-between items-center">
+                          <h2 className="text-sm font-semibold text-foreground">Structured Content</h2>
                           <div className="flex gap-2">
-                            <button
-                              onClick={handleAnalyze}
-                              className="gap-2 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg flex items-center"
-                            >
-                              <FileSearch className="h-5 w-5" />
-                              Analyze Content
+                            <button onClick={handleAnalyze} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                              <FileSearch className="h-3.5 w-3.5" /> Analyze
                             </button>
-                            <button
-                              onClick={handleAIScore}
-                              className="gap-2 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg flex items-center"
-                            >
-                              <Robot className="h-5 w-5" />
-                              Check AI Score
+                            <button onClick={handleAIScore} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                              <Robot className="h-3.5 w-3.5" /> AI Score
                             </button>
                           </div>
                         </div>
-                        <div className="flex-1 p-6 overflow-auto" style={{ position: 'relative', overflowY: 'auto', scrollbarColor: '#bab9b9 #f0f0f0' }}>
-                          <div className="prose max-w-none" style={{ position: 'absolute', paddingRight: '10px' }}>
+                        <div className="flex-1 p-5 overflow-auto">
+                          <div className="prose prose-sm max-w-none">
                             <MarkdownRenderer content={htmlToMarkdown(content)} />
                           </div>
                         </div>
@@ -633,16 +616,13 @@ export default function Dashboard() {
 
                   {mode === 'ai-score' && (
                     <motion.div
-                      initial={{ x: 50, opacity: 0 }}
+                      initial={{ x: 30, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                      className="bg-white rounded-2xl border border-gray-100 shadow-lg h-[calc(100vh-200px)] overflow-hidden"
+                      transition={{ duration: 0.35, delay: 0.2 }}
+                      className="bg-card rounded-2xl border border-border shadow-sm h-[calc(100vh-140px)] overflow-hidden"
                     >
                       <div className="p-4 h-full overflow-auto">
-                        <AIScorePanel
-                          content={content}
-                          triggerAIScore={triggerAIScore}
-                        />
+                        <AIScorePanel content={content} triggerAIScore={triggerAIScore} />
                       </div>
                     </motion.div>
                   )}

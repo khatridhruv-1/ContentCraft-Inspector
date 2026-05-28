@@ -1,37 +1,43 @@
-import axios from "axios";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { content } = await req.json();  
+  try {
+    const { content } = await req.json();
+    const plainContent = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 8000);
 
-  const response = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a professional rephrasing assistant. Rephrase the user's whole input with a more structured format, using unique, descriptive, and powerful words. Aim for maximum clarity and attractiveness while ensuring it scores high in readability and effectiveness tests.",
-        },
-        {
-          role: "user",
-          content: `Rephrase the following: ${content}`,
-        },
-      ],
-    },
-    {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization:
-          `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "system",
+            content: "You are a professional rephrasing assistant. Rephrase the user's input with a more structured format, using unique, descriptive, and powerful words. Aim for maximum clarity and attractiveness.",
+          },
+          {
+            role: "user",
+            content: `Rephrase the following: ${plainContent}`,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      console.error("Groq error in rephrase:", errData);
+      return NextResponse.json({ error: errData?.error?.message || "Error rephrasing content" }, { status: 500 });
     }
-  );
 
-  const rephrased = response.data.choices[0].message.content;
+    const data = await response.json();
+    const rephrased = data.choices[0].message.content;
 
-  return new Response(JSON.stringify(rephrased), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+    return NextResponse.json(rephrased);
+  } catch (error) {
+    console.error("Error in rephrase:", error);
+    return NextResponse.json({ error: "Error rephrasing content" }, { status: 500 });
+  }
 }

@@ -1,10 +1,12 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
-import { Editor } from '@tinymce/tinymce-react';
-import { Button } from './ui/button';
-import { Wand2, Check } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { Wand2, Trash2, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
+import 'react-quill-new/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 interface ContentEditorProps {
   initialContent: string;
@@ -13,8 +15,27 @@ interface ContentEditorProps {
   onCreate: () => void;
   onAnalyze: () => void;
   onAIScore: () => void;
-  sendDataToParent :any
+  sendDataToParent: (data: string) => void;
+  onAutoSave?: (content: string) => Promise<void>;
+  autoSaveStatus?: 'idle' | 'saving' | 'saved';
 }
+
+const modules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ align: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    ['link', 'image'],
+    ['clean'],
+  ],
+};
+
+const formats = [
+  'header', 'bold', 'italic', 'underline', 'strike',
+  'align', 'list', 'indent', 'link', 'image',
+];
 
 export function ContentEditor({
   initialContent,
@@ -22,217 +43,129 @@ export function ContentEditor({
   mode,
   onCreate,
   onAnalyze,
-  onAIScore ,sendDataToParent 
+  onAIScore,
+  sendDataToParent,
+  onAutoSave,
+  autoSaveStatus,
 }: ContentEditorProps) {
   const [content, setContent] = useState(initialContent);
-  const [charCount, setCharCount] = useState(0);
-  const [wordCount, setWordCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
-  const editorRef = useRef<any>(null);
-  const { resolvedTheme } = useTheme();
-// console.log("contentcontent" ,content);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => { setContent(initialContent); }, [initialContent]);
 
-  useEffect(() => {
-    setContent(initialContent);
-  }, [initialContent]);
+  const plainText = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  const charCount = plainText.length;
+  const wordCount = plainText.split(/\s+/).filter(Boolean).length;
+  const hasContent = plainText.length > 0;
 
-  const handleEditorChange = (newContent: string) => {
-    setContent(newContent);
-    onContentChange(newContent);
-    const plainText = newContent.replace(/<[^>]*>/g, '').trim();
-    setCharCount(plainText.length);
-    setWordCount(plainText.split(/\s+/).filter(Boolean).length);
-
-    sendDataToParent(newContent);
+  const handleChange = (value: string) => {
+    setContent(value);
+    onContentChange(value);
+    sendDataToParent(value);
+    if (onAutoSave) {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+      autoSaveTimer.current = setTimeout(() => { onAutoSave(value); }, 3000);
+    }
   };
-  const hasContent = content.trim().length > 0;
 
-  if (!isMounted) {
-    return null;
-  }
+  if (!isMounted) return null;
 
   return (
-    <div className="h-full flex flex-col gap-6 p-6">
-      <div className="flex-1 relative border rounded-lg overflow-auto bg-white shadow-lg">
-        <Editor
-          apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
-          onInit={(evt, editor) => {
-            editorRef.current = editor;
-          }}
+    <div className="h-full flex flex-col">
+      <div className="flex-1 relative overflow-hidden">
+        <style>{`
+          .quill { height: 100%; display: flex; flex-direction: column; }
+          .ql-toolbar { background: hsl(var(--secondary)); border-bottom: 1px solid hsl(var(--border)); border-top: none; border-left: none; border-right: none; }
+          .ql-toolbar .ql-stroke { stroke: hsl(var(--muted-foreground)); }
+          .ql-toolbar .ql-fill { fill: hsl(var(--muted-foreground)); }
+          .ql-toolbar .ql-picker { color: hsl(var(--muted-foreground)); }
+          .ql-toolbar button:hover .ql-stroke, .ql-toolbar button.ql-active .ql-stroke { stroke: hsl(var(--primary)); }
+          .ql-toolbar button:hover .ql-fill, .ql-toolbar button.ql-active .ql-fill { fill: hsl(var(--primary)); }
+          .ql-container.ql-snow { border: none; }
+          .ql-editor { min-height: 300px; line-height: 1.7; padding: 1.25rem; color: hsl(var(--foreground)); background: hsl(var(--card)); font-size: 14px; font-family: 'Inter', -apple-system, sans-serif; }
+          .ql-editor.ql-blank::before { color: hsl(var(--muted-foreground)); font-style: normal; }
+          .ql-editor p, .ql-editor li { color: hsl(var(--foreground)); }
+        `}</style>
+        <ReactQuill
+          theme="snow"
           value={content}
-          onEditorChange={handleEditorChange}
-          init={{
-            height: '100%',
-            menubar: true,
-            branding: false,
-            statusbar: false,
-            plugins: [
-              'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-              'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
-              'fullscreen', 'insertdatetime', 'media', 'table', 'wordcount'
-            ],
-            toolbar: [
-              { name: 'history', items: ['undo', 'redo'] },
-              { name: 'styles', items: ['styleselect'] },
-              { name: 'formatting', items: ['bold', 'italic', 'underline', 'strikethrough'] },
-              { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
-              { name: 'lists', items: ['numlist', 'bullist'] },
-              { name: 'indentation', items: ['outdent', 'indent'] },
-              { name: 'insert', items: ['link', 'image', 'table'] },
-              { name: 'view', items: ['preview', 'fullscreen'] }
-            ],
-            skin: 'oxide',
-            content_css: 'default',
-            content_style: `
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, 
-                   Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-      font-size: 16px;
-      line-height: 1.5;
-      padding: 1rem;
-      background-color: #ffffff !important;
-      color: #000000 !important;
-      min-height: calc(100vh - 120px);
-      cursor: text;
-    }
-    
-    .tox-toolbar {
-      background-color: #f8f9fb !important;
-      border-bottom: 1px solid #e2e8f0 !important;
-    }
-    
-    .tox-toolbar__primary {
-      background-color: #f8f9fb !important;
-      border-bottom: 1px solid #e2e8f0 !important;
-    }
-    
-    .tox-toolbar-overlord {
-      background-color: #f8f9fb !important;
-    }
-    
-    .tox-menubar {
-      background-color: #f8f9fb !important;
-      border-bottom: 1px solid #e2e8f0 !important;
-    }
-    
-    .tox.tox-tinymce {
-      border: 1px solid #e2e8f0 !important;
-      border-radius: 0.75rem !important;
-      overflow: hidden;
-      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    }
-    
-    .tox-statusbar {
-      display: none !important;
-    }
-    
-    .tox-tinymce-aux {
-      z-index: 99999;
-    }
-    
-    /* Fix placeholder alignment */
-    .mce-content-body[data-mce-placeholder]:not(.mce-visualblocks)::before {
-      color: #94a3b8 !important;
-      position: absolute;
-      left: 1rem;
-      top: 1rem;
-      font-size: 16px;
-      font-family: inherit;
-      line-height: 1.5;
-      content: attr(data-mce-placeholder);
-      pointer-events: none;
-    }
-
-    /* Ensure consistent paragraph spacing */
-    p {
-      margin: 0;
-      min-height: 1.5em;
-    }
-
-    /* Fix cursor alignment */
-    .mce-content-body:not([dir=rtl])[data-mce-placeholder]:not(.mce-visualblocks)::before {
-      left: 1rem;
-    }
-  `,
-            // Ensure proper initial focus
-            setup: (editor) => {
-              editor.on('init', () => {
-                const editorContainer = editor.getContainer();
-                editorContainer.style.transition = "border-color 0.15s ease-in-out";
-
-                // Set initial cursor position
-                editor.focus();
-                const body = editor.getBody();
-                const firstChild = body.firstChild;
-                if (firstChild) {
-                  editor.selection.setCursorLocation(firstChild, 0);
-                } else {
-                  editor.selection.setCursorLocation(body, 0);
-                }
-
-                // Force white background
-                const editorIframe = editorContainer.querySelector('iframe');
-                if (editorIframe) {
-                  const iframeDocument = editorIframe.contentDocument;
-                  if (iframeDocument) {
-                    iframeDocument.documentElement.style.backgroundColor = '#ffffff';
-                  }
-                }
-              });
-            },
-            placeholder: 'Start writing your content...',
-            forced_root_block: 'p',
-            remove_trailing_brs: true,
-          }}
+          onChange={handleChange}
+          modules={modules}
+          formats={formats}
+          placeholder="Start writing your content..."
+          style={{ height: '100%' }}
         />
       </div>
-      <div className="flex justify-between items-center">
-        <div className="flex space-x-8 text-lg text-muted-foreground">
-          <span>Characters: {charCount}</span>
-          <span>Words: {wordCount}</span>
-        </div>
-        {mode === 'analyze' && (
-          <div className="flex gap-4">
-            <Button
-              onClick={onAnalyze}
-              disabled={!hasContent}
-              className="gap-3 px-8 py-6 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
-            >
-              <Wand2 className="h-7 w-7" />
-              Analyze
-            </Button>
+
+      <div className="flex justify-between items-center px-5 py-3 border-t border-border bg-card shrink-0">
+        <div className="flex items-center gap-5">
+          <div className="flex gap-5 text-xs text-muted-foreground">
+            <span><span className="font-semibold text-foreground">{charCount}</span> chars</span>
+            <span><span className="font-semibold text-foreground">{wordCount}</span> words</span>
+            {wordCount > 0 && (
+              <span><span className="font-semibold text-foreground">~{Math.ceil(wordCount / 200)}</span> min read</span>
+            )}
+            {autoSaveStatus === 'saving' && <span className="text-xs text-muted-foreground/60">Saving...</span>}
+            {autoSaveStatus === 'saved' && <span className="text-xs text-emerald-400">Saved ✓</span>}
           </div>
+          {hasContent && (
+            <button
+              onClick={() => { handleChange(''); toast.success('Content cleared'); }}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
+              title="Clear content"
+            >
+              <Trash2 className="w-3 h-3" />
+              Clear
+            </button>
+          )}
+          {hasContent && wordCount < 50 && (
+            <span className="flex items-center gap-1 text-xs text-amber-400">
+              <AlertTriangle className="w-3 h-3" />
+              {wordCount}/50 min words
+            </span>
+          )}
+        </div>
+
+        {mode === 'analyze' && (
+          <button
+            onClick={() => {
+              if (wordCount < 50) { toast.warning('Add at least 50 words for a meaningful analysis.'); return; }
+              onAnalyze();
+            }}
+            disabled={!hasContent}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+          >
+            <Wand2 className="h-4 w-4" />
+            Analyze
+          </button>
         )}
         {mode === 'create' && (
-          <div className="flex gap-4">
-            <Button
-              onClick={onCreate}
-              disabled={!hasContent}
-              className="gap-3 px-8 py-6 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
-            >
-              <Wand2 className="h-7 w-7" />
-              Verify
-            </Button>
-          </div>
+          <button
+            onClick={() => {
+              if (wordCount < 50) { toast.warning('Add at least 50 words for a meaningful verification.'); return; }
+              onCreate();
+            }}
+            disabled={!hasContent}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+          >
+            <Wand2 className="h-4 w-4" />
+            Verify
+          </button>
         )}
         {mode === 'ai-score' && (
-          <div className="flex gap-4">
-            <Button
-              onClick={onAIScore}
-              disabled={!hasContent}
-              className="gap-3 px-8 py-6 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
-            >
-              <Wand2 className="h-7 w-7" />
-                Verify
-            </Button>
-          </div>
+          <button
+            onClick={() => {
+              if (wordCount < 50) { toast.warning('Add at least 50 words to get an accurate score.'); return; }
+              onAIScore();
+            }}
+            disabled={!hasContent}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+          >
+            <Wand2 className="h-4 w-4" />
+            Check Score
+          </button>
         )}
       </div>
     </div>

@@ -55,61 +55,46 @@ export default function FaqSection() {
   };
 
   return (
-    <motion.div
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, delay: 0.3 }}
-      className="mb-16"
-    >
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-gray-900 mb-3">Frequently asked questions</h2>
-        <p className="text-gray-600 max-w-xl mx-auto">
-          Everything you need to know before getting started with ContentCraft Inspector.
-        </p>
-      </div>
-
-      <div className="space-y-3 max-w-3xl mx-auto">
-        {faqs.map((faq, index) => {
-          const isOpen = openIndex === index;
-          return (
-            <div key={faq.question} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <button
-                id={`faq-btn-${index}`}
-                onClick={() => toggle(index)}
-                aria-expanded={isOpen}
-                className="w-full flex items-center justify-between px-6 py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-2xl"
+    <div className="space-y-2">
+      {faqs.map((faq, index) => {
+        const isOpen = openIndex === index;
+        return (
+          <div key={faq.question} className="rounded-xl border border-white/[0.07] bg-white/[0.03] overflow-hidden">
+            <button
+              id={`faq-btn-${index}`}
+              onClick={() => toggle(index)}
+              aria-expanded={isOpen}
+              className="w-full flex items-center justify-between px-5 py-4 text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-violet-500 rounded-xl"
+            >
+              <span className="text-sm font-medium text-white/80 pr-4">{faq.question}</span>
+              <motion.span
+                animate={{ rotate: isOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex-shrink-0 text-white/30"
               >
-                <span className="text-base font-semibold text-gray-900 pr-4">{faq.question}</span>
-                <motion.span
-                  animate={{ rotate: isOpen ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex-shrink-0 text-gray-500"
+                <ChevronDown className="w-4 h-4" />
+              </motion.span>
+            </button>
+            <AnimatePresence initial={false}>
+              {isOpen && (
+                <motion.div
+                  id={`faq-panel-${index}`}
+                  role="region"
+                  aria-labelledby={`faq-btn-${index}`}
+                  key="content"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.22, ease: 'easeInOut' }}
+                  className="overflow-hidden"
                 >
-                  <ChevronDown className="w-5 h-5" />
-                </motion.span>
-              </button>
-
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    id={`faq-panel-${index}`}
-                    role="region"
-                    aria-labelledby={`faq-btn-${index}`}
-                    key="content"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                    className="overflow-hidden"
-                  >
-                    <p className="px-6 pb-5 text-gray-600 leading-relaxed">{faq.answer}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
-      </div>
-    </motion.div>
+                  <p className="px-5 pb-4 text-xs text-white/40 leading-relaxed">{faq.answer}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })}
+    </div>
   );
 }

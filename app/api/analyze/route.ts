@@ -1,54 +1,70 @@
-import axios from "axios";
+import { NextResponse } from "next/server";
+
+function extractJSON(text: string): string {
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  return match ? match[1].trim() : text.trim();
+}
+
+function cleanContent(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 8000);
+}
 
 export async function POST(req: Request) {
-  const { content } = await req.json();
+  try {
+    const { content } = await req.json();
+    const plainContent = cleanContent(content);
 
-  const response = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `
-            You are a powerful AI assistant that analyzes content and provides detailed insights and scores. 
-            Your task is to evaluate the given content and returnF the following results in JSON format:
-            {
-              "contentScore": number, // Overall vibe of the content (0-100, with 100 being the best). Calculate this score based on these factors:
-                - Readability (weight: 30%)
-                - Structure and organization (weight: 30%)
-                - Tone appropriateness (weight: 20%)
-                - Use of engaging and concise language (weight: 20%)
-              "wordCount": number, // Total word count of the content
-              "readingTime": number, // Estimated reading time in minutes F(assume 150 words per minute)
-              "readability": number, // Readability score (0-100, with 100 being the easiest to read)
-              "tone": string, // The tone of the content (e.g., "formal", "casual", "persuasive", etc.)
-              "keyInsights": string[], // Key insights from the content (up to 5 points)
-              "improvements": string[] // Suggested improvements to make the content stronger (up to 5 points)
-            }
-            Provide clear and concise results based on your analysis.
-          `,
-        },
-        {
-          role: "user",
-          content: `Analyze the following content and provide scores and insights: ${content}`,
-        },
-      ],
-    },
-    {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization:
-          `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
       },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: `You are a content analyzer. Analyze the given content and return ONLY a JSON object with these exact keys:
+{
+  "contentScore": number (0-100),
+  "wordCount": number,
+  "readingTime": number (minutes, assume 150 wpm),
+  "readability": number (0-100),
+  "tone": string,
+  "keyInsights": string[] (up to 5),
+  "improvements": string[] (up to 5)
+}`,
+          },
+          {
+            role: "user",
+            content: `Analyze this content: ${plainContent}`,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      console.error("Groq error in analyze:", errData);
+      return NextResponse.json({ error: errData?.error?.message || "Error analyzing content" }, { status: 500 });
     }
-  );
 
-  const data = response.data.choices[0].message.content;
-  const analysis = JSON.parse(data); // Parse the JSON string into a JS object
+    const data = await response.json();
+    const raw = data.choices[0].message.content;
 
-  return new Response(JSON.stringify(analysis), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+    let analysis;
+    try {
+      analysis = JSON.parse(extractJSON(raw));
+    } catch {
+      console.error("JSON parse failed in analyze:", raw);
+      return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
+    }
+
+    return NextResponse.json(analysis);
+  } catch (error) {
+    console.error("Error in analyze:", error);
+    return NextResponse.json({ error: "Error analyzing content" }, { status: 500 });
+  }
 }

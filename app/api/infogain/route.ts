@@ -19,6 +19,7 @@ async function getTavilyResults(query: string) {
     return {
       answer: response.data.answer,
       results: response.data.results,
+      followUpQuestions: response.data.follow_up_questions ?? [],
     }
   } catch (error) {
     console.error("Error fetching results:", error);

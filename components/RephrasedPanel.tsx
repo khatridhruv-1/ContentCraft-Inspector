@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Zap, Lightbulb } from 'lucide-react';
+import { Zap, Copy, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface RephrasedPanelProps {
@@ -15,6 +14,14 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({
   const [rephrasedContent, setRephrasedContent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (!rephrasedContent) return;
+    navigator.clipboard.writeText(rephrasedContent);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     const rephraseContent = async () => {
@@ -53,7 +60,7 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({
     return (
       <div className="h-full flex items-center justify-center">
         <motion.div
-          className="w-16 h-16 border-t-4 border-blue-600 rounded-full"
+          className="w-16 h-16 border-t-4 border-violet-500 rounded-full"
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         />
@@ -64,7 +71,7 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({
   if (error) {
     return (
       <div className="h-full flex items-center justify-center">
-        <p className="text-red-500 font-medium">{error}</p>
+        <p className="text-destructive font-medium">{error}</p>
       </div>
     );
   }
@@ -73,8 +80,8 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Content Rephrasing</h2>
-          <p className="text-gray-600 text-center max-w-md mt-2">
+          <h2 className="text-2xl font-bold text-foreground">Content Rephrasing</h2>
+          <p className="text-muted-foreground text-center max-w-md mt-2">
             Click the &quot;Rephrase&quot; button to get a rephrased version of your content.
           </p>
         </div>
@@ -83,68 +90,38 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <motion.div
-        className="flex-1 overflow-y-auto custom-scrollbar"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Rephrased Content Section */}
-        <Card className="border-none shadow-lg bg-gradient-to-br from-white to-gray-50 mb-6">
-          <CardHeader className="bg-white border-b border-gray-100 sticky top-0 z-10">
-            <CardTitle className="flex items-center text-xl text-gray-900">
-              <Zap className="mr-2 text-blue-600" />
-              Rephrased Content
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-              {rephrasedContent}
-            </p>
-          </CardContent>
-        </Card>
+    <div className="h-full flex flex-col relative">
+      <div className="absolute inset-0 overflow-y-auto">
+        <div className="p-5 space-y-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
+            {/* Rephrased Content */}
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <Zap className="text-violet-400 w-4 h-4" />
+                  <span className="text-sm font-semibold text-foreground">Rephrased Content</span>
+                </div>
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
+              <div className="p-4 text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                {rephrasedContent}
+              </div>
+            </div>
 
-        {/* Key Highlights Section */}
-        <Card className="border-none shadow-lg bg-gradient-to-br from-white to-gray-50">
-          <CardHeader className="bg-white border-b border-gray-100 sticky top-0 z-10">
-            <CardTitle className="flex items-center text-xl text-gray-900">
-              <Lightbulb className="mr-2 text-yellow-500" />
-              Key Highlights
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <ul className="space-y-4">
-              <motion.li
-                className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-white border border-blue-100"
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-              >
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
-                  1
-                </span>
-                <span className="text-gray-700 leading-relaxed">
-                  Enhanced clarity and readability in the rephrased version
-                </span>
-              </motion.li>
-              <motion.li
-                className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-blue-50 to-white border border-blue-100"
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
-                  2
-                </span>
-                <span className="text-gray-700 leading-relaxed">
-                  Maintained core message while improving expression
-                </span>
-              </motion.li>
-            </ul>
-          </CardContent>
-        </Card>
-      </motion.div>
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 };

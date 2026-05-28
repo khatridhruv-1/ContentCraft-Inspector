@@ -1,12 +1,14 @@
 // hooks/useCompanyId.ts
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getCompanyIdbyUser } from '@/lib/companyHelper/companyHelpers'
-import { getUser } from '@/lib/user/appwrite'   
+import { getUser } from '@/lib/user/appwrite'
 
 export const useCompanyId = () => {
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [companyloading, setLoading] = useState(true);
   const [companyIderror, setError] = useState<Error | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCompanyId = async () => {
@@ -29,20 +31,26 @@ export const useCompanyId = () => {
 
         // Get company ID for this user
         const id = await getCompanyIdbyUser(user.$id);
-        
+
         // Log and set the company ID (important: handle case where id might be null)
         console.log("Company ID retrieved:", id);
         setCompanyId(id || null); // Ensure we store null and not undefined
-      } catch (err) {
-        console.error("Error getting company ID:", err);
-        setError(err instanceof Error ? err : new Error(String(err)));
+      } catch (err: unknown) {
+        const msg = (err as Error)?.message ?? '';
+        if (msg === 'SESSION_EXPIRED') {
+          localStorage.removeItem('sessionToken');
+          localStorage.removeItem('documentId');
+          router.push('/auth/login');
+          return;
+        }
+        setError((err as Error)?.message ? (err as Error) : new Error(String(err)));
       } finally {
         setLoading(false);
       }
     };
 
     fetchCompanyId();
-  }, []);
+  }, [router]);
 
   return { companyId, companyloading, companyIderror };
 };
