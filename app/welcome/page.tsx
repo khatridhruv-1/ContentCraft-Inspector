@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, useReducedMotion, useInView } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   Wand2,
   Edit3,
@@ -11,11 +11,11 @@ import {
   Sparkles,
   ArrowRight,
   Zap,
-  Star,
   Shield,
   TrendingUp,
-  ChevronDown,
 } from 'lucide-react';
+import NavBar from './NavBar';
+import HeroSection from './HeroSection';
 import FaqSection from './FaqSection';
 import UserGuideSection from './UserGuideSection';
 
@@ -63,78 +63,6 @@ const features = [
     glowColor: 'rgba(236,72,153,0.24)',
   },
 ];
-
-// Semantic icon colors — Experts 4, 10: amber=speed/quality, emerald=trust/accuracy
-const stats = [
-  { label: 'Faster content creation', icon: Zap,        iconColor: 'text-amber-400',   countEnd: 10,  countSuffix: '×', countDecimals: 0 },
-  { label: 'AI detection accuracy',   icon: Shield,     iconColor: 'text-emerald-400', countEnd: 98,  countSuffix: '%', countDecimals: 0 },
-  { label: 'Content formats',         icon: TrendingUp, iconColor: 'text-violet-400',  countEnd: 50,  countSuffix: '+', countDecimals: 0 },
-  { label: 'User satisfaction',       icon: Star,       iconColor: 'text-amber-400',   countEnd: 4.9, countSuffix: '★', countDecimals: 1 },
-];
-
-
-// Social proof avatars
-const AVATARS = [
-  { initials: 'SB', gradient: 'from-violet-500 to-purple-600' },
-  { initials: 'JK', gradient: 'from-cyan-400 to-sky-500' },
-  { initials: 'AM', gradient: 'from-blue-500 to-indigo-500' },
-  { initials: 'RT', gradient: 'from-pink-500 to-rose-500' },
-  { initials: 'LW', gradient: 'from-amber-400 to-orange-500' },
-];
-
-// ─── Animation variants ───────────────────────────────────────────────────────
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-};
-
-const rise = {
-  hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
-};
-
-// ─── Count-up component (Expert 6) ───────────────────────────────────────────
-
-function CountUp({
-  end,
-  suffix = '',
-  decimals = 0,
-  reduced,
-}: {
-  end: number;
-  suffix?: string;
-  decimals?: number;
-  reduced: boolean;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-  const [count, setCount] = useState(reduced ? end : 0);
-
-  useEffect(() => {
-    if (!inView || reduced) {
-      setCount(end);
-      return;
-    }
-    const totalSteps = 55;
-    const duration = 1400;
-    let step = 0;
-    const timer = setInterval(() => {
-      step++;
-      const progress = step / totalSteps;
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(end * eased);
-      if (step >= totalSteps) {
-        setCount(end);
-        clearInterval(timer);
-      }
-    }, duration / totalSteps);
-    return () => clearInterval(timer);
-  }, [inView, end, reduced]);
-
-  const display = decimals > 0 ? count.toFixed(decimals) : Math.round(count);
-  return <span ref={ref}>{display}{suffix}</span>;
-}
 
 // ─── Background canvas ────────────────────────────────────────────────────────
 
@@ -279,185 +207,10 @@ export default function Welcome() {
       <BackgroundCanvas reduced={!!reduced} />
 
       {/* ── Navbar ──────────────────────────────────────────────────────── */}
-      <motion.nav
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 py-3.5 md:px-12"
-        aria-label="Main navigation"
-      >
-        {/* More opaque nav backdrop (Expert 2) */}
-        <div className="absolute inset-x-3 top-1.5 bottom-1 rounded-2xl border border-white/[0.08] bg-[#09090b]/80 backdrop-blur-xl -z-10" />
-
-        {/* Logo — gradient aligned to brand (Expert 8) */}
-        <a href="/welcome" className="flex items-center gap-2.5" aria-label="ContentCraft Inspector home">
-          <motion.div
-            whileHover={reduced ? undefined : { rotate: [0, 12, -8, 0], transition: { duration: 0.5 } }}
-            className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/30"
-          >
-            <Sparkles className="h-4 w-4 text-white" />
-          </motion.div>
-          <span className="font-bold text-white tracking-tight text-sm">ContentCraft</span>
-          <span className="hidden sm:inline text-white/40 text-sm font-normal">Inspector</span>
-        </a>
-
-        {/* Nav actions — rounded-xl consistency (Expert 3) */}
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          <button
-            onClick={() => router.push('/auth/login')}
-            className="text-sm text-white/55 hover:text-white/90 transition-colors px-3 py-1.5 rounded-xl hover:bg-white/[0.05]"
-          >
-            Sign in
-          </button>
-          <motion.button
-            onClick={() => router.push('/auth/signup')}
-            whileHover={reduced ? undefined : { scale: 1.03 }}
-            whileTap={reduced ? undefined : { scale: 0.97 }}
-            className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-4 py-1.5 text-sm font-semibold text-white shadow-md shadow-violet-500/20"
-          >
-            <span
-              className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
-              aria-hidden
-            />
-            <span className="relative">Get started free</span>
-          </motion.button>
-        </div>
-      </motion.nav>
+      <NavBar />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <motion.section
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="relative flex flex-col items-center px-6 pt-32 pb-16 text-center"
-        aria-labelledby="hero-heading"
-      >
-        {/* Badge */}
-        <motion.div variants={rise} className="mb-7">
-          <span className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.06] px-4 py-1.5 text-sm font-medium text-white/75 backdrop-blur-sm max-w-xs sm:max-w-none">
-            <Sparkles className="h-3.5 w-3.5 text-violet-400 shrink-0" />
-            <span>AI Content Platform</span>
-            <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-violet-300 whitespace-nowrap">
-              Free plan available
-            </span>
-          </span>
-        </motion.div>
-
-        {/* Headline */}
-        <motion.div variants={rise} className="mb-5">
-          <h1 id="hero-heading" className="text-5xl font-black tracking-tight leading-[1.05] md:text-7xl lg:text-[5.5rem]">
-            <span className="block text-white">Create Content</span>
-            {/* Gradient constrained to violet-purple-indigo family (Experts 1, 9) */}
-            <span className="block mt-1 hero-gradient-text">That Converts</span>
-          </h1>
-        </motion.div>
-
-        {/* Subtitle */}
-        <motion.p
-          variants={rise}
-          className="mb-7 max-w-2xl text-lg text-white/70 md:text-xl leading-relaxed"
-        >
-          The all-in-one AI workspace to generate, edit, analyze, and perfect every piece of
-          content — built for speed, clarity, and creative impact.
-        </motion.p>
-
-        {/* Social proof ABOVE CTA — reduces pre-CTA anxiety (Expert 7) */}
-        <motion.div variants={rise} className="mb-7 flex items-center gap-3">
-          <div className="flex -space-x-2" aria-hidden>
-            {AVATARS.map(({ initials, gradient }) => (
-              <div
-                key={initials}
-                className={`flex h-7 w-7 items-center justify-center rounded-full border-2 text-[9px] font-black text-white bg-gradient-to-br ${gradient}`}
-                style={{ borderColor: '#09090b' }}
-              >
-                {initials}
-              </div>
-            ))}
-          </div>
-          <p className="text-sm text-white/55">
-            <span className="font-semibold text-white/85">10,000+</span>{' '}
-            creators already using ContentCraft
-          </p>
-        </motion.div>
-
-        {/* Primary CTA — brand gradient violet→purple (Experts 1, 10) */}
-        <motion.div variants={rise} className="flex flex-col items-center gap-4">
-          <motion.button
-            onClick={() => router.push('/auth/signup')}
-            whileHover={reduced ? undefined : { scale: 1.04 }}
-            whileTap={reduced ? undefined : { scale: 0.97 }}
-            className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-violet-700 px-9 py-4 text-base font-bold text-white shadow-[0_0_40px_rgba(139,92,246,0.35)] hover:shadow-[0_0_60px_rgba(139,92,246,0.52)] transition-shadow duration-300"
-          >
-            <span
-              className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
-              aria-hidden
-            />
-            <span className="relative flex items-center gap-2">
-              Get Started — It&apos;s Free
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1 duration-200" />
-            </span>
-          </motion.button>
-
-          {/* Micro-copy — contrast raised white/45 → white/55 (Expert 3) */}
-          <p className="text-xs text-white/55">
-            Free forever on basic plan · No credit card required
-          </p>
-
-          <button
-            onClick={() => router.push('/auth/login')}
-            className="text-sm text-white/45 hover:text-white/80 transition-colors"
-          >
-            Already have an account?{' '}
-            <span className="text-violet-400 hover:text-violet-300 font-medium">Sign in →</span>
-          </button>
-        </motion.div>
-
-        {/* Stats grid — count-up animation + semantic icon colors (Experts 4, 6) */}
-        <motion.div
-          variants={rise}
-          className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 w-full max-w-3xl"
-        >
-          {stats.map(({ label, icon: Icon, iconColor, countEnd, countSuffix, countDecimals }) => (
-            <div
-              key={label}
-              className="flex flex-col items-center gap-1.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 backdrop-blur-sm"
-            >
-              <Icon className={`h-4 w-4 ${iconColor}`} aria-hidden />
-              <span className="text-2xl font-black text-white tabular-nums">
-                <CountUp
-                  end={countEnd}
-                  suffix={countSuffix}
-                  decimals={countDecimals}
-                  reduced={!!reduced}
-                />
-              </span>
-              <span className="text-[11px] text-white/60 text-center leading-tight">{label}</span>
-            </div>
-          ))}
-        </motion.div>
-
-        <motion.p variants={rise} className="mt-2.5 text-[11px] text-white/30">
-          * Based on platform data and user surveys · Q1 2025
-        </motion.p>
-
-        {!reduced && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.8, duration: 0.6 }}
-            className="mt-10 flex flex-col items-center gap-1 text-white/25"
-            aria-hidden
-          >
-            <span className="text-[10px] uppercase tracking-[0.2em]">scroll</span>
-            <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-            >
-              <ChevronDown className="h-4 w-4" />
-            </motion.div>
-          </motion.div>
-        )}
-      </motion.section>
+      <HeroSection />
 
       {/* ── Trust strip ──────────────────────────────────────────────────── */}
       <TrustStrip />
@@ -644,45 +397,6 @@ export default function Welcome() {
         .min-h-screen {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Hero gradient — constrained to violet-purple-indigo family (Experts 1, 9) */
-        .hero-gradient-text {
-          background: linear-gradient(
-            135deg,
-            #a78bfa 0%,
-            #818cf8 22%,
-            #c084fc 45%,
-            #a78bfa 68%,
-            #818cf8 100%
-          );
-          background-size: 300% 300%;
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: #a78bfa;
-          -webkit-text-fill-color: transparent;
-          animation: hero-gradient-shift 5s ease infinite;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .hero-gradient-text {
-            animation: none;
-            background-position: 0% 50%;
-          }
-        }
-
-        @media (forced-colors: active) {
-          .hero-gradient-text {
-            -webkit-text-fill-color: ButtonText;
-            color: ButtonText;
-            background: none;
-          }
-        }
-
-        @keyframes hero-gradient-shift {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
         }
       `}</style>
     </div>
