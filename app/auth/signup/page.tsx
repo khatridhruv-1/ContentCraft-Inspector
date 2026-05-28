@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, User, Mail, Lock, Building2, UserPlus } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Loader2, User, Mail, Lock, Building2, UserPlus, Sparkles } from "lucide-react";
 import { ErrorAlert } from "@/components/auth/ErrorAlert";
 import { Button } from "@/components/ui/button";
 import AuthTextField from "@/components/auth/AuthTextField";
@@ -85,6 +85,8 @@ export default function Signup() {
   const [companyInfo, setCompanyInfo] = useState<any>(null);
   const [nameValue, setNameValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const router = useRouter();
 
@@ -174,13 +176,19 @@ export default function Signup() {
       setStep("company");
     } catch (err) {
       const msg = (err as Error).message;
+      const normalized = msg.toLowerCase();
+
+      const friendlyMessage = normalized.includes("over_email_send_rate_limit")
+        ? "Too many signup attempts in a short time. Please wait a minute and try again."
+        : normalized.includes("email rate limit exceeded")
+          ? "Signup emails are temporarily rate-limited. Please wait a minute and try again."
+          : normalized.includes("already exists")
+            ? "This email is already registered"
+            : msg || "Failed to create account. Please try again.";
+
       setError({
-        field: msg.includes("already exists") ? "email" : "general",
-        message: msg.includes("already exists")
-          ? "This email is already registered"
-          : msg.startsWith("Missing ") || msg.startsWith("Signup failed") || msg.startsWith("Signup Failed")
-            ? "Failed to create account. Please try again."
-            : msg,
+        field: normalized.includes("already exists") ? "email" : "general",
+        message: friendlyMessage,
       });
     } finally {
       setLoading(false);
@@ -194,6 +202,8 @@ export default function Signup() {
     try {
       await joinCompany(companyInfo.company.$id, companyInfo.user);
       setStep("done");
+      setIsRedirecting(true);
+      await new Promise((resolve) => setTimeout(resolve, shouldReduceMotion ? 0 : 450));
       router.push("/home");
     } catch (err) {
       setError({
@@ -220,6 +230,8 @@ export default function Signup() {
         users: [companyInfo.user],
       });
       setStep("done");
+      setIsRedirecting(true);
+      await new Promise((resolve) => setTimeout(resolve, shouldReduceMotion ? 0 : 450));
       router.push("/home");
     } catch (err) {
       setError({
@@ -232,7 +244,11 @@ export default function Signup() {
   };
 
   return (
-    <div>
+    <motion.div
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
+    >
       {step !== "done" && <ProgressBar step={step} />}
 
       <div className="mb-6">
@@ -248,6 +264,15 @@ export default function Signup() {
           <p className="text-sm text-slate-500 mt-1">Connect to your team or create a new workspace</p>
         )}
       </div>
+
+      {step === "signup" && (
+        <div className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <p className="text-xs text-slate-600 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-blue-600" />
+            Just two quick steps: create your account, then connect your company.
+          </p>
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {step === "signup" && (
@@ -303,7 +328,7 @@ export default function Signup() {
 
             <ErrorAlert message={error?.field === "general" ? error.message : ""} />
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading || isRedirecting}>
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -345,7 +370,7 @@ export default function Signup() {
                     Join your team instantly.
                   </p>
                 </div>
-                <Button onClick={handleJoinCompany} className="w-full" disabled={loading}>
+                <Button onClick={handleJoinCompany} className="w-full" disabled={loading || isRedirecting}>
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -378,7 +403,7 @@ export default function Signup() {
                   autoComplete="organization"
                 />
 
-                <Button onClick={handleCreateCompany} className="w-full" disabled={loading}>
+                <Button onClick={handleCreateCompany} className="w-full" disabled={loading || isRedirecting}>
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -403,10 +428,10 @@ export default function Signup() {
             className="text-center py-4"
           >
             <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-600 mb-2" />
-            <p className="text-slate-600">Redirecting to your dashboard...</p>
+            <p className="text-slate-600">{isRedirecting ? "Redirecting to your dashboard..." : "Preparing your workspace..."}</p>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

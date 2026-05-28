@@ -21,6 +21,13 @@ import { marked } from 'marked';
 type AppMode = 'ai-generate' | 'create' | 'analyze' | 'ai-score';
 
 export default function Dashboard() {
+  const toHtmlFromMarkdown = (value: unknown) => {
+    if (typeof value !== 'string') return '';
+    const safeValue = value.trim();
+    if (!safeValue) return '';
+    return marked(safeValue) as string;
+  };
+
   const [content, setContent] = useState('');
   const [analysis, setAnalysis] = useState('');
   const [mode, setMode] = useState<AppMode>('ai-generate');
@@ -139,8 +146,8 @@ export default function Dashboard() {
     setMode('analyze');
     setTriggerAnalysis(true);
     const contentToAnalyze = generatedContent || content;
-    // Convert Markdown to HTML before setting it in the editor
-    const htmlContent = marked(contentToAnalyze) as string;
+    const htmlContent = toHtmlFromMarkdown(contentToAnalyze);
+    if (!htmlContent) return;
     setContent(htmlContent);
     setAnalysis(htmlContent);
   };
@@ -149,8 +156,8 @@ export default function Dashboard() {
     setMode('ai-score');
     setTriggerAIScore(true);
     const contentToScore = generatedContent || content;
-    // Convert Markdown to HTML before setting it in the editor
-    const htmlContent = marked(contentToScore) as string;
+    const htmlContent = toHtmlFromMarkdown(contentToScore);
+    if (!htmlContent) return;
     setContent(htmlContent);
     setAnalysis(htmlContent);
   };
@@ -184,11 +191,12 @@ export default function Dashboard() {
   };
 
   const handleGeneratedContent = (generatedContent: string) => {
-    // Assume generatedContent is Markdown, convert to HTML for the editor
-    const generatedHtmlContent = marked(generatedContent) as string;
+    const safeGeneratedContent = typeof generatedContent === 'string' ? generatedContent.trim() : '';
+    const generatedHtmlContent = toHtmlFromMarkdown(safeGeneratedContent);
+    if (!generatedHtmlContent) return;
     handleContentChange(generatedHtmlContent);
     setHasGeneratedContent(true);
-    setTitle(generatedContent.split('\n')[0] || 'GeneratedContent');
+    setTitle(safeGeneratedContent.split('\n')[0] || 'GeneratedContent');
   };
 
   const downloadAsWord = () => {

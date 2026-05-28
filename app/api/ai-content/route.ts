@@ -1,70 +1,164 @@
-import axios from "axios";
 import { NextResponse } from "next/server";
 
-// Function to call OpenAI API
-const callGPT = async (messages: any) => {
-  const response = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      model: "gpt-3.5-turbo",
-      messages,
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
+interface AIContentRequest {
+  title?: string;
+  keywords?: string;
+  tone?: string;
+}
+
+class GeminiQuotaError extends Error {
+  retryAfterSeconds?: number;
+
+  constructor(message: string, retryAfterSeconds?: number) {
+    super(message);
+    this.name = "GeminiQuotaError";
+    this.retryAfterSeconds = retryAfterSeconds;
+  }
+}
+
+async function generateWithGemini(prompt: string): Promise<string> {
+  const apiKey = process.env.google_ai_studio_api_key;
+  if (!apiKey) {
+    throw new Error("Missing google_ai_studio_api_key environment variable");
+  }
+
+  const modelCandidates = [
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+  ];
+
+  let lastErrorMessage = "Gemini API request failed while generating content.";
+
+  for (const model of modelCandidates) {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.8,
+            topP: 0.9,
+            maxOutputTokens: 4096,
+          },
+        }),
+      }
+    );
+
+    const payload = await response.json();
+
+    if (!response.ok) {
+      const message =
+        payload?.error?.message ||
+        "Gemini API request failed while generating content.";
+      lastErrorMessage = message;
+
+      if (message.toLowerCase().includes("quota exceeded")) {
+        const retryMatch = message.match(/retry in\s+([0-9.]+)s/i);
+        const retryAfterSeconds = retryMatch
+          ? Math.max(1, Math.ceil(Number(retryMatch[1])))
+          : undefined;
+        throw new GeminiQuotaError(message, retryAfterSeconds);
+      }
+
+      // Try the next model when this model is not available for the current key.
+      if (
+        message.includes("not found") ||
+        message.includes("not supported for generateContent")
+      ) {
+        continue;
+      }
+
+      throw new Error(message);
     }
-  );
 
-  return response.data.choices[0].message.content;
-};
+    const text = payload?.candidates?.[0]?.content?.parts
+      ?.map((part: { text?: string }) => part?.text || "")
+      .join("")
+      .trim();
 
-// Main API Route
+    if (!text) {
+      throw new Error("Gemini returned an empty response.");
+    }
+
+    return text;
+  }
+
+  throw new Error(lastErrorMessage);
+}
+
 export async function POST(req: Request) {
   try {
-    const { title, keywords, tone } = await req.json();
+    const body = (await req.json()) as AIContentRequest;
+    const title = body?.title?.trim();
+    const keywords = body?.keywords?.trim();
+    const tone = body?.tone?.trim();
 
-    // **Step 1: Ask GPT to determine an expert for the given topic**
-    // const expertResponse = await callGPT([
-    //   {
-    //     role: "system",
-    //     content:
-    //       "You are an expert finder. Your task is to identify a credible expert, researcher, or authority on a specific topic. Provide the expert's name and a brief description of their expertise in the format: name: 'Name', description: 'Description'.",
-    //   },
-    //   {
-    //     role: "user",
-    //     content: `Who is a leading expert in the field of "${title}"? Please provide their name and a brief description of their research focus and accomplishments.`,
-    //   },
-    // ]);
+    if (!title) {
+      return NextResponse.json(
+        { error: "Title is required to generate content." },
+        { status: 400 }
+      );
+    }
 
-    // **Step 2: Use the identified expert in the next GPT call to generate content**
     let keywordPrompt = "";
-    if (keywords && keywords.trim().length > 0) {
+    if (keywords) {
       keywordPrompt = `Ensure that the article focuses on the following key terms and concepts: ${keywords}. Use these keywords naturally throughout the text.`;
     }
 
     let tonePrompt = "";
-    if (tone && tone.trim().length > 0) {
+    if (tone) {
       tonePrompt = `Write the content in a ${tone} tone to match the expected audience style.`;
     }
 
-    const contentResponse = await callGPT([
-      {
-        role: "system",
-        content: `You are a knowledgeable assistant. Your task is to generate a well-structured article on the topic "${title}". The article should include headings, subheadings, bullet points, and structured sections. ${keywordPrompt} ${tonePrompt}`,
-      },
-      {
-        role: "user",
-        content: `Generate a detailed, informative article in more than 1000 words. The article should have a clear introduction, main sections, and a conclusion. Use bullet points and short paragraphs to make the content easy to read.`,
-      },
-    ]);
+    const prompt = `
+You are a knowledgeable content writing assistant.
+Generate a well-structured article on the topic "${title}".
+
+Requirements:
+- Write in markdown format.
+- Include an engaging title.
+- Include clear headings and subheadings.
+- Include bullet points where useful.
+- Keep short, readable paragraphs.
+- Include a concise introduction and a strong conclusion.
+- Target 900 to 1200 words.
+${keywordPrompt}
+${tonePrompt}
+`.trim();
+
+    const contentResponse = await generateWithGemini(prompt);
 
     return NextResponse.json({ content: contentResponse });
   } catch (error) {
     console.error("Error in AI content generation:", error);
+
+    if (error instanceof GeminiQuotaError) {
+      return NextResponse.json(
+        {
+          error:
+            "Gemini API quota exceeded. Please wait and retry, or enable billing/increase quota in Google AI Studio.",
+          retryAfterSeconds: error.retryAfterSeconds,
+        },
+        { status: 429 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "Error generating content" },
+      {
+        error:
+          error instanceof Error ? error.message : "Error generating content",
+      },
       { status: 500 }
     );
   }

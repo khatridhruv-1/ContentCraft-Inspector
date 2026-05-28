@@ -1,11 +1,11 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { login } from '@/lib/user/appwrite';
-import { motion, useAnimation } from 'framer-motion';
-import { Loader2, Mail, Lock } from 'lucide-react';
+import { motion, useAnimation, useReducedMotion } from 'framer-motion';
+import { Loader2, Mail, Lock, ShieldCheck } from 'lucide-react';
 import { ErrorAlert } from '@/components/auth/ErrorAlert';
 import Link from 'next/link';
 import AuthTextField from '@/components/auth/AuthTextField';
@@ -21,9 +21,25 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [emailValue, setEmailValue] = useState('');
   const [passwordValue, setPasswordValue] = useState('');
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const shakeControls = useAnimation();
+  const cardControls = useAnimation();
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (shouldReduceMotion) {
+      cardControls.set({ opacity: 1, y: 0 });
+      return;
+    }
+
+    cardControls.start({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.28, ease: 'easeOut' },
+    });
+  }, [cardControls, shouldReduceMotion]);
 
   useGuestGuard();
 
@@ -61,6 +77,14 @@ function LoginForm() {
         returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//')
           ? returnUrl
           : '/home';
+      setIsRedirecting(true);
+      if (!shouldReduceMotion) {
+        await cardControls.start({
+          opacity: 0,
+          y: -10,
+          transition: { duration: 0.22, ease: 'easeOut' },
+        });
+      }
       router.push(safeUrl);
     } catch {
       setError({
@@ -77,10 +101,20 @@ function LoginForm() {
   };
 
   return (
-    <div>
+    <motion.div
+      initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+      animate={cardControls}
+    >
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-slate-900">Welcome back</h1>
         <p className="text-sm text-slate-500 mt-1">Sign in to your account to continue</p>
+      </div>
+
+      <div className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <p className="text-xs text-slate-600 flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-blue-600" />
+          Your workspace and history sync securely after sign in.
+        </p>
       </div>
 
       <motion.form onSubmit={handleSubmit} animate={shakeControls} className="space-y-5">
@@ -113,11 +147,11 @@ function LoginForm() {
         <ErrorAlert message={error?.field === 'general' ? error.message : ''} />
 
         <div className="pt-2">
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? (
+          <Button type="submit" disabled={loading || isRedirecting} className="w-full">
+            {loading || isRedirecting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Signing in...
+                {isRedirecting ? 'Opening dashboard...' : 'Signing in...'}
               </>
             ) : (
               'Sign in'
@@ -135,7 +169,7 @@ function LoginForm() {
           </p>
         </div>
       </motion.form>
-    </div>
+    </motion.div>
   );
 }
 
