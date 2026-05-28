@@ -112,3 +112,4 @@ export async function updateUserName(sessionToken: string, newName: string) {
 
   return mapUser(updated.user);
 }
+
