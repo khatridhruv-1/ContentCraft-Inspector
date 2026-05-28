@@ -1,8 +1,36 @@
 "use server";
 
-import { ID } from "appwrite";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 
-export async function saveContent  (
+type RelatedLink = {
+  url: string;
+  title: string;
+  content: string;
+  score: number;
+  raw_content: string | null;
+};
+
+function normalizeRow(row: any) {
+  return {
+    ...row,
+    $id: row.id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    userId: row.user_id,
+    companyId: row.company_id,
+    contentScore: row.content_score,
+    wordCount: row.word_count,
+    readingTime: row.reading_time,
+    aiScore: row.ai_score,
+    humanScore: row.human_score,
+    humanizedVersion: row.humanized_version,
+    keyInsights: row.key_insights,
+    contentGaps: row.content_gaps,
+    relatedLinks: row.related_links,
+  };
+}
+
+export async function saveContent(
   content: string,
   userId: string,
   analysis?: string,
@@ -17,121 +45,67 @@ export async function saveContent  (
   aiScore?: number,
   humanScore?: number,
   humanizedVersion?: string,
-  outline?: { level: number; text: string }[], 
+  outline?: { level: number; text: string }[],
   suggestions?: string[],
   contentGaps?: string[],
   summary?: string,
   relatedLinks?: { title: string; url: string; description: string }[],
   companyId?: string
 ) {
-  try {
-    debugger;
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "", // Replace with your Appwrite API Key
-        },
-        body: JSON.stringify({
-          documentId: ID.unique(),
-          data: {
-            userId,
-            content,
-            analysis,
-            mode,
-            contentScore: contentScore ?? null, // Ensure null instead of undefined
-            readability: readability ?? null,
-            tone: tone ?? null,
-            keyInsights: keyInsights ?? [],
-            improvements: improvements ?? [],
-            wordCount: wordCount ?? null,
-            readingTime: readingTime ?? null,
-            aiScore: aiScore ?? null,
-            humanScore: humanScore ?? null,
-            humanizedVersion: humanizedVersion ?? null,
-            outline: outline ? JSON.stringify(outline) : null,
-            suggestions: suggestions ?? [],
-            contentGaps: contentGaps ?? [],
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            companyId: companyId,
-          },
-          
-        }),
-      }
-    );
+  const supabase = getSupabaseAdmin();
 
-    debugger
-    console.log("response", response);
+  const payload = {
+    user_id: userId,
+    content,
+    analysis: analysis ?? null,
+    mode: mode ?? null,
+    content_score: typeof contentScore === "number" ? Math.round(contentScore) : null,
+    readability: typeof readability === "number" ? readability : null,
+    tone: tone ?? null,
+    key_insights: keyInsights ?? [],
+    improvements: improvements ?? [],
+    word_count: wordCount ?? null,
+    reading_time: readingTime ?? null,
+    ai_score: typeof aiScore === "number" ? Math.round(aiScore) : null,
+    human_score: typeof humanScore === "number" ? Math.round(humanScore) : null,
+    humanized_version: humanizedVersion ?? null,
+    outline: outline ?? [],
+    suggestions: suggestions ?? [],
+    content_gaps: contentGaps ?? [],
+    summary: summary ?? null,
+    related_links: relatedLinks ?? [],
+    company_id: companyId ?? null,
+  };
 
-    if (!response.ok) {
-      console.log(await response.json());
-      throw new Error("Failed to save content");
-    }
-    const result = await response.json();
-    console.log("result saved from save content", result);
-    return result
-  } catch (error) {
-    console.error("Error saving content:", error);
-  }
+  const { data, error } = await supabase.from("contents").insert(payload).select("*").single();
+  if (error || !data) throw new Error(error?.message || "Failed to save content");
+  return normalizeRow(data);
 }
 
 export async function fetchHistory(userId: string, page: number, limit: number) {
-  try {
+  const supabase = getSupabaseAdmin();
+  const offset = (page - 1) * limit;
 
-    const offset = (page - 1) * limit;
+  const { data, count, error } = await supabase
+    .from("contents")
+    .select("*", { count: "exact" })
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
 
-    const queryParams = {
-      queries: JSON.stringify([`equal("userId", "${userId}")`]),
-      limit: limit.toString(),
-      offset: offset.toString(),
-      orderAttributes: '["createdAt"]',
-      orderTypes: '["DESC"]',
-    }
+  if (error) throw new Error(error.message || "Failed to fetch history");
 
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents`,
-      {
-        method: "GET",
-        headers: {
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "",
-        }
-      }
-    );
-
-    if (!response.ok) throw new Error("Failed to fetch history");
-    // console.log('res', await response.json());
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching history:", error);
-    throw error;
-  }
+  return {
+    documents: (data || []).map(normalizeRow),
+    total: count || 0,
+  };
 }
 
 export async function deleteHistoryItem(documentId: string) {
-  debugger
-  try {
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents/${documentId}`,
-      {
-        method: "DELETE",
-        headers: {
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "",
-        },
-      }
-    );
-
-    if (!response.ok) throw new Error("Failed to delete item");
-    return true;
-  } catch (error) {
-    console.error("Error deleting item:", error);
-    throw error;
-  }
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase.from("contents").delete().eq("id", documentId);
+  if (error) throw new Error(error.message || "Failed to delete item");
+  return true;
 }
 
 export async function updateContent(
@@ -159,7 +133,7 @@ export async function updateContent(
     input?: string;
     analysis?: string;
     contentScore?: number;
-    readability?: string;
+    readability?: number;
     tone?: string;
     keyInsights?: string[];
     improvements?: string[];
@@ -172,89 +146,49 @@ export async function updateContent(
     suggestions?: string[];
     contentGaps?: string[];
     summary?: string;
-    relatedLinks?: {
-      url: string;
-      title: string;
-      content: string;
-      score: number;
-      raw_content: string | null;
-    }[];
-    companyId?: any;
+    relatedLinks?: RelatedLink[];
+    companyId?: string;
   }
 ) {
-  try {
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents/${documentId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "", // Replace with your Appwrite API Key
-        },
-        body: JSON.stringify({
-          data: {
-            ...(input && { content: input }),
-            ...(analysis && { analysis }),
-            ...(contentScore !== undefined && {
-              contentScore: Math.round(contentScore),
-            }),
-            ...(readability && { readability }),
-            ...(tone && { tone }),
-            ...(keyInsights && { keyInsights }),
-            ...(improvements && { improvements }),
-            ...(wordCount !== undefined && { wordCount }),
-            ...(readingTime !== undefined && { readingTime }),
-            ...(aiScore !== undefined && { aiScore }),
-            ...(humanScore !== undefined && { humanScore }),
-            ...(humanizedVersion && { humanizedVersion }),
-            ...(outline && {
-              outline: outline.map(
-                (item) => `Level ${item.level}: ${item.text}`
-              ),
-            }),
-            ...(suggestions && { suggestions }),
-            ...(contentGaps && { contentGaps }),
-            ...(summary && { summary }),
-            ...(companyId && { companyId }),
-            relatedLinks: relatedLinks
-              ? relatedLinks.map((link) => JSON.stringify(link))
-              : [], // Convert objects to strings
-            updatedAt: new Date().toISOString(),
-          },
-        }),
-      }
-    );
+  const supabase = getSupabaseAdmin();
 
-    if (!response.ok) {
-      console.log(await response.json());
-      throw new Error("Failed to save content");
-    }
+  const updatePayload: Record<string, any> = {};
+  if (input !== undefined) updatePayload.content = input;
+  if (analysis !== undefined) updatePayload.analysis = analysis;
+  if (contentScore !== undefined) updatePayload.content_score = Math.round(contentScore);
+  if (readability !== undefined) updatePayload.readability = readability;
+  if (tone !== undefined) updatePayload.tone = tone;
+  if (keyInsights !== undefined) updatePayload.key_insights = keyInsights;
+  if (improvements !== undefined) updatePayload.improvements = improvements;
+  if (wordCount !== undefined) updatePayload.word_count = wordCount;
+  if (readingTime !== undefined) updatePayload.reading_time = readingTime;
+  if (aiScore !== undefined) updatePayload.ai_score = Math.round(aiScore);
+  if (humanScore !== undefined) updatePayload.human_score = Math.round(humanScore);
+  if (humanizedVersion !== undefined) updatePayload.humanized_version = humanizedVersion;
+  if (outline !== undefined) updatePayload.outline = outline;
+  if (suggestions !== undefined) updatePayload.suggestions = suggestions;
+  if (contentGaps !== undefined) updatePayload.content_gaps = contentGaps;
+  if (summary !== undefined) updatePayload.summary = summary;
+  if (relatedLinks !== undefined) updatePayload.related_links = relatedLinks;
+  if (companyId !== undefined) updatePayload.company_id = companyId;
 
-    return await response.json();
-  } catch (error) {
-    console.error("Error saving content:", error);
-  }
+  const { data, error } = await supabase
+    .from("contents")
+    .update(updatePayload)
+    .eq("id", documentId)
+    .select("*")
+    .single();
+
+  if (error || !data) throw new Error(error?.message || "Failed to update content");
+  return normalizeRow(data);
 }
 
 export async function fetchContent(documentId: string) {
-  try {
-    const response = await fetch(
-      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.APPWRITE_DATABASE_ID}/collections/${process.env.APPWRITE_CONTENT_COLLECTION_ID}/documents/${documentId}`,
-      {
-        method: "GET",
-        headers: {
-          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID ?? "",
-          "X-Appwrite-Key": process.env.API_SECRET_KEY ?? "",
-        }
-      }
-    );
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase.from("contents").select("*").eq("id", documentId).single();
+  if (error || !data) throw new Error(error?.message || "Failed to fetch content");
 
-    if (!response.ok) throw new Error("Failed to fetch content");
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching content:", error);
-    throw error;
-  }
+  return {
+    document: normalizeRow(data),
+  };
 }

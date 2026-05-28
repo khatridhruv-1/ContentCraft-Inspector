@@ -22,7 +22,8 @@ export default function AIGeneratePanel({ onContentGenerated }: AIGeneratePanelP
   const [loading, setLoading] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
-const  {companyId} :any  = useCompanyId();
+  const [errorMessage, setErrorMessage] = useState('');
+  const { companyId }: any = useCompanyId();
   const tones = [
     'Formal',
     'Informal',
@@ -47,9 +48,9 @@ const  {companyId} :any  = useCompanyId();
   ];
 
   const generateContent = async () => {
-    debugger
     if (!title.trim()) return;
 
+    setErrorMessage('');
     setLoading(true);
     try {
       const requestData: Record<string, any> = { title };
@@ -69,16 +70,37 @@ const  {companyId} :any  = useCompanyId();
         body: JSON.stringify(requestData),
       });
 
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        const retryAfter = payload?.retryAfterSeconds;
+        const apiError = payload?.error || 'Failed to generate content.';
+
+        if (response.status === 429) {
+          throw new Error(
+            retryAfter
+              ? `${apiError} Retry after ${retryAfter}s.`
+              : `${apiError} Please try again in a minute.`
+          );
+        }
+
+        throw new Error(apiError);
+      }
+
       const data = await response.json();
-      setGeneratedContent(data.content);
-      onContentGenerated(data.content);
+      const safeContent = typeof data?.content === 'string' ? data.content : '';
+      if (!safeContent.trim()) {
+        throw new Error('AI response was empty. Please try again.');
+      }
+
+      setGeneratedContent(safeContent);
+      onContentGenerated(safeContent);
 
       const documentId = localStorage.getItem('documentId');
       if (documentId) {
         await updateContent(documentId, {
           input: title,
-          analysis: data.content,
-          companyId:companyId
+          analysis: safeContent,
+          companyId: companyId
         });
       } else {
         const sessionToken = localStorage.getItem('sessionToken');
@@ -89,16 +111,16 @@ const  {companyId} :any  = useCompanyId();
         const user = await getUser(sessionToken);
 
 
-        if(companyId){
-          const res = await saveContent(title, user.$id, data.content, 'ai-generate',companyId);
+        if (companyId) {
+          const res = await saveContent(title, user.$id, safeContent, 'ai-generate', companyId);
           console.log('res from Ai', res);
           localStorage.setItem('documentId', res.$id);
-          
         }
 
       }
     } catch (error) {
       console.error('Error generating content:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to generate content.');
     } finally {
       setLoading(false);
     }
@@ -211,6 +233,12 @@ const  {companyId} :any  = useCompanyId();
               </>
             )}
           </Button>
+
+          {errorMessage ? (
+            <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+              {errorMessage}
+            </p>
+          ) : null}
         </div>
       </div>
 

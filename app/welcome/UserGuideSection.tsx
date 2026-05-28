@@ -1,70 +1,124 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import { UserPlus, LayoutDashboard, Wand2, BarChart2 } from 'lucide-react';
 
 const steps = [
   {
     number: 1,
+    icon: UserPlus,
     title: 'Create your account',
-    description: 'Sign up free or sign in if you already have an account to get started.',
+    description: 'Sign up for free — no credit card needed. Takes less than 60 seconds.',
+    gradient: 'from-violet-500 to-purple-600',
   },
   {
     number: 2,
+    icon: LayoutDashboard,
     title: 'Open the dashboard',
-    description: 'After login, go to the dashboard to start a new content project.',
+    description: 'After login, head to the dashboard to kick off your first content project.',
+    gradient: 'from-cyan-400 to-sky-500',
   },
   {
     number: 3,
+    icon: Wand2,
     title: 'Generate & edit content',
     description: 'Use AI tools to draft content, then refine it in the smart editor.',
+    gradient: 'from-blue-500 to-indigo-500',
   },
   {
     number: 4,
+    icon: BarChart2,
     title: 'Analyze & optimize',
-    description: 'Run analysis (SEO, plagiarism, info gain) and apply suggestions before publishing.',
+    description: 'Run SEO and AI-detection analysis, apply suggestions, and publish with confidence.',
+    gradient: 'from-pink-500 to-rose-500',
   },
 ];
 
-const containerVariants = {
+const container = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.11 } },
 };
 
-const cardVariants = {
-  hidden: { y: 30, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.6 } },
+const card = {
+  hidden: { y: 24, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
 };
 
 export default function UserGuideSection() {
-  return (
-    <section data-testid="homepage-user-guide" className="mb-16">
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-gray-900 mb-3">How to get started</h2>
-        <p className="text-gray-600 max-w-xl mx-auto">
-          From sign-up to publishing — four simple steps to your first piece of AI-powered content.
-        </p>
-      </div>
+  const reduced = useReducedMotion();
 
+  return (
+    <section data-testid="homepage-user-guide" className="mb-16" aria-labelledby="guide-heading">
+      {/* Header — static violet accent, no animated gradient */}
       <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+        initial={{ opacity: 0, y: 22 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="mb-12 text-center"
       >
-        {steps.map(({ number, title, description }) => (
+        {/* Violet-tinted badge — differentiates Guide section (Expert 5) */}
+        <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/[0.05] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-white/55">
+          Getting started
+        </span>
+        <h2 id="guide-heading" className="text-4xl font-black tracking-tight text-white md:text-5xl">
+          Up and running in{' '}
+          {/* violet-300 → violet-400 for visual hierarchy (Expert 9) */}
+          <span className="text-violet-400">four steps</span>
+        </h2>
+        {/* Contrast raised: white/40 → white/65 */}
+        <p className="mt-4 text-white/65 max-w-xl mx-auto text-lg">
+          From sign-up to publishing — a simple path to your first piece of AI-powered content.
+        </p>
+      </motion.div>
+
+      {/* Steps grid */}
+      <motion.div
+        variants={container}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-40px' }}
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5"
+      >
+        {steps.map(({ number, icon: Icon, title, description, gradient }) => (
           <motion.div
             key={number}
-            variants={cardVariants}
-            whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
-            className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl border border-transparent hover:border-indigo-100 transition-all duration-200 cursor-default flex gap-4"
+            variants={card}
+            whileHover={reduced ? undefined : { y: -5 }}
+            className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 md:p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.15] hover:shadow-2xl cursor-default"
           >
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
-              {number}
+            {/* Corner glow */}
+            <div
+              className={`absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${gradient} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-20`}
+              aria-hidden
+            />
+
+            <div className="relative flex items-start gap-4">
+              {/* Step icon with number badge */}
+              <div className="relative shrink-0">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
+                  <Icon className="h-5 w-5 text-white" />
+                </div>
+                <span
+                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black text-white/65"
+                  style={{ borderColor: 'rgba(255,255,255,0.1)', background: '#09090b' }}
+                >
+                  {number}
+                </span>
+              </div>
+
+              <div>
+                <h3 className="mb-1.5 text-lg font-bold text-white">{title}</h3>
+                {/* Contrast raised: white/45 → white/65 */}
+                <p className="text-sm leading-relaxed text-white/65">{description}</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">{title}</h3>
-              <p className="text-gray-600">{description}</p>
-            </div>
+
+            {/* Hover gradient underline */}
+            <div
+              className={`mt-4 h-px w-0 rounded-full bg-gradient-to-r ${gradient} transition-all duration-500 group-hover:w-full`}
+              aria-hidden
+            />
           </motion.div>
         ))}
       </motion.div>

@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:push": "supabase db push",
+    "db:status": "supabase migration list",
+    "db:link": "supabase link --project-ref $SUPABASE_PROJECT_REF",
+    "db:setup": "bash scripts/supabase-setup.sh"
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "^5.9.4",
@@ -37,12 +44,12 @@
     "@radix-ui/react-toggle": "^1.0.3",
     "@radix-ui/react-toggle-group": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "@supabase/supabase-js": "^2.106.2",
     "@tanstack/react-query": "^5.17.19",
     "@tinymce/tinymce-react": "^5.1.1",
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",
-    "appwrite": "^17.0.0",
     "autoprefixer": "10.4.15",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.0",
@@ -89,6 +96,7 @@
     "@cloudflare/next-on-pages": "^1.13.12",
     "@types/file-saver": "^2.0.7",
     "@types/html-docx-js": "^0.3.4",
-    "@types/quill": "^2.0.14"
+    "@types/quill": "^2.0.14",
+    "supabase": "^2.101.0"
   }
 }
