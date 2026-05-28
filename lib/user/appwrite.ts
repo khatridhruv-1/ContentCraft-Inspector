@@ -22,19 +22,6 @@ function assertValidEmail(email: string) {
   }
 }
 
-function getAppwriteConfig({ requireApiKey = false } = {}) {
-  const endpoint = process.env.APPWRITE_ENDPOINT;
-  const projectId = process.env.APPWRITE_PROJECT_ID;
-
-  if (!endpoint) throw new Error('Missing APPWRITE_ENDPOINT environment variable');
-  if (!projectId) throw new Error('Missing APPWRITE_PROJECT_ID environment variable');
-
-  const apiKey = process.env.API_SECRET_KEY;
-  if (requireApiKey && !apiKey) throw new Error('Missing API_SECRET_KEY environment variable');
-
-  return { endpoint, projectId, apiKey };
-}
-
 export async function signup(email: string, password: string, name: string) {
   const normalizedEmail = normalizeEmail(email);
   assertValidEmail(normalizedEmail);
@@ -98,7 +85,6 @@ export async function getUser(sessionToken: string) {
 
   if (error || !data.user) {
     throw new Error(error?.message || "User retrieval failed.");
->>>>>>> master
   }
 
   return mapUser(data.user);
