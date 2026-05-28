@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { UserPlus, LayoutDashboard, Wand2, BarChart2 } from 'lucide-react';
+import { UserPlus, LayoutDashboard, Wand2 } from 'lucide-react';
 
 const steps = [
   {
@@ -15,22 +15,15 @@ const steps = [
     number: 2,
     icon: LayoutDashboard,
     title: 'Open the dashboard',
-    description: 'After login, head to the dashboard to kick off your first content project.',
+    description: 'Log in and start your first content project right from the dashboard.',
     gradient: 'from-cyan-400 to-sky-500',
   },
   {
     number: 3,
     icon: Wand2,
-    title: 'Generate & edit content',
-    description: 'Use AI tools to draft content, then refine it in the smart editor.',
+    title: 'Create, refine & publish',
+    description: 'Generate AI drafts, edit in the smart workspace, run SEO and Realness analysis, then publish with confidence.',
     gradient: 'from-blue-500 to-indigo-500',
-  },
-  {
-    number: 4,
-    icon: BarChart2,
-    title: 'Analyze & optimize',
-    description: 'Run SEO and AI-detection analysis, apply suggestions, and publish with confidence.',
-    gradient: 'from-pink-500 to-rose-500',
   },
 ];
 
@@ -63,8 +56,7 @@ export default function UserGuideSection() {
         </span>
         <h2 id="guide-heading" className="text-4xl font-black tracking-tight text-white md:text-5xl">
           Up and running in{' '}
-          {/* violet-300 → violet-400 for visual hierarchy (Expert 9) */}
-          <span className="text-violet-400">four steps</span>
+          <span className="text-violet-400">three steps</span>
         </h2>
         {/* Contrast raised: white/40 → white/65 */}
         <p className="mt-4 text-white/65 max-w-xl mx-auto text-lg">
@@ -78,7 +70,7 @@ export default function UserGuideSection() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-40px' }}
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-5"
       >
         {steps.map(({ number, icon: Icon, title, description, gradient }) => (
           <motion.div

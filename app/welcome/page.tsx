@@ -15,7 +15,6 @@ import {
   Shield,
   TrendingUp,
   ChevronDown,
-  Quote,
 } from 'lucide-react';
 import FaqSection from './FaqSection';
 import UserGuideSection from './UserGuideSection';
@@ -73,36 +72,6 @@ const stats = [
   { label: 'User satisfaction',       icon: Star,       iconColor: 'text-amber-400',   countEnd: 4.9, countSuffix: '★', countDecimals: 1 },
 ];
 
-// Testimonials — Experts 6, 8, 10: critical credibility layer between Features and Guide
-const testimonials = [
-  {
-    quote:
-      'ContentCraft cut our content production time by 70%. The AI generation + SEO analysis combo is unbeatable.',
-    name: 'Sarah M.',
-    role: 'Content Director, TechFlow',
-    initials: 'SM',
-    gradient: 'from-violet-500 to-purple-600',
-    rating: 5,
-  },
-  {
-    quote:
-      'The Realness Score changed everything. Our blog posts now pass every AI detector while keeping the quality high.',
-    name: 'James K.',
-    role: 'SEO Lead, GrowthHQ',
-    initials: 'JK',
-    gradient: 'from-cyan-400 to-sky-500',
-    rating: 5,
-  },
-  {
-    quote:
-      'Finally a tool that does generation AND analysis in one place. Stopped switching between 4 different tools.',
-    name: 'Priya R.',
-    role: 'Founder, NeuralCopy',
-    initials: 'PR',
-    gradient: 'from-emerald-400 to-teal-500',
-    rating: 5,
-  },
-];
 
 // Social proof avatars
 const AVATARS = [
@@ -248,66 +217,33 @@ function BackgroundCanvas({ reduced }: { reduced: boolean }) {
   );
 }
 
-// ─── Testimonials section (Experts 6, 8, 10) ─────────────────────────────────
+// ─── Trust strip ─────────────────────────────────────────────────────────────
 
-function TestimonialsSection({ reduced }: { reduced: boolean }) {
+const trustItems = [
+  { icon: Shield,      label: 'Encrypted & private',   detail: 'All data protected in transit and at rest' },
+  { icon: TrendingUp,  label: 'You own your content',  detail: 'We never claim rights to your work' },
+  { icon: Zap,         label: 'Free plan available',   detail: 'No credit card required to start' },
+];
+
+function TrustStrip() {
   return (
-    <section className="relative py-16 md:py-20" aria-labelledby="testimonials-heading">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="mb-12 text-center"
-      >
-        {/* Amber-tinted badge — differentiates from other section badges (Expert 5) */}
-        <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-500/25 bg-amber-500/[0.05] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-white/55">
-          <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden />
-          Loved by creators
-        </span>
-        <h2 id="testimonials-heading" className="text-4xl font-black tracking-tight text-white md:text-5xl">
-          Trusted by{' '}
-          <span className="text-violet-400">10,000+ creators</span>
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl text-white/60 text-base">
-          Here&apos;s what they say after switching to ContentCraft Inspector.
-        </p>
-      </motion.div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-5">
-        {testimonials.map((t, i) => (
-          <motion.div
-            key={t.name}
-            initial={{ opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={reduced ? undefined : { y: -5 }}
-            className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 backdrop-blur-sm transition-colors duration-300 hover:border-white/[0.14]"
-          >
-            <Quote className="mb-4 h-6 w-6 text-violet-400/40" aria-hidden />
-
-            <div className="mb-3 flex gap-0.5" aria-label={`${t.rating} out of 5 stars`}>
-              {Array.from({ length: t.rating }).map((_, j) => (
-                <Star key={j} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" aria-hidden />
-              ))}
+    <section className="relative px-6 py-5" aria-label="Platform trust signals">
+      <div className="mx-auto max-w-4xl">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 rounded-2xl border border-white/[0.07] bg-white/[0.02] px-6 py-4 backdrop-blur-sm"
+        >
+          {trustItems.map(({ icon: Icon, label, detail }) => (
+            <div key={label} className="flex items-center gap-2.5">
+              <Icon className="h-4 w-4 shrink-0 text-violet-400" aria-hidden />
+              <span className="text-sm font-medium text-white/75">{label}</span>
+              <span className="hidden text-xs text-white/40 sm:inline">— {detail}</span>
             </div>
-
-            <p className="mb-5 text-sm leading-relaxed text-white/70">&ldquo;{t.quote}&rdquo;</p>
-
-            <div className="flex items-center gap-3">
-              <div
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${t.gradient} text-[11px] font-black text-white`}
-              >
-                {t.initials}
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white/85">{t.name}</p>
-                <p className="text-xs text-white/45">{t.role}</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+          ))}
+        </motion.div>
       </div>
     </section>
   );
@@ -523,10 +459,8 @@ export default function Welcome() {
         )}
       </motion.section>
 
-      {/* ── Section divider ───────────────────────────────────────────────── */}
-      <div className="mx-auto max-w-6xl px-6" aria-hidden>
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.1] to-transparent" />
-      </div>
+      {/* ── Trust strip ──────────────────────────────────────────────────── */}
+      <TrustStrip />
 
       {/* ── Features ─────────────────────────────────────────────────────── */}
       <section className="relative px-6 py-16 md:py-24" aria-labelledby="features-heading">
@@ -590,16 +524,6 @@ export default function Welcome() {
           </div>
         </div>
       </section>
-
-      {/* ── Testimonials — between Features and Guide (Expert 7, 10) ─────── */}
-      <div className="relative px-6">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-4" aria-hidden>
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
-          </div>
-          <TestimonialsSection reduced={!!reduced} />
-        </div>
-      </div>
 
       {/* ── How It Works + FAQ ────────────────────────────────────────────── */}
       <div className="relative px-6">
