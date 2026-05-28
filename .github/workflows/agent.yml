@@ -1,10 +1,16 @@
-# Agent Pipeline
+# Agent Pipeline — GitHub Hosted Runner
 # Copy this file to your repo: .github/workflows/agent.yml
-# Push to your base branch.
-# Requires AGENTS_TOKEN secret (see docs/setup-guide.md)
+# Push to your default branch (main).
 #
-# This replaces code-agent.yml and pr-agent.yml — runs the full pipeline:
-#   Pick issue → Code Agent → QA → PR → PR Review + Fix → Close → Next
+# Required secrets:
+#   AGENTS_TOKEN             — GitHub PAT with repo scope (access to target repo + ad-net/innovation-agents)
+#   CLAUDE_CODE_OAUTH_TOKEN  — Run `claude setup-token` in terminal → login → copy token
+#
+# Optional secrets:
+#   SLACK_WEBHOOK_URL        — Slack incoming webhook for notifications
+#   SLACK_NOTIFY_USER_ID     — Slack user ID to ping
+#
+# Also add .qa/start.sh in your repo root to start the dev server (e.g. npm run dev)
 #
 # Triggers:
 # - Add label "agent:implement" to an issue → pipeline runs automatically
@@ -33,9 +39,34 @@ jobs:
     if: >
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'issues' && github.event.label.name == 'agent:implement')
-    runs-on: [self-hosted, macOS]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code@latest
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 jq
+
+      - name: Install gstack (browse for screenshots)
+        run: |
+          export PATH="$HOME/.bun/bin:$PATH"
+          git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+          cd ~/.claude/skills/gstack && ./setup
+
       - name: Pull agent code
         run: |
           rm -rf /tmp/innovation-agents
@@ -43,6 +74,7 @@ jobs:
 
       - name: Run Agent Pipeline
         run: |
+          export PATH="$HOME/.bun/bin:$PATH"
           chmod +x /tmp/innovation-agents/actions/scheduler/entrypoint.sh
           chmod +x /tmp/innovation-agents/actions/code-agent/entrypoint.sh
           chmod +x /tmp/innovation-agents/actions/pr-review-fix/entrypoint.sh
@@ -52,10 +84,11 @@ jobs:
         env:
           REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.AGENTS_TOKEN }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           AGENT_BASE_BRANCH: agent-implement
           BASE_BRANCH: agent-implement
-          MAX_ISSUES: ${{ github.event.inputs.max-issues }}
-          LABEL: ${{ github.event.inputs.label }}
+          MAX_ISSUES: ${{ github.event.inputs.max-issues || '10' }}
+          LABEL: ${{ github.event.inputs.label || '' }}
           TRIGGER_EVENT: ${{ github.event_name }}
           TRIGGER_ISSUE_NUMBER: ${{ github.event.issue.number || '' }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
