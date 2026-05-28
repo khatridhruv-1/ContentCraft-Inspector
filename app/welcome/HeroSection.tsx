@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion, useInView } from 'framer-motion';
 import { Sparkles, ArrowRight, ChevronDown, Zap, Shield, TrendingUp, Star } from 'lucide-react';
+import styles from './HeroSection.module.css';
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -73,6 +74,40 @@ function CountUp({
   return <span ref={ref}>{display}{suffix}</span>;
 }
 
+// ─── Stats grid sub-component ─────────────────────────────────────────────────
+
+function StatsGrid({ reduced }: { reduced: boolean }) {
+  return (
+    <>
+      <motion.div
+        variants={rise}
+        className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 w-full max-w-3xl"
+      >
+        {stats.map(({ label, icon: Icon, iconColor, countEnd, countSuffix, countDecimals }) => (
+          <div
+            key={label}
+            className="flex flex-col items-center gap-1.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 backdrop-blur-sm"
+          >
+            <Icon className={`h-4 w-4 ${iconColor}`} aria-hidden />
+            <span className="text-2xl font-black text-white tabular-nums">
+              <CountUp
+                end={countEnd}
+                suffix={countSuffix}
+                decimals={countDecimals}
+                reduced={reduced}
+              />
+            </span>
+            <span className="text-[11px] text-white/60 text-center leading-tight">{label}</span>
+          </div>
+        ))}
+      </motion.div>
+      <motion.p variants={rise} className="mt-2.5 text-[11px] text-white/30">
+        * Based on platform data and user surveys · Q1 2025
+      </motion.p>
+    </>
+  );
+}
+
 // ─── Hero section ─────────────────────────────────────────────────────────────
 
 export default function HeroSection() {
@@ -103,7 +138,7 @@ export default function HeroSection() {
         <h1 id="hero-heading" className="text-5xl font-black tracking-tight leading-[1.05] md:text-7xl lg:text-[5.5rem]">
           <span className="block text-white">Create Content</span>
           {/* Gradient constrained to violet-purple-indigo family (Experts 1, 9) */}
-          <span className="block mt-1 hero-gradient-text">That Converts</span>
+          <span className={`block mt-1 ${styles.heroGradientText}`}>That Converts</span>
         </h1>
       </motion.div>
 
@@ -167,33 +202,7 @@ export default function HeroSection() {
         </button>
       </motion.div>
 
-      {/* Stats grid — count-up animation + semantic icon colors (Experts 4, 6) */}
-      <motion.div
-        variants={rise}
-        className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 w-full max-w-3xl"
-      >
-        {stats.map(({ label, icon: Icon, iconColor, countEnd, countSuffix, countDecimals }) => (
-          <div
-            key={label}
-            className="flex flex-col items-center gap-1.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 backdrop-blur-sm"
-          >
-            <Icon className={`h-4 w-4 ${iconColor}`} aria-hidden />
-            <span className="text-2xl font-black text-white tabular-nums">
-              <CountUp
-                end={countEnd}
-                suffix={countSuffix}
-                decimals={countDecimals}
-                reduced={!!reduced}
-              />
-            </span>
-            <span className="text-[11px] text-white/60 text-center leading-tight">{label}</span>
-          </div>
-        ))}
-      </motion.div>
-
-      <motion.p variants={rise} className="mt-2.5 text-[11px] text-white/30">
-        * Based on platform data and user surveys · Q1 2025
-      </motion.p>
+      <StatsGrid reduced={!!reduced} />
 
       {!reduced && (
         <motion.div
@@ -212,47 +221,6 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
       )}
-
-      <style jsx>{`
-        /* Hero gradient — constrained to violet-purple-indigo family (Experts 1, 9) */
-        .hero-gradient-text {
-          background: linear-gradient(
-            135deg,
-            #a78bfa 0%,
-            #818cf8 22%,
-            #c084fc 45%,
-            #a78bfa 68%,
-            #818cf8 100%
-          );
-          background-size: 300% 300%;
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: #a78bfa;
-          -webkit-text-fill-color: transparent;
-          animation: hero-gradient-shift 5s ease infinite;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .hero-gradient-text {
-            animation: none;
-            background-position: 0% 50%;
-          }
-        }
-
-        @media (forced-colors: active) {
-          .hero-gradient-text {
-            -webkit-text-fill-color: ButtonText;
-            color: ButtonText;
-            background: none;
-          }
-        }
-
-        @keyframes hero-gradient-shift {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-      `}</style>
     </motion.section>
   );
 }

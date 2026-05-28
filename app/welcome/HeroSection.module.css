@@ -1,0 +1,37 @@
+.heroGradientText {
+  background: linear-gradient(
+    135deg,
+    #a78bfa 0%,
+    #818cf8 22%,
+    #c084fc 45%,
+    #a78bfa 68%,
+    #818cf8 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: #a78bfa;
+  -webkit-text-fill-color: transparent;
+  animation: heroGradientShift 5s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroGradientText {
+    animation: none;
+    background-position: 0% 50%;
+  }
+}
+
+@media (forced-colors: active) {
+  .heroGradientText {
+    -webkit-text-fill-color: ButtonText;
+    color: ButtonText;
+    background: none;
+  }
+}
+
+@keyframes heroGradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
