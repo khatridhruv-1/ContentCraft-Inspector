@@ -55,22 +55,24 @@ export default function FaqSection() {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" role="list">
       {faqs.map((faq, index) => {
         const isOpen = openIndex === index;
         return (
-          <div key={faq.question} className="rounded-xl border border-white/[0.07] bg-white/[0.03] overflow-hidden">
+          <div key={faq.question} className="rounded-xl border border-border bg-card overflow-hidden" role="listitem">
             <button
               id={`faq-btn-${index}`}
               onClick={() => toggle(index)}
               aria-expanded={isOpen}
-              className="w-full flex items-center justify-between px-5 py-4 text-left focus:outline-none focus-visible:ring-1 focus-visible:ring-violet-500 rounded-xl"
+              aria-controls={`faq-panel-${index}`}
+              className="w-full flex items-center justify-between px-5 py-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 rounded-xl min-h-[52px]"
             >
-              <span className="text-sm font-medium text-white/80 pr-4">{faq.question}</span>
+              <span className="text-sm font-medium text-foreground pr-4">{faq.question}</span>
               <motion.span
                 animate={{ rotate: isOpen ? 180 : 0 }}
                 transition={{ duration: 0.2 }}
-                className="flex-shrink-0 text-white/30"
+                className="flex-shrink-0 text-muted-foreground"
+                aria-hidden="true"
               >
                 <ChevronDown className="w-4 h-4" />
               </motion.span>
@@ -88,7 +90,7 @@ export default function FaqSection() {
                   transition={{ duration: 0.22, ease: 'easeInOut' }}
                   className="overflow-hidden"
                 >
-                  <p className="px-5 pb-4 text-xs text-white/40 leading-relaxed">{faq.answer}</p>
+                  <p className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
                 </motion.div>
               )}
             </AnimatePresence>

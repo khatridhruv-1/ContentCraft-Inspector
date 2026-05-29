@@ -1,43 +1,19 @@
 import { NextResponse } from "next/server";
+import { groqRequest, cleanContent } from "@/lib/groq";
 
 export async function POST(req: Request) {
   try {
     const { content } = await req.json();
-    const plainContent = content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 8000);
+    const plain = cleanContent(content, 3000);
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "system",
-            content: "You are a professional rephrasing assistant. Rephrase the user's input with a more structured format, using unique, descriptive, and powerful words. Aim for maximum clarity and attractiveness.",
-          },
-          {
-            role: "user",
-            content: `Rephrase the following: ${plainContent}`,
-          },
-        ],
-      }),
-    });
+    const rephrased = await groqRequest([
+      { role: "system", content: "Rephrase the following content to be more engaging and original. Return only the rephrased text, no extra commentary." },
+      { role: "user",   content: plain },
+    ]);
 
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      console.error("Groq error in rephrase:", errData);
-      return NextResponse.json({ error: errData?.error?.message || "Error rephrasing content" }, { status: 500 });
-    }
-
-    const data = await response.json();
-    const rephrased = data.choices[0].message.content;
-
-    return NextResponse.json(rephrased);
-  } catch (error) {
-    console.error("Error in rephrase:", error);
-    return NextResponse.json({ error: "Error rephrasing content" }, { status: 500 });
+    return NextResponse.json({ rephrasedContent: rephrased.trim() });
+  } catch (e: any) {
+    console.error("rephrase error:", e.message);
+    return NextResponse.json({ error: e.message || "Error rephrasing content" }, { status: 500 });
   }
 }

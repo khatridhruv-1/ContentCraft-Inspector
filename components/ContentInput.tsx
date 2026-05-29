@@ -69,78 +69,81 @@ const ContentInput: React.FC<ContentInputProps> = ({
   const hasContent = content.trim().length > 0;
 
   return (
-    <div className="h-full flex flex-col gap-4 p-6">
-      <div className="flex gap-2 items-center">
+    <div className="h-full flex flex-col gap-4 p-5 sm:p-6">
+      <div className="flex gap-2 items-center flex-wrap">
         <Input
           type="file"
           onChange={handleFileChange}
           accept=".txt,.doc,.docx,.pdf,.md"
           className="hidden"
           id="file-upload"
+          aria-label="Upload a file"
         />
         <Button
           variant="outline"
           onClick={() => document.getElementById('file-upload')?.click()}
-          className="gap-2"
+          className="gap-2 text-sm"
+          aria-label="Upload a .txt, .doc, .docx, .pdf, or .md file"
         >
-          <Upload className="h-4 w-4" />
+          <Upload className="h-4 w-4" aria-hidden="true" />
           Upload File
         </Button>
-        <p className="text-sm text-muted-foreground">
-          Supported formats: .txt, .doc, .docx, .pdf, .md
+        <p className="text-xs text-muted-foreground">
+          .txt, .doc, .docx, .pdf, .md
         </p>
       </div>
-      
-      <div 
-        className={`flex-1 relative min-h-0 ${isDragging ? 'border-primary' : ''}`}
+
+      <div
+        className={`flex-1 relative min-h-0 rounded-xl transition-all ${isDragging ? 'ring-2 ring-primary ring-offset-2' : ''}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        aria-label="Content input area — drag and drop a file here"
       >
         <div className="relative h-full flex flex-col">
+          <label htmlFor="content-textarea" className="sr-only">Paste your content here to analyze</label>
           <Textarea
+            id="content-textarea"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Paste your content here to analyze or drag & drop a file..."
-            className="h-full resize-none text-lg p-8 rounded-xl overflow-auto pr-[120px]"
+            placeholder="Paste your content here to analyze, or drag & drop a file..."
+            className="h-full resize-none text-sm p-5 rounded-xl overflow-auto"
           />
           {hasContent && (
             <Button
               onClick={onAnalyze}
-              className="absolute right-4 top-4 gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+              className="absolute right-3 top-3 gap-2 text-xs grad hover:opacity-90 transition-opacity border-0 text-white"
+              size="sm"
             >
-              <FileSearch className="h-4 w-4" />
+              <FileSearch className="h-3.5 w-3.5" aria-hidden="true" />
               Analyze
             </Button>
           )}
         </div>
         {isDragging && (
-          <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-xl border-2 border-dashed border-primary">
+          <div className="absolute inset-0 bg-background/90 flex items-center justify-center rounded-xl border-2 border-dashed border-primary">
             <div className="text-center">
-              <FileText className="h-12 w-12 mx-auto mb-2 text-primary" />
-              <p className="text-lg font-medium">Drop your file here</p>
+              <FileText className="h-10 w-10 mx-auto mb-2 text-primary" aria-hidden="true" />
+              <p className="text-sm font-medium text-foreground">Drop your file here</p>
             </div>
           </div>
         )}
       </div>
-      
+
       <div className="flex justify-between items-center">
-        <div className="flex space-x-8 text-lg text-muted-foreground">
-          <span>Characters: {charCount}</span>
-          <span>Words: {wordCount}</span>
+        <div className="flex gap-4 text-xs text-muted-foreground">
+          <span><span className="font-semibold text-foreground">{charCount}</span> chars</span>
+          <span><span className="font-semibold text-foreground">{wordCount}</span> words</span>
         </div>
         {mode === 'analyze' && (
-          <div className="flex gap-4">
-            <Button
-              onClick={onAnalyze}
-              disabled={!hasContent}
-              className="gap-3 px-8 py-6 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
-            >
-              <Wand2 className="h-7 w-7" />
-              Analyze
-            </Button>
-          </div>
+          <Button
+            onClick={onAnalyze}
+            disabled={!hasContent}
+            className="gap-2 px-5 py-2.5 text-sm rounded-xl grad hover:opacity-90 transition-opacity border-0 text-white disabled:opacity-40"
+          >
+            <Wand2 className="h-4 w-4" aria-hidden="true" />
+            Analyze
+          </Button>
         )}
       </div>
     </div>

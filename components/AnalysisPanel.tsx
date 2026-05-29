@@ -22,7 +22,7 @@ interface AnalysisPanelProps {
 }
 
 const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
-  content,
+  content: _content,
   triggerAnalysis,
   dataFromChild
 }) => {
@@ -67,7 +67,8 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           })
 
           if (!response.ok) {
-            throw new Error('Failed to analyze content')
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData?.error || 'Failed to analyze content')
           }
           
           const result = await response.json()
@@ -132,17 +133,15 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
         } finally {
           setIsLoading(false)
         }
-      } else {
-        setAnalysis(null)
       }
     }
 
     analyzeContent()
-  }, [dataFromChild, triggerAnalysis, wordCount, readingTime, companyId, companyloading])
+  }, [dataFromChild, triggerAnalysis, companyId, companyloading])
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="flex flex-col items-center gap-3">
           <motion.div
             className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full"
@@ -155,9 +154,9 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
     )
   }
 
-  if (error) {
+  if (error && !analysis) {
     return (
-      <div className="h-full flex items-center justify-center p-6">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center mx-auto mb-3">
             <AlertCircle className="h-5 w-5 text-destructive" />
@@ -170,7 +169,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
 
   if (!analysis) {
     return (
-      <div className="h-full flex items-center justify-center p-6">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
             <Zap className="h-6 w-6 text-primary" />
@@ -183,10 +182,8 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col relative">
-      <div className="absolute inset-0 overflow-y-auto">
-        <div className="p-4 space-y-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+    <div className="space-y-4 pb-8">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
 
             {/* Score ring */}
             <div className="flex flex-col items-center py-4 mb-2">
@@ -229,7 +226,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                   key={label}
                   initial={{ scale: 0.95, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="bg-secondary border border-border rounded-xl p-3"
+                  className="p-3 border-b border-border"
                 >
                   <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
                     {icon}
@@ -241,7 +238,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
             </div>
 
             {/* Key Insights */}
-            <div className="bg-secondary border border-border rounded-xl p-4 mb-3">
+            <div className="py-4 border-b border-border mb-3">
               <div className="flex items-center gap-2 mb-3">
                 <AlertCircle className="h-4 w-4 text-primary" />
                 <h3 className="text-xs font-semibold text-foreground">Key Insights</h3>
@@ -258,7 +255,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
             </div>
 
             {/* Improvements */}
-            <div className="bg-secondary border border-border rounded-xl p-4">
+            <div className="py-4 border-b border-border">
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="h-4 w-4 text-primary" />
                 <h3 className="text-xs font-semibold text-foreground">Improvements</h3>
@@ -274,9 +271,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
               </ul>
             </div>
 
-          </motion.div>
-        </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

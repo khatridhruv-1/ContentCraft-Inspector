@@ -1,66 +1,30 @@
 import { NextResponse } from "next/server";
-
-function extractJSON(text: string): string {
-  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  return match ? match[1].trim() : text.trim();
-}
-
-function cleanContent(html: string): string {
-  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 8000);
-}
+import { groqRequest, extractJSON, cleanContent } from "@/lib/groq";
 
 export async function POST(req: Request) {
   try {
     const { content } = await req.json();
-    const plainContent = cleanContent(content);
+    const plain = cleanContent(content, 3000);
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    const raw = await groqRequest([
+      {
+        role: "system",
+        content: `You are a content structure analyzer. Respond with ONLY valid JSON, no extra text, no markdown:
+{"outline":[{"level":1,"text":"heading"}],"suggestions":["tip1"],"contentGaps":["gap1"]}`,
       },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content: `You are a content structure analyzer. Return ONLY a JSON object with these exact keys:
-{
-  "outline": [{"level": number, "text": string}],
-  "suggestions": string[],
-  "contentGaps": string[]
-}`,
-          },
-          {
-            role: "user",
-            content: `Analyze this content and provide an outline with suggestions: ${plainContent}`,
-          },
-        ],
-      }),
-    });
+      { role: "user", content: `Outline this: ${plain}` },
+    ]);
 
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      console.error("Groq error in outline:", errData);
-      return NextResponse.json({ error: errData?.error?.message || "Error generating outline" }, { status: 500 });
-    }
-
-    const data = await response.json();
-    const raw = data.choices[0].message.content;
-
-    let analysis;
+    let result;
     try {
-      analysis = JSON.parse(extractJSON(raw));
+      result = JSON.parse(extractJSON(raw));
     } catch {
-      console.error("JSON parse failed in outline:", raw);
-      return NextResponse.json({ error: "AI returned invalid response" }, { status: 500 });
+      result = { outline: [], suggestions: [], contentGaps: [] };
     }
 
-    return NextResponse.json(analysis);
-  } catch (error) {
-    console.error("Error in outline:", error);
-    return NextResponse.json({ error: "Error generating outline" }, { status: 500 });
+    return NextResponse.json(result);
+  } catch (e: any) {
+    console.error("outline error:", e.message);
+    return NextResponse.json({ error: e.message || "Error generating outline" }, { status: 500 });
   }
 }

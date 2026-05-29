@@ -84,7 +84,7 @@ export function ContentEditor({
           .ql-toolbar button:hover .ql-stroke, .ql-toolbar button.ql-active .ql-stroke { stroke: hsl(var(--primary)); }
           .ql-toolbar button:hover .ql-fill, .ql-toolbar button.ql-active .ql-fill { fill: hsl(var(--primary)); }
           .ql-container.ql-snow { border: none; }
-          .ql-editor { min-height: 300px; line-height: 1.7; padding: 1.25rem; color: hsl(var(--foreground)); background: hsl(var(--card)); font-size: 14px; font-family: 'Inter', -apple-system, sans-serif; }
+          .ql-editor { min-height: 300px; line-height: 1.7; padding: 1.25rem; color: hsl(var(--foreground)); background: hsl(var(--background)); font-size: 14px; font-family: 'Inter', -apple-system, sans-serif; }
           .ql-editor.ql-blank::before { color: hsl(var(--muted-foreground)); font-style: normal; }
           .ql-editor p, .ql-editor li { color: hsl(var(--foreground)); }
         `}</style>
@@ -99,7 +99,7 @@ export function ContentEditor({
         />
       </div>
 
-      <div className="flex justify-between items-center px-5 py-3 border-t border-border bg-card shrink-0">
+      <div className="flex justify-between items-center px-5 py-3 border-t border-border bg-background shrink-0">
         <div className="flex items-center gap-5">
           <div className="flex gap-5 text-xs text-muted-foreground">
             <span><span className="font-semibold text-foreground">{charCount}</span> chars</span>

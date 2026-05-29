@@ -88,6 +88,28 @@ export async function getUser(sessionToken: string) {
   return mapUser(data);
 }
 
+export async function forgotPassword(email: string) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+    method: 'POST',
+    headers: authHeaders,
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.msg || 'Failed to send reset email.');
+  }
+}
+
+export async function resetPassword(accessToken: string, newPassword: string) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'PUT',
+    headers: { ...authHeaders, Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ password: newPassword }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.msg || data.error_description || 'Failed to reset password.');
+}
+
 export async function updateUserName(sessionToken: string, newName: string) {
   const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
     method: 'PUT',

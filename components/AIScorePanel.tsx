@@ -52,7 +52,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
         });
 
         if (!response.ok) {
-          throw new Error('Failed to analyze content');
+          const e = await response.json().catch(() => ({})); throw new Error(e?.error || 'Failed to analyze content');
         }
 
         const result = await response.json();
@@ -91,7 +91,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="flex flex-col items-center gap-3">
           <motion.div
             className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full"
@@ -104,9 +104,9 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
     );
   }
 
-  if (error) {
+  if (error && !result) {
     return (
-      <div className="h-full flex items-center justify-center p-6">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <AlertTriangle className="w-8 h-8 text-destructive mx-auto mb-3" />
           <p className="text-sm text-muted-foreground">{error}</p>
@@ -117,7 +117,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
 
   if (!result) {
     return (
-      <div className="h-full flex items-center justify-center p-6">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
             <Brain className="h-6 w-6 text-primary" />
@@ -130,13 +130,11 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col relative">
-      <div className="absolute inset-0 overflow-y-auto">
-        <div className="p-4 space-y-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+    <div className="space-y-4 pb-8">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
 
             {/* Score bars */}
-            <div className="bg-secondary border border-border rounded-xl p-4 mb-3">
+            <div className="py-4 border-b border-border mb-3">
               <div className="flex items-center gap-2 mb-4">
                 <Brain className="h-4 w-4 text-primary" />
                 <h3 className="text-xs font-semibold text-foreground">Content Analysis</h3>
@@ -174,7 +172,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
             </div>
 
             {/* Analysis */}
-            <div className="bg-secondary border border-border rounded-xl p-4 mb-3">
+            <div className="py-4 border-b border-border mb-3">
               <h3 className="text-xs font-semibold text-foreground mb-3">Writing Pattern Analysis</h3>
               {typeof result.analysis === 'string' ? (
                 <p className="text-xs text-muted-foreground leading-relaxed">{result.analysis}</p>
@@ -209,7 +207,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
             </div>
 
             {/* Humanized Version */}
-            <div className="bg-secondary border border-border rounded-xl overflow-hidden">
+            <div className="border-t border-border overflow-hidden">
               <button
                 onClick={() => setShowHumanized(!showHumanized)}
                 className="w-full flex items-center justify-between px-4 py-3 text-xs font-semibold text-foreground hover:bg-muted/50 transition-colors"
@@ -237,9 +235,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
               </AnimatePresence>
             </div>
 
-          </motion.div>
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

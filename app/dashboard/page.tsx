@@ -14,9 +14,7 @@ import { useRouter } from 'next/navigation';
 import { logout, getUser } from '@/lib/user/appwrite';
 import { updateContent } from '@/lib/content/appwrite';
 import AIGeneratePanel from '@/components/AIGeneratePanel';
-import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
-import { saveAs } from 'file-saver';
-import MarkdownRenderer, { getDownloadableContent } from '@/components/MarkdownRenderer';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { marked } from 'marked';
 import { Suspense } from 'react';
 import DashboardParams from '@/components/DashboardParams';
@@ -31,14 +29,10 @@ export default function Dashboard() {
   const [triggerAnalysis, setTriggerAnalysis] = useState(false);
   const [triggerAIScore, setTriggerAIScore] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [generatedContent, setGeneratedContent] = useState('');
-  const [showAIGenerateAnalysis, setShowAIGenerateAnalysis] = useState(false);
-  const [showAIGenerateScore, setShowAIGenerateScore] = useState(false);
   const [hasGeneratedContent, setHasGeneratedContent] = useState(false);
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [fromHistory, setFromHistory] = useState(false);
-  const [title, setTitle] = useState<string>('GeneratedContent');
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
@@ -143,16 +137,15 @@ export default function Dashboard() {
     return (
       <button
         onClick={() => router.push('/history')}
-        className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900"
+        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
-        <ArrowLeft className="h-5 w-5" />
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         Back to History
       </button>
     );
   };
 
   const handleLogout = async () => {
-    setLoading(true);
     try {
       const sessionToken = localStorage.getItem('sessionToken');
       if (sessionToken) await logout(sessionToken);
@@ -193,8 +186,6 @@ export default function Dashboard() {
       setShowStructured(false);
       setTriggerAnalysis(false);
       setTriggerAIScore(false);
-      setShowAIGenerateAnalysis(false);
-      setShowAIGenerateScore(false);
       setHasGeneratedContent(false);
     }
   };
@@ -218,56 +209,8 @@ export default function Dashboard() {
     const generatedHtmlContent = marked(generatedContent) as string;
     handleContentChange(generatedHtmlContent);
     setHasGeneratedContent(true);
-    setTitle(generatedContent.split('\n')[0] || 'GeneratedContent');
   };
 
-  const downloadAsWord = () => {
-    if (!generatedContent.trim()) return;
-  
-    // Convert Markdown to structured text
-    const formattedContent = getDownloadableContent(generatedContent, 'docx');
-  
-    const doc = new Document({
-      sections: [
-        {
-          children: formattedContent.split('\n').map((line) => {
-            if (line.startsWith('--- ')) {
-              return new Paragraph({
-                text: line.replace('--- ', ''),
-                heading: HeadingLevel.HEADING_1,
-              });
-            } else if (line.startsWith('-- ')) {
-              return new Paragraph({
-                text: line.replace('-- ', ''),
-                heading: HeadingLevel.HEADING_2,
-              });
-            } else if (line.startsWith('- ')) {
-              return new Paragraph({
-                text: line.replace('- ', ''),
-                heading: HeadingLevel.HEADING_3,
-              });
-            } else if (line.startsWith('• ')) {
-              return new Paragraph({
-                children: [new TextRun(line.replace('• ', ''))],
-                bullet: { level: 0 },
-              });
-            } else if (line.startsWith('1. ')) {
-              return new Paragraph({
-                children: [new TextRun(line.replace('1. ', ''))],
-                numbering: { reference: "ordered-list", level: 0 },
-              });
-            } else {
-              return new Paragraph(line);
-            }
-          }),
-        },
-      ],
-    });
-  
-    Packer.toBlob(doc).then((blob) => {
-      saveAs(blob, `${title || 'GeneratedContent'}.docx`);
-    });
-  };
   const [dataFromChild, setDataFromChild] = useState("");
 
   function handleDataFromChild(data :any) {
@@ -304,28 +247,31 @@ export default function Dashboard() {
           />
         )}
         <div
-          className={`fixed lg:relative z-30 lg:z-auto w-72 shrink-0 flex flex-col h-screen transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          id="sidebar-nav"
+          className={`fixed lg:relative z-30 lg:z-auto w-48 shrink-0 flex flex-col h-screen transition-transform duration-300 lg:translate-x-0 border-r border-border ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
           style={{ background: 'hsl(var(--sidebar-background))' }}
+          aria-label="Main navigation sidebar"
         >
         {/* Logo */}
-        <div className="relative px-6 py-6 border-b" style={{ borderColor: 'hsl(var(--sidebar-border))' }}>
+        <div className="relative px-5 py-5 border-b" style={{ borderColor: 'hsl(var(--sidebar-border))' }}>
           <button
             className="lg:hidden absolute top-4 right-4 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors"
             onClick={() => setSidebarOpen(false)}
+            aria-label="Close navigation menu"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-violet-500 flex items-center justify-center shrink-0">
-              <Wand2 className="h-4 w-4 text-white" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg grad flex items-center justify-center shrink-0" aria-hidden="true">
+              <Wand2 className="h-3.5 w-3.5 text-white" />
             </div>
-            <span className="text-base font-semibold text-white tracking-tight">ContentCraft</span>
+            <span className="text-sm font-semibold text-sidebar-foreground tracking-tight">ContentCraft</span>
           </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          <p className="text-xs font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: 'hsl(var(--sidebar-foreground) / 0.45)' }}>Tools</p>
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto" aria-label="Main navigation">
+          <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pb-2 pt-1" style={{ color: 'hsl(var(--sidebar-foreground) / 0.45)' }}>Tools</p>
 
           {(([
             { mode: 'ai-generate' as AppMode, label: 'AI-Powered', icon: Wand2, disabled: false },
@@ -337,8 +283,10 @@ export default function Dashboard() {
               key={m}
               onClick={() => !disabled && handleModeChange(m)}
               disabled={disabled}
+              aria-current={mode === m ? 'page' : undefined}
+              title={disabled ? 'Add content first to enable this tool' : undefined}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
+                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 min-h-[40px]',
                 mode === m
                   ? 'text-white'
                   : disabled
@@ -353,21 +301,21 @@ export default function Dashboard() {
               onMouseEnter={e => { if (mode !== m && !disabled) (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; }}
               onMouseLeave={e => { if (mode !== m) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
               {label}
             </button>
           ))}
 
           <div className="pt-4">
-            <p className="text-xs font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: 'hsl(var(--sidebar-foreground) / 0.45)' }}>Account</p>
+            <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: 'hsl(var(--sidebar-foreground) / 0.45)' }}>Account</p>
             <button
               onClick={handleHistory}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 min-h-[40px]"
               style={{ color: 'hsl(var(--sidebar-foreground))' }}
               onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
             >
-              <History className="h-4 w-4 shrink-0" />
+              <History className="h-4 w-4 shrink-0" aria-hidden="true" />
               History
             </button>
           </div>
@@ -377,31 +325,35 @@ export default function Dashboard() {
         <div className="px-3 py-4 border-t" style={{ borderColor: 'hsl(var(--sidebar-border))' }} ref={menuRef}>
           <button
             onClick={() => setProfileMenuOpen(prev => !prev)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+            aria-expanded={profileMenuOpen}
+            aria-haspopup="menu"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 min-h-[40px]"
             style={{ color: 'hsl(var(--sidebar-foreground))' }}
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
           >
-            <UserCircle className="h-4 w-4 shrink-0" />
+            <UserCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
             Profile
           </button>
           {profileMenuOpen && (
-            <div className="mt-1 rounded-lg overflow-hidden shadow-lg border" style={{ background: 'hsl(var(--sidebar-accent))', borderColor: 'hsl(var(--sidebar-border))' }}>
+            <div role="menu" className="mt-1 rounded-xl overflow-hidden shadow-lg border" style={{ background: 'hsl(var(--sidebar-accent))', borderColor: 'hsl(var(--sidebar-border))' }}>
               <button
+                role="menuitem"
                 onClick={handleShowProfile}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors min-h-[40px]"
                 style={{ color: 'hsl(var(--sidebar-foreground))' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
               >
-                <UserCircle className="h-4 w-4" />
-                Show Profile
+                <UserCircle className="h-4 w-4" aria-hidden="true" />
+                View Profile
               </button>
               <button
+                role="menuitem"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors min-h-[40px]"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4" aria-hidden="true" />
                 Sign Out
               </button>
             </div>
@@ -418,216 +370,174 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          {/* Header */}
-          <div className="flex justify-between items-center px-8 py-4 border-b bg-card">
-            <div className="flex items-center gap-3">
-              <button
-                className="lg:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-                onClick={() => setSidebarOpen(prev => !prev)}
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              <BackToHistoryButton />
-              <div>
-                <h1 className="text-xl font-bold text-foreground tracking-tight">ContentCraft Inspector</h1>
-                <p className="text-xs text-muted-foreground capitalize">{mode.replace('-', ' ')} mode</p>
-              </div>
-            </div>
+          {/* Mobile menu toggle only — no navbar */}
+          <div className="flex lg:hidden items-center px-4 py-3 border-b border-border">
+            <button
+              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              onClick={() => setSidebarOpen(prev => !prev)}
+              aria-label="Open navigation menu"
+              aria-expanded={sidebarOpen}
+              aria-controls="sidebar-nav"
+            >
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <BackToHistoryButton />
           </div>
 
           {/* Content area wrapper + Content Area */}
-          <div className="flex-1 p-6 overflow-hidden flex flex-col">
-            {mode === 'ai-generate' && !hasGeneratedContent ? (
-              <div className="flex-1 flex items-center justify-center h-full">
-                <motion.div
-                  initial={{ scale: 0.95, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.35 }}
-                  className="w-[80%] h-[80%] bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
-                >
-                  <div className="h-full flex flex-col">
-                    <div className="px-6 py-4 border-b border-border">
-                      <h2 className="text-base font-semibold text-foreground">AI-Powered Content</h2>
+          <div className={cn("flex-1 overflow-hidden flex flex-col", mode !== 'ai-generate' ? 'p-6' : 'bg-secondary/30')}>
+            {mode === 'ai-generate' ? (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex-1 overflow-auto"
+              >
+                <AIGeneratePanel
+                  onContentGenerated={handleGeneratedContent}
+                  onAnalyze={handleAnalyze}
+                  onAIScore={handleAIScore}
+                  initialContent={generatedContent || undefined}
+                />
+              </motion.div>
+            ) : mode === 'create' && !showStructured ? (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex-1 overflow-hidden"
+              >
+                <ContentEditor
+                  initialContent={analysis}
+                  onContentChange={handleContentChange}
+                  mode={mode}
+                  sendDataToParent={handleDataFromChild}
+                  onCreate={() => setShowStructured(true)}
+                  onAnalyze={() => setTriggerAnalysis(prev => !prev)}
+                  onAIScore={() => setTriggerAIScore(true)}
+                  onAutoSave={handleAutoSave}
+                  autoSaveStatus={autoSaveStatus}
+                />
+              </motion.div>
+            ) : mode === 'analyze' ? (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex-1 overflow-auto"
+              >
+                <div className="max-w-3xl mx-auto px-8 py-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-base font-semibold text-foreground">Deep Analysis</h2>
+                    <div className="flex items-center gap-3">
+                      {!triggerAnalysis && content.trim() && (
+                        <button
+                          onClick={() => setTriggerAnalysis(true)}
+                          className="flex items-center gap-1.5 text-xs font-medium px-4 py-2 rounded-xl grad text-white hover:opacity-90 transition-opacity min-h-[36px]"
+                        >
+                          Analyze
+                        </button>
+                      )}
+                      {triggerAnalysis && (
+                        <button
+                          onClick={() => setTriggerAnalysis(false)}
+                          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          ← Edit content
+                        </button>
+                      )}
                     </div>
-                    <div className="flex-1 overflow-auto p-6">
-                      <AIGeneratePanel onContentGenerated={handleGeneratedContent} />
-                    </div>
                   </div>
-                </motion.div>
-              </div>
-            ) : mode === 'ai-generate' && hasGeneratedContent ? (
-              <div className="grid grid-cols-2 gap-5 h-full">
-                <motion.div
-                  initial={{ x: -30, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.35, delay: 0.1 }}
-                  className="bg-card rounded-2xl border border-border shadow-sm h-full overflow-hidden flex flex-col"
-                >
-                  <div className="px-5 py-3.5 border-b border-border flex-shrink-0">
-                    <h2 className="text-sm font-semibold text-foreground">Generate New Content</h2>
-                  </div>
-                  <div className="flex-1 overflow-auto p-5">
-                    <AIGeneratePanel onContentGenerated={handleGeneratedContent} />
-                  </div>
-                </motion.div>
+                  <Tabs defaultValue="analysis">
+                    <TabsList className="grid w-full grid-cols-3 bg-secondary rounded-xl p-1 h-10 mb-6">
+                      <TabsTrigger value="analysis" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Analysis</TabsTrigger>
+                      <TabsTrigger value="outline"  className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Outline</TabsTrigger>
+                      <TabsTrigger value="infogain" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Info Gain</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="analysis"><AnalysisPanel content={analysis} triggerAnalysis={triggerAnalysis} dataFromChild={dataFromChild || analysis}/></TabsContent>
+                    <TabsContent value="outline"><OutlinePanel  content={analysis} triggerOutline={triggerAnalysis}  dataFromChild={dataFromChild || analysis}/></TabsContent>
+                    <TabsContent value="infogain"><InfoGainPanel content={analysis} triggerInfoGain={triggerAnalysis} dataFromChild={dataFromChild || analysis}/></TabsContent>
+                  </Tabs>
+                </div>
+              </motion.div>
 
-                <motion.div
-                  initial={{ x: 30, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.35, delay: 0.2 }}
-                  className="bg-card rounded-2xl border border-border shadow-sm h-full flex flex-col"
-                >
-                  <div className="px-5 py-3.5 border-b border-border flex justify-between items-center flex-shrink-0">
-                    <h2 className="text-sm font-semibold text-foreground">Generated Content</h2>
+            ) : mode === 'ai-score' ? (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex-1 overflow-auto"
+              >
+                <div className="max-w-3xl mx-auto px-8 py-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-base font-semibold text-foreground">Realness Score</h2>
+                    <div className="flex items-center gap-3">
+                      {!triggerAIScore && content.trim() && (
+                        <button
+                          onClick={() => setTriggerAIScore(true)}
+                          className="flex items-center gap-1.5 text-xs font-medium px-4 py-2 rounded-xl grad text-white hover:opacity-90 transition-opacity min-h-[36px]"
+                        >
+                          Check Score
+                        </button>
+                      )}
+                      {triggerAIScore && (
+                        <button
+                          onClick={() => setTriggerAIScore(false)}
+                          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          ← Edit content
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <AIScorePanel content={content} triggerAIScore={triggerAIScore} />
+                </div>
+              </motion.div>
+
+            ) : mode === 'create' && showStructured ? (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex-1 overflow-auto"
+              >
+                <div className="max-w-3xl mx-auto px-8 py-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-base font-semibold text-foreground">Structured Content</h2>
                     <div className="flex gap-2">
-                      <button onClick={handleAnalyze} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                      <button onClick={handleAnalyze} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium grad text-white hover:opacity-90 transition-opacity">
                         <FileSearch className="h-3.5 w-3.5" /> Analyze
                       </button>
-                      <button onClick={handleAIScore} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
+                      <button onClick={handleAIScore} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-secondary border border-border text-foreground hover:bg-accent transition-colors">
                         <Robot className="h-3.5 w-3.5" /> AI Score
                       </button>
-                      <button onClick={downloadAsWord} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-emerald-600 text-white hover:opacity-90 transition-opacity">
-                        📄 Download
-                      </button>
                     </div>
                   </div>
-                  <div className="flex-1 p-5 overflow-auto">
-                    <div className="prose prose-sm max-w-none">
-                      <MarkdownRenderer content={htmlToMarkdown(generatedContent)} />
-                    </div>
+                  <div className="prose prose-sm max-w-none">
+                    <MarkdownRenderer content={htmlToMarkdown(content)} />
                   </div>
-                  {(showAIGenerateAnalysis || showAIGenerateScore) && (
-                    <div className="border-t border-border flex-1 overflow-hidden">
-                      {showAIGenerateAnalysis && (
-                        <Tabs defaultValue="analysis" className="h-full flex flex-col">
-                          <TabsList className="grid w-full grid-cols-3 rounded-none border-b border-border bg-muted/50 p-0 h-10">
-                            <TabsTrigger value="analysis" className="rounded-none text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Analysis</TabsTrigger>
-                            <TabsTrigger value="outline"  className="rounded-none text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Outline</TabsTrigger>
-                            <TabsTrigger value="infogain" className="rounded-none text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Info Gain</TabsTrigger>
-                          </TabsList>
-                          <div className="flex-1 overflow-auto">
-                            <TabsContent value="analysis" className="p-4"><AnalysisPanel content={content} triggerAnalysis={showAIGenerateAnalysis} dataFromChild={content}/></TabsContent>
-                            <TabsContent value="outline"  className="p-4"><OutlinePanel  content={content} triggerOutline={showAIGenerateAnalysis}  dataFromChild={content}/></TabsContent>
-                            <TabsContent value="infogain" className="p-4"><InfoGainPanel content={content} triggerInfoGain={showAIGenerateAnalysis} dataFromChild={content}/></TabsContent>
-                          </div>
-                        </Tabs>
-                      )}
-                      {showAIGenerateScore && (
-                        <div className="p-4 flex-1 overflow-auto">
-                          <AIScorePanel content={content} triggerAIScore={triggerAIScore} />
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </motion.div>
-              </div>
-            ) : mode === 'create' && !showStructured ? (
-              <div className="flex-1 flex items-center justify-center h-full">
-                <motion.div
-                  initial={{ scale: 0.95, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.35 }}
-                  className="bg-card rounded-2xl border border-border shadow-sm h-full overflow-hidden w-full"
-                >
-                  <ContentEditor
-                    initialContent={analysis}
-                    onContentChange={handleContentChange}
-                    mode={mode}
-                    sendDataToParent={handleDataFromChild}
-                    onCreate={() => setShowStructured(true)}
-                    onAnalyze={() => setTriggerAnalysis(prev => !prev)}
-                    onAIScore={() => setTriggerAIScore(true)}
-                    onAutoSave={handleAutoSave}
-                    autoSaveStatus={autoSaveStatus}
-                  />
-                </motion.div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-5 h-full">
-                <motion.div
-                  initial={{ x: -30, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.35, delay: 0.1 }}
-                  className="bg-card rounded-2xl border border-border shadow-sm h-[calc(100vh-140px)] overflow-hidden"
-                >
-                  <ContentEditor
-                    initialContent={content}
-                    onContentChange={handleContentChange}
-                    mode={mode}
-                    sendDataToParent={handleDataFromChild}
-                    onCreate={() => setShowStructured(true)}
-                    onAnalyze={() => setTriggerAnalysis(prev => !prev)}
-                    onAIScore={() => setTriggerAIScore(true)}
-                    onAutoSave={handleAutoSave}
-                    autoSaveStatus={autoSaveStatus}
-                  />
-                </motion.div>
-
-                <div className="h-full flex flex-col">
-                  {mode === 'analyze' && (
-                    <Tabs defaultValue="analysis" className="h-[calc(100vh-140px)] flex flex-col">
-                      <div className="mb-3">
-                        <TabsList className="grid w-full grid-cols-3 bg-card border border-border rounded-xl p-1 shadow-sm h-10">
-                          <TabsTrigger value="analysis" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Analysis 📊</TabsTrigger>
-                          <TabsTrigger value="outline"  className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Outline 📝</TabsTrigger>
-                          <TabsTrigger value="infogain" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Info Gain 🧠</TabsTrigger>
-                        </TabsList>
-                      </div>
-                      <motion.div
-                        initial={{ x: 30, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ duration: 0.35, delay: 0.2 }}
-                        className="bg-card rounded-2xl border border-border shadow-sm flex-1 overflow-hidden"
-                      >
-                        <TabsContent value="analysis" className="h-full m-0 p-4 overflow-auto"><AnalysisPanel content={analysis} triggerAnalysis={triggerAnalysis} dataFromChild={dataFromChild}/></TabsContent>
-                        <TabsContent value="outline"  className="h-full m-0 p-4 overflow-auto"><OutlinePanel  content={analysis} triggerOutline={triggerAnalysis}  dataFromChild={dataFromChild}/></TabsContent>
-                        <TabsContent value="infogain" className="h-full m-0 p-4 overflow-auto"><InfoGainPanel content={analysis} triggerInfoGain={triggerAnalysis} dataFromChild={dataFromChild}/></TabsContent>
-                      </motion.div>
-                    </Tabs>
-                  )}
-
-                  {mode === 'create' && showStructured && (
-                    <motion.div
-                      initial={{ x: 30, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.35, delay: 0.2 }}
-                      className="bg-card rounded-2xl border border-border shadow-sm h-[calc(100vh-140px)] overflow-hidden"
-                    >
-                      <div className="h-full flex flex-col">
-                        <div className="px-5 py-3.5 border-b border-border flex justify-between items-center">
-                          <h2 className="text-sm font-semibold text-foreground">Structured Content</h2>
-                          <div className="flex gap-2">
-                            <button onClick={handleAnalyze} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
-                              <FileSearch className="h-3.5 w-3.5" /> Analyze
-                            </button>
-                            <button onClick={handleAIScore} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity">
-                              <Robot className="h-3.5 w-3.5" /> AI Score
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex-1 p-5 overflow-auto">
-                          <div className="prose prose-sm max-w-none">
-                            <MarkdownRenderer content={htmlToMarkdown(content)} />
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {mode === 'ai-score' && (
-                    <motion.div
-                      initial={{ x: 30, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.35, delay: 0.2 }}
-                      className="bg-card rounded-2xl border border-border shadow-sm h-[calc(100vh-140px)] overflow-hidden"
-                    >
-                      <div className="p-4 h-full overflow-auto">
-                        <AIScorePanel content={content} triggerAIScore={triggerAIScore} />
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
-              </div>
+              </motion.div>
+
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.35 }}
+                className="flex-1 overflow-hidden"
+              >
+                <ContentEditor
+                  initialContent={content}
+                  onContentChange={handleContentChange}
+                  mode={mode}
+                  sendDataToParent={handleDataFromChild}
+                  onCreate={() => setShowStructured(true)}
+                  onAnalyze={() => setTriggerAnalysis(prev => !prev)}
+                  onAIScore={() => setTriggerAIScore(true)}
+                  onAutoSave={handleAutoSave}
+                  autoSaveStatus={autoSaveStatus}
+                />
+              </motion.div>
             )}
           </div>
         </motion.div>

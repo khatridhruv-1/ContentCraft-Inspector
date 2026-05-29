@@ -1,43 +1,90 @@
-import React, { useState } from 'react';
-import { Loader2, Wand2, FileText, FileDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Loader2, Wand2, FileText, FileDown, RefreshCw, FileSearch, BarChart2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
 import { useRouter } from 'next/navigation';
 import { getUser } from '@/lib/user/appwrite';
 import { jsPDF } from 'jspdf';
 import { useCompanyId } from '@/hooks/useCompany';
+import MarkdownRenderer, { getDownloadableContent } from './MarkdownRenderer';
+import { Document as DocxDocument, Packer as DocxPacker, Paragraph as DocxParagraph, TextRun as DocxTextRun } from 'docx';
 
 interface AIGeneratePanelProps {
   onContentGenerated: (content: string) => void;
+  onAnalyze?: () => void;
+  onAIScore?: () => void;
+  initialContent?: string;
 }
 
-export default function AIGeneratePanel({ onContentGenerated }: AIGeneratePanelProps) {
+const tones = [
+  'Professional', 'Formal', 'Informal', 'Friendly', 'Persuasive',
+  'Authoritative', 'Conversational', 'Inspirational', 'Humorous',
+  'Empathetic', 'Educational', 'Engaging', 'Neutral', 'Analytical',
+  'Witty', 'Casual', 'Motivational', 'Storytelling',
+];
+
+const lengths = [
+  { label: '~500 words',  value: 500  },
+  { label: '~1000 words', value: 1000 },
+  { label: '~2000 words', value: 2000 },
+  { label: '~3000 words', value: 3000 },
+];
+
+const languages = ['English', 'Hindi', 'Spanish', 'French', 'German', 'Portuguese', 'Japanese'];
+
+const templates = [
+  { label: '📝 Blog Post',    title: 'How to get started with ',  keywords: 'beginner, guide, tips, step-by-step', targetWords: 1000 },
+  { label: '🛍️ Product Desc', title: 'Why you should use ',        keywords: 'features, benefits, value, solution',  targetWords: 500  },
+  { label: '📧 Email',        title: 'Email: ',                    keywords: 'professional, clear, action, concise', targetWords: 500  },
+  { label: '📣 Ad Copy',      title: 'Introducing ',               keywords: 'compelling, offer, urgency, conversion',targetWords: 500  },
+  { label: '📱 Social Media', title: 'Top 5 tips about ',          keywords: 'engaging, short, trending, viral',     targetWords: 500  },
+];
+
+export default function AIGeneratePanel({ onContentGenerated, onAnalyze, onAIScore, initialContent }: AIGeneratePanelProps) {
   const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [keywords, setKeywords] = useState('');
-  const [tone, setTone] = useState('');
+  const [title, setTitle]             = useState('');
+  const [keywords, setKeywords]       = useState('');
+  const [tone, setTone]               = useState('Professional');
   const [targetWords, setTargetWords] = useState(1000);
-  const [loading, setLoading] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState('');
-  const [generateError, setGenerateError] = useState('');
-  const [generatedWordCount, setGeneratedWordCount] = useState(0);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [language, setLanguage]       = useState('English');
+  const [loading, setLoading]         = useState(false);
+  const [generatedContent, setGeneratedContent]     = useState(initialContent || '');
+  const [generateError, setGenerateError]           = useState('');
+  const [generatedWordCount, setGeneratedWordCount] = useState(
+    initialContent ? initialContent.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length : 0
+  );
+  const [progress, setProgress]       = useState(0);
+  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { companyId }: any = useCompanyId();
 
-  const tones = [
-    'Formal', 'Informal', 'Professional', 'Friendly', 'Persuasive',
-    'Authoritative', 'Conversational', 'Inspirational', 'Humorous',
-    'Empathetic', 'Educational', 'Engaging', 'Critical', 'Optimistic',
-    'Neutral', 'Witty', 'Storytelling', 'Casual', 'Motivational', 'Analytical',
-  ];
+  useEffect(() => {
+    if (loading) {
+      setProgress(0);
+      let elapsed = 0;
+      progressRef.current = setInterval(() => {
+        elapsed += 200;
+        setProgress(90 * (1 - Math.exp(-elapsed / 8000)));
+        if (elapsed >= 40000 && progressRef.current) clearInterval(progressRef.current);
+      }, 200);
+    } else {
+      if (progressRef.current) clearInterval(progressRef.current);
+      setProgress(0);
+    }
+    return () => { if (progressRef.current) clearInterval(progressRef.current); };
+  }, [loading]);
+
+  const handleClear = () => {
+    setTitle(''); setKeywords(''); setTone('Professional');
+    setTargetWords(1000); setLanguage('English');
+    setGenerateError(''); setGeneratedContent(''); setGeneratedWordCount(0);
+  };
 
   const generateContent = async () => {
     if (!title.trim()) return;
-
     setLoading(true);
     setGenerateError('');
+    setGeneratedContent('');
     try {
       const requestData: Record<string, any> = { title };
       if (keywords.trim()) requestData.keywords = keywords;
@@ -53,20 +100,16 @@ export default function AIGeneratePanel({ onContentGenerated }: AIGeneratePanelP
       if (!response.ok) {
         const data = await response.json();
         const msg = data.error || 'Failed to generate content. Please try again.';
-        setGenerateError(msg);
-        toast.error(msg);
-        return;
+        setGenerateError(msg); toast.error(msg); return;
       }
 
       const reader = response.body!.getReader();
       const decoder = new TextDecoder();
       let fullContent = '';
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        fullContent += chunk;
+        fullContent += decoder.decode(value, { stream: true });
         setGeneratedContent(fullContent);
         onContentGenerated(fullContent);
       }
@@ -75,24 +118,19 @@ export default function AIGeneratePanel({ onContentGenerated }: AIGeneratePanelP
       setGeneratedWordCount(wc);
       toast.success(`Content generated — ${wc.toLocaleString()} words`);
 
-      const documentId = localStorage.getItem('documentId');
+const documentId = localStorage.getItem('documentId');
       if (documentId) {
         await updateContent(documentId, { input: title, analysis: fullContent, companyId });
       } else {
         const sessionToken = localStorage.getItem('sessionToken');
-        if (!sessionToken) {
-          router.push('/auth/login');
-          return;
-        }
+        if (!sessionToken) { router.push('/auth/login'); return; }
         const user = await getUser(sessionToken);
         const res = await saveContent(title, user.$id, fullContent, 'ai-generate');
         if (res) localStorage.setItem('documentId', res.$id);
       }
-    } catch (error) {
-      console.error('Error generating content:', error);
+    } catch {
       const msg = 'Failed to generate content. Please try again.';
-      setGenerateError(msg);
-      toast.error(msg);
+      setGenerateError(msg); toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -100,67 +138,107 @@ export default function AIGeneratePanel({ onContentGenerated }: AIGeneratePanelP
 
   const downloadAsWord = () => {
     if (!generatedContent) return;
-    const doc = new Document({
+    const formattedContent = getDownloadableContent(generatedContent, 'docx');
+    const doc = new DocxDocument({
       sections: [{
-        children: generatedContent.split('\n').map(line =>
-          new Paragraph({ children: [new TextRun(line)] })
-        ),
+        children: formattedContent.split('\n').map(line => new DocxParagraph({ children: [new DocxTextRun(line)] })),
       }],
     });
-    Packer.toBlob(doc).then(blob => saveAs(blob, `${title || 'GeneratedContent'}.docx`));
+    DocxPacker.toBlob(doc).then(blob => saveAs(blob, `${title || 'GeneratedContent'}.docx`));
     toast.success('Downloading as Word document...');
   };
 
   const downloadAsPDF = () => {
     if (!generatedContent) return;
     const doc = new jsPDF();
-    const lines = doc.splitTextToSize(generatedContent, 180);
-    doc.text(lines, 10, 10);
+    doc.text(doc.splitTextToSize(generatedContent, 180), 10, 10);
     doc.save(`${title || 'GeneratedContent'}.pdf`);
     toast.success('Downloading as PDF...');
   };
 
-  const handleToneSelection = (toneOption: string) => {
-    setTone(toneOption);
-    setDropdownOpen(false);
-  };
+  const selectCls = 'w-full bg-background border border-border rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all cursor-pointer appearance-none';
+  const inputCls  = 'w-full bg-background border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all';
 
-  const inputCls = (focused: boolean) =>
-    `w-full bg-secondary border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground outline-none transition-all duration-200 ${
-      focused ? 'border-primary/60 ring-2 ring-primary/20' : 'border-border hover:border-border/80'
-    }`;
-
-  const [focusedField, setFocusedField] = React.useState<string | null>(null);
-
-  return (
-    <div className="h-full flex flex-col gap-5 p-1">
-
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0">
-          <Wand2 className="h-4 w-4 text-white" />
+  if (generatedContent) {
+    return (
+      <div className="w-full max-w-3xl mx-auto px-8 py-8 space-y-5">
+        {/* Result header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl grad flex items-center justify-center shadow-sm shrink-0" aria-hidden="true">
+              <Wand2 className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Generated Content</h2>
+              {generatedWordCount > 0 && (
+                <p className="text-xs text-muted-foreground">{generatedWordCount.toLocaleString()} words</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={handleClear}
+              className="flex items-center gap-1.5 text-xs font-medium px-3.5 py-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              aria-label="Clear and generate new content"
+            >
+              <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" /> New
+            </button>
+            {onAnalyze && (
+              <button onClick={onAnalyze} className="flex items-center gap-1.5 text-xs font-medium px-3.5 py-2 rounded-xl grad text-white hover:opacity-90 transition-opacity">
+                <FileSearch className="h-3.5 w-3.5" aria-hidden="true" /> Analyze
+              </button>
+            )}
+            {onAIScore && (
+              <button onClick={onAIScore} className="flex items-center gap-1.5 text-xs font-medium px-3.5 py-2 rounded-xl bg-secondary border border-border text-foreground hover:bg-accent transition-colors">
+                <BarChart2 className="h-3.5 w-3.5" aria-hidden="true" /> AI Score
+              </button>
+            )}
+            <button onClick={downloadAsWord} aria-label="Download as Word document" className="flex items-center gap-1.5 text-xs font-medium px-3.5 py-2 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors">
+              <FileText className="h-3.5 w-3.5" aria-hidden="true" /> Word
+            </button>
+            <button onClick={downloadAsPDF} aria-label="Download as PDF" className="flex items-center gap-1.5 text-xs font-medium px-3.5 py-2 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors">
+              <FileDown className="h-3.5 w-3.5" aria-hidden="true" /> PDF
+            </button>
+          </div>
         </div>
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">Generate AI Content</h2>
-          <p className="text-xs text-muted-foreground">Fill in the details below to generate a 1000+ word article</p>
+
+        {/* Content */}
+        <div className="prose prose-sm max-w-none">
+          <MarkdownRenderer content={generatedContent.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()} />
         </div>
       </div>
+    );
+  }
 
-      {/* Templates */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-medium text-muted-foreground">Quick templates</label>
-        <div className="flex flex-wrap gap-1.5">
-          {[
-            { label: 'Blog Post',     title: 'How to get started with ',  keywords: 'beginner, guide, tips, step-by-step',           targetWords: 1000 },
-            { label: 'Product Desc',  title: 'Why you should use ',        keywords: 'features, benefits, value, solution',            targetWords: 500  },
-            { label: 'Email',         title: 'Email: ',                    keywords: 'professional, clear, action, concise',           targetWords: 500  },
-            { label: 'Ad Copy',       title: 'Introducing ',               keywords: 'compelling, offer, urgency, conversion',         targetWords: 500  },
-            { label: 'Social Media',  title: 'Top 5 tips about ',          keywords: 'engaging, short, trending, viral',               targetWords: 500  },
-          ].map(t => (
+  return (
+    <div className="w-full max-w-3xl mx-auto px-8 py-8 space-y-8">
+
+      {/* Page header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl grad flex items-center justify-center shadow-sm">
+            <Wand2 className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <h1 className="text-lg font-semibold text-foreground">Generate AI Content</h1>
+            <p className="text-xs text-muted-foreground">Fill in the details to generate a 1000+ word article</p>
+          </div>
+        </div>
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          READY
+        </span>
+      </div>
+
+      {/* Quick templates */}
+      <div className="space-y-2.5">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Quick Templates</p>
+        <div className="flex flex-wrap gap-2">
+          {templates.map(t => (
             <button
               key={t.label}
               onClick={() => { setTitle(t.title); setKeywords(t.keywords); setTargetWords(t.targetWords); }}
-              className="text-xs px-2.5 py-1 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all"
+              className="text-xs px-3.5 py-1.5 rounded-full border border-border bg-white text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-secondary transition-all font-medium shadow-sm"
             >
               {t.label}
             </button>
@@ -168,138 +246,81 @@ export default function AIGeneratePanel({ onContentGenerated }: AIGeneratePanelP
         </div>
       </div>
 
-      {/* Fields */}
-      <div className="flex flex-col gap-3">
+      {/* Form fields */}
+      <div className="space-y-5">
 
-        {/* Title */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Title or Topic <span className="text-destructive">*</span></label>
+        <div className="space-y-2">
+          <label htmlFor="ai-title" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Title or Topic <span className="text-destructive normal-case tracking-normal" aria-label="required">*</span>
+          </label>
           <input
+            id="ai-title"
             placeholder="e.g. The future of renewable energy..."
             value={title}
             onChange={e => setTitle(e.target.value)}
-            onFocus={() => setFocusedField('title')}
-            onBlur={() => setFocusedField(null)}
-            className={inputCls(focusedField === 'title')}
+            className={inputCls}
+            required
+            aria-required="true"
           />
         </div>
 
-        {/* Keywords */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Keywords <span className="text-muted-foreground/50">(optional)</span></label>
+        <div className="space-y-2">
+          <label htmlFor="ai-keywords" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Keywords <span className="normal-case tracking-normal font-normal text-muted-foreground/60">(optional)</span>
+          </label>
           <input
-            placeholder="e.g. solar, wind, sustainability..."
+            id="ai-keywords"
+            placeholder="e.g. renewable, solar, future"
             value={keywords}
             onChange={e => setKeywords(e.target.value)}
-            onFocus={() => setFocusedField('keywords')}
-            onBlur={() => setFocusedField(null)}
-            className={inputCls(focusedField === 'keywords')}
+            className={inputCls}
           />
         </div>
 
-        {/* Tone dropdown */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Tone <span className="text-muted-foreground/50">(optional)</span></label>
-          <div className="relative">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className={`w-full bg-secondary border rounded-xl px-4 py-2.5 text-sm text-left transition-all duration-200 flex items-center justify-between ${
-                dropdownOpen ? 'border-primary/60 ring-2 ring-primary/20' : 'border-border hover:border-border/80'
-              } ${tone ? 'text-foreground' : 'text-muted-foreground'}`}
-            >
-              <span>{tone || 'Select tone...'}</span>
-              <svg className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {dropdownOpen && (
-              <div className="absolute z-20 mt-1.5 w-full bg-card border border-border rounded-xl shadow-xl overflow-hidden">
-                <div className="max-h-48 overflow-y-auto py-1">
-                  {tones.map((toneOption, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleToneSelection(toneOption)}
-                      className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                        tone === toneOption
-                          ? 'bg-primary/10 text-primary font-medium'
-                          : 'text-foreground hover:bg-muted'
-                      }`}
-                    >
-                      {toneOption}
-                    </button>
-                  ))}
-                </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { label: 'Tone', id: 'ai-tone', el: <select id="ai-tone" value={tone} onChange={e => setTone(e.target.value)} className={selectCls}>{tones.map(t => <option key={t}>{t}</option>)}</select> },
+            { label: 'Length', id: 'ai-length', el: <select id="ai-length" value={targetWords} onChange={e => setTargetWords(Number(e.target.value))} className={selectCls}>{lengths.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}</select> },
+            { label: 'Language', id: 'ai-language', el: <select id="ai-language" value={language} onChange={e => setLanguage(e.target.value)} className={selectCls}>{languages.map(l => <option key={l}>{l}</option>)}</select> },
+          ].map(({ label, id, el }) => (
+            <div key={label} className="space-y-2">
+              <label htmlFor={id} className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</label>
+              <div className="relative">{el}
+                <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </div>
-            )}
-          </div>
+            </div>
+          ))}
         </div>
 
-        {/* Target length */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Target length</label>
-          <div className="flex gap-1.5">
-            {[500, 1000, 2000, 3000].map(words => (
-              <button
-                key={words}
-                onClick={() => setTargetWords(words)}
-                className={`text-xs px-3 py-1.5 rounded-xl border transition-colors ${
-                  targetWords === words
-                    ? 'bg-primary/15 text-primary border-primary/30'
-                    : 'border-border text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {words} words
-              </button>
-            ))}
+        {generateError && (
+          <div role="alert" className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-xl px-3 py-2.5">
+            <span className="shrink-0">⚠</span>
+            {generateError}
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Generate button */}
-      <button
-        onClick={generateContent}
-        disabled={!title.trim() || loading}
-        className="w-full flex items-center justify-center gap-2 bg-primary hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity text-primary-foreground font-medium py-2.5 rounded-xl text-sm"
-      >
-        {loading ? (
-          <><Loader2 className="h-4 w-4 animate-spin" />Generating...</>
-        ) : (
-          <><Wand2 className="h-4 w-4" />Generate Content</>
-        )}
-      </button>
-
-      {!title.trim() && !generateError && (
-        <p className="text-xs text-center text-muted-foreground/60">Enter a title to enable generation</p>
-      )}
-
-      {generateError && (
-        <p className="text-xs text-center text-destructive">{generateError}</p>
-      )}
-
-      {generatedWordCount > 0 && !generateError && (
-        <div className="space-y-2">
-          <p className="text-xs text-center text-muted-foreground">
-            Generated <span className="font-semibold text-foreground">{generatedWordCount.toLocaleString()}</span> words
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={downloadAsWord}
-              className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:border-border/80 transition-colors"
-            >
-              <FileText className="h-3.5 w-3.5" />
-              Word
-            </button>
-            <button
-              onClick={downloadAsPDF}
-              className="flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:border-border/80 transition-colors"
-            >
-              <FileDown className="h-3.5 w-3.5" />
-              PDF
-            </button>
-          </div>
+      {/* Progress bar */}
+      {loading && (
+        <div className="h-1 bg-secondary rounded-full overflow-hidden">
+          <div className="h-full grad rounded-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
         </div>
       )}
+
+      {/* Action bar */}
+      <div className="flex items-center justify-between pt-4 border-t border-border">
+        <button onClick={handleClear} disabled={loading} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-4 py-2.5 rounded-xl hover:bg-secondary border border-transparent hover:border-border">
+          <RefreshCw className="h-4 w-4" /> Clear
+        </button>
+        <button
+          onClick={generateContent}
+          disabled={!title.trim() || loading}
+          className="btn-shimmer flex items-center gap-2 grad text-white text-sm font-semibold px-8 py-2.5 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition-all shadow-md"
+        >
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Generating...</> : <><Wand2 className="h-4 w-4" /> Generate Content</>}
+        </button>
+      </div>
+
     </div>
   );
 }

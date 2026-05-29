@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function fromRow(row: any) {
   if (!row) return null;
   return {
@@ -95,7 +97,7 @@ export async function getCompanyIdbyUser(userId: string) {
 }
 
 export async function getDataByMatchedOrganazationID(companyId: string) {
-  if (!companyId) return [];
+  if (!companyId || companyId.trim() === '') return [];
 
   const { data, error } = await supabase
     .from('content')
@@ -112,6 +114,7 @@ export async function getDataByMatchedOrganazationID(companyId: string) {
 }
 
 export async function deleteCompanyHistoryItem(documentId: string) {
+  if (!documentId || !UUID_RE.test(documentId)) throw new Error('Invalid document ID');
   const { error } = await supabase
     .from('content')
     .delete()
@@ -171,7 +174,7 @@ export async function saveContentHistory(
       content_gaps: contentGaps ?? [],
       summary: summary ?? null,
       related_links: relatedLinks ?? [],
-      company_id: companyId ?? null,
+      company_id: companyId || null,
     })
     .select()
     .single();

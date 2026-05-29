@@ -105,19 +105,17 @@ export default function HistoryPage() {
 
   const handleViewDetails = async (item: HistoryItem) => {
     try {
-      const contentData = await fetchContent(item.$id); // Fetch full content
-  
+      const contentData = await fetchContent(item.$id);
       const query = {
         id: item.$id,
-        mode: item.mode, // Ensure mode is passed correctly
+        mode: item.mode,
         content: contentData?.document?.content || item.content,
         documentId: item.$id,
         fromHistory: true,
         analysis: contentData?.document?.analysis || item.analysis,
       };
-  
-      localStorage.setItem('dashboardState', JSON.stringify(query)); // Store data
-      router.push('/dashboard'); // Redirect to dashboard
+      localStorage.setItem('dashboardState', JSON.stringify(query));
+      router.push('/dashboard');
     } catch (error) {
       console.error("Error fetching content details:", error);
     }
@@ -144,15 +142,8 @@ export default function HistoryPage() {
     }
   };  
 
-  const getModeColor = (mode: HistoryItem['mode']) => {
-    const colors = {
-      'ai-generate': 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-      'create':      'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-      'analyze':     'bg-pink-500/10 text-pink-400 border-pink-500/20',
-      'ai-score':    'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    };
-    return colors[mode];
-  };
+  const getModeColor = (_mode: HistoryItem['mode']) =>
+    'bg-secondary text-foreground border-border';
 
   const getModeLabel = (mode: HistoryItem['mode']) => {
     const labels = {
@@ -173,36 +164,32 @@ export default function HistoryPage() {
 
   if (!user && !loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'hsl(var(--sidebar-background))' }}>
-        <p className="text-sm" style={{ color: 'hsl(var(--sidebar-foreground))' }}>Please log in to view your history.</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-sm text-muted-foreground">Please log in to view your history.</p>
       </div>
     );
   }
 
   return (
     <>
-      <div className="min-h-screen" style={{ background: 'hsl(var(--sidebar-background))' }}>
-        <div className="max-w-3xl mx-auto p-6">
+      <div className="min-h-screen bg-background">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleBack}
-                className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg transition-colors"
-                style={{ color: 'hsl(var(--sidebar-foreground))' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </button>
-              <div>
-                <h2 className="text-lg font-bold text-white">History</h2>
-                <p className="text-xs" style={{ color: 'hsl(var(--sidebar-foreground))' }}>Your past analyses and generations</p>
-              </div>
+          <header className="flex items-center gap-3 mb-8">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary min-h-[36px]"
+              aria-label="Back to dashboard"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Back
+            </button>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">History</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">Your past analyses and generations</p>
             </div>
-          </div>
+          </header>
 
           {/* Filter tabs */}
           {(() => {
@@ -214,15 +201,17 @@ export default function HistoryPage() {
               { label: 'Created', value: 'create' },
             ];
             return (
-              <div className="flex gap-2 flex-wrap mb-6">
+              <div className="flex gap-2 flex-wrap mb-5" role="tablist" aria-label="Filter history by type">
                 {filters.map(f => (
                   <button
                     key={f.value}
                     onClick={() => setActiveFilter(f.value)}
-                    className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                    role="tab"
+                    aria-selected={activeFilter === f.value}
+                    className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors min-h-[32px] ${
                       activeFilter === f.value
-                        ? 'bg-violet-500/15 text-violet-400 border-violet-500/30'
-                        : 'border-border text-muted-foreground hover:text-foreground hover:border-border/80'
+                        ? 'grad text-white border-transparent'
+                        : 'border-border text-muted-foreground hover:text-foreground hover:border-primary/40 bg-white'
                     }`}
                   >
                     {f.label}
@@ -233,111 +222,111 @@ export default function HistoryPage() {
           })()}
 
           {/* Search input */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <div className="relative mb-5">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" aria-hidden="true" />
             <input
-              type="text"
+              type="search"
               placeholder="Search history..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full bg-secondary border border-border rounded-xl pl-9 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/60 transition-all"
+              aria-label="Search history"
+              className="w-full bg-secondary border border-border rounded-xl pl-9 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all"
             />
           </div>
 
           {error && (
-            <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-xl mb-5">
+            <div role="alert" className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-xl mb-5 flex items-center gap-2">
+              <span className="shrink-0">⚠</span>
               {error}
             </div>
           )}
 
           {loading ? (
-            <div className="flex justify-center items-center py-16">
+            <div className="flex justify-center items-center py-20" aria-busy="true" aria-label="Loading history">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-8 h-8 border-2 border-violet-500/20 border-t-violet-500 rounded-full animate-spin" />
-                <p className="text-xs" style={{ color: 'hsl(var(--sidebar-foreground))' }}>Loading history...</p>
+                <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" aria-hidden="true" />
+                <p className="text-xs text-muted-foreground">Loading history...</p>
               </div>
             </div>
           ) : companyData?.length > 0 ? (
             <>
-              <ul className="space-y-3">
+              <ul className="divide-y divide-border" aria-label="History items">
                 {(activeFilter === 'all' ? companyData : companyData.filter((item: any) => item.mode === activeFilter))
                   .filter((item: any) => !searchQuery || item.content?.toLowerCase().includes(searchQuery.toLowerCase()))
                   .map((item: any) => (
                   <li
                     key={item.$id}
-                    className="rounded-2xl border p-5 transition-all cursor-pointer"
-                    style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'hsl(var(--sidebar-border))' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLLIElement).style.borderColor = 'rgba(139,92,246,0.3)'; (e.currentTarget as HTMLLIElement).style.background = 'rgba(139,92,246,0.05)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLLIElement).style.borderColor = 'hsl(var(--sidebar-border))'; (e.currentTarget as HTMLLIElement).style.background = 'rgba(255,255,255,0.03)'; }}
+                    className="py-5 transition-colors hover:bg-secondary/50 px-2 -mx-2 rounded-xl"
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${getModeColor(item.mode)}`}>
+                        <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${getModeColor(item.mode)}`}>
                           {getModeLabel(item.mode)}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px]" style={{ color: 'hsl(var(--sidebar-foreground))' }}>
+                        <time
+                          dateTime={item.createdAt}
+                          className="text-[11px] text-muted-foreground"
+                        >
                           {new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </span>
+                        </time>
                         <button
                           onClick={e => { e.stopPropagation(); handleDelete(item.$id); }}
-                          className="p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+                          className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-red-500 hover:bg-red-500/10 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
+                          aria-label={`Delete this history item from ${new Date(item.createdAt).toLocaleDateString()}`}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                         </button>
                       </div>
                     </div>
 
                     {item.content && (
-                      <p className="text-xs leading-relaxed line-clamp-2 mb-3" style={{ color: 'hsl(var(--sidebar-foreground))' }}>
-                        {item.content.replace(/<[^>]*>/g, '').slice(0, 200)}
+                      <p className="text-sm leading-relaxed mb-3 text-foreground/80 break-words line-clamp-3">
+                        {item.content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300)}
                       </p>
                     )}
 
                     <button
-                      className="text-xs font-medium text-violet-400 hover:text-violet-300 transition-colors"
+                      className="text-xs font-medium text-primary hover:opacity-80 transition-opacity inline-flex items-center gap-1"
                       onClick={() => handleViewDetails(item)}
                     >
-                      View details →
+                      View details
+                      <ArrowLeft className="w-3 h-3 rotate-180" aria-hidden="true" />
                     </button>
                   </li>
                 ))}
               </ul>
 
-              <div className="mt-6 flex items-center justify-center gap-3">
+              <nav className="mt-8 flex items-center justify-center gap-3" aria-label="Pagination">
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-30"
-                  style={{ color: 'hsl(var(--sidebar-foreground))' }}
-                  onMouseEnter={e => { if (currentPage !== 1) { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-30 text-muted-foreground hover:text-foreground hover:bg-secondary border border-border"
+                  aria-label="Previous page"
                 >
-                  <ArrowLeft className="h-3.5 w-3.5" /> Previous
+                  <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> Previous
                 </button>
-                <span className="text-xs" style={{ color: 'hsl(var(--sidebar-foreground))' }}>
-                  {currentPage} / {totalPages}
+                <span className="text-xs text-muted-foreground" aria-live="polite">
+                  Page {currentPage} of {totalPages}
                 </span>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-30"
-                  style={{ color: 'hsl(var(--sidebar-foreground))' }}
-                  onMouseEnter={e => { if (currentPage !== totalPages) { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium transition-colors disabled:opacity-30 text-muted-foreground hover:text-foreground hover:bg-secondary border border-border"
+                  aria-label="Next page"
                 >
-                  Next <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
+                  Next <ArrowLeft className="h-3.5 w-3.5 rotate-180" aria-hidden="true" />
                 </button>
-              </div>
+              </nav>
             </>
           ) : (
-            <div className="text-center py-16">
-              <div className="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-4">
-                <ArrowLeft className="h-6 w-6 text-violet-400 rotate-180" />
+            <div className="text-center py-20">
+              <div className="w-12 h-12 rounded-2xl bg-secondary border border-border flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+                <Search className="h-5 w-5 text-muted-foreground" />
               </div>
-              <p className="text-sm font-medium text-white mb-1">No history yet</p>
-              <p className="text-xs" style={{ color: 'hsl(var(--sidebar-foreground))' }}>Your analyses and generations will appear here.</p>
+              <p className="text-sm font-semibold text-foreground mb-1">No history yet</p>
+              <p className="text-xs text-muted-foreground">Your analyses and generations will appear here after you use the tools.</p>
             </div>
           )}
         </div>

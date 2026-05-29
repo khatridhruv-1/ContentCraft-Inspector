@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase/client';
 function toRow(data: Record<string, any>) {
   return {
     user_id: data.userId,
-    company_id: data.companyId ?? null,
+    company_id: data.companyId || null,
     content: data.content ?? null,
     analysis: data.analysis ?? null,
     mode: data.mode ?? null,
@@ -136,6 +136,8 @@ export async function deleteHistoryItem(documentId: string) {
   }
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function updateContent(
   documentId: string,
   {
@@ -178,6 +180,7 @@ export async function updateContent(
     companyId?: any;
   }
 ) {
+  if (!documentId || !UUID_RE.test(documentId)) return null;
   try {
     const updates: Record<string, any> = { updated_at: new Date().toISOString() };
 
@@ -198,7 +201,7 @@ export async function updateContent(
     if (contentGaps !== undefined) updates.content_gaps = contentGaps;
     if (summary !== undefined) updates.summary = summary;
     if (relatedLinks !== undefined) updates.related_links = relatedLinks;
-    if (companyId !== undefined) updates.company_id = companyId;
+    if (companyId !== undefined) updates.company_id = companyId || null;
 
     const { data, error } = await supabase
       .from('content')
@@ -207,15 +210,16 @@ export async function updateContent(
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) { console.error('Error updating content:', error); return null; }
     return fromRow(data);
   } catch (error) {
     console.error('Error updating content:', error);
-    throw error;
+    return null;
   }
 }
 
 export async function fetchContent(documentId: string) {
+  if (!documentId || !UUID_RE.test(documentId)) return null;
   try {
     const { data, error } = await supabase
       .from('content')

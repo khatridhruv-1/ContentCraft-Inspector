@@ -58,31 +58,43 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <motion.div
-          className="w-16 h-16 border-t-4 border-violet-500 rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
+      <div className="flex items-center justify-center py-16">
+        <div className="flex flex-col items-center gap-3">
+          <motion.div
+            className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+            aria-hidden="true"
+          />
+          <p className="text-xs text-muted-foreground">Rephrasing content...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <p className="text-destructive font-medium">{error}</p>
+      <div className="flex items-center justify-center py-16">
+        <div className="text-center">
+          <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center mx-auto mb-3" aria-hidden="true">
+            <Zap className="h-5 w-5 text-destructive" />
+          </div>
+          <p className="text-sm text-muted-foreground">{error}</p>
+        </div>
       </div>
     );
   }
 
   if (!rephrasedContent) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-foreground">Content Rephrasing</h2>
-          <p className="text-muted-foreground text-center max-w-md mt-2">
-            Click the &quot;Rephrase&quot; button to get a rephrased version of your content.
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+            <Zap className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-sm font-semibold text-foreground mb-1">Content Rephrasing</h2>
+          <p className="text-xs text-muted-foreground max-w-xs">
+            Click &quot;Rephrase&quot; to get an improved version of your content with fresh phrasing.
           </p>
         </div>
       </div>
@@ -100,7 +112,7 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({
             className="space-y-4"
           >
             {/* Rephrased Content */}
-            <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="overflow-hidden border-t border-border">
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <div className="flex items-center gap-2">
                   <Zap className="text-violet-400 w-4 h-4" />

@@ -104,18 +104,22 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
 
         {/* Search Bar */}
         <div className="flex gap-2 px-5 py-3 border-b border-border">
+          <label htmlFor="infogain-search" className="sr-only">Search for additional information on a topic</label>
           <input
-            type="text"
+            id="infogain-search"
+            type="search"
             placeholder="Search for more information..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 bg-secondary border border-border rounded-xl px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/60 transition-all"
+            onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
+            className="flex-1 bg-secondary border border-border rounded-xl px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all"
           />
           <button
             onClick={handleSearch}
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+            disabled={!searchTerm.trim()}
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-1.5 hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-4 h-4" aria-hidden="true" />
             Search
           </button>
         </div>
@@ -124,17 +128,21 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
         <div className="p-5 space-y-5">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <motion.div
-                className="w-8 h-8 border-t-2 border-violet-500 rounded-full"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              />
+              <div className="flex flex-col items-center gap-3">
+                <motion.div
+                  className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                  aria-hidden="true"
+                />
+                <p className="text-xs text-muted-foreground">Searching the web...</p>
+              </div>
             </div>
           ) : tavilyData ? (
             <>
               {tavilyData.answer && (
                 <motion.div
-                  className="bg-secondary border border-border rounded-xl p-4"
+                  className="py-4 border-b border-border"
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.1 }}
@@ -154,7 +162,7 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
                     {tavilyData.followUpQuestions.map((query: string, index: number) => (
                       <motion.li
                         key={index}
-                        className="flex items-center gap-2 text-xs p-3 rounded-xl bg-secondary border border-border text-muted-foreground"
+                        className="flex items-center gap-2 text-xs p-2 border-b border-border text-muted-foreground"
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ delay: index * 0.1 }}
@@ -174,7 +182,7 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
                     {tavilyData.results.map((item, index) => (
                       <motion.li
                         key={index}
-                        className="bg-secondary border border-border rounded-xl overflow-hidden hover:border-violet-500/40 transition-colors"
+                        className="border-b border-border overflow-hidden hover:bg-secondary transition-colors"
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: index * 0.1 }}
@@ -183,16 +191,17 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
                           href={item.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block p-4"
+                          className="block p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 rounded-lg"
+                          aria-label={`${item.title} (opens in a new tab)`}
                         >
                           <motion.h4
-                            className="text-sm font-medium text-violet-400 flex items-center gap-1"
+                            className="text-sm font-medium text-primary flex items-center gap-1"
                             whileHover={{ x: 5 }}
                           >
                             {item.title}
-                            <ExternalLink className="w-3.5 h-3.5" />
+                            <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
                           </motion.h4>
-                          <p className="text-xs text-muted-foreground mt-1">{item.content}</p>
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.content}</p>
                         </a>
                       </motion.li>
                     ))}
@@ -202,7 +211,13 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
             </>
           ) : (
             <div className="flex items-center justify-center py-12">
-              <p className="text-muted-foreground text-sm">Search for a topic to expand your knowledge.</p>
+              <div className="text-center">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+                  <Search className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-foreground mb-1">Info Gain</p>
+                <p className="text-xs text-muted-foreground max-w-xs">Search for a topic or run analysis to see web research and related content.</p>
+              </div>
             </div>
           )}
         </div>

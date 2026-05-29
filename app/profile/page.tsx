@@ -3,18 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getUser, logout, updateUserName } from '@/lib/user/appwrite';
 import { useRouter } from 'next/navigation';
-import {
-  LogOut,
-  Edit,
-  Check,
-  X,
-  ArrowLeft,
-  User,
-  Mail,
-  Shield,
-  Calendar,
-  AlertCircle
-} from 'lucide-react';
+import { LogOut, Edit, Check, X, ArrowLeft, User, Mail, Shield, Calendar, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProfilePage() {
@@ -24,288 +13,183 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
   const [memberSince, setMemberSince] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const sessionToken = localStorage.getItem('sessionToken');
-        if (!sessionToken) {
-          router.push('/auth/login');
-          return;
-        }
-
+        if (!sessionToken) { router.push('/auth/login'); return; }
         const userData = await getUser(sessionToken);
         setUser(userData);
         setNewName(userData.name);
-        setMemberSince(formatDate(userData.$createdAt));
+        setMemberSince(new Date(userData.$createdAt).toLocaleString('en-US', { month: 'long', year: 'numeric' }));
         setAuthChecked(true);
       } catch (err: unknown) {
-        console.error('Profile fetch failed:', err);
         const msg = (err as Error)?.message ?? '';
         if (msg === 'SESSION_EXPIRED') {
           localStorage.removeItem('sessionToken');
           localStorage.removeItem('documentId');
-          router.push('/auth/login');
-          return;
         }
-        setAuthChecked(true);
         router.push('/auth/login');
       } finally {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, [router]);
 
   const handleLogout = async () => {
     try {
-      setLoading(true);
       const sessionToken = localStorage.getItem('sessionToken');
-      if (sessionToken) {
-        await logout(sessionToken);
-        localStorage.removeItem('sessionToken');
-      }
+      if (sessionToken) { await logout(sessionToken); localStorage.removeItem('sessionToken'); }
       router.push('/auth/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      setError('Logout failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    } catch { setError('Logout failed. Please try again.'); }
   };
 
   const handleUpdateName = async () => {
-    if (newName.trim().length < 2) {
-      setError('Name must be at least 2 characters long');
-      return;
-    }
-
+    if (newName.trim().length < 2) { setError('Name must be at least 2 characters'); return; }
     try {
-      setUpdating(true);
-      setError(null);
+      setUpdating(true); setError(null);
       const sessionToken = localStorage.getItem('sessionToken');
-      if (!sessionToken) {
-        router.push('/auth/login');
-        return;
-      }
-
+      if (!sessionToken) { router.push('/auth/login'); return; }
       const updatedUser = await updateUserName(sessionToken, newName);
-      setUser(updatedUser);
-      setEditing(false);
-    } catch (error) {
-      console.error('Name update failed:', error);
-      setError('Failed to update name. Please try again.');
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  const cancelEditing = () => {
-    setEditing(false);
-    setNewName(user?.name || '');
-    setError(null);
-  };
-
-  const formatDate = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+      setUser(updatedUser); setEditing(false);
+    } catch { setError('Failed to update name. Please try again.'); }
+    finally { setUpdating(false); }
   };
 
   if (!authChecked) return null;
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'hsl(var(--sidebar-background))' }}>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-4 text-center"
-        >
-          <div className="w-16 h-16 border-4 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-lg text-muted-foreground">Loading your profile...</p>
-        </motion.div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'hsl(var(--sidebar-background))' }}>
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        {/* Header Section */}
-        <div className="mb-8">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all mb-6 group"
-          >
-            <ArrowLeft className="h-5 w-5 transform group-hover:-translate-x-1 transition-transform" />
-            <span className="text-lg">Back to Dashboard</span>
-          </button>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-lg mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
-          <div className="flex items-center justify-between">
-            <h1 className="text-4xl font-bold text-foreground">Profile Settings</h1>
+        {/* Back */}
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 group min-h-[40px]"
+        >
+          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" aria-hidden="true" />
+          Back to Dashboard
+        </button>
+
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+
+          {/* Page heading */}
+          <h1 className="text-xl font-bold text-foreground">Your Profile</h1>
+
+          {/* Avatar + name + email */}
+          <div className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/50 border border-border">
+            <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0" aria-hidden="true">
+              <User className="w-5 h-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-base font-semibold text-foreground truncate">{user?.name}</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
+                <Mail className="w-3 h-3 shrink-0" aria-hidden="true" />
+                <span className="truncate">{user?.email}</span>
+              </p>
+            </div>
             <button
               onClick={handleLogout}
-              disabled={loading}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition-colors"
+              className="flex items-center gap-1.5 text-xs font-medium text-destructive hover:opacity-80 transition-opacity px-3 py-2 rounded-lg border border-destructive/30 hover:bg-destructive/5 min-h-[36px] shrink-0"
+              aria-label="Sign out of your account"
             >
-              <LogOut className="h-5 w-5" />
-              {loading ? 'Signing out...' : 'Sign Out'}
+              <LogOut className="w-3.5 h-3.5" aria-hidden="true" /> Sign out
             </button>
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="space-y-6">
-          {/* Profile Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-card border border-border rounded-2xl shadow-sm p-8"
-          >
-            <div className="flex items-center gap-6 mb-8">
-              <div className="w-24 h-24 bg-violet-500/15 border border-violet-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <User className="w-12 h-12 text-violet-400" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-2xl font-semibold text-foreground mb-2">
-                  {user?.name}
-                </h2>
-                <p className="text-muted-foreground flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  {user?.email}
-                </p>
-              </div>
+          <div className="border-t border-border" />
+
+          {/* Display name edit */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground" htmlFor={editing ? 'display-name-input' : undefined}>
+                Display Name
+              </label>
+              {!editing && (
+                <button
+                  onClick={() => setEditing(true)}
+                  className="flex items-center gap-1 text-xs text-primary hover:opacity-80 transition-opacity"
+                  aria-label="Edit display name"
+                >
+                  <Edit className="w-3.5 h-3.5" aria-hidden="true" /> Edit
+                </button>
+              )}
             </div>
 
-            {/* Name Edit Section */}
-            <div className="space-y-4">
-              <div className="border-t border-border pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-foreground flex items-center gap-2">
-                    <User className="w-5 h-5 text-muted-foreground" />
-                    Display Name
-                  </h3>
-                  {!editing && (
+            <AnimatePresence mode="wait">
+              {editing ? (
+                <motion.div key="edit" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="space-y-2">
+                  <input
+                    id="display-name-input"
+                    type="text"
+                    value={newName}
+                    onChange={e => setNewName(e.target.value)}
+                    className="w-full bg-secondary border border-border rounded-xl px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 transition-all"
+                    placeholder="Your display name"
+                    aria-label="Display name"
+                    aria-describedby={error ? 'name-update-error' : undefined}
+                    autoFocus
+                  />
+                  {error && <p id="name-update-error" role="alert" className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />{error}</p>}
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => setEditing(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-opacity text-sm font-medium"
+                      onClick={handleUpdateName}
+                      disabled={updating}
+                      className="flex items-center gap-1.5 text-xs font-medium grad text-white px-3 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity min-h-[36px]"
                     >
-                      <Edit className="w-4 h-4" />
-                      Edit
+                      {updating ? <><div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" /><span>Saving...</span></> : <><Check className="w-3.5 h-3.5" aria-hidden="true" />Save</>}
                     </button>
-                  )}
-                </div>
-
-                <AnimatePresence mode="wait">
-                  {editing ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="space-y-4"
+                    <button
+                      onClick={() => { setEditing(false); setNewName(user?.name || ''); setError(null); }}
+                      disabled={updating}
+                      className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground px-3 py-2 rounded-lg border border-border hover:bg-secondary transition-colors min-h-[36px]"
                     >
-                      <input
-                        type="text"
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        className="w-full bg-secondary border border-border rounded-xl px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
-                        placeholder="Enter your name"
-                      />
+                      <X className="w-3.5 h-3.5" aria-hidden="true" /> Cancel
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.p key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-foreground font-medium">
+                  {user?.name}
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
 
-                      {error && (
-                        <motion.p
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="text-destructive text-sm flex items-center gap-2"
-                        >
-                          <AlertCircle className="w-4 h-4" />
-                          {error}
-                        </motion.p>
-                      )}
+          <div className="border-t border-border" />
 
-                      <div className="flex items-center gap-4">
-                        <button
-                          onClick={handleUpdateName}
-                          disabled={updating}
-                          className="flex items-center gap-2 bg-primary text-primary-foreground hover:opacity-90 px-4 py-2 rounded-xl text-sm font-medium transition-opacity"
-                        >
-                          {updating ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                              Saving...
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-4 h-4" />
-                              Save Changes
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={cancelEditing}
-                          disabled={updating}
-                          className="flex items-center gap-2 bg-secondary text-muted-foreground hover:bg-secondary/80 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                          Cancel
-                        </button>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-foreground"
-                    >
-                      {user?.name}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
+          {/* Meta info */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border">
+              <Shield className="w-4 h-4 text-emerald-500 shrink-0" aria-hidden="true" />
+              <div>
+                <p className="text-xs font-semibold text-foreground">Security</p>
+                <p className="text-xs text-muted-foreground">Account secure</p>
               </div>
             </div>
-          </motion.div>
-
-          {/* Additional Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-card border border-border rounded-xl p-6"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-violet-500/10 rounded-lg flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-violet-400" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground">Account Security</h3>
-                  <p className="text-sm text-muted-foreground">Your account is secure</p>
-                </div>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border">
+              <Calendar className="w-4 h-4 text-primary shrink-0" aria-hidden="true" />
+              <div>
+                <p className="text-xs font-semibold text-foreground">Member since</p>
+                <p className="text-xs text-muted-foreground">{memberSince}</p>
               </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-card border border-border rounded-xl p-6"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
-                  <Calendar className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground">Member Since</h3>
-                  <p className="text-sm text-muted-foreground">{memberSince}</p>
-                </div>
-              </div>
-            </motion.div>
+            </div>
           </div>
-        </div>
+
+        </motion.div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle, RefreshCw, Sparkles } from 'lucide-react';
+import { AlertTriangle, Sparkles, Shield } from 'lucide-react';
 
 interface PlagiarismPanelProps {
   content: string;
@@ -40,7 +40,7 @@ const PlagiarismPanel: React.FC<PlagiarismPanelProps> = ({
           body: JSON.stringify({ content }),
         });
         if (!response.ok) {
-          throw new Error('Failed to check plagiarism');
+          const e = await response.json().catch(() => ({})); throw new Error(e?.error || 'Failed to check plagiarism');
         }
         const data = await response.json();
         setResult(data);
@@ -57,32 +57,43 @@ const PlagiarismPanel: React.FC<PlagiarismPanelProps> = ({
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        >
-          <RefreshCw className="w-12 h-12 text-violet-500" />
-        </motion.div>
+      <div className="flex items-center justify-center py-16">
+        <div className="flex flex-col items-center gap-3">
+          <motion.div
+            className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+            aria-hidden="true"
+          />
+          <p className="text-xs text-muted-foreground">Checking for plagiarism...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <p className="text-destructive">{error}</p>
+      <div className="flex items-center justify-center py-16">
+        <div className="text-center">
+          <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center mx-auto mb-3" aria-hidden="true">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+          </div>
+          <p className="text-sm text-muted-foreground">{error}</p>
+        </div>
       </div>
     );
   }
 
   if (!result) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold text-foreground">Plagiarism Check</h2>
-          <p className="text-muted-foreground text-center max-w-md">
-            Click the &quot;Check Plagiarism&quot; button to analyze your content for potential plagiarism and get detailed insights.
+      <div className="flex items-center justify-center py-16">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
+            <Shield className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-sm font-semibold text-foreground mb-1">Plagiarism Check</h2>
+          <p className="text-xs text-muted-foreground max-w-xs">
+            Click &quot;Check Plagiarism&quot; to analyze your content for originality and get detailed insights.
           </p>
         </div>
       </div>
@@ -93,7 +104,7 @@ const PlagiarismPanel: React.FC<PlagiarismPanelProps> = ({
     <div className="h-full overflow-auto p-5 space-y-4">
       {/* Plagiarism Analysis */}
       <motion.div
-        className="bg-card border border-border rounded-xl overflow-hidden"
+        className="overflow-hidden border-b border-border"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -151,7 +162,7 @@ const PlagiarismPanel: React.FC<PlagiarismPanelProps> = ({
 
       {/* Suggested Improvements */}
       <motion.div
-        className="bg-card border border-border rounded-xl overflow-hidden"
+        className="overflow-hidden border-b border-border"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -168,7 +179,7 @@ const PlagiarismPanel: React.FC<PlagiarismPanelProps> = ({
               {result.suggestions.map((suggestion, index) => (
                 <motion.li
                   key={index}
-                  className="text-sm bg-secondary rounded-xl p-3 text-muted-foreground"
+                  className="text-sm py-3 text-muted-foreground"
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: index * 0.1 }}
@@ -182,7 +193,7 @@ const PlagiarismPanel: React.FC<PlagiarismPanelProps> = ({
           {/* Improved Version */}
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-foreground">Improved Version</h4>
-            <div className="bg-secondary rounded-xl p-4 text-sm text-muted-foreground whitespace-pre-wrap">
+            <div className="py-4 text-sm text-muted-foreground whitespace-pre-wrap">
               {result.improvedVersion}
             </div>
           </div>

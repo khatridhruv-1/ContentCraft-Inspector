@@ -17,7 +17,7 @@ const STEP_LABELS = [{ key: "signup", label: "Account" }, { key: "company", labe
 function ProgressBar({ step }: { step: Step }) {
   const activeIndex = step === "signup" ? 0 : 1;
   return (
-    <div className="flex items-center gap-2 mb-7">
+    <div className="flex items-center gap-2 mb-7" role="progressbar" aria-label={`Step ${activeIndex + 1} of ${STEP_LABELS.length}`} aria-valuenow={activeIndex + 1} aria-valuemin={1} aria-valuemax={STEP_LABELS.length}>
       {STEP_LABELS.map((s, i) => {
         const done   = i < activeIndex;
         const active = i === activeIndex;
@@ -25,23 +25,24 @@ function ProgressBar({ step }: { step: Step }) {
           <div key={s.key} className="flex items-center flex-1 last:flex-none">
             <div className="flex items-center gap-1.5 shrink-0">
               <motion.div
-                animate={{ backgroundColor: done || active ? '#7c3aed' : '#ffffff15', scale: active ? 1.1 : 1 }}
+                animate={{ backgroundColor: done || active ? '#7c3aed' : 'hsl(var(--border))', scale: active ? 1.1 : 1 }}
                 transition={{ duration: 0.25 }}
                 className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                aria-hidden="true"
               >
                 {done ? '✓' : i + 1}
               </motion.div>
-              <span className={`text-xs font-medium transition-colors duration-200 ${active ? 'text-violet-400' : done ? 'text-violet-500' : 'text-white/30'}`}>
+              <span className={`text-xs font-medium transition-colors duration-200 ${active ? 'text-primary' : done ? 'text-primary/70' : 'text-muted-foreground/40'}`}>
                 {s.label}
               </span>
             </div>
             {i < STEP_LABELS.length - 1 && (
-              <div className="flex-1 mx-2 h-px bg-white/10 overflow-hidden">
+              <div className="flex-1 mx-2 h-px bg-border overflow-hidden" aria-hidden="true">
                 <motion.div
                   initial={{ width: '0%' }}
                   animate={{ width: done ? '100%' : '0%' }}
                   transition={{ duration: 0.4 }}
-                  className="h-full bg-violet-500"
+                  className="h-full bg-primary"
                 />
               </div>
             )}
@@ -65,10 +66,10 @@ function PasswordStrength({ password }: { password: string }) {
 
   if (!password) return null;
   return (
-    <div className="mt-2 space-y-1.5">
-      <div className="flex gap-1">
+    <div className="mt-2 space-y-1.5" aria-live="polite" aria-label={`Password strength: ${labels[strength]}`}>
+      <div className="flex gap-1" aria-hidden="true">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-0.5 flex-1 rounded-full bg-white/10 overflow-hidden">
+          <div key={i} className="h-1 flex-1 rounded-full bg-border overflow-hidden">
             <motion.div
               initial={{ width: '0%' }}
               animate={{ width: i < strength ? '100%' : '0%' }}
@@ -78,7 +79,7 @@ function PasswordStrength({ password }: { password: string }) {
           </div>
         ))}
       </div>
-      <p className="text-[11px] text-white/35">{labels[strength]}</p>
+      <p className="text-[11px] text-muted-foreground">{labels[strength]}</p>
     </div>
   );
 }
@@ -126,9 +127,17 @@ export default function Signup() {
       setStep("company");
     } catch (err) {
       const msg = (err as Error).message;
+      let userMsg = "Failed to create account. Please try again.";
+      if (msg.includes("already exists") || msg.includes("already registered")) {
+        userMsg = "This email is already registered.";
+      } else if (msg.includes("confirm") || msg.includes("not confirmed")) {
+        userMsg = "Account created! Please check your email to confirm your account before signing in.";
+      } else if (msg.includes("network") || msg.includes("fetch")) {
+        userMsg = "Network error. Please check your connection and try again.";
+      }
       setError({
-        field: msg.includes("already exists") ? "email" : "general",
-        message: msg.includes("already exists") ? "This email is already registered" : "Failed to create account. Please try again.",
+        field: msg.includes("already exists") || msg.includes("already registered") ? "email" : "general",
+        message: userMsg,
       });
     } finally { setLoading(false); }
   };
@@ -150,83 +159,92 @@ export default function Signup() {
   };
 
   const inputCls = (field: string) =>
-    `w-full bg-white/[0.06] border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-white/20 outline-none transition-all duration-200
-    ${focused === field ? 'border-violet-500/60 ring-2 ring-violet-500/20' : 'border-white/10 hover:border-white/20'}
-    ${error?.field === field ? '!border-red-500/60 !ring-red-500/20 ring-2' : ''}`;
+    `w-full bg-secondary border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none transition-all duration-200
+    ${focused === field ? 'border-primary/60 ring-2 ring-primary/20' : 'border-input hover:border-primary/40'}
+    ${error?.field === field ? '!border-destructive/60 !ring-destructive/20 ring-2' : ''}`;
 
   return (
     <div>
       {step !== "done" && <ProgressBar step={step} />}
 
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white">
+        <h2 className="text-xl font-semibold text-foreground">
           {step === "signup" && "Create your account"}
           {step === "company" && "Set up your workspace"}
           {step === "done" && "Almost there..."}
-        </h3>
-        {step === "signup" && <p className="text-sm text-white/40 mt-0.5">Join your team on ContentCraft</p>}
+        </h2>
+        {step === "signup" && <p className="text-sm text-muted-foreground mt-1">Join your team on ContentCraft Inspector</p>}
+        {step === "company" && <p className="text-sm text-muted-foreground mt-1">One last step to get started</p>}
       </div>
 
       <AnimatePresence mode="wait">
         {step === "signup" && (
-          <motion.form key="signup" onSubmit={handleSubmit}
+          <motion.form key="signup" onSubmit={handleSubmit} noValidate aria-label="Create account form"
             initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}
             transition={{ duration: 0.25 }} className="space-y-4"
           >
             {/* Name */}
             <div className="space-y-1.5">
-              <label htmlFor="name" className="text-xs font-medium text-white/50">Full name</label>
+              <label htmlFor="name" className="text-xs font-medium text-foreground/70">Full name</label>
               <div className="relative">
-                <User className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${focused === 'name' ? 'text-violet-400' : 'text-white/25'}`} />
+                <User className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${focused === 'name' ? 'text-primary' : 'text-muted-foreground/50'}`} aria-hidden="true" />
                 <input id="name" name="name" placeholder="Jane Smith" value={nameValue}
                   onChange={e => setNameValue(e.target.value)}
                   onFocus={() => setFocused('name')} onBlur={() => setFocused(null)}
+                  aria-invalid={error?.field === 'name' ? 'true' : 'false'}
+                  aria-describedby={error?.field === 'name' ? 'name-error' : undefined}
                   className={inputCls('name')} />
               </div>
-              {error?.field === "name" && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="h-3 w-3" />{error.message}</p>}
+              {error?.field === "name" && <p id="name-error" role="alert" className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" aria-hidden="true" />{error.message}</p>}
             </div>
 
             {/* Email */}
             <div className="space-y-1.5">
-              <label htmlFor="email" className="text-xs font-medium text-white/50">Work email</label>
+              <label htmlFor="email" className="text-xs font-medium text-foreground/70">Work email</label>
               <div className="relative">
-                <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${focused === 'email' ? 'text-violet-400' : 'text-white/25'}`} />
-                <input id="email" name="email" type="email" placeholder="you@company.com" value={emailValue}
+                <Mail className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${focused === 'email' ? 'text-primary' : 'text-muted-foreground/50'}`} aria-hidden="true" />
+                <input id="email" name="email" type="email" autoComplete="email" placeholder="you@company.com" value={emailValue}
                   onChange={e => setEmailValue(e.target.value)}
                   onFocus={() => setFocused('email')} onBlur={() => setFocused(null)}
+                  aria-invalid={error?.field === 'email' ? 'true' : 'false'}
+                  aria-describedby={error?.field === 'email' ? 'email-error' : undefined}
                   className={inputCls('email')} />
               </div>
-              {error?.field === "email" && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="h-3 w-3" />{error.message}</p>}
+              {error?.field === "email" && <p id="email-error" role="alert" className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" aria-hidden="true" />{error.message}</p>}
             </div>
 
             {/* Password */}
             <div className="space-y-1.5">
-              <label htmlFor="password" className="text-xs font-medium text-white/50">Password</label>
+              <label htmlFor="password" className="text-xs font-medium text-foreground/70">Password</label>
               <div className="relative">
-                <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${focused === 'password' ? 'text-violet-400' : 'text-white/25'}`} />
-                <input id="password" name="password" type="password" placeholder="Min. 6 characters"
+                <Lock className={`absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors ${focused === 'password' ? 'text-primary' : 'text-muted-foreground/50'}`} aria-hidden="true" />
+                <input id="password" name="password" type="password" autoComplete="new-password" placeholder="Min. 6 characters"
                   onFocus={() => setFocused('password')} onBlur={() => setFocused(null)}
                   onChange={e => setPassword(e.target.value)}
+                  aria-invalid={error?.field === 'password' ? 'true' : 'false'}
+                  aria-describedby="password-strength"
                   className={inputCls('password')} />
               </div>
-              <PasswordStrength password={password} />
-              {error?.field === "password" && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="h-3 w-3" />{error.message}</p>}
+              <div id="password-strength">
+                <PasswordStrength password={password} />
+              </div>
+              {error?.field === "password" && <p role="alert" className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" aria-hidden="true" />{error.message}</p>}
             </div>
 
             {error?.field === "general" && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                <p className="text-xs text-red-400 flex items-center gap-2"><AlertCircle className="h-3.5 w-3.5" />{error.message}</p>
+              <div role="alert" className="p-3 rounded-xl bg-destructive/10 border border-destructive/20">
+                <p className="text-xs text-destructive flex items-center gap-2"><AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />{error.message}</p>
               </div>
             )}
 
             <button type="submit" disabled={loading}
-              className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-60 transition-colors text-white font-medium py-2.5 rounded-xl text-sm">
-              {loading ? <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Creating account...</span> : 'Continue'}
+              className="w-full grad hover:opacity-90 disabled:opacity-60 transition-opacity text-white font-medium py-3 rounded-xl text-sm min-h-[44px]">
+              {loading ? <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /><span>Creating account...</span></span> : 'Continue'}
             </button>
 
-            <p className="text-center text-xs text-white/35">
+            <p className="text-center text-sm text-muted-foreground">
               Already have an account?{' '}
-              <Link href="/auth/login" className="text-violet-400 hover:text-violet-300 transition-colors font-medium">Sign in</Link>
+              <Link href="/auth/login" className="text-primary hover:opacity-80 transition-opacity font-medium">Sign in</Link>
             </p>
           </motion.form>
         )}
@@ -239,36 +257,42 @@ export default function Signup() {
             {companyInfo?.company ? (
               <>
                 <div className="flex flex-col items-center gap-3 py-2 text-center">
-                  <div className="w-12 h-12 rounded-xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-violet-400" />
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center" aria-hidden="true">
+                    <Building2 className="w-6 h-6 text-primary" />
                   </div>
-                  <p className="text-sm text-white/60">
-                    <span className="text-white font-medium">{companyInfo.company.name}</span> matches your email domain. Join your team instantly.
+                  <p className="text-sm text-muted-foreground">
+                    <span className="text-foreground font-medium">{companyInfo.company.name}</span> matches your email domain. Join your team instantly.
                   </p>
                 </div>
                 <button onClick={handleJoinCompany} disabled={loading}
-                  className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-60 transition-colors text-white font-medium py-2.5 rounded-xl text-sm">
+                  className="w-full grad hover:opacity-90 disabled:opacity-60 transition-opacity text-white font-medium py-3 rounded-xl text-sm min-h-[44px]">
                   {loading ? "Joining..." : `Join ${companyInfo.company.name}`}
                 </button>
               </>
             ) : (
               <>
                 <div className="flex flex-col items-center gap-3 py-2 text-center">
-                  <div className="w-12 h-12 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center">
-                    <UserPlus className="w-6 h-6 text-indigo-400" />
+                  <div className="w-12 h-12 rounded-xl bg-secondary border border-border flex items-center justify-center" aria-hidden="true">
+                    <UserPlus className="w-6 h-6 text-primary" />
                   </div>
-                  <p className="text-sm text-white/60">No company found for your domain. Create a workspace for your team:</p>
+                  <p className="text-sm text-muted-foreground">No company found for your domain. Create a workspace for your team:</p>
                 </div>
-                <input
-                  placeholder="Company name"
-                  value={companyName}
-                  onChange={e => setCompanyName(e.target.value)}
-                  onFocus={() => setFocused('companyName')} onBlur={() => setFocused(null)}
-                  className={inputCls('companyName').replace('pl-10', 'pl-4')}
-                />
-                {error?.field === "companyName" && <p className="text-xs text-red-400 flex items-center gap-1"><AlertCircle className="h-3 w-3" />{error.message}</p>}
+                <div className="space-y-1.5">
+                  <label htmlFor="companyName" className="text-xs font-medium text-foreground/70">Company name</label>
+                  <input
+                    id="companyName"
+                    placeholder="Acme Inc."
+                    value={companyName}
+                    onChange={e => setCompanyName(e.target.value)}
+                    onFocus={() => setFocused('companyName')} onBlur={() => setFocused(null)}
+                    aria-invalid={error?.field === 'companyName' ? 'true' : 'false'}
+                    aria-describedby={error?.field === 'companyName' ? 'company-error' : undefined}
+                    className={`w-full bg-secondary border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none transition-all duration-200 ${focused === 'companyName' ? 'border-primary/60 ring-2 ring-primary/20' : 'border-input hover:border-primary/40'} ${error?.field === 'companyName' ? '!border-destructive/60 !ring-destructive/20 ring-2' : ''}`}
+                  />
+                  {error?.field === "companyName" && <p id="company-error" role="alert" className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" aria-hidden="true" />{error.message}</p>}
+                </div>
                 <button onClick={handleCreateCompany} disabled={loading}
-                  className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-60 transition-colors text-white font-medium py-2.5 rounded-xl text-sm">
+                  className="w-full grad hover:opacity-90 disabled:opacity-60 transition-opacity text-white font-medium py-3 rounded-xl text-sm min-h-[44px]">
                   {loading ? "Creating..." : "Create workspace"}
                 </button>
               </>
@@ -281,8 +305,8 @@ export default function Signup() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="text-center py-6"
           >
-            <Loader2 className="h-6 w-6 animate-spin mx-auto text-violet-400 mb-3" />
-            <p className="text-sm text-white/40">Redirecting to your dashboard...</p>
+            <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary mb-3" aria-hidden="true" />
+            <p className="text-sm text-muted-foreground">Redirecting to your workspace...</p>
           </motion.div>
         )}
       </AnimatePresence>
