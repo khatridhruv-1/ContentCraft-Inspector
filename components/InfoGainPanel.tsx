@@ -66,7 +66,12 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
           return;
         }
         const user = await getUser(sessionToken);
-        const res = await saveContent(content, user.$id, content, 'analyze', data.answer, data.results);
+        const res = await saveContent(
+          content, user.$id, content, 'analyze',
+          undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+          undefined, undefined, undefined, undefined, undefined, undefined,
+          data.answer, data.results,
+        );
         if (res) {
           localStorage.setItem('documentId', res.$id);
         }

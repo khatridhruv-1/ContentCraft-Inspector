@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation';
 import { logout, getUser } from '@/lib/user/appwrite';
 import { updateContent } from '@/lib/content/appwrite';
 import AIGeneratePanel from '@/components/AIGeneratePanel';
+import PlagiarismPanel from '@/components/PlagiarismPanel';
+import RephrasedPanel from '@/components/RephrasedPanel';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { marked } from 'marked';
 import { Suspense } from 'react';
@@ -28,6 +30,10 @@ export default function Dashboard() {
   const [showStructured, setShowStructured] = useState(false);
   const [triggerAnalysis, setTriggerAnalysis] = useState(false);
   const [triggerAIScore, setTriggerAIScore] = useState(false);
+  const [triggerOutline, setTriggerOutline]     = useState(false);
+  const [triggerInfoGain, setTriggerInfoGain]   = useState(false);
+  const [triggerPlagiarism, setTriggerPlagiarism] = useState(false);
+  const [triggerRephrase, setTriggerRephrase]   = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const [hasGeneratedContent, setHasGeneratedContent] = useState(false);
@@ -187,6 +193,10 @@ export default function Dashboard() {
       setTriggerAnalysis(false);
       setTriggerAIScore(false);
       setHasGeneratedContent(false);
+      setTriggerOutline(false);
+      setTriggerInfoGain(false);
+      setTriggerPlagiarism(false);
+      setTriggerRephrase(false);
     }
   };
   const handleShowProfile = () => {
@@ -449,14 +459,18 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <Tabs defaultValue="analysis">
-                    <TabsList className="grid w-full grid-cols-3 bg-secondary rounded-xl p-1 h-10 mb-6">
+                    <TabsList className="grid w-full grid-cols-5 bg-secondary rounded-xl p-1 h-10 mb-6">
                       <TabsTrigger value="analysis" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Analysis</TabsTrigger>
-                      <TabsTrigger value="outline"  className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Outline</TabsTrigger>
-                      <TabsTrigger value="infogain" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Info Gain</TabsTrigger>
+                      <TabsTrigger value="outline"  className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground" onClick={() => setTriggerOutline(true)}>Outline</TabsTrigger>
+                      <TabsTrigger value="infogain" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground" onClick={() => setTriggerInfoGain(true)}>Info Gain</TabsTrigger>
+                      <TabsTrigger value="plagiarism" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground" onClick={() => setTriggerPlagiarism(true)}>Plagiarism</TabsTrigger>
+                      <TabsTrigger value="rephrase" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground" onClick={() => setTriggerRephrase(true)}>Rephrase</TabsTrigger>
                     </TabsList>
                     <TabsContent value="analysis"><AnalysisPanel content={analysis} triggerAnalysis={triggerAnalysis} dataFromChild={dataFromChild || analysis}/></TabsContent>
-                    <TabsContent value="outline"><OutlinePanel  content={analysis} triggerOutline={triggerAnalysis}  dataFromChild={dataFromChild || analysis}/></TabsContent>
-                    <TabsContent value="infogain"><InfoGainPanel content={analysis} triggerInfoGain={triggerAnalysis} dataFromChild={dataFromChild || analysis}/></TabsContent>
+                    <TabsContent value="outline"><OutlinePanel content={analysis} triggerOutline={triggerOutline} dataFromChild={dataFromChild || analysis}/></TabsContent>
+                    <TabsContent value="infogain"><InfoGainPanel content={analysis} triggerInfoGain={triggerInfoGain} dataFromChild={dataFromChild || analysis}/></TabsContent>
+                    <TabsContent value="plagiarism"><PlagiarismPanel content={analysis} triggerPlagiarism={triggerPlagiarism} /></TabsContent>
+                    <TabsContent value="rephrase"><RephrasedPanel content={analysis} triggerRephrase={triggerRephrase} /></TabsContent>
                   </Tabs>
                 </div>
               </motion.div>

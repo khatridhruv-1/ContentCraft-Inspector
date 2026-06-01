@@ -7,11 +7,21 @@ export async function POST(req: Request) {
     const plain = cleanContent(content, 3000);
 
     const rephrased = await groqRequest([
-      { role: "system", content: "Rephrase the following content to be more engaging and original. Return only the rephrased text, no extra commentary." },
+      { role: "system", content: "Rephrase the following content to be more engaging and original. Return only the rephrased text as plain prose — no JSON, no code blocks, no extra commentary." },
       { role: "user",   content: plain },
     ]);
 
-    return NextResponse.json({ rephrasedContent: rephrased.trim() });
+    let text = rephrased.trim();
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed === 'object') {
+        text = Object.values(parsed)
+          .filter((v): v is string => typeof v === 'string')
+          .join('\n\n');
+      }
+    } catch { /* plain text — use as-is */ }
+
+    return NextResponse.json({ rephrasedContent: text });
   } catch (e: any) {
     console.error("rephrase error:", e.message);
     return NextResponse.json({ error: e.message || "Error rephrasing content" }, { status: 500 });

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { groqRequest, extractJSON, cleanContent } from "@/lib/groq";
+import { groqRequest, extractJSON, sanitizeJSONString, cleanContent } from "@/lib/groq";
 
 export async function POST(req: Request) {
   try {
@@ -7,11 +7,22 @@ export async function POST(req: Request) {
     const plain = cleanContent(content, 3000);
 
     const raw = await groqRequest([
-      { role: "system", content: `Return ONLY a JSON object: {"plagiarismScore":number,"originalityScore":number,"flaggedSections":string[],"improvedVersion":string}` },
-      { role: "user",   content: `Check plagiarism and rewrite: ${plain}` },
+      { role: "system", content: `Return ONLY a compact JSON object with no line breaks inside string values: {"plagiarismScore":number,"originalityScore":number,"flaggedSections":["short phrase"]}` },
+      { role: "user",   content: `Analyze originality of this content: ${plain}` },
     ]);
 
-    const result = JSON.parse(extractJSON(raw));
+    let result;
+    try {
+      result = JSON.parse(sanitizeJSONString(extractJSON(raw)));
+    } catch {
+      const ps = raw.match(/"plagiarismScore"\s*:\s*(\d+)/);
+      const os = raw.match(/"originalityScore"\s*:\s*(\d+)/);
+      result = {
+        plagiarismScore:  ps ? parseInt(ps[1]) : 20,
+        originalityScore: os ? parseInt(os[1]) : 80,
+        flaggedSections:  [],
+      };
+    }
     return NextResponse.json(result);
   } catch (e: any) {
     console.error("plagiarism error:", e.message);

@@ -106,7 +106,12 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
             return;
           }
           const user = await getUser(sessionToken);
-          const res = await saveContent(dataFromChild, user.$id, dataFromChild, 'analyze', result.outline, result.suggestions, result.contentGaps);
+          const res = await saveContent(
+            dataFromChild, user.$id, dataFromChild, 'analyze',
+            undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+            undefined, undefined, undefined,
+            result.outline, result.suggestions, result.contentGaps,
+          );
           if (res) {
             localStorage.setItem('documentId', res.$id);
           }

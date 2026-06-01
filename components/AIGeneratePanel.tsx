@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Loader2, Wand2, FileText, FileDown, RefreshCw, FileSearch, BarChart2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { saveAs } from 'file-saver';
@@ -7,8 +7,33 @@ import { useRouter } from 'next/navigation';
 import { getUser } from '@/lib/user/appwrite';
 import { jsPDF } from 'jspdf';
 import { useCompanyId } from '@/hooks/useCompany';
-import MarkdownRenderer, { getDownloadableContent } from './MarkdownRenderer';
+import { getDownloadableContent } from './MarkdownRenderer';
+import { marked } from 'marked';
 import { Document as DocxDocument, Packer as DocxPacker, Paragraph as DocxParagraph, TextRun as DocxTextRun } from 'docx';
+import 'react-quill-new/dist/quill.snow.css';
+
+const NATIVE_NAMES: Record<string, string> = {
+  English:    'English',
+  Hindi:      'Hindi (हिंदी)',
+  Gujarati:   'Gujarati (ગુજરાતી)',
+  Spanish:    'Spanish (Español)',
+  French:     'French (Français)',
+  German:     'German (Deutsch)',
+  Portuguese: 'Portuguese (Português)',
+  Japanese:   'Japanese (日本語)',
+  Korean:     'Korean (한국어)',
+  Chinese:    'Chinese (中文)',
+  Arabic:     'Arabic (العربية)',
+  Russian:    'Russian (Русский)',
+  Italian:    'Italian (Italiano)',
+  Turkish:    'Turkish (Türkçe)',
+  Bengali:    'Bengali (বাংলা)',
+  Tamil:      'Tamil (தமிழ்)',
+  Telugu:     'Telugu (తెలుగు)',
+  Marathi:    'Marathi (मराठी)',
+  Punjabi:    'Punjabi (ਪੰਜਾਬੀ)',
+  Urdu:       'Urdu (اردو)',
+};
 
 interface AIGeneratePanelProps {
   onContentGenerated: (content: string) => void;
@@ -31,7 +56,6 @@ const lengths = [
   { label: '~3000 words', value: 3000 },
 ];
 
-const languages = ['English', 'Hindi', 'Spanish', 'French', 'German', 'Portuguese', 'Japanese'];
 
 const templates = [
   { label: '📝 Blog Post',    title: 'How to get started with ',  keywords: 'beginner, guide, tips, step-by-step', targetWords: 1000 },
@@ -57,6 +81,12 @@ export default function AIGeneratePanel({ onContentGenerated, onAnalyze, onAISco
   const [progress, setProgress]       = useState(0);
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { companyId }: any = useCompanyId();
+
+  const renderedHtml = useMemo(() => {
+    if (!generatedContent) return '';
+    if (generatedContent.trimStart().startsWith('<')) return generatedContent;
+    return marked(generatedContent) as string;
+  }, [generatedContent]);
 
   useEffect(() => {
     if (loading) {
@@ -90,6 +120,7 @@ export default function AIGeneratePanel({ onContentGenerated, onAnalyze, onAISco
       if (keywords.trim()) requestData.keywords = keywords;
       if (tone) requestData.tone = tone;
       requestData.targetWords = targetWords;
+      requestData.language = language;
 
       const response = await fetch('/api/ai-content', {
         method: 'POST',
@@ -202,10 +233,20 @@ const documentId = localStorage.getItem('documentId');
           </div>
         </div>
 
-        {/* Content */}
-        <div className="prose prose-sm max-w-none">
-          <MarkdownRenderer content={generatedContent.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()} />
-        </div>
+        {/* Content rendered with Quill styles to match Smart Editor */}
+        <style>{`
+          .ai-content h1{font-size:1.4rem;font-weight:700;margin:0 0 8px}
+          .ai-content h2{font-size:1.15rem;font-weight:600;margin:14px 0 6px}
+          .ai-content h3{font-size:1rem;font-weight:600;margin:10px 0 4px}
+          .ai-content p{margin:0 0 8px;line-height:1.6}
+          .ai-content ul,.ai-content ol{margin:4px 0 8px;padding-left:1.4rem}
+          .ai-content li{margin-bottom:3px;line-height:1.5}
+          .ai-content strong{font-weight:600}
+        `}</style>
+        <div
+          className="ai-content text-sm text-foreground"
+          dangerouslySetInnerHTML={{ __html: renderedHtml }}
+        />
       </div>
     );
   }
@@ -281,7 +322,7 @@ const documentId = localStorage.getItem('documentId');
           {[
             { label: 'Tone', id: 'ai-tone', el: <select id="ai-tone" value={tone} onChange={e => setTone(e.target.value)} className={selectCls}>{tones.map(t => <option key={t}>{t}</option>)}</select> },
             { label: 'Length', id: 'ai-length', el: <select id="ai-length" value={targetWords} onChange={e => setTargetWords(Number(e.target.value))} className={selectCls}>{lengths.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}</select> },
-            { label: 'Language', id: 'ai-language', el: <select id="ai-language" value={language} onChange={e => setLanguage(e.target.value)} className={selectCls}>{languages.map(l => <option key={l}>{l}</option>)}</select> },
+            { label: 'Language', id: 'ai-language', el: <select id="ai-language" value={language} onChange={e => setLanguage(e.target.value)} className={selectCls}>{Object.keys(NATIVE_NAMES).map(l => <option key={l} value={l}>{NATIVE_NAMES[l]}</option>)}</select> },
           ].map(({ label, id, el }) => (
             <div key={label} className="space-y-2">
               <label htmlFor={id} className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</label>
