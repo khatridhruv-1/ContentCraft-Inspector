@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Zap, Copy, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { marked } from 'marked';
 
 interface RephrasedPanelProps {
   content: string;
@@ -15,6 +16,12 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({ content, triggerRephras
   const contentRef = useRef(content);
   contentRef.current = content;
   const calledRef = useRef(false);
+
+  const renderedHtml = useMemo(() => {
+    if (!rephrasedContent) return '';
+    if (rephrasedContent.trimStart().startsWith('<')) return rephrasedContent;
+    return marked(rephrasedContent) as string;
+  }, [rephrasedContent]);
 
   const handleCopy = () => {
     if (!rephrasedContent) return;
@@ -84,7 +91,7 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({ content, triggerRephras
       <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4"><Zap className="h-6 w-6 text-primary" /></div>
-          <h2 className="text-sm font-semibold text-foreground mb-1">Content Rephrasing</h2>
+          <h2 className="text-xs font-semibold text-foreground mb-1">Content Rephrasing</h2>
           <p className="text-xs text-muted-foreground max-w-xs">Click the &quot;Rephrase&quot; tab to get an improved version of your content.</p>
         </div>
       </div>
@@ -97,16 +104,26 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({ content, triggerRephras
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <div className="flex items-center gap-2">
             <Zap className="text-violet-400 w-4 h-4" />
-            <span className="text-sm font-semibold text-foreground">Rephrased Content</span>
+            <span className="text-xs font-semibold text-foreground">Rephrased Content</span>
           </div>
           <button onClick={handleCopy} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? 'Copied!' : 'Copy'}
           </button>
         </div>
-        <div className="p-4 text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
-          {rephrasedContent}
-        </div>
+        <style>{`
+          .rp-content h1{font-size:0.95rem;font-weight:700;margin:0 0 6px}
+          .rp-content h2{font-size:0.85rem;font-weight:600;margin:10px 0 4px}
+          .rp-content h3{font-size:0.8rem;font-weight:600;margin:7px 0 3px}
+          .rp-content p{font-size:0.8rem;margin:0 0 6px;line-height:1.55}
+          .rp-content ul,.rp-content ol{margin:3px 0 6px;padding-left:1.2rem}
+          .rp-content li{font-size:0.8rem;margin-bottom:2px;line-height:1.45}
+          .rp-content strong{font-weight:600}
+        `}</style>
+        <div
+          className="rp-content p-4 text-sm text-foreground"
+          dangerouslySetInnerHTML={{ __html: renderedHtml }}
+        />
       </div>
     </motion.div>
   );

@@ -29,7 +29,7 @@ function OutlineTree({ items, depth }: { items: OutlineItem[]; depth: number }) 
       {items.map((item, index) => (
         <li key={index} style={{ paddingLeft: `${depth * 16}px` }}>
           <motion.div
-            className="flex items-start gap-2 text-sm text-muted-foreground"
+            className="flex items-start gap-2 text-xs text-muted-foreground"
             initial={{ x: -10, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: index * 0.05 }}
@@ -163,7 +163,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
           <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
             <List className="h-6 w-6 text-primary" />
           </div>
-          <h2 className="text-sm font-semibold text-foreground mb-1">Content Outline</h2>
+          <h2 className="text-xs font-semibold text-foreground mb-1">Content Outline</h2>
           <p className="text-xs text-muted-foreground max-w-xs">
             Click &quot;Analyze&quot; to generate a detailed content structure and improvement suggestions.
           </p>
@@ -185,7 +185,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <div className="flex items-center gap-2">
                   <List className="text-violet-400 w-4 h-4" />
-                  <span className="text-sm font-semibold text-foreground">Content Structure</span>
+                  <span className="text-xs font-semibold text-foreground">Content Structure</span>
                 </div>
                 <button
                   onClick={() => handleCopy(outlineResult)}
@@ -199,7 +199,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
                 {(outlineResult.outline || []).length > 0 ? (
                   <OutlineTree items={outlineResult.outline || []} depth={0} />
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     No outline structure detected. Consider adding headers to organize your content.
                   </p>
                 )}
@@ -210,14 +210,14 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
             <div className="overflow-hidden">
               <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
                 <Lightbulb className="text-violet-400 w-4 h-4" />
-                <span className="text-sm font-semibold text-foreground">Improvement Suggestions</span>
+                <span className="text-xs font-semibold text-foreground">Improvement Suggestions</span>
               </div>
               <div className="p-4">
                 <ul className="space-y-3">
                   {(outlineResult.suggestions || []).map((suggestion, index) => (
                     <motion.li
                       key={index}
-                      className="flex items-start gap-2 text-sm text-muted-foreground border-b border-border pb-3 last:border-0 last:pb-0"
+                      className="flex items-start gap-2 text-xs text-muted-foreground border-b border-border pb-3 last:border-0 last:pb-0"
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: index * 0.1 }}
@@ -234,14 +234,14 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
             <div className="overflow-hidden">
               <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
                 <AlertTriangle className="text-violet-400 w-4 h-4" />
-                <span className="text-sm font-semibold text-foreground">Content Gaps</span>
+                <span className="text-xs font-semibold text-foreground">Content Gaps</span>
               </div>
               <div className="p-4">
                 <ul className="space-y-3">
                   {(outlineResult.contentGaps || []).map((gap, index) => (
                     <motion.li
                       key={index}
-                      className="flex items-start gap-2 text-sm text-muted-foreground border-b border-border pb-3 last:border-0 last:pb-0"
+                      className="flex items-start gap-2 text-xs text-muted-foreground border-b border-border pb-3 last:border-0 last:pb-0"
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       transition={{ delay: index * 0.1 }}

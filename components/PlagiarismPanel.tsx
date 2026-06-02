@@ -84,7 +84,7 @@ const PlagiarismPanel: React.FC<PlagiarismPanelProps> = ({ content, triggerPlagi
       <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4"><Shield className="h-6 w-6 text-primary" /></div>
-          <h2 className="text-sm font-semibold text-foreground mb-1">Plagiarism Check</h2>
+          <h2 className="text-xs font-semibold text-foreground mb-1">Plagiarism Check</h2>
           <p className="text-xs text-muted-foreground max-w-xs">Click the &quot;Plagiarism&quot; tab to analyze your content for originality.</p>
         </div>
       </div>

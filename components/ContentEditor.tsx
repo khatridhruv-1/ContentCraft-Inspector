@@ -84,9 +84,14 @@ export function ContentEditor({
           .ql-toolbar button:hover .ql-stroke, .ql-toolbar button.ql-active .ql-stroke { stroke: hsl(var(--primary)); }
           .ql-toolbar button:hover .ql-fill, .ql-toolbar button.ql-active .ql-fill { fill: hsl(var(--primary)); }
           .ql-container.ql-snow { border: none; }
-          .ql-editor { min-height: 300px; line-height: 1.7; padding: 1.25rem; color: hsl(var(--foreground)); background: hsl(var(--background)); font-size: 14px; font-family: 'Inter', -apple-system, sans-serif; }
+          .ql-editor { min-height: 300px; line-height: 1.6; padding: 1rem; color: hsl(var(--foreground)); background: hsl(var(--background)); font-size: 0.95rem; font-family: 'Inter', -apple-system, sans-serif; }
           .ql-editor.ql-blank::before { color: hsl(var(--muted-foreground)); font-style: normal; }
-          .ql-editor p, .ql-editor li { color: hsl(var(--foreground)); }
+          .ql-editor p, .ql-editor li { font-size: 0.95rem; color: hsl(var(--foreground)); margin-bottom: 8px; line-height: 1.6; }
+          .ql-editor h1 { font-size: 0.95rem; font-weight: 700; margin: 0 0 6px; }
+          .ql-editor h2 { font-size: 0.85rem; font-weight: 600; margin: 10px 0 4px; }
+          .ql-editor h3 { font-size: 0.8rem; font-weight: 600; margin: 7px 0 3px; }
+          .ql-editor ul, .ql-editor ol { margin: 3px 0 6px; padding-left: 1.2rem; }
+          .ql-editor li { margin-bottom: 2px; line-height: 1.55; }
         `}</style>
         <ReactQuill
           theme="snow"
@@ -135,7 +140,7 @@ export function ContentEditor({
               onAnalyze();
             }}
             disabled={!hasContent}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
           >
             <Wand2 className="h-4 w-4" />
             Analyze
@@ -148,7 +153,7 @@ export function ContentEditor({
               onCreate();
             }}
             disabled={!hasContent}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
           >
             <Wand2 className="h-4 w-4" />
             Verify
@@ -161,7 +166,7 @@ export function ContentEditor({
               onAIScore();
             }}
             disabled={!hasContent}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
           >
             <Wand2 className="h-4 w-4" />
             Check Score

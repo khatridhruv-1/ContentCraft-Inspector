@@ -7,7 +7,7 @@ import OutlinePanel from '@/components/OutlinePanel';
 import InfoGainPanel from '@/components/InfoGainPanel';
 import AIScorePanel from '@/components/AIScorePanel';
 import { motion } from 'framer-motion';
-import { Edit, FileSearch, LogOut, Notebook as Robot, UserCircle, Wand2, History, ArrowLeft, Menu, X } from 'lucide-react';
+import { LogOut, UserCircle, Wand2, History, ArrowLeft, Menu, X, FileSearch, Notebook as Robot } from 'lucide-react';
 import { cn, htmlToMarkdown } from '@/lib/utils';
 import ContentEditor from '@/components/ContentEditor';
 import { useRouter } from 'next/navigation';
@@ -18,6 +18,7 @@ import PlagiarismPanel from '@/components/PlagiarismPanel';
 import RephrasedPanel from '@/components/RephrasedPanel';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { marked } from 'marked';
+import { toast } from 'sonner';
 import { Suspense } from 'react';
 import DashboardParams from '@/components/DashboardParams';
 
@@ -42,9 +43,12 @@ export default function Dashboard() {
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [showPasteOption, setShowPasteOption] = useState(false);
+  const [activeSidebarButton, setActiveSidebarButton] = useState<'ai-powered' | 'deep-analyze'>('ai-powered');
 
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
+  const [panelKey, setPanelKey] = useState(0);
 
   const hasContent = content.trim().length > 0 || generatedContent.trim().length > 0;
 
@@ -77,6 +81,15 @@ export default function Dashboard() {
   useEffect(() => {
     localStorage.removeItem("documentId");
   }, [])
+
+  // Listen for paste mode event from sidebar
+  useEffect(() => {
+    const handleOpenPasteMode = () => {
+      setShowPasteOption(true);
+    };
+    window.addEventListener('openPasteMode', handleOpenPasteMode);
+    return () => window.removeEventListener('openPasteMode', handleOpenPasteMode);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -164,14 +177,28 @@ export default function Dashboard() {
     }
   };
 
+  const handleSmartEditor = () => {
+    const htmlContent = marked(generatedContent || content) as string;
+    setContent(htmlContent);
+    setAnalysis(htmlContent);
+    handleModeChange('create');
+  };
+
   const handleAnalyze = () => {
-    setMode('analyze');
-    setTriggerAnalysis(true);
     const contentToAnalyze = generatedContent || content;
+    if (!contentToAnalyze.trim()) {
+      toast.error('No content to analyze');
+      return;
+    }
     // Convert Markdown to HTML before setting it in the editor
     const htmlContent = marked(contentToAnalyze) as string;
     setContent(htmlContent);
     setAnalysis(htmlContent);
+    setMode('analyze');
+    // Small delay to ensure state is updated
+    setTimeout(() => {
+      setTriggerAnalysis(true);
+    }, 100);
   };
 
   const handleAIScore = () => {
@@ -281,49 +308,60 @@ export default function Dashboard() {
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto" aria-label="Main navigation">
-          <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pb-2 pt-1" style={{ color: 'hsl(var(--sidebar-foreground) / 0.45)' }}>Tools</p>
+          <button
+            onClick={() => {
+              handleModeChange('ai-generate');
+              setActiveSidebarButton('ai-powered');
+              setShowPasteOption(false);
+            }}
+            aria-current={activeSidebarButton === 'ai-powered' ? 'page' : undefined}
+            className={cn(
+              'w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 outline-none focus:outline-none focus-visible:outline-none',
+              activeSidebarButton !== 'ai-powered' && 'hover:text-white'
+            )}
+            style={activeSidebarButton === 'ai-powered' ? { background: 'linear-gradient(135deg, #4338ca 0%, #4f46e5 50%, #6366f1 100%)', color: 'white' } : { color: 'hsl(var(--sidebar-foreground))' }}
+            onMouseEnter={e => { if (activeSidebarButton !== 'ai-powered') (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; }}
+            onMouseLeave={e => { if (activeSidebarButton !== 'ai-powered') (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+          >
+            <Wand2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            AI Powered
+          </button>
 
-          {(([
-            { mode: 'ai-generate' as AppMode, label: 'AI-Powered', icon: Wand2, disabled: false },
-            { mode: 'create'      as AppMode, label: 'Smart Editor', icon: Edit, disabled: false },
-            { mode: 'analyze'     as AppMode, label: 'Deep Analysis', icon: FileSearch, disabled: false },
-            { mode: 'ai-score'    as AppMode, label: 'Realness Score', icon: Robot, disabled: !hasContent },
-          ]) as Array<{ mode: AppMode; label: string; icon: React.ElementType; disabled: boolean }>).map(({ mode: m, label, icon: Icon, disabled }) => (
-            <button
-              key={m}
-              onClick={() => !disabled && handleModeChange(m)}
-              disabled={disabled}
-              aria-current={mode === m ? 'page' : undefined}
-              title={disabled ? 'Add content first to enable this tool' : undefined}
-              className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 min-h-[40px]',
-                mode === m
-                  ? 'text-white'
-                  : disabled
-                  ? 'opacity-40 cursor-not-allowed'
-                  : 'hover:text-white'
-              )}
-              style={
-                mode === m
-                  ? { background: 'hsl(var(--sidebar-primary))', color: 'white' }
-                  : { color: 'hsl(var(--sidebar-foreground))' }
-              }
-              onMouseEnter={e => { if (mode !== m && !disabled) (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; }}
-              onMouseLeave={e => { if (mode !== m) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-            >
-              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {label}
-            </button>
-          ))}
+          <button
+            onClick={() => {
+              setContent(''); setAnalysis(''); setGeneratedContent('');
+              setTriggerAnalysis(false); setTriggerAIScore(false);
+              setTriggerOutline(false); setTriggerInfoGain(false);
+              setTriggerPlagiarism(false); setTriggerRephrase(false);
+              setShowStructured(false);
+              setPanelKey(k => k + 1);
+              handleModeChange('ai-generate');
+              setActiveSidebarButton('deep-analyze');
+              // Auto-open paste mode
+              setTimeout(() => {
+                const event = new CustomEvent('openPasteMode');
+                window.dispatchEvent(event);
+              }, 100);
+            }}
+            aria-current={activeSidebarButton === 'deep-analyze' ? 'page' : undefined}
+            className={cn(
+              'w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 outline-none focus:outline-none focus-visible:outline-none',
+              activeSidebarButton !== 'deep-analyze' && 'hover:text-white'
+            )}
+            style={activeSidebarButton === 'deep-analyze' ? { background: 'linear-gradient(135deg, #4338ca 0%, #4f46e5 50%, #6366f1 100%)', color: 'white' } : { color: 'hsl(var(--sidebar-foreground))' }}
+            onMouseEnter={e => { if (activeSidebarButton !== 'deep-analyze') (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; }}
+            onMouseLeave={e => { if (activeSidebarButton !== 'deep-analyze') (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+          >
+            <FileSearch className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            Deep Analyze
+          </button>
 
           <div className="pt-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: 'hsl(var(--sidebar-foreground) / 0.45)' }}>Account</p>
             <button
               onClick={handleHistory}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 min-h-[40px]"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[40px]"
               style={{ color: 'hsl(var(--sidebar-foreground))' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; (e.currentTarget as HTMLButtonElement).style.color = 'white'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'hsl(var(--sidebar-foreground))'; }}
             >
               <History className="h-4 w-4 shrink-0" aria-hidden="true" />
               History
@@ -395,19 +433,23 @@ export default function Dashboard() {
           </div>
 
           {/* Content area wrapper + Content Area */}
-          <div className={cn("flex-1 overflow-hidden flex flex-col", mode !== 'ai-generate' ? 'p-6' : 'bg-secondary/30')}>
+          <div className={cn("flex-1 flex flex-col", mode !== 'ai-generate' ? 'p-6 overflow-hidden' : 'bg-secondary/30 overflow-y-auto')}>
             {mode === 'ai-generate' ? (
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35 }}
-                className="flex-1 overflow-auto"
+                className="w-full"
               >
                 <AIGeneratePanel
+                  key={panelKey}
                   onContentGenerated={handleGeneratedContent}
+                  onSmartEditor={handleSmartEditor}
                   onAnalyze={handleAnalyze}
                   onAIScore={handleAIScore}
                   initialContent={generatedContent || undefined}
+                  showPasteOption={showPasteOption}
+                  setShowPasteOption={setShowPasteOption}
                 />
               </motion.div>
             ) : mode === 'create' && !showStructured ? (
@@ -415,19 +457,24 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35 }}
-                className="flex-1 overflow-hidden"
+                className="flex-1 flex flex-col overflow-hidden"
               >
-                <ContentEditor
-                  initialContent={analysis}
-                  onContentChange={handleContentChange}
-                  mode={mode}
-                  sendDataToParent={handleDataFromChild}
-                  onCreate={() => setShowStructured(true)}
-                  onAnalyze={() => setTriggerAnalysis(prev => !prev)}
-                  onAIScore={() => setTriggerAIScore(true)}
-                  onAutoSave={handleAutoSave}
-                  autoSaveStatus={autoSaveStatus}
-                />
+                <div className="px-6 py-4 border-b border-border">
+                  <h2 className="text-xs font-semibold text-foreground">Smart Editor</h2>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <ContentEditor
+                    initialContent={analysis}
+                    onContentChange={handleContentChange}
+                    mode={mode}
+                    sendDataToParent={handleDataFromChild}
+                    onCreate={() => setShowStructured(true)}
+                    onAnalyze={() => setTriggerAnalysis(prev => !prev)}
+                    onAIScore={() => setTriggerAIScore(true)}
+                    onAutoSave={handleAutoSave}
+                    autoSaveStatus={autoSaveStatus}
+                  />
+                </div>
               </motion.div>
             ) : mode === 'analyze' ? (
               <motion.div
@@ -436,9 +483,9 @@ export default function Dashboard() {
                 transition={{ duration: 0.35 }}
                 className="flex-1 overflow-auto"
               >
-                <div className="max-w-3xl mx-auto px-8 py-6">
+                <div className="w-full px-6 py-4">
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-base font-semibold text-foreground">Deep Analysis</h2>
+                    <h2 className="text-xs font-semibold text-foreground">Deep Analysis</h2>
                     <div className="flex items-center gap-3">
                       {!triggerAnalysis && content.trim() && (
                         <button
@@ -482,9 +529,9 @@ export default function Dashboard() {
                 transition={{ duration: 0.35 }}
                 className="flex-1 overflow-auto"
               >
-                <div className="max-w-3xl mx-auto px-8 py-6">
+                <div className="w-full px-6 py-4">
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-base font-semibold text-foreground">Realness Score</h2>
+                    <h2 className="text-xs font-semibold text-foreground">Realness Score</h2>
                     <div className="flex items-center gap-3">
                       {!triggerAIScore && content.trim() && (
                         <button
@@ -515,9 +562,9 @@ export default function Dashboard() {
                 transition={{ duration: 0.35 }}
                 className="flex-1 overflow-auto"
               >
-                <div className="max-w-3xl mx-auto px-8 py-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-base font-semibold text-foreground">Structured Content</h2>
+                <div className="w-full px-6 py-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xs font-semibold text-foreground">Structured Content</h2>
                     <div className="flex gap-2">
                       <button onClick={handleAnalyze} className="gap-1.5 px-3 py-1.5 rounded-lg flex items-center text-xs font-medium grad text-white hover:opacity-90 transition-opacity">
                         <FileSearch className="h-3.5 w-3.5" /> Analyze
@@ -527,9 +574,7 @@ export default function Dashboard() {
                       </button>
                     </div>
                   </div>
-                  <div className="prose prose-sm max-w-none">
-                    <MarkdownRenderer content={htmlToMarkdown(content)} />
-                  </div>
+                  <MarkdownRenderer content={htmlToMarkdown(content)} />
                 </div>
               </motion.div>
 
@@ -538,19 +583,24 @@ export default function Dashboard() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.35 }}
-                className="flex-1 overflow-hidden"
+                className="flex-1 flex flex-col overflow-hidden"
               >
-                <ContentEditor
-                  initialContent={content}
-                  onContentChange={handleContentChange}
-                  mode={mode}
-                  sendDataToParent={handleDataFromChild}
-                  onCreate={() => setShowStructured(true)}
-                  onAnalyze={() => setTriggerAnalysis(prev => !prev)}
-                  onAIScore={() => setTriggerAIScore(true)}
-                  onAutoSave={handleAutoSave}
-                  autoSaveStatus={autoSaveStatus}
-                />
+                <div className="px-6 py-4 border-b border-border">
+                  <h2 className="text-xs font-semibold text-foreground">Smart Editor</h2>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <ContentEditor
+                    initialContent={content}
+                    onContentChange={handleContentChange}
+                    mode={mode}
+                    sendDataToParent={handleDataFromChild}
+                    onCreate={() => setShowStructured(true)}
+                    onAnalyze={() => setTriggerAnalysis(prev => !prev)}
+                    onAIScore={() => setTriggerAIScore(true)}
+                    onAutoSave={handleAutoSave}
+                    autoSaveStatus={autoSaveStatus}
+                  />
+                </div>
               </motion.div>
             )}
           </div>

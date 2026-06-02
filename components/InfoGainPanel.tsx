@@ -104,7 +104,7 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
             <Search className="w-4 h-4 text-white" />
           </div>
-          <span className="text-sm font-semibold text-foreground">Knowledge Expansion</span>
+          <span className="text-xs font-semibold text-foreground">Knowledge Expansion</span>
         </div>
 
         {/* Search Bar */}
@@ -156,7 +156,7 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
                     <BookOpen className="w-3.5 h-3.5 text-violet-400" />
                     Summary
                   </h3>
-                  <p className="text-sm text-muted-foreground">{tavilyData.answer}</p>
+                  <p className="text-xs text-muted-foreground">{tavilyData.answer}</p>
                 </motion.div>
               )}
 
@@ -200,7 +200,7 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
                           aria-label={`${item.title} (opens in a new tab)`}
                         >
                           <motion.h4
-                            className="text-sm font-medium text-primary flex items-center gap-1"
+                            className="text-xs font-medium text-primary flex items-center gap-1"
                             whileHover={{ x: 5 }}
                           >
                             {item.title}
@@ -220,7 +220,7 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
                   <Search className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-sm font-semibold text-foreground mb-1">Info Gain</p>
+                <p className="text-xs font-semibold text-foreground mb-1">Info Gain</p>
                 <p className="text-xs text-muted-foreground max-w-xs">Search for a topic or run analysis to see web research and related content.</p>
               </div>
             </div>

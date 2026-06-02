@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { marked } from 'marked';
 import { Brain, RefreshCw, Sparkles, AlertTriangle } from 'lucide-react';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
 import { useRouter } from 'next/navigation';
@@ -33,6 +34,20 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showHumanized, setShowHumanized] = useState(false);
+
+  const humanizedHtml = useMemo(() => {
+    const v = result?.humanizedVersion;
+    if (!v || typeof v !== 'string') return '';
+    if (v.trimStart().startsWith('<')) return v;
+    return marked(v) as string;
+  }, [result?.humanizedVersion]);
+
+  const analysisHtml = useMemo(() => {
+    const a = result?.analysis;
+    if (!a || typeof a !== 'string') return '';
+    if (a.trimStart().startsWith('<')) return a;
+    return marked(a) as string;
+  }, [result?.analysis]);
 
   useEffect(() => {
     const checkAIScore = async () => {
@@ -122,7 +137,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
           <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
             <Brain className="h-6 w-6 text-primary" />
           </div>
-          <h2 className="text-sm font-semibold text-foreground mb-1">Realness Score</h2>
+          <h2 className="text-xs font-semibold text-foreground mb-1">Realness Score</h2>
           <p className="text-xs text-muted-foreground max-w-xs">Click &quot;Check Score&quot; to detect AI vs human writing patterns and get a humanized rewrite.</p>
         </div>
       </div>
@@ -174,35 +189,21 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
             {/* Analysis */}
             <div className="py-4 border-b border-border mb-3">
               <h3 className="text-xs font-semibold text-foreground mb-3">Writing Pattern Analysis</h3>
-              {typeof result.analysis === 'string' ? (
-                <p className="text-xs text-muted-foreground leading-relaxed">{result.analysis}</p>
+              <style>{`
+                .analysis-content h1{font-size:0.95rem;font-weight:700;margin:0 0 8px}
+                .analysis-content h2{font-size:0.85rem;font-weight:600;margin:12px 0 5px;color:hsl(var(--foreground))}
+                .analysis-content h3{font-size:0.8rem;font-weight:600;margin:8px 0 4px;color:hsl(var(--foreground))}
+                .analysis-content p{font-size:0.8rem;margin:0 0 8px;line-height:1.6;color:hsl(var(--muted-foreground))}
+                .analysis-content ul{margin:4px 0 8px;padding-left:1.4rem}
+                .analysis-content li{font-size:0.8rem;color:hsl(var(--muted-foreground));margin-bottom:3px;line-height:1.5}
+                .analysis-content strong{font-weight:600;color:hsl(var(--foreground))}
+              `}</style>
+              {analysisHtml ? (
+                <div className="analysis-content" dangerouslySetInnerHTML={{ __html: analysisHtml }} />
               ) : (
-                <div className="space-y-3">
-                  {result.analysis.languagePatterns && result.analysis.languagePatterns.length > 0 && (
-                    <div>
-                      <h4 className="text-[11px] font-semibold text-foreground mb-1.5">Language Patterns</h4>
-                      <ul className="space-y-1">
-                        {result.analysis.languagePatterns.map((p, i) => (
-                          <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                            <span className="text-primary shrink-0 mt-0.5">•</span>{p}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {result.analysis.tone && (
-                    <div>
-                      <h4 className="text-[11px] font-semibold text-foreground mb-1">Tone</h4>
-                      <p className="text-xs text-muted-foreground">{result.analysis.tone}</p>
-                    </div>
-                  )}
-                  {result.analysis.style && (
-                    <div>
-                      <h4 className="text-[11px] font-semibold text-foreground mb-1">Style</h4>
-                      <p className="text-xs text-muted-foreground">{result.analysis.style}</p>
-                    </div>
-                  )}
-                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {typeof result.analysis === 'string' ? result.analysis : ''}
+                </p>
               )}
             </div>
 
@@ -228,7 +229,19 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
                     className="overflow-hidden"
                   >
                     <div className="px-4 pb-4 border-t border-border">
-                      <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap pt-3">{result.humanizedVersion}</p>
+                      <style>{`
+                        .hv-content h1{font-size:0.95rem;font-weight:700;margin:0 0 8px}
+                        .hv-content h2{font-size:0.85rem;font-weight:600;margin:12px 0 5px}
+                        .hv-content h3{font-size:0.8rem;font-weight:600;margin:8px 0 4px}
+                        .hv-content p{margin:0 0 8px;line-height:1.6}
+                        .hv-content ul,.hv-content ol{margin:4px 0 8px;padding-left:1.4rem}
+                        .hv-content li{margin-bottom:3px;line-height:1.5}
+                        .hv-content strong{font-weight:600}
+                      `}</style>
+                      <div
+                        className="hv-content pt-3 text-sm text-foreground"
+                        dangerouslySetInnerHTML={{ __html: humanizedHtml }}
+                      />
                     </div>
                   </motion.div>
                 )}

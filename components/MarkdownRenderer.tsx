@@ -3,63 +3,45 @@ import remarkGfm from "remark-gfm";
 
 const renderers = {
   h1: ({ children }: any) => (
-    <h1 className="text-4xl font-extrabold text-gray-900 mb-6 mt-8">
-      {children}
-    </h1>
+    <h1 style={{ fontSize:'0.95rem', fontWeight:700, margin:'0 0 6px' }} className="text-foreground">{children}</h1>
   ),
   h2: ({ children }: any) => (
-    <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-6">
-      {children}
-    </h2>
+    <h2 style={{ fontSize:'0.85rem', fontWeight:600, margin:'10px 0 4px' }} className="text-foreground">{children}</h2>
   ),
   h3: ({ children }: any) => (
-    <h3 className="text-xl font-bold text-gray-700 mb-3 mt-5">
-      {children}
-    </h3>
+    <h3 style={{ fontSize:'0.8rem', fontWeight:600, margin:'7px 0 3px' }} className="text-foreground">{children}</h3>
   ),
   p: ({ children }: any) => (
-    <p className="text-gray-700 leading-relaxed mb-4 text-lg">
-      {children}
-    </p>
+    <p style={{ fontSize:'0.8rem', margin:'0 0 6px', lineHeight:1.55 }} className="text-foreground">{children}</p>
   ),
   ul: ({ children }: any) => (
-    <ul className="list-disc ml-8 space-y-2 mb-4">
-      {children}
-    </ul>
+    <ul style={{ fontSize:'0.8rem', margin:'3px 0 6px', paddingLeft:'1.2rem' }} className="list-disc text-foreground">{children}</ul>
   ),
   ol: ({ children }: any) => (
-    <ol className="list-decimal ml-8 space-y-2 mb-4">
-      {children}
-    </ol>
+    <ol style={{ fontSize:'0.8rem', margin:'3px 0 6px', paddingLeft:'1.2rem' }} className="list-decimal text-foreground">{children}</ol>
   ),
   li: ({ children }: any) => (
-    <li className="text-gray-700 leading-relaxed text-lg">{children}</li>
+    <li style={{ fontSize:'0.8rem', marginBottom:'2px', lineHeight:1.45 }} className="text-foreground">{children}</li>
   ),
   blockquote: ({ children }: any) => (
-    <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4">
-      {children}
-    </blockquote>
+    <blockquote className="border-l-4 border-border pl-3 italic text-muted-foreground my-2 text-sm">{children}</blockquote>
   ),
   code: ({ children }: any) => (
-    <code className="bg-gray-100 rounded px-2 py-1 text-sm font-mono">
-      {children}
-    </code>
+    <code className="bg-secondary rounded px-1.5 py-0.5 text-xs font-mono">{children}</code>
   ),
   pre: ({ children }: any) => (
-    <pre className="bg-gray-100 rounded-lg p-4 my-4 overflow-x-auto">
-      {children}
-    </pre>
+    <pre className="bg-secondary rounded-lg p-3 my-2 overflow-x-auto text-xs">{children}</pre>
   ),
 };
 
 export default function MarkdownRenderer({ content }: { content: string }) {
   return (
-    <div className="flex-1 p-8 overflow-y-auto max-h-[70vh] prose prose-lg max-w-none text-gray-800 leading-relaxed">
-      <ReactMarkdown 
-        components={renderers} 
+    <div className="w-full max-w-none">
+      <ReactMarkdown
+        components={renderers}
         remarkPlugins={[remarkGfm]}
       >
-        {content.replace(/\n/g, "\n\n")}
+        {content}
       </ReactMarkdown>
     </div>
   );

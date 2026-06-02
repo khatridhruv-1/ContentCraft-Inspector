@@ -174,7 +174,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
           <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
             <Zap className="h-6 w-6 text-primary" />
           </div>
-          <h2 className="text-sm font-semibold text-foreground mb-1">Deep Analysis</h2>
+          <h2 className="text-xs font-semibold text-foreground mb-1">Deep Analysis</h2>
           <p className="text-xs text-muted-foreground max-w-xs">Click &quot;Analyze&quot; to get readability score, tone, insights and improvement suggestions.</p>
         </div>
       </div>
@@ -232,7 +232,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                     {icon}
                     <span className="text-[11px] font-medium">{label}</span>
                   </div>
-                  <span className="text-sm font-bold text-primary truncate block">{value}</span>
+                  <span className="text-xs font-bold text-primary truncate block">{value}</span>
                 </motion.div>
               ))}
             </div>
@@ -246,7 +246,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
               <ul className="space-y-2">
                 {analysis.keyInsights.map((insight, i) => (
                   <motion.li key={i} initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.08 }}
-                    className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                    className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
                     <span className="text-primary mt-0.5 shrink-0">•</span>
                     <span>{insight}</span>
                   </motion.li>
@@ -263,7 +263,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
               <ul className="space-y-2">
                 {analysis.improvements.map((item, i) => (
                   <motion.li key={i} initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: i * 0.08 }}
-                    className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                    className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
                     <span className="text-primary mt-0.5 shrink-0">•</span>
                     <span>{item}</span>
                   </motion.li>

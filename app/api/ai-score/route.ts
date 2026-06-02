@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { groqRequest, extractJSON, cleanContent } from "@/lib/groq";
+import { groqRequest, extractJSON, sanitizeJSONString, cleanContent } from "@/lib/groq";
 
 export async function POST(req: Request) {
   try {
@@ -10,15 +10,15 @@ export async function POST(req: Request) {
     const raw = await groqRequest([
       {
         role: "system",
-        content: `You are a content analyzer. Respond with ONLY valid JSON, no markdown, no extra text:
-{"aiScore":80,"humanScore":20,"analysis":"brief analysis string","suggestions":["tip1","tip2"],"humanizedVersion":"rewritten text here"}`,
+        content: `You are a content analyzer. Respond with ONLY valid JSON, no extra text. Both analysis and humanizedVersion must use Markdown: ## for headings, - for bullets:
+{"aiScore":80,"humanScore":20,"analysis":"## Tone\\n\\nFormal and informative.\\n\\n## Style\\n\\n- Clear structure\\n- Good flow","suggestions":["tip1","tip2"],"humanizedVersion":"# Title\\n\\n## Section\\n\\nParagraph text."}`,
       },
       { role: "user", content: `Analyze and humanize (~${wordCount} words): ${plain}` },
     ]);
 
     let result;
     try {
-      result = JSON.parse(extractJSON(raw));
+      result = JSON.parse(sanitizeJSONString(extractJSON(raw)));
     } catch {
       const aiMatch = raw.match(/"aiScore"\s*:\s*(\d+)/);
       const hmMatch = raw.match(/"humanScore"\s*:\s*(\d+)/);

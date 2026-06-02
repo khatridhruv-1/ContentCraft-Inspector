@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const plain = cleanContent(content, 3000);
 
     const rephrased = await groqRequest([
-      { role: "system", content: "Rephrase the following content to be more engaging and original. Return only the rephrased text as plain prose — no JSON, no code blocks, no extra commentary." },
+      { role: "system", content: "Rephrase the following content to be more engaging and original. Keep the same structure with Markdown formatting: use # for main title, ## for section headings, ### for subheadings, - for bullet points. Return only the rephrased Markdown text — no JSON, no code blocks, no extra commentary." },
       { role: "user",   content: plain },
     ]);
 
