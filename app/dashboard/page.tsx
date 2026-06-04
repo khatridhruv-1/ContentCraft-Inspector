@@ -7,7 +7,7 @@ import OutlinePanel from '@/components/OutlinePanel';
 import InfoGainPanel from '@/components/InfoGainPanel';
 import AIScorePanel from '@/components/AIScorePanel';
 import { motion } from 'framer-motion';
-import { LogOut, UserCircle, Wand2, History, ArrowLeft, Menu, X, FileSearch, Notebook as Robot } from 'lucide-react';
+import { LogOut, UserCircle, Wand2, History, ArrowLeft, Menu, X, FileSearch, Notebook as Robot, Sparkles } from 'lucide-react';
 import { cn, htmlToMarkdown } from '@/lib/utils';
 import ContentEditor from '@/components/ContentEditor';
 import { useRouter } from 'next/navigation';
@@ -356,14 +356,33 @@ export default function Dashboard() {
             Deep Analyze
           </button>
 
+          <button
+            onClick={() => router.push('/marketing-manager')}
+            className={cn(
+              'w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 outline-none focus:outline-none focus-visible:outline-none whitespace-nowrap',
+              'hover:text-white'
+            )}
+            style={{ color: 'hsl(var(--sidebar-foreground))' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+          >
+            <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            AI Marketing
+          </button>
+
           <div className="pt-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest px-3 pb-2" style={{ color: 'hsl(var(--sidebar-foreground) / 0.45)' }}>Account</p>
             <button
               onClick={handleHistory}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[40px]"
+              className={cn(
+                'w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 outline-none focus:outline-none focus-visible:outline-none',
+                'hover:text-white'
+              )}
               style={{ color: 'hsl(var(--sidebar-foreground))' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'hsl(var(--sidebar-accent))'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
             >
-              <History className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <History className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               History
             </button>
           </div>

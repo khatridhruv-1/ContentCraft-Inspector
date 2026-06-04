@@ -3,25 +3,28 @@ import remarkGfm from "remark-gfm";
 
 const renderers = {
   h1: ({ children }: any) => (
-    <h1 style={{ fontSize:'0.95rem', fontWeight:700, margin:'0 0 6px' }} className="text-foreground">{children}</h1>
+    <h1 style={{ fontSize:'1.45rem', fontWeight:800, margin:'0 0 12px', lineHeight:1.25 }} className="text-foreground">{children}</h1>
   ),
   h2: ({ children }: any) => (
-    <h2 style={{ fontSize:'0.85rem', fontWeight:600, margin:'10px 0 4px' }} className="text-foreground">{children}</h2>
+    <h2 style={{ fontSize:'1.05rem', fontWeight:700, margin:'18px 0 6px', lineHeight:1.3 }} className="text-foreground">{children}</h2>
   ),
   h3: ({ children }: any) => (
-    <h3 style={{ fontSize:'0.8rem', fontWeight:600, margin:'7px 0 3px' }} className="text-foreground">{children}</h3>
+    <h3 style={{ fontSize:'0.9rem', fontWeight:600, margin:'12px 0 4px', lineHeight:1.35 }} className="text-foreground">{children}</h3>
   ),
   p: ({ children }: any) => (
-    <p style={{ fontSize:'0.8rem', margin:'0 0 6px', lineHeight:1.55 }} className="text-foreground">{children}</p>
+    <p style={{ fontSize:'0.85rem', margin:'0 0 10px', lineHeight:1.65 }} className="text-foreground">{children}</p>
   ),
   ul: ({ children }: any) => (
-    <ul style={{ fontSize:'0.8rem', margin:'3px 0 6px', paddingLeft:'1.2rem' }} className="list-disc text-foreground">{children}</ul>
+    <ul style={{ fontSize:'0.85rem', margin:'6px 0 10px', paddingLeft:'1.4rem' }} className="list-disc text-foreground">{children}</ul>
   ),
   ol: ({ children }: any) => (
-    <ol style={{ fontSize:'0.8rem', margin:'3px 0 6px', paddingLeft:'1.2rem' }} className="list-decimal text-foreground">{children}</ol>
+    <ol style={{ fontSize:'0.85rem', margin:'6px 0 10px', paddingLeft:'1.4rem' }} className="list-decimal text-foreground">{children}</ol>
   ),
   li: ({ children }: any) => (
-    <li style={{ fontSize:'0.8rem', marginBottom:'2px', lineHeight:1.45 }} className="text-foreground">{children}</li>
+    <li style={{ fontSize:'0.85rem', marginBottom:'4px', lineHeight:1.6 }} className="text-foreground">{children}</li>
+  ),
+  strong: ({ children }: any) => (
+    <strong style={{ fontWeight:700 }} className="text-foreground">{children}</strong>
   ),
   blockquote: ({ children }: any) => (
     <blockquote className="border-l-4 border-border pl-3 italic text-muted-foreground my-2 text-sm">{children}</blockquote>

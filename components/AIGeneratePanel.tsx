@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Loader2, Wand2, FileText, FileDown, RefreshCw, FileSearch, BarChart2, Edit, Copy, Check, Download } from 'lucide-react';
+import { Loader2, Wand2, FileText, FileDown, RefreshCw, FileSearch, BarChart2, Edit, Copy, Check, Download, Type, Clock, Zap, Search, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { saveAs } from 'file-saver';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
@@ -11,6 +11,12 @@ import { getDownloadableContent } from './MarkdownRenderer';
 import { marked } from 'marked';
 import { Document as DocxDocument, Packer as DocxPacker, Paragraph as DocxParagraph, TextRun as DocxTextRun } from 'docx';
 import 'react-quill-new/dist/quill.snow.css';
+import AnalysisPanel from './AnalysisPanel';
+import OutlinePanel from './OutlinePanel';
+import InfoGainPanel from './InfoGainPanel';
+import PlagiarismPanel from './PlagiarismPanel';
+import RephrasedPanel from './RephrasedPanel';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const NATIVE_NAMES: Record<string, string> = {
   English:    'English',
@@ -88,6 +94,13 @@ export default function AIGeneratePanel({ onContentGenerated, onSmartEditor, onA
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [internalShowPasteOption, setInternalShowPasteOption] = useState(false);
   const [pastedContent, setPastedContent] = useState('');
+  const [showInlineAnalysis, setShowInlineAnalysis] = useState(false);
+  const [inlineAnalysisContent, setInlineAnalysisContent] = useState('');
+  const [triggerInlineAnalysis, setTriggerInlineAnalysis] = useState(false);
+  const [triggerInlineOutline, setTriggerInlineOutline] = useState(false);
+  const [triggerInlineInfoGain, setTriggerInlineInfoGain] = useState(false);
+  const [triggerInlinePlagiarism, setTriggerInlinePlagiarism] = useState(false);
+  const [triggerInlineRephrase, setTriggerInlineRephrase] = useState(false);
 
   const showPasteOption = externalShowPasteOption !== undefined ? externalShowPasteOption : internalShowPasteOption;
   const setShowPasteOption = externalSetShowPasteOption || setInternalShowPasteOption;
@@ -136,18 +149,18 @@ export default function AIGeneratePanel({ onContentGenerated, onSmartEditor, onA
       return;
     }
     const htmlContent = marked(pastedContent) as string;
+    setInlineAnalysisContent(htmlContent);
     setGeneratedContent(htmlContent);
     onContentGenerated(htmlContent);
     const wc = pastedContent.trim().split(/\s+/).filter(Boolean).length;
     setGeneratedWordCount(wc);
     
-    // Trigger analyze mode after content is set
+    // Show inline analysis and trigger it
+    setShowInlineAnalysis(true);
     setTimeout(() => {
-      if (onAnalyze) {
-        onAnalyze();
-      }
-      toast.success(`Analyzing ${wc.toLocaleString()} words...`);
-    }, 300);
+      setTriggerInlineAnalysis(true);
+    }, 100);
+    toast.success(`Analyzing ${wc.toLocaleString()} words...`);
   };
 
   const generateContent = async () => {
@@ -230,7 +243,8 @@ const documentId = localStorage.getItem('documentId');
   const selectCls = 'w-full bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:outline-none focus-visible:outline-none focus:border-primary/60 transition-all cursor-pointer appearance-none';
   const inputCls  = 'w-full bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:outline-none focus-visible:outline-none focus:border-primary/60 transition-all';
 
-  if (generatedContent) {
+  // Only show generated content view if we're NOT in paste mode OR if we've closed inline analysis
+  if (generatedContent && !showPasteOption) {
     return (
       <div className="w-full px-6 py-6 space-y-5">
         {/* Result header */}
@@ -319,13 +333,13 @@ const documentId = localStorage.getItem('documentId');
 
         {/* Content rendered with Quill styles to match Smart Editor */}
         <style>{`
-          .ai-content h1{font-size:0.95rem;font-weight:700;margin:0 0 6px}
-          .ai-content h2{font-size:0.85rem;font-weight:600;margin:10px 0 4px}
-          .ai-content h3{font-size:0.8rem;font-weight:600;margin:7px 0 3px}
-          .ai-content p{font-size:0.8rem;margin:0 0 6px;line-height:1.55}
-          .ai-content ul,.ai-content ol{margin:3px 0 6px;padding-left:1.2rem}
-          .ai-content li{font-size:0.8rem;margin-bottom:2px;line-height:1.45}
-          .ai-content strong{font-weight:600}
+          .ai-content h1{font-size:1.45rem;font-weight:800;margin:0 0 12px;line-height:1.25}
+          .ai-content h2{font-size:1.05rem;font-weight:700;margin:18px 0 6px;line-height:1.3}
+          .ai-content h3{font-size:0.9rem;font-weight:600;margin:12px 0 4px;line-height:1.35}
+          .ai-content p{font-size:0.85rem;margin:0 0 10px;line-height:1.65}
+          .ai-content ul,.ai-content ol{margin:6px 0 10px;padding-left:1.4rem}
+          .ai-content li{font-size:0.85rem;margin-bottom:4px;line-height:1.6}
+          .ai-content strong{font-weight:700}
         `}</style>
         <div
           className="ai-content text-sm text-foreground"
@@ -336,59 +350,176 @@ const documentId = localStorage.getItem('documentId');
   }
 
   return (
-    <div className="w-full px-6 py-4 space-y-4">
+    <div className="w-full h-full flex flex-col">
 
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl grad flex items-center justify-center shadow-sm">
-            <Wand2 className="h-3.5 w-3.5 text-white" />
+      {/* Page header - only show when NOT in paste mode */}
+      {!showPasteOption && (
+        <div className="px-6 py-4 pt-6 border-b border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl grad flex items-center justify-center shadow-sm">
+                <Wand2 className="h-3.5 w-3.5 text-white" />
+              </div>
+              <h1 className="text-xs font-semibold text-foreground">Generate AI Content</h1>
+            </div>
           </div>
-          <h1 className="text-xs font-semibold text-foreground">
-            {showPasteOption ? 'Analyze Existing Content' : 'Generate AI Content'}
-          </h1>
         </div>
-      </div>
+      )}
 
       {/* Paste existing content option */}
       {showPasteOption ? (
-        <div className="space-y-3">
-          <div>
-            <label htmlFor="paste-content" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground block mb-1">
-              Paste Your Existing Content <span className="text-destructive normal-case tracking-normal">*</span>
-            </label>
-            <textarea
-              id="paste-content"
-              placeholder="Paste your article, blog post, or any content here to analyze..."
-              value={pastedContent}
-              onChange={e => setPastedContent(e.target.value)}
-              className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:outline-none focus-visible:outline-none focus:border-primary/60 transition-all min-h-[200px] resize-y"
-              required
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {pastedContent.trim().split(/\s+/).filter(Boolean).length} words
+        <>
+          {!showInlineAnalysis ? (
+            <div className="flex h-full p-6">
+              {/* Left Panel - Dark */}
+              <div className="w-2/5 bg-gradient-to-br from-[#1e1b4b] via-[#312e81] to-[#1e1b4b] text-white p-8 flex flex-col rounded-l-2xl">
+            {/* Icon */}
+            <div className="w-12 h-12 rounded-xl bg-primary/20 backdrop-blur-sm flex items-center justify-center mb-8">
+              <FileSearch className="h-6 w-6 text-primary-foreground" />
+            </div>
+
+            {/* Main Heading */}
+            <h2 className="text-3xl font-bold mb-4 leading-tight">
+              Analyze Existing<br />Content
+            </h2>
+
+            {/* Subtitle */}
+            <p className="text-sm text-white/70 leading-relaxed">
+              Paste any article, post, or draft and get an instant, structured read on how it performs — before you publish.
             </p>
+
+            {/* Features List */}
+            <div className="space-y-6 mt-auto pt-12">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Type className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold mb-1">Readability score</h3>
+                  <p className="text-xs text-white/60">See how easy your writing is to follow.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Zap className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold mb-1">Tone & clarity</h3>
+                  <p className="text-xs text-white/60">Understand the voice your content projects.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Search className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold mb-1">SEO signals</h3>
+                  <p className="text-xs text-white/60">Spot keyword and structure opportunities.</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-between pt-2">
-            <button 
-              onClick={() => { setPastedContent(''); setShowPasteOption(false); }} 
-              className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-4 py-2.5 rounded-xl hover:bg-secondary border border-transparent hover:border-border"
-            >
-              <RefreshCw className="h-4 w-4" /> Clear
-            </button>
-            <button
-              onClick={handlePastedContentAnalyze}
-              disabled={!pastedContent.trim()}
-              className="btn-shimmer flex items-center gap-1.5 grad text-white text-xs font-semibold px-4 py-1.5 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition-all shadow-md"
-            >
-              <FileSearch className="h-3.5 w-3.5" /> Ready to Analyze
-            </button>
+
+          {/* Right Panel - Light */}
+          <div className="flex-1 bg-white p-8 flex flex-col rounded-r-2xl">
+            <div>
+              <label htmlFor="paste-content" className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground block mb-3">
+                Paste Your Existing Content <span className="text-primary">*</span>
+              </label>
+              <textarea
+                id="paste-content"
+                placeholder="Paste your article, blog post, or any content here to analyze..."
+                value={pastedContent}
+                onChange={e => setPastedContent(e.target.value)}
+                className="w-full bg-background border-2 border-primary/20 rounded-2xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:outline-none focus-visible:outline-none focus:border-primary/60 transition-all resize-none"
+                style={{ height: 'calc(100vh - 280px)' }}
+                required
+              />
+            </div>
+            
+            {/* Stats & Actions */}
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+              <div className="flex items-center gap-6 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <FileText className="h-3.5 w-3.5" />
+                  {pastedContent.trim().split(/\s+/).filter(Boolean).length} words
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Type className="h-3.5 w-3.5" />
+                  {pastedContent.length} characters
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5" />
+                  {Math.ceil(pastedContent.trim().split(/\s+/).filter(Boolean).length / 200)} min read
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => { setPastedContent(''); }} 
+                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" /> Clear
+                </button>
+                <button
+                  onClick={handlePastedContentAnalyze}
+                  disabled={!pastedContent.trim()}
+                  className="btn-shimmer flex items-center gap-1.5 grad text-white text-xs font-semibold px-6 py-2.5 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition-all shadow-md"
+                >
+                  <Sparkles className="h-3.5 w-3.5" /> Ready to Analyze
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+          ) : (
+            /* Inline Analysis Results */
+            <div className="h-full overflow-auto">
+              <div className="w-full px-6 py-4">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xs font-semibold text-foreground">Deep Analysis Results</h2>
+                  <button
+                    onClick={() => {
+                      setShowInlineAnalysis(false);
+                      setPastedContent('');
+                      setTriggerInlineAnalysis(false);
+                      setTriggerInlineOutline(false);
+                      setTriggerInlineInfoGain(false);
+                      setTriggerInlinePlagiarism(false);
+                      setTriggerInlineRephrase(false);
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl bg-secondary border border-border text-foreground hover:bg-accent transition-colors"
+                  >
+                    ← Back to Paste
+                  </button>
+                </div>
+                <Tabs defaultValue="analysis">
+                  <TabsList className="grid w-full grid-cols-5 bg-secondary rounded-xl p-1 h-10 mb-6">
+                    <TabsTrigger value="analysis" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground">Analysis</TabsTrigger>
+                    <TabsTrigger value="outline" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground" onClick={() => setTriggerInlineOutline(true)}>Outline</TabsTrigger>
+                    <TabsTrigger value="infogain" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground" onClick={() => setTriggerInlineInfoGain(true)}>Info Gain</TabsTrigger>
+                    <TabsTrigger value="plagiarism" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground" onClick={() => setTriggerInlinePlagiarism(true)}>Plagiarism</TabsTrigger>
+                    <TabsTrigger value="rephrase" className="rounded-lg text-xs font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground" onClick={() => setTriggerInlineRephrase(true)}>Rephrase</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="analysis"><AnalysisPanel content={inlineAnalysisContent} triggerAnalysis={triggerInlineAnalysis} dataFromChild={inlineAnalysisContent}/></TabsContent>
+                  <TabsContent value="outline"><OutlinePanel content={inlineAnalysisContent} triggerOutline={triggerInlineOutline} dataFromChild={inlineAnalysisContent}/></TabsContent>
+                  <TabsContent value="infogain"><InfoGainPanel content={inlineAnalysisContent} triggerInfoGain={triggerInlineInfoGain} dataFromChild={inlineAnalysisContent}/></TabsContent>
+                  <TabsContent value="plagiarism"><PlagiarismPanel content={inlineAnalysisContent} triggerPlagiarism={triggerInlinePlagiarism} /></TabsContent>
+                  <TabsContent value="rephrase"><RephrasedPanel content={inlineAnalysisContent} triggerRephrase={triggerInlineRephrase} /></TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          )}
+        </>
       ) : (
         <>
-          {/* Quick templates */}
-          <div className="flex flex-wrap gap-2">
+          {/* Wrapper card for AI Generate form */}
+          <div className="flex h-[calc(100%-2rem)] p-6">
+            <div className="flex-1 bg-white rounded-2xl p-8 flex flex-col">
+              {/* Quick templates */}
+              <div className="pb-3">
+                <div className="flex flex-wrap gap-2">
             {templates.map(t => (
               <button
                 key={t.label}
@@ -397,7 +528,8 @@ const documentId = localStorage.getItem('documentId');
               >
                 {t.label}
               </button>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Form fields */}
@@ -454,24 +586,30 @@ const documentId = localStorage.getItem('documentId');
           </div>
 
           {/* Progress bar */}
-          {loading && (
-            <div className="h-1 bg-secondary rounded-full overflow-hidden">
-              <div className="h-full grad rounded-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
-            </div>
-          )}
+          <div className="">
+            {loading && (
+              <div className="h-1 bg-secondary rounded-full overflow-hidden">
+                <div className="h-full grad rounded-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
+              </div>
+            )}
+          </div>
 
           {/* Action bar */}
-          <div className="flex items-center justify-between pt-4 border-t border-border">
-            <button onClick={handleClear} disabled={loading} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-4 py-2.5 rounded-xl hover:bg-secondary border border-transparent hover:border-border">
-              <RefreshCw className="h-4 w-4" /> Clear
-            </button>
-            <button
-              onClick={generateContent}
-              disabled={!title.trim() || loading}
-              className="btn-shimmer flex items-center gap-1.5 grad text-white text-xs font-semibold px-4 py-1.5 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition-all shadow-md"
-            >
-              {loading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating...</> : <><Wand2 className="h-3.5 w-3.5" /> Generate Content</>}
-            </button>
+          <div className="pt-4 mt-auto border-t border-border">
+            <div className="flex items-center justify-between">
+              <button onClick={handleClear} disabled={loading} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-4 py-2.5 rounded-xl hover:bg-secondary border border-transparent hover:border-border">
+                <RefreshCw className="h-4 w-4" /> Clear
+              </button>
+              <button
+                onClick={generateContent}
+                disabled={!title.trim() || loading}
+                className="btn-shimmer flex items-center gap-1.5 grad text-white text-xs font-semibold px-4 py-1.5 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-90 transition-all shadow-md"
+              >
+                {loading ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating...</> : <><Wand2 className="h-3.5 w-3.5" /> Generate Content</>}
+              </button>
+            </div>
+          </div>
+            </div>
           </div>
         </>
       )}
