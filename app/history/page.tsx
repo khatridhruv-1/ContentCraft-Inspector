@@ -29,6 +29,8 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { deleteCompanyHistoryItem, getDataByMatchedOrganazationID } from "@/lib/companyHelper/companyHelpers";
 import { useCompanyId } from "@/hooks/useCompany";
 
+type HistoryMode = 'ai-generate' | 'analyze';
+
 interface HistoryItem {
   $id: string;
   userId: string;
@@ -36,7 +38,7 @@ interface HistoryItem {
   analysis?: string;
   createdAt: string;
   updatedAt: string;
-  mode: 'ai-generate' | 'create' | 'analyze' | 'ai-score';
+  mode: HistoryMode;
 }
 
 export default function HistoryPage() {
@@ -157,24 +159,20 @@ export default function HistoryPage() {
     }
   };  
 
-  const getModeColor = (mode: HistoryItem['mode']) => {
-    const colors = {
+  const getModeColor = (mode: HistoryMode) => {
+    const colors: Record<string, string> = {
       'ai-generate': 'bg-blue-100 text-blue-800',
-      'create': 'bg-green-100 text-green-800',
       'analyze': 'bg-purple-100 text-purple-800',
-      'ai-score': 'bg-orange-100 text-orange-800'
     };
-    return colors[mode];
+    return colors[mode] ?? 'bg-gray-100 text-gray-600';
   };
 
-  const getModeLabel = (mode: HistoryItem['mode']) => {
-    const labels = {
+  const getModeLabel = (mode: HistoryMode) => {
+    const labels: Record<string, string> = {
       'ai-generate': 'AI Generated',
-      'create': 'Created',
       'analyze': 'Analyzed',
-      'ai-score': 'AI Scored'
     };
-    return labels[mode];
+    return labels[mode] ?? mode;
   };
 
   const handleBack = () => {

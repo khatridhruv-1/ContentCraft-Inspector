@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { FileSearch, Bot } from 'lucide-react';
+import { FileSearch } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -8,13 +8,11 @@ import MarkdownRenderer from './MarkdownRenderer';
 interface StructuredViewProps {
   content: string; // HTML content
   onAnalyze: () => void;
-  onAIScore: () => void;
 }
 
 const StructuredView: React.FC<StructuredViewProps> = ({
   content,
   onAnalyze,
-  onAIScore,
 }) => {
   return (
     <div className="h-full flex flex-col bg-white">
@@ -28,13 +26,6 @@ const StructuredView: React.FC<StructuredViewProps> = ({
           >
             <FileSearch className="h-5 w-5" />
             Analyze Content
-          </Button>
-          <Button
-            onClick={onAIScore}
-            className="gap-2 bg-blue-600 text-white hover:bg-blue-700"
-          >
-            <Bot className="h-5 w-5" />
-            Check AI Score
           </Button>
         </div>
       </div>

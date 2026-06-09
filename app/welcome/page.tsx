@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion, useInView } from 'framer-motion';
 import {
   Wand2,
-  Edit3,
   FileSearch,
-  Gauge,
   Sparkles,
   ArrowRight,
   Zap,
@@ -19,6 +17,7 @@ import {
 } from 'lucide-react';
 import FaqSection from './FaqSection';
 import UserGuideSection from './UserGuideSection';
+import WelcomeFooter from './WelcomeFooter';
 
 // ─── Feature data ────────────────────────────────────────────────────────────
 
@@ -34,16 +33,6 @@ const features = [
     glowColor: 'rgba(139,92,246,0.28)',
   },
   {
-    icon: Edit3,
-    title: 'Smart Editor',
-    description:
-      'Write, refine, and shape your unique voice in a focused workspace with real-time inline AI suggestions.',
-    gradient: 'from-cyan-400 to-sky-500',
-    hoverBorder: 'hover:border-cyan-400/40',
-    tag: 'Real-time',
-    glowColor: 'rgba(34,211,238,0.22)',
-  },
-  {
     icon: FileSearch,
     title: 'Deep Analysis',
     description:
@@ -52,16 +41,6 @@ const features = [
     hoverBorder: 'hover:border-blue-500/40',
     tag: 'Analytics',
     glowColor: 'rgba(99,102,241,0.26)',
-  },
-  {
-    icon: Gauge,
-    title: 'Realness Score',
-    description:
-      'Measure AI influence in any text and humanise tone with surgical precision so your content feels authentically human.',
-    gradient: 'from-pink-500 to-rose-500',
-    hoverBorder: 'hover:border-pink-500/40',
-    tag: 'Detection',
-    glowColor: 'rgba(236,72,153,0.24)',
   },
 ];
 
@@ -86,7 +65,7 @@ const testimonials = [
   },
   {
     quote:
-      'The Realness Score changed everything. Our blog posts now pass every AI detector while keeping the quality high.',
+      'The Deep Analysis gave us insights we never had before. Our content quality improved dramatically within weeks.',
     name: 'James K.',
     role: 'SEO Lead, GrowthHQ',
     initials: 'JK',
@@ -421,7 +400,7 @@ export default function Welcome() {
           variants={rise}
           className="mb-7 max-w-2xl text-lg text-white/70 md:text-xl leading-relaxed"
         >
-          The all-in-one AI workspace to generate, edit, analyze, and perfect every piece of
+          The AI workspace to generate and deeply analyze every piece of
           content — built for speed, clarity, and creative impact.
         </motion.p>
 
@@ -548,7 +527,7 @@ export default function Welcome() {
               <span className="text-violet-400">workflow in one place</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-white/60 text-lg">
-              Four powerful tools, one seamless experience — from blank page to published.
+              Two powerful tools, one seamless experience — from blank page to published.
             </p>
           </motion.div>
 
@@ -678,41 +657,7 @@ export default function Welcome() {
       </section>
 
       {/* ── Footer ────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/[0.06] px-6 py-10">
-        <div className="mx-auto max-w-6xl">
-          <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600">
-                <Sparkles className="h-3.5 w-3.5 text-white" />
-              </div>
-              <span className="text-sm font-semibold text-white/70">ContentCraft Inspector</span>
-            </div>
-
-            <nav aria-label="Footer navigation" className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-              {[
-                { label: 'Features', href: '/dashboard' },
-                { label: 'Privacy Policy', href: '/privacy' },
-                { label: 'Terms of Service', href: '/terms' },
-                { label: 'Contact', href: '/contact' },
-              ].map(({ label, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  className="text-sm text-white/40 hover:text-white/75 transition-colors"
-                >
-                  {label}
-                </a>
-              ))}
-            </nav>
-          </div>
-
-          <div className="mt-6 h-px w-full bg-white/[0.06]" aria-hidden />
-
-          <p className="mt-4 text-center text-xs text-white/25">
-            © {new Date().getFullYear()} ContentCraft Inspector · Built with AI, powered by creativity.
-          </p>
-        </div>
-      </footer>
+      <WelcomeFooter />
 
       {/* ── Styles ────────────────────────────────────────────────────────── */}
       <style jsx>{`

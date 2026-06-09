@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Wand2 } from 'lucide-react';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
-import StructuredView from './StructuredContent';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
 import router from 'next/router';
 import { getUser } from '@/lib/user/appwrite';
@@ -242,29 +241,6 @@ export default function AIGeneratePanel({ onContentGenerated }: AIGeneratePanelP
         </div>
       </div>
 
-      {/* <div className="flex-1 min-h-0 relative">
-        {generatedContent ? (
-          <>
-            <StructuredView
-              content={generatedContent}
-              onAnalyze={() => console.log('Analyze Content')}
-              onAIScore={() => console.log('Check AI Score')}
-            />
-            <div className="p-4 border-t border-gray-200 bg-white text-center">
-              <Button
-                onClick={downloadAsWord}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                Download as Word
-              </Button>
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500">No content generated yet. Start by entering a title.</p>
-          </div>
-        )}
-      </div> */}
     </div>
   );
 }
