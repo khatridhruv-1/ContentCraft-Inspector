@@ -4,9 +4,7 @@ import { useMemo } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowRight,
-  Edit3,
   FileSearch,
-  Gauge,
   Sparkles,
   Wand2,
   Zap,
@@ -16,7 +14,7 @@ import { useAuthGuard } from '@/hooks/useAuthRedirect';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type ModeId = 'ai-generate' | 'create' | 'analyze' | 'ai-score';
+type ModeId = 'ai-generate' | 'analyze';
 
 const WORKFLOWS: Array<{
   id: ModeId;
@@ -35,28 +33,12 @@ const WORKFLOWS: Array<{
     glow: 'shadow-cyan-500/25',
   },
   {
-    id: 'create',
-    title: 'Smart Editor',
-    description: 'Write, refine, and shape your voice in a focused workspace.',
-    icon: Edit3,
-    accent: 'from-sky-400 to-indigo-400',
-    glow: 'shadow-sky-500/25',
-  },
-  {
     id: 'analyze',
     title: 'Deep Analysis',
     description: 'Unlock readability, insights, outlines, and content gaps.',
     icon: FileSearch,
     accent: 'from-teal-400 to-cyan-500',
     glow: 'shadow-teal-500/25',
-  },
-  {
-    id: 'ai-score',
-    title: 'Realness Score',
-    description: 'Measure AI influence and humanize tone with confidence.',
-    icon: Gauge,
-    accent: 'from-indigo-400 to-violet-400',
-    glow: 'shadow-indigo-500/25',
   },
 ];
 
@@ -203,7 +185,7 @@ export default function Home() {
             variants={reduced ? undefined : rise}
             className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl"
           >
-            A calm, intelligent workspace to generate, edit, analyze, and perfect every piece of content —
+            A calm, intelligent workspace to generate and deeply analyze every piece of content —
             built for clarity, speed, and creative flow.
           </motion.p>
         </motion.div>
