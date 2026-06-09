@@ -29,7 +29,7 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { deleteCompanyHistoryItem, getDataByMatchedOrganazationID } from "@/lib/companyHelper/companyHelpers";
 import { useCompanyId } from "@/hooks/useCompany";
 
-type HistoryMode = 'ai-generate' | 'analyze' | string;
+type HistoryMode = 'ai-generate' | 'analyze';
 
 interface HistoryItem {
   $id: string;

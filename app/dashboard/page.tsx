@@ -6,16 +6,18 @@ import AnalysisPanel from '@/components/AnalysisPanel';
 import OutlinePanel from '@/components/OutlinePanel';
 import InfoGainPanel from '@/components/InfoGainPanel';
 import { motion } from 'framer-motion';
-import { FileSearch, LogOut, UserCircle, Wand2, History, ArrowLeft } from 'lucide-react';
-import { cn, htmlToMarkdown } from '@/lib/utils';
+import { LogOut, UserCircle, ArrowLeft } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import ContentEditor from '@/components/ContentEditor';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/lib/user/appwrite';
 import AIGeneratePanel from '@/components/AIGeneratePanel';
 import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
-import MarkdownRenderer, { getDownloadableContent } from '@/components/MarkdownRenderer';
+import { getDownloadableContent } from '@/components/MarkdownRenderer';
 import { marked } from 'marked';
+import DashboardSidebar from '@/components/DashboardSidebar';
+import AIGenerateView from '@/components/AIGenerateView';
 
 type AppMode = 'ai-generate' | 'analyze';
 
@@ -44,7 +46,6 @@ export default function Dashboard() {
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const hasContent = content.trim().length > 0 || generatedContent.trim().length > 0;
   useEffect(() => {
     localStorage.removeItem("documentId");
   }, [])
@@ -228,51 +229,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen h-screen flex bg-white">
-      {/* Sidebar */}
-      <div className="w-80 border-r border-gray-100 p-8 shrink-0 bg-gray-50 flex flex-col h-screen">
-        <h2 className="text-2xl font-semibold mb-8 text-gray-900">Content Tools</h2>
-
-        <div className="space-y-4 flex-grow">
-          {/* AI Generate Button */}
-          <button
-            onClick={() => handleModeChange('ai-generate')}
-            className={cn(
-              'w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg',
-              mode === 'ai-generate'
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-gray-100 text-gray-700'
-            )}
-          >
-            <Wand2 className="h-7 w-7" />
-            AI-Powered
-          </button>
-
-          {/* Analyze Content Button */}
-          <button
-            onClick={() => handleModeChange('analyze')}
-            className={cn(
-              'w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg',
-              mode === 'analyze'
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-gray-100 text-gray-700'
-            )}
-          >
-            <FileSearch className="h-7 w-7" />
-            Deep Analysis
-          </button>
-
-          {/* History Button */}
-          <div className="flex flex-col items-center mt-auto">
-            <button
-              onClick={handleHistory}
-              className="w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg hover:bg-gray-100 text-gray-700"
-            >
-              <History className="h-7 w-7" />
-              History
-            </button>
-          </div>
-        </div>
-      </div>
+      <DashboardSidebar mode={mode} onModeChange={handleModeChange} onHistory={handleHistory} />
 
       {/* Main Content */}
       <div className="flex-1 p-10 overflow-hidden bg-gray-50">
@@ -347,78 +304,14 @@ export default function Dashboard() {
                 </motion.div>
               </div>
             ) : mode === 'ai-generate' && hasGeneratedContent ? (
-              <div className="grid grid-cols-2 gap-10 h-full">
-                {/* Left Column - Input Panel */}
-                <motion.div
-                  initial={{ x: -50, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-lg h-full overflow-hidden flex flex-col"
-                >
-                  <div className="p-4 border-b border-gray-100 flex-shrink-0">
-                    <h2 className="text-xl font-semibold">Generate New Content</h2>
-                  </div>
-                  <div className="flex-1 overflow-auto p-6">
-                    <AIGeneratePanel onContentGenerated={handleGeneratedContent} />
-                  </div>
-                </motion.div>
-
-                {/* Right Column - Output and Analysis */}
-                <motion.div
-                  initial={{ x: 50, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-lg h-full flex flex-col"
-                >
-                  <div className="p-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
-                    <h2 className="text-xl font-semibold">Generated Content</h2>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleAnalyze}
-                        className="gap-2 px-4 py-2 rounded-lg flex items-center bg-blue-600 text-white hover:bg-blue-700"
-                      >
-                        <FileSearch className="h-5 w-5" />
-                        Analyze
-                      </button>
-                      <button
-                        onClick={downloadAsWord}
-                        className="gap-2 px-4 py-2 rounded-lg flex items-center bg-green-600 text-white hover:bg-green-700"
-                      >
-                        📄 Download as Word
-                      </button>
-                    </div>
-                  </div>
-                  {/* Scrollable Content */}
-                  <div className="flex-1 p-6 overflow-auto" style={{ position: 'relative', overflowY: 'auto', scrollbarColor: '#bab9b9 #f0f0f0' }}>
-                    <div className="prose max-w-none" style={{ position: 'absolute', paddingRight: '10px' }}>
-                      <MarkdownRenderer content={htmlToMarkdown(generatedContent)} />
-                    </div>
-                  </div>
-                  {/* Analysis Panel */}
-                  {showAIGenerateAnalysis && (
-                    <div className="border-t border-gray-100 flex-1 overflow-hidden">
-                      <Tabs defaultValue="analysis" className="h-full flex flex-col">
-                        <TabsList className="grid w-full grid-cols-3 bg-white p-4 border-b border-gray-100">
-                          <TabsTrigger value="analysis">Analysis 📊</TabsTrigger>
-                          <TabsTrigger value="outline">Outline 📝</TabsTrigger>
-                          <TabsTrigger value="infogain">Info Gain 🧠</TabsTrigger>
-                        </TabsList>
-                        <div className="flex-1 overflow-auto">
-                          <TabsContent value="analysis" className="p-4">
-                            <AnalysisPanel content={content} triggerAnalysis={showAIGenerateAnalysis} dataFromChild={content} />
-                          </TabsContent>
-                          <TabsContent value="outline" className="p-4">
-                            <OutlinePanel content={content} triggerOutline={showAIGenerateAnalysis} dataFromChild={content} />
-                          </TabsContent>
-                          <TabsContent value="infogain" className="p-4">
-                            <InfoGainPanel content={content} triggerInfoGain={showAIGenerateAnalysis} dataFromChild={content} />
-                          </TabsContent>
-                        </div>
-                      </Tabs>
-                    </div>
-                  )}
-                </motion.div>
-              </div>
+              <AIGenerateView
+                content={content}
+                generatedContent={generatedContent}
+                showAIGenerateAnalysis={showAIGenerateAnalysis}
+                onContentGenerated={handleGeneratedContent}
+                onAnalyze={handleAnalyze}
+                onDownloadAsWord={downloadAsWord}
+              />
             ) : (
               /* Two-column layout for analyze mode */
               <div className="grid grid-cols-2 gap-10 h-full">
