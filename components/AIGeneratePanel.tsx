@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Wand2 } from 'lucide-react';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
-import StructuredView from './StructuredContent';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
 import router from 'next/router';
 import { getUser } from '@/lib/user/appwrite';
