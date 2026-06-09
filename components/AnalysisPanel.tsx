@@ -96,7 +96,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
               improvements: result.improvements,
               wordCount: wordCount,
               readingTime: readingTime,
-              companyId: companyId
+              companyId: companyId ?? undefined
             })
           } else {
             const sessionToken = localStorage.getItem('sessionToken');

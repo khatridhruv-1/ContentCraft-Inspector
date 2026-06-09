@@ -29,15 +29,15 @@ const steps = [
   {
     number: 3,
     icon: Wand2,
-    title: 'Generate & edit content',
-    description: 'Use AI tools to draft content, then refine it in the smart editor.',
+    title: 'Generate content',
+    description: 'Use AI Generation to draft polished content from a brief in seconds.',
     gradient: 'from-blue-500 to-indigo-500',
   },
   {
     number: 4,
     icon: BarChart2,
     title: 'Analyze & optimize',
-    description: 'Run SEO and AI-detection analysis, apply suggestions, and publish with confidence.',
+    description: 'Run Deep Analysis for SEO insights, outlines, and content gaps — then publish with confidence.',
     gradient: 'from-pink-500 to-rose-500',
   },
 ];

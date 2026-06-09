@@ -170,8 +170,8 @@ export default function Welcome() {
             variants={rise}
             className="mb-8 max-w-2xl text-lg text-white/75 md:text-xl leading-relaxed"
           >
-            Publish faster with AI drafts, a focused editor, and built-in SEO plus AI-detection
-            checks — so every piece is clear, findable, and sounds like you.
+            Publish faster with AI drafts and deep content analysis — so every piece is clear,
+            findable, and ready to publish.
           </motion.p>
 
           <motion.div variants={rise} className="flex flex-col items-center gap-4">
@@ -220,7 +220,7 @@ export default function Welcome() {
                 <span className={marketingAccentSpan}>workflow in one place</span>
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-                Four tools that match how you actually work — from first draft to publish-ready.
+                Two tools that match how you actually work — from first draft to publish-ready.
               </p>
             </motion.div>
 
@@ -297,7 +297,7 @@ export default function Welcome() {
                 </h2>
 
                 <p className="mb-8 text-lg text-white/70 max-w-lg mx-auto">
-                  Start free and run your next draft through generation, editing, and analysis in one
+                  Start free and run your next draft through AI generation and deep analysis in one
                   workspace.
                 </p>
 

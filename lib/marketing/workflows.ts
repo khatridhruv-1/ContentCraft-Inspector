@@ -1,7 +1,7 @@
-import { Wand2, Edit3, FileSearch, Gauge } from 'lucide-react';
+import { Wand2, FileSearch } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-export type WorkflowModeId = 'ai-generate' | 'create' | 'analyze' | 'ai-score';
+export type WorkflowModeId = 'ai-generate' | 'analyze';
 
 export type ContentCraftWorkflow = {
   id: WorkflowModeId;
@@ -29,18 +29,6 @@ export const CONTENTCRAFT_WORKFLOWS: ContentCraftWorkflow[] = [
     glowColor: 'rgba(139,92,246,0.28)',
   },
   {
-    id: 'create',
-    title: 'Smart Editor',
-    description:
-      'Refine drafts in a focused workspace with inline AI suggestions as you write.',
-    shortDescription: 'Inline AI suggestions while you refine every draft.',
-    icon: Edit3,
-    gradient: 'from-cyan-400 to-sky-500',
-    hoverBorder: 'hover:border-cyan-400/40',
-    tag: 'Real-time',
-    glowColor: 'rgba(34,211,238,0.22)',
-  },
-  {
     id: 'analyze',
     title: 'Deep Analysis',
     description:
@@ -51,18 +39,6 @@ export const CONTENTCRAFT_WORKFLOWS: ContentCraftWorkflow[] = [
     hoverBorder: 'hover:border-blue-500/40',
     tag: 'Analytics',
     glowColor: 'rgba(99,102,241,0.26)',
-  },
-  {
-    id: 'ai-score',
-    title: 'Realness Score',
-    description:
-      'Measure AI influence in your copy and humanise tone before you publish.',
-    shortDescription: 'Measure AI signal and humanize tone before publish.',
-    icon: Gauge,
-    gradient: 'from-pink-500 to-rose-500',
-    hoverBorder: 'hover:border-pink-500/40',
-    tag: 'Detection',
-    glowColor: 'rgba(236,72,153,0.24)',
   },
 ];
 

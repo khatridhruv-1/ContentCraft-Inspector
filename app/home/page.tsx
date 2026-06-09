@@ -80,13 +80,13 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [router]);
 
   const goToMode = (mode: HomeModeId) => router.push(`/dashboard?mode=${mode}`);
 
   const openRecent = (item: HomeRecentItem) => {
     const mode =
-      item.mode && item.mode in MODE_LABELS ? (item.mode as HomeModeId) : 'create';
+      item.mode && item.mode in MODE_LABELS ? (item.mode as HomeModeId) : 'ai-generate';
     router.push(`/dashboard?mode=${mode}`);
   };
 

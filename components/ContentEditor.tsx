@@ -3,17 +3,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { Button } from './ui/button';
-import { Wand2, Check } from 'lucide-react';
+import { Wand2 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 interface ContentEditorProps {
   initialContent: string;
   onContentChange: (content: string) => void;
-  mode: 'ai-generate' | 'create' | 'analyze' | 'ai-score';
+  mode: 'ai-generate' | 'analyze';
   onCreate: () => void;
   onAnalyze: () => void;
-  onAIScore: () => void;
-  sendDataToParent :any
+  sendDataToParent: any;
 }
 
 export function ContentEditor({
@@ -22,7 +21,7 @@ export function ContentEditor({
   mode,
   onCreate,
   onAnalyze,
-  onAIScore ,sendDataToParent 
+  sendDataToParent,
 }: ContentEditorProps) {
   const [content, setContent] = useState(initialContent);
   const [charCount, setCharCount] = useState(0);
@@ -205,32 +204,6 @@ export function ContentEditor({
             >
               <Wand2 className="h-7 w-7" />
               Analyze
-            </Button>
-          </div>
-        )}
-        {mode === 'create' && (
-          <div className="flex gap-4">
-            <Button
-              onClick={onCreate}
-              disabled={!hasContent}
-              className="gap-3 px-8 py-6 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
-            >
-              <Wand2 className="h-7 w-7" />
-              Verify
-            </Button>
-          </div>
-        )}
-        {mode === 'ai-score' && (
-          <div className="flex gap-4">
-            <Button
-              onClick={onAIScore}
-              disabled={!hasContent}
-              className="gap-3 px-8 py-6 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
-            >
-              <Wand2 className="h-7 w-7" />
-                Verify
             </Button>
           </div>
         )}

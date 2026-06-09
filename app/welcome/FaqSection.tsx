@@ -50,7 +50,7 @@ const faqs: FaqItem[] = [
   {
     question: "How do I get started if I'm not a writer?",
     answer:
-      "No writing experience is needed. Choose a content type, fill in a short prompt describing your topic and audience, and the AI handles the rest. The built-in editor lets you refine the output with one-click suggestions, so you can produce polished content even if you're starting from scratch.",
+      "No writing experience is needed. Choose a content type, fill in a short prompt describing your topic and audience, and the AI handles the rest. The generated content is ready to use or analyze instantly.",
     icon: Rocket,
     tag: 'Getting started',
   },
@@ -64,7 +64,7 @@ const faqs: FaqItem[] = [
   {
     question: "What's the difference between the Free and Pro plans?",
     answer:
-      'The Free plan gives you access to AI generation, the smart editor, and basic SEO analysis with a monthly usage limit. Pro unlocks unlimited generations, advanced plagiarism checking, priority processing, and team collaboration seats.',
+      'The Free plan gives you access to AI generation and basic deep analysis with a monthly usage limit. Pro unlocks unlimited generations, advanced analysis, priority processing, and team collaboration seats.',
     icon: Zap,
     tag: 'Pricing',
   },
@@ -78,7 +78,7 @@ const faqs: FaqItem[] = [
   {
     question: 'How is this different from just using ChatGPT?',
     answer:
-      'ContentCraft Inspector is purpose-built for the full content workflow — not just generation. It combines AI writing with a smart editor, SEO analysis, readability scoring, and our unique Realness Score (AI-detection + humanisation) in one workspace. ChatGPT requires you to assemble those tools yourself.',
+      'ContentCraft Inspector is purpose-built for the full content workflow — not just generation. It combines AI writing with deep analysis (readability, SEO insights, content gaps, outlines, and info gain) in one seamless workspace. ChatGPT requires you to assemble those tools yourself.',
     icon: Bot,
     tag: 'vs ChatGPT',
   },
