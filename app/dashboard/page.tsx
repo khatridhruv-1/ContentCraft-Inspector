@@ -12,11 +12,13 @@ import { cn, htmlToMarkdown } from '@/lib/utils';
 import ContentEditor from '@/components/ContentEditor';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/lib/user/appwrite';
+import { clearAuthSession } from '@/lib/user/session';
 import AIGeneratePanel from '@/components/AIGeneratePanel';
 import { Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 import MarkdownRenderer, { getDownloadableContent } from '@/components/MarkdownRenderer';
 import { marked } from 'marked';
+import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 
 type AppMode = 'ai-generate' | 'create' | 'analyze' | 'ai-score';
 
@@ -35,7 +37,7 @@ export default function Dashboard() {
   const [triggerAnalysis, setTriggerAnalysis] = useState(false);
   const [triggerAIScore, setTriggerAIScore] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [signingOut, setSigningOut] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const [showAIGenerateAnalysis, setShowAIGenerateAnalysis] = useState(false);
   const [showAIGenerateScore, setShowAIGenerateScore] = useState(false);
@@ -128,17 +130,17 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     try {
-      setLoading(true);
+      setSigningOut(true);
       const sessionToken = localStorage.getItem('sessionToken');
       if (sessionToken) {
         await logout(sessionToken);
-        localStorage.removeItem('sessionToken');
       }
+      clearAuthSession();
       router.push('/auth/login');
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
-      setLoading(false);
+      setSigningOut(false);
     }
   };
 
@@ -251,7 +253,10 @@ export default function Dashboard() {
   function handleDataFromChild(data :any) {
     setDataFromChild(data);
   }
-  // console.log("jaldip" ,dataFromChild)
+  if (signingOut) {
+    return <PageLoadingScreen label="Signing out" />;
+  }
+
   return (
     <div className="min-h-screen h-screen flex bg-white">
       {/* Sidebar */}

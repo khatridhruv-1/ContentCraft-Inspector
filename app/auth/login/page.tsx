@@ -1,19 +1,31 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { login } from '@/lib/user/appwrite';
 import { motion, useAnimation, useReducedMotion } from 'framer-motion';
-import { Loader2, Mail, Lock, ShieldCheck } from 'lucide-react';
-import { ErrorAlert } from '@/components/auth/ErrorAlert';
+import { Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { login } from '@/lib/user/appwrite';
+import { ErrorAlert } from '@/components/auth/ErrorAlert';
 import AuthTextField from '@/components/auth/AuthTextField';
-import { useGuestGuard } from '@/hooks/useAuthRedirect';
+import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
+import AuthFormHeader from '@/components/auth/AuthFormHeader';
+import AuthFormStagger from '@/components/auth/AuthFormStagger';
+import { AUTH_EASE } from '@/components/auth/authFeatures';
+import { marketingLink } from '@/lib/marketing/marketingTheme';
+import { cn } from '@/lib/utils';
+import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 
 interface ValidationError {
   field: string;
   message: string;
+}
+
+function getReturnUrlLabel(returnUrl: string | null): string | null {
+  if (!returnUrl || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) return null;
+  if (returnUrl === '/home' || returnUrl.startsWith('/home')) return 'your dashboard';
+  if (returnUrl.startsWith('/dashboard')) return 'the dashboard';
+  return 'where you left off';
 }
 
 function LoginForm() {
@@ -25,23 +37,10 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const shakeControls = useAnimation();
-  const cardControls = useAnimation();
   const shouldReduceMotion = useReducedMotion();
 
-  useEffect(() => {
-    if (shouldReduceMotion) {
-      cardControls.set({ opacity: 1, y: 0 });
-      return;
-    }
-
-    cardControls.start({
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.28, ease: 'easeOut' },
-    });
-  }, [cardControls, shouldReduceMotion]);
-
-  useGuestGuard();
+  const returnUrl = searchParams.get('returnUrl');
+  const returnLabel = getReturnUrlLabel(returnUrl);
 
   const validateForm = (email: string, password: string) => {
     if (!email.match(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/)) {
@@ -72,110 +71,111 @@ function LoginForm() {
     try {
       const session = await login(email, password);
       localStorage.setItem('sessionToken', session.secret);
-      const returnUrl = searchParams.get('returnUrl');
       const safeUrl =
         returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//')
           ? returnUrl
           : '/home';
       setIsRedirecting(true);
-      if (!shouldReduceMotion) {
-        await cardControls.start({
-          opacity: 0,
-          y: -10,
-          transition: { duration: 0.22, ease: 'easeOut' },
-        });
-      }
       router.push(safeUrl);
     } catch {
       setError({
         field: 'general',
         message: 'Invalid email or password. Please try again.',
       });
-      shakeControls.start({
-        x: [-8, 8, -6, 6, -3, 3, 0],
-        transition: { duration: 0.5, ease: 'easeInOut' },
-      });
+      if (!shouldReduceMotion) {
+        shakeControls.start({
+          x: [-8, 8, -6, 6, -3, 3, 0],
+          transition: { duration: 0.5, ease: AUTH_EASE },
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  if (isRedirecting) {
+    return <PageLoadingScreen label="Opening workspace" />;
+  }
+
   return (
-    <motion.div
-      initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-      animate={cardControls}
-    >
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">Welcome back</h1>
-        <p className="text-sm text-slate-500 mt-1">Sign in to your account to continue</p>
-      </div>
+    <>
+      <AuthFormHeader
+        badge="Welcome back"
+        title="Sign in to your workspace"
+        subtitle="Pick up drafts, edits, and analysis right where you left off."
+      />
 
-      <div className="mb-5 rounded-lg border border-slate-200 bg-slate-50 p-3">
-        <p className="text-xs text-slate-600 flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-blue-600" />
-          Your workspace and history sync securely after sign in.
+      {returnLabel && (
+        <p className="-mt-4 mb-8 rounded-xl border border-violet-500/20 bg-violet-500/[0.06] px-4 py-3 text-sm text-white/75">
+          After sign in you&apos;ll return to{' '}
+          <span className="font-semibold text-white">{returnLabel}</span>.
         </p>
-      </div>
+      )}
 
-      <motion.form onSubmit={handleSubmit} animate={shakeControls} className="space-y-5">
-        <AuthTextField
-          id="email"
-          name="email"
-          type="email"
-          label="Email Address"
-          icon={<Mail className="h-5 w-5" />}
-          value={emailValue}
-          onChange={(e) => setEmailValue(e.target.value)}
-          error={error?.field === 'email' ? error.message : undefined}
-          autoComplete="email"
-          required
-        />
+      <motion.form onSubmit={handleSubmit} animate={shakeControls}>
+        <AuthFormStagger>
+          <AuthTextField
+            id="email"
+            name="email"
+            type="email"
+            label="Email address"
+            icon={<Mail />}
+            value={emailValue}
+            onChange={e => setEmailValue(e.target.value)}
+            error={error?.field === 'email' ? error.message : undefined}
+            autoComplete="email"
+            required
+          />
 
-        <AuthTextField
-          id="password"
-          name="password"
-          type="password"
-          label="Password"
-          icon={<Lock className="h-5 w-5" />}
-          value={passwordValue}
-          onChange={(e) => setPasswordValue(e.target.value)}
-          error={error?.field === 'password' ? error.message : undefined}
-          autoComplete="current-password"
-          required
-        />
+          <div>
+            <AuthTextField
+              id="password"
+              name="password"
+              type="password"
+              label="Password"
+              icon={<Lock />}
+              value={passwordValue}
+              onChange={e => setPasswordValue(e.target.value)}
+              error={error?.field === 'password' ? error.message : undefined}
+              autoComplete="current-password"
+              required
+            />
+            <p className="mt-2 text-right">
+              <Link
+                href="/contact"
+                className={cn('text-xs font-medium', marketingLink)}
+              >
+                Need help signing in?
+              </Link>
+            </p>
+          </div>
 
-        <ErrorAlert message={error?.field === 'general' ? error.message : ''} />
+          <ErrorAlert message={error?.field === 'general' ? error.message : ''} />
 
-        <div className="pt-2">
-          <Button type="submit" disabled={loading || isRedirecting} className="w-full">
-            {loading || isRedirecting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {isRedirecting ? 'Opening dashboard...' : 'Signing in...'}
-              </>
-            ) : (
-              'Sign in'
-            )}
-          </Button>
+          <AuthSubmitButton loading={loading} loadingText="Signing in...">
+            Sign in
+          </AuthSubmitButton>
 
-          <p className="mt-4 text-center text-sm text-slate-600">
-            Don&apos;t have an account?{' '}
+          <p className="!mt-6 text-center text-sm text-white/60">
+            New here?{' '}
             <Link
               href="/auth/signup"
-              className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              className={cn('font-semibold', marketingLink)}
             >
-              Sign up
+              Start creating for free
             </Link>
           </p>
-        </div>
+        </AuthFormStagger>
       </motion.form>
-    </motion.div>
+    </>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense
+      fallback={<PageLoadingScreen label="Loading sign in" />}
+    >
       <LoginForm />
     </Suspense>
   );

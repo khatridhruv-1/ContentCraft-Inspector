@@ -15,6 +15,7 @@ import { AnalysisMetrics } from './types/analysis';
 import { Theme } from './types/theme';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 
 const AnalysisPanel = () => {
   // const [theme, setTheme] = useState<Theme>('light');
@@ -30,7 +31,9 @@ const AnalysisPanel = () => {
   });
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return (
+      <AppLoaderCenter size="lg" title="Loading…" tone="app" className="min-h-[40vh]" label="Loading" />
+    );
   }
 
   const renderMetricCard = ({

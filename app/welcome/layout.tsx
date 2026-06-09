@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { InitialMountLoader } from '@/components/loading/InitialMountLoader';
+
 export default function WelcomeLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return <InitialMountLoader>{children}</InitialMountLoader>;
 }

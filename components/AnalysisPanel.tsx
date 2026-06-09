@@ -5,10 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertCircle, Type, Clock, Zap } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { saveContent, updateContent } from '@/lib/content/appwrite'
-import { getUser } from '@/lib/user/appwrite'
+import { getUser } from '@/lib/user/appwrite';
+import { clearAuthSession } from '@/lib/user/session';
 import router from 'next/router'
 import { getCompanyIdbyUser } from '@/lib/companyHelper/companyHelpers'
 import { useCompanyId } from '@/hooks/useCompany'
+import PageLoadingScreen from '@/components/loading/PageLoadingScreen'
 interface AnalysisResult {
   contentScore: number
   readability: number
@@ -102,7 +104,12 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
               router.push('/auth/login');
               throw new Error('No session found');
             }
-            const user = await getUser(sessionToken)
+            const user = await getUser(sessionToken);
+            if (!user) {
+              clearAuthSession();
+              router.push('/auth/login');
+              return;
+            }
             console.log('Saving with companyId:', companyId);
             const res = await saveContent(
               dataFromChild, 
@@ -145,16 +152,12 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
     analyzeContent()
   }, [dataFromChild, triggerAnalysis, wordCount, readingTime, companyId, companyloading])
 
+  if (companyloading && triggerAnalysis) {
+    return <PageLoadingScreen label="Preparing analysis" />
+  }
+
   if (isLoading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <motion.div
-          className="w-16 h-16 border-t-4 border-blue-600 rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
-      </div>
-    )
+    return <PageLoadingScreen label="Analyzing content" />
   }
 
   if (error) {

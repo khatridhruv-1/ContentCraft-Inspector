@@ -13,7 +13,6 @@ import {
   Globe,
   Rocket,
   HelpCircle,
-  MessageCircle,
   Bot,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -332,36 +331,6 @@ export default function FaqSection() {
         ))}
       </motion.div>
 
-      {/* Bottom CTA strip */}
-      <motion.div variants={columnVariants} className="mx-auto mt-6 max-w-5xl">
-        <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-gradient-to-r from-violet-950/50 via-white/[0.02] to-cyan-950/50 px-5 py-4 backdrop-blur-sm sm:flex-row sm:px-6">
-          <div className="flex items-center gap-3 text-center sm:text-left">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 shadow-lg shadow-violet-500/20">
-              <MessageCircle className="h-4 w-4 text-white" aria-hidden />
-            </span>
-            <div>
-              <p className="text-sm font-bold text-white">Still have questions?</p>
-              {/* Contrast raised: white/40 → white/60 */}
-              <p className="text-xs text-white/60">
-                Start free — explore the dashboard and see it in action.
-              </p>
-            </div>
-          </div>
-          <motion.a
-            href="/auth/signup"
-            className="group relative inline-flex shrink-0 overflow-hidden items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-500/20 hover:shadow-violet-500/35 transition-shadow duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
-            whileHover={reducedMotion ? undefined : { scale: 1.03 }}
-            whileTap={reducedMotion ? undefined : { scale: 0.97 }}
-          >
-            {/* CSS hover shimmer */}
-            <span
-              className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
-              aria-hidden
-            />
-            <span className="relative">Get started free</span>
-          </motion.a>
-        </div>
-      </motion.div>
     </motion.section>
   );
 }

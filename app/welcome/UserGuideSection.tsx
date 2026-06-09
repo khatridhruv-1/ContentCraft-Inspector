@@ -2,6 +2,14 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { UserPlus, LayoutDashboard, Wand2, BarChart2 } from 'lucide-react';
+import {
+  MARKETING_BG,
+  MARKETING_EASE,
+  marketingAccentSpan,
+  marketingEyebrow,
+  marketingSectionTitle,
+} from '@/lib/marketing/marketingTheme';
+import { cn } from '@/lib/utils';
 
 const steps = [
   {
@@ -54,17 +62,12 @@ export default function UserGuideSection() {
         initial={{ opacity: 0, y: 22 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.7, ease: MARKETING_EASE }}
         className="mb-12 text-center"
       >
-        {/* Violet-tinted badge — differentiates Guide section (Expert 5) */}
-        <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/[0.05] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-white/55">
-          Getting started
-        </span>
-        <h2 id="guide-heading" className="text-4xl font-black tracking-tight text-white md:text-5xl">
-          Up and running in{' '}
-          {/* violet-300 → violet-400 for visual hierarchy (Expert 9) */}
-          <span className="text-violet-400">four steps</span>
+        <span className={cn('mb-4', marketingEyebrow)}>Getting started</span>
+        <h2 id="guide-heading" className={marketingSectionTitle}>
+          Up and running in <span className={marketingAccentSpan}>four steps</span>
         </h2>
         {/* Contrast raised: white/40 → white/65 */}
         <p className="mt-4 text-white/65 max-w-xl mx-auto text-lg">
@@ -101,7 +104,7 @@ export default function UserGuideSection() {
                 </div>
                 <span
                   className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black text-white/65"
-                  style={{ borderColor: 'rgba(255,255,255,0.1)', background: '#09090b' }}
+                  style={{ borderColor: 'rgba(255,255,255,0.1)', background: MARKETING_BG }}
                 >
                   {number}
                 </span>

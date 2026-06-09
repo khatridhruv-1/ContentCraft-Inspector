@@ -8,7 +8,9 @@ import { Button } from './ui/button';
 import { Brain, RefreshCw, Sparkles, AlertTriangle } from 'lucide-react';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
 import router from 'next/router';
+import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 import { getUser } from '@/lib/user/appwrite';
+import { clearAuthSession } from '@/lib/user/session';
 
 interface AIScorePanelProps {
   content: string;
@@ -80,8 +82,13 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
               router.push('/auth/login');
               throw new Error('No session found');
             }
-            const user = await getUser(sessionToken)
-            const res = await saveContent(content, user.$id, content, 'ai-score')
+            const user = await getUser(sessionToken);
+            if (!user) {
+              clearAuthSession();
+              router.push('/auth/login');
+              return;
+            }
+            const res = await saveContent(content, user.$id, content, 'ai-score');
 
             localStorage.setItem('documentId', res.$id);
           }
@@ -97,15 +104,7 @@ const AIScorePanel: React.FC<AIScorePanelProps> = ({
   }, [content, triggerAIScore]);
 
   if (isLoading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <motion.div
-          className="w-16 h-16 border-t-4 border-blue-600 rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
-      </div>
-    );
+    return <PageLoadingScreen label="Checking AI score" />;
   }
 
   if (error) {

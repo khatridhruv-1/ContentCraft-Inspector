@@ -27,6 +27,12 @@ yarn-error.log*
 # local env files
 .env
 
+# Paperclip (local agent orchestration — not for repo)
+.paperclip/
+paperclip/
+scripts/paperclip-*.mjs
+scripts/paperclip-*.sh
+
 # vercel
 .vercel
 

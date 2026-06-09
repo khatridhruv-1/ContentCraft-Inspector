@@ -2,11 +2,14 @@
 
 import { fetchHistory, deleteHistoryItem, fetchContent } from "@/lib/content/appwrite";
 import { getUser } from "@/lib/user/appwrite";
+import { clearAuthSession, getSessionToken } from "@/lib/user/session";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Trash2 } from "lucide-react";
+import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
+import { waitForMinDisplay } from '@/lib/loading/minDisplay';
 import { Button } from "@/components/ui/button";
 import {
   Pagination,
@@ -87,14 +90,20 @@ export default function HistoryPage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      const startedAt = Date.now();
       try {
-        const sessionToken = localStorage.getItem('sessionToken');
+        const sessionToken = getSessionToken();
         if (!sessionToken) {
           router.push('/auth/login');
-          throw new Error('No session found');
+          return;
         }
 
         const userData = await getUser(sessionToken);
+        if (!userData) {
+          clearAuthSession();
+          router.push('/auth/login');
+          return;
+        }
         setUser(userData);
 
         if (userData.$id) {
@@ -109,6 +118,7 @@ export default function HistoryPage() {
           router.push('/auth/login');
         }
       } finally {
+        await waitForMinDisplay(startedAt);
         setLoading(false);
       }
     };
@@ -190,6 +200,10 @@ export default function HistoryPage() {
     );
   }
 
+  if (loading || companyloading) {
+    return <PageLoadingScreen label="Loading history" />;
+  }
+
   // Add debug log before rendering pagination
   console.log('currentPage:', currentPage, 'totalPages:', totalPages, 'companyData:', companyData);
 
@@ -215,11 +229,7 @@ export default function HistoryPage() {
           </div>
         )}
 
-        {loading ? (
-          <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          </div>
-        ) : companyData?.length > 0 ? (
+        {companyData?.length > 0 ? (
           <>
             <ul className="space-y-4">
               {companyData.map((item: any) => (
@@ -313,9 +323,7 @@ export default function HistoryPage() {
 
           <div className="flex-1 overflow-auto mt-4">
             {!selectedItem ? (
-              <div className="flex justify-center items-center py-6">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
-              </div>
+              <PageLoadingScreen label="Loading document" />
             ) : (
               <div className="space-y-6">
                 <div className="prose max-w-none">

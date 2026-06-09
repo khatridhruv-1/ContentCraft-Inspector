@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import {
+  marketingAuthInput,
+  marketingFieldShell,
+  marketingLabel,
+} from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 interface AuthTextFieldProps {
@@ -18,7 +22,13 @@ interface AuthTextFieldProps {
   error?: string;
   autoComplete?: string;
   required?: boolean;
+  placeholder?: string;
 }
+
+const fieldShell = cn(
+  'auth-field flex h-11 w-full pl-2.5 pr-2',
+  marketingFieldShell
+);
 
 export default function AuthTextField({
   id,
@@ -31,6 +41,7 @@ export default function AuthTextField({
   error,
   autoComplete,
   required,
+  placeholder,
 }: AuthTextFieldProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -38,39 +49,58 @@ export default function AuthTextField({
   const inputType = isPasswordField ? (showPassword ? 'text' : 'password') : type;
 
   return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id} className="text-slate-700">
+    <div className="space-y-2">
+      <Label htmlFor={id} className={marketingLabel}>
         {label}
       </Label>
-      <div className="relative">
-        {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none [&_svg]:w-4 [&_svg]:h-4">
-            {icon}
-          </div>
+      <div
+        className={cn(
+          fieldShell,
+          error && 'border-red-400/70 focus-within:border-red-400/70 focus-within:ring-red-400/20'
         )}
-        <Input
+        style={{ colorScheme: 'dark' }}
+      >
+        {icon && (
+          <span
+            className="flex h-4 w-4 shrink-0 items-center justify-center text-white/45 [&_svg]:h-4 [&_svg]:w-4"
+            aria-hidden
+          >
+            {icon}
+          </span>
+        )}
+        <input
           id={id}
           name={name}
           type={inputType}
           autoComplete={autoComplete}
           required={required}
+          placeholder={placeholder}
           value={value}
           onChange={onChange}
+          onFocus={e => {
+            if (!isPasswordField) return;
+            const field = e.currentTarget.closest('.auth-field');
+            if (!field) return;
+            requestAnimationFrame(() => {
+              field.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            });
+          }}
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
-          className={cn(
-            icon ? 'pl-10' : '',
-            isPasswordField ? 'pr-10' : '',
-            error ? 'border-red-400 focus-visible:ring-red-400/30' : ''
-          )}
+          className={marketingAuthInput}
+          style={{
+            backgroundColor: 'transparent',
+            color: '#ffffff',
+            WebkitBoxShadow: 'none',
+            WebkitTextFillColor: '#ffffff',
+          }}
         />
         {isPasswordField && (
           <button
             type="button"
-            tabIndex={-1}
-            onClick={() => setShowPassword((prev) => !prev)}
+            onClick={() => setShowPassword(prev => !prev)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/50 hover:text-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
@@ -84,9 +114,9 @@ export default function AuthTextField({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="text-sm text-red-500 flex items-center gap-1.5"
+            className="flex items-center gap-1.5 text-sm text-red-400"
           >
-            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
             {error}
           </motion.p>
         )}

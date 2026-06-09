@@ -9,12 +9,12 @@ export function ErrorAlert({ message }: { message: string }) {
       {message && (
         <motion.div
           role="alert"
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600 flex items-center gap-2"
+          exit={{ opacity: 0, y: -8 }}
+          className="flex items-center gap-2 rounded-lg border border-red-400/30 bg-red-500/[0.08] p-3 text-sm text-red-300"
         >
-          <AlertCircle className="h-4 w-4 shrink-0" />
+          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden />
           {message}
         </motion.div>
       )}

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { motion } from 'framer-motion';
-import { AlertTriangle, CheckCircle, RefreshCw, Sparkles } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
+import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 
 interface PlagiarismPanelProps {
   content: string;
@@ -58,18 +59,7 @@ const PlagiarismPanel: React.FC<PlagiarismPanelProps> = ({
   }, [content, triggerPlagiarism]);
 
   if (isLoading) {
-    return (
-      <Card className="h-full">
-        <CardContent className="flex items-center justify-center h-full">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          >
-            <RefreshCw className="w-12 h-12 text-primary" />
-          </motion.div>
-        </CardContent>
-      </Card>
-    );
+    return <PageLoadingScreen label="Checking plagiarism" />;
   }
 
   if (error) {

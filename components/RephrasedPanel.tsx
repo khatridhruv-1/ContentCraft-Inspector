@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Zap, Lightbulb } from 'lucide-react';
 import { motion } from 'framer-motion';
+import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 
 interface RephrasedPanelProps {
   content: string;
@@ -50,15 +51,7 @@ const RephrasedPanel: React.FC<RephrasedPanelProps> = ({
   }, [content, triggerRephrase]);
 
   if (isLoading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <motion.div
-          className="w-16 h-16 border-t-4 border-blue-600 rounded-full"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
-      </div>
-    );
+    return <PageLoadingScreen label="Rephrasing content" />;
   }
 
   if (error) {

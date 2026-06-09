@@ -7,6 +7,9 @@ import { motion } from 'framer-motion';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
 import router from 'next/router';
 import { getUser } from '@/lib/user/appwrite';
+import { clearAuthSession } from '@/lib/user/session';
+import { AppLoader } from '@/components/loading/AppLoader';
+import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 
 interface InfoGainPanelProps {
   content: string;
@@ -74,8 +77,13 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
               router.push('/auth/login');
               throw new Error('No session found');
             }
-            const user = await getUser(sessionToken)
-            const res = await saveContent(content, user.$id, content, 'analyze', data.answer, data.results)
+            const user = await getUser(sessionToken);
+            if (!user) {
+              clearAuthSession();
+              router.push('/auth/login');
+              return;
+            }
+            const res = await saveContent(content, user.$id, content, 'analyze', data.answer, data.results);
 
             localStorage.setItem('documentId', res.$id);
           }
@@ -128,22 +136,26 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
                     {/* Search Button */}
                     <Button
                       onClick={handleSearch}
-                      className="h-12 px-6 rounded-r-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center"
+                      disabled={isLoading}
+                      className="h-12 px-6 rounded-r-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-2"
                     >
-                      <Search className="w-5 h-5" />
-                      Search
+                      {isLoading ? (
+                        <>
+                          <AppLoader decorative />
+                          Searching…
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-5 h-5" />
+                          Search
+                        </>
+                      )}
                     </Button>
                   </div>
                 </motion.div>
 
                 {isLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <motion.div
-                      className="w-8 h-8 border-t-2 border-blue-500 rounded-full"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    />
-                  </div>
+                  <PageLoadingScreen label="Researching sources" />
                 ) : tavilyData ? (
                   <div className="space-y-6">
                     {tavilyData.answer && (

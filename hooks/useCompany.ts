@@ -1,7 +1,8 @@
 // hooks/useCompanyId.ts
 import { useEffect, useState } from "react";
 import { getCompanyIdbyUser } from '@/lib/companyHelper/companyHelpers'
-import { getUser } from '@/lib/user/appwrite'   
+import { getUser } from '@/lib/user/appwrite';
+import { clearAuthSession, getSessionToken } from '@/lib/user/session';
 
 export const useCompanyId = () => {
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -12,16 +13,21 @@ export const useCompanyId = () => {
     const fetchCompanyId = async () => {
       try {
         // Get session token from localStorage
-        const sessionToken = localStorage.getItem("sessionToken");
+        const sessionToken = getSessionToken();
         if (!sessionToken) {
           setError(new Error("No session token found"));
           setLoading(false);
           return;
         }
 
-        // Get user data
         const user = await getUser(sessionToken);
-        if (!user || !user.$id) {
+        if (!user) {
+          clearAuthSession();
+          setError(new Error("Session expired. Please sign in again."));
+          setLoading(false);
+          return;
+        }
+        if (!user.$id) {
           setError(new Error("Invalid user data"));
           setLoading(false);
           return;

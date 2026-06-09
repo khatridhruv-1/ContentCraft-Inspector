@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Wand2 } from 'lucide-react';
+import { AppLoader } from '@/components/loading/AppLoader';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 import StructuredView from './StructuredContent';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
 import router from 'next/router';
 import { getUser } from '@/lib/user/appwrite';
+import { clearAuthSession } from '@/lib/user/session';
 import { jsPDF } from 'jspdf';
 import { useCompanyId } from '@/hooks/useCompany';
 
@@ -109,7 +111,11 @@ export default function AIGeneratePanel({ onContentGenerated }: AIGeneratePanelP
           throw new Error('No session found');
         }
         const user = await getUser(sessionToken);
-
+        if (!user) {
+          clearAuthSession();
+          router.push('/auth/login');
+          return;
+        }
 
         if (companyId) {
           const res = await saveContent(title, user.$id, safeContent, 'ai-generate', companyId);
@@ -223,7 +229,7 @@ export default function AIGeneratePanel({ onContentGenerated }: AIGeneratePanelP
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <AppLoader decorative className="mr-2" />
                 Generating...
               </>
             ) : (

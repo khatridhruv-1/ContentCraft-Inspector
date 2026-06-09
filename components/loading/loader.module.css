@@ -1,0 +1,109 @@
+/* Full-page — Dribbble #6298759 video */
+.productMedia {
+  display: block;
+  width: min(360px, 88vw);
+  height: auto;
+  max-height: min(50vh, 360px);
+  object-fit: contain;
+  background: #000;
+}
+
+/* Minimal fallback if video cannot play */
+.productFallback {
+  aspect-ratio: 4 / 3;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #7c3aed 0%, #1e1b4b 45%, #000 72%);
+  animation: loaderGlow 2.4s ease-in-out infinite;
+}
+
+/* Inline button loader (sm only) */
+.ai {
+  --app-loader-size: 20px;
+  position: relative;
+  display: inline-block;
+  width: var(--app-loader-size);
+  height: var(--app-loader-size);
+  flex-shrink: 0;
+}
+
+.glow {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, transparent 70%);
+  animation: loaderGlow 2.4s ease-in-out infinite;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid rgba(139, 92, 246, 0.22);
+  border-top-color: #a78bfa;
+  border-right-color: #8b5cf6;
+  background: transparent;
+  animation: loaderSpin 0.8s linear infinite;
+}
+
+.core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26%;
+  height: 26%;
+  margin: -13% 0 0 -13%;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #a78bfa, #7c3aed 55%, #6366f1);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.75);
+  animation: loaderCorePulse 1.5s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes loaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loaderCorePulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.88;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes loaderGlow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes loaderPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring,
+  .core,
+  .glow {
+    animation: loaderPulse 1.6s ease-in-out infinite;
+  }
+}
