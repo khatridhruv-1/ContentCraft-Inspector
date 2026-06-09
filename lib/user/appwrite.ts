@@ -31,6 +31,23 @@ function isInvalidSessionError(message?: string | null): boolean {
   );
 }
 
+function authServiceUnreachableMessage(): string {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const host = url ? new URL(url).hostname : 'your Supabase project';
+  return (
+    `Cannot reach the auth service (${host}). ` +
+    'Check NEXT_PUBLIC_SUPABASE_URL in .env — the project may be paused, deleted, or Docker/local Supabase may not be running.'
+  );
+}
+
+function throwAuthError(error: { message?: string | null }, fallback: string): never {
+  const message = error.message?.trim();
+  if (!message || message.toLowerCase() === 'fetch failed') {
+    throw new Error(authServiceUnreachableMessage());
+  }
+  throw new Error(message || fallback);
+}
+
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
@@ -86,7 +103,7 @@ export async function login(email: string, password: string) {
   const supabase = getSupabaseAnon();
   const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
 
-  if (error) throw new Error(error.message || "Login failed.");
+  if (error) throwAuthError(error, 'Login failed.');
   if (!data.session || !data.user) throw new Error("Login failed.");
 
   return {
@@ -106,7 +123,10 @@ export async function getUser(sessionToken: string): Promise<AppUser | null> {
 
   if (error) {
     if (isInvalidSessionError(error.message)) return null;
-    throw new Error(error.message || "User retrieval failed.");
+    if (!error.message?.trim() || error.message.toLowerCase() === 'fetch failed') {
+      throw new Error(authServiceUnreachableMessage());
+    }
+    throw new Error(error.message || 'User retrieval failed.');
   }
 
   if (!data.user) return null;

@@ -1,11 +1,13 @@
 /* Full-page — Dribbble #6298759 video */
 .productMedia {
   display: block;
-  width: min(360px, 88vw);
+  width: min(440px, 92vw);
   height: auto;
-  max-height: min(50vh, 360px);
+  max-height: min(58vh, 440px);
   object-fit: contain;
   background: #000;
+  transform: scale(1.12);
+  transform-origin: center center;
 }
 
 /* Minimal fallback if video cannot play */

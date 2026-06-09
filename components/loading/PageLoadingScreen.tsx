@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AiProductLoader } from '@/components/loading/AiProductLoader';
 import { AI_PRODUCT_LOADER_PRELOAD } from '@/lib/loading/aiProductLoaderAssets';
+import { acquireScrollLock } from '@/lib/loading/scrollLock';
 
 type PageLoadingScreenProps = {
   /** Screen reader label — video shows “Loading…” */
@@ -22,8 +23,7 @@ export function PageLoadingScreen({ label = 'Loading' }: PageLoadingScreenProps)
   }, []);
 
   useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const releaseScroll = acquireScrollLock();
 
     const preload = document.createElement('link');
     preload.rel = 'preload';
@@ -32,7 +32,7 @@ export function PageLoadingScreen({ label = 'Loading' }: PageLoadingScreenProps)
     document.head.appendChild(preload);
 
     return () => {
-      document.body.style.overflow = prev;
+      releaseScroll();
       preload.remove();
     };
   }, []);
