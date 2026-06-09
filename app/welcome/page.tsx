@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion, useInView } from 'framer-motion';
 import {
   Wand2,
-  Edit3,
   FileSearch,
-  Gauge,
   Sparkles,
   ArrowRight,
   Zap,
@@ -35,16 +33,6 @@ const features = [
     glowColor: 'rgba(139,92,246,0.28)',
   },
   {
-    icon: Edit3,
-    title: 'Smart Editor',
-    description:
-      'Write, refine, and shape your unique voice in a focused workspace with real-time inline AI suggestions.',
-    gradient: 'from-cyan-400 to-sky-500',
-    hoverBorder: 'hover:border-cyan-400/40',
-    tag: 'Real-time',
-    glowColor: 'rgba(34,211,238,0.22)',
-  },
-  {
     icon: FileSearch,
     title: 'Deep Analysis',
     description:
@@ -53,16 +41,6 @@ const features = [
     hoverBorder: 'hover:border-blue-500/40',
     tag: 'Analytics',
     glowColor: 'rgba(99,102,241,0.26)',
-  },
-  {
-    icon: Gauge,
-    title: 'Realness Score',
-    description:
-      'Measure AI influence in any text and humanise tone with surgical precision so your content feels authentically human.',
-    gradient: 'from-pink-500 to-rose-500',
-    hoverBorder: 'hover:border-pink-500/40',
-    tag: 'Detection',
-    glowColor: 'rgba(236,72,153,0.24)',
   },
 ];
 
@@ -87,7 +65,7 @@ const testimonials = [
   },
   {
     quote:
-      'The Realness Score changed everything. Our blog posts now pass every AI detector while keeping the quality high.',
+      'The Deep Analysis gave us insights we never had before. Our content quality improved dramatically within weeks.',
     name: 'James K.',
     role: 'SEO Lead, GrowthHQ',
     initials: 'JK',
@@ -422,7 +400,7 @@ export default function Welcome() {
           variants={rise}
           className="mb-7 max-w-2xl text-lg text-white/70 md:text-xl leading-relaxed"
         >
-          The all-in-one AI workspace to generate, edit, analyze, and perfect every piece of
+          The AI workspace to generate and deeply analyze every piece of
           content — built for speed, clarity, and creative impact.
         </motion.p>
 
@@ -549,7 +527,7 @@ export default function Welcome() {
               <span className="text-violet-400">workflow in one place</span>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-white/60 text-lg">
-              Four powerful tools, one seamless experience — from blank page to published.
+              Two powerful tools, one seamless experience — from blank page to published.
             </p>
           </motion.div>
 

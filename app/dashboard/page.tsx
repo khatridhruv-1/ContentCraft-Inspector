@@ -5,9 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AnalysisPanel from '@/components/AnalysisPanel';
 import OutlinePanel from '@/components/OutlinePanel';
 import InfoGainPanel from '@/components/InfoGainPanel';
-import AIScorePanel from '@/components/AIScorePanel';
 import { motion } from 'framer-motion';
-import { Edit, FileSearch, LogOut, Notebook as Robot, UserCircle, Wand2, History, ArrowLeft } from 'lucide-react';
+import { FileSearch, LogOut, UserCircle, Wand2, History, ArrowLeft } from 'lucide-react';
 import { cn, htmlToMarkdown } from '@/lib/utils';
 import ContentEditor from '@/components/ContentEditor';
 import { useRouter } from 'next/navigation';
@@ -18,7 +17,7 @@ import { saveAs } from 'file-saver';
 import MarkdownRenderer, { getDownloadableContent } from '@/components/MarkdownRenderer';
 import { marked } from 'marked';
 
-type AppMode = 'ai-generate' | 'create' | 'analyze' | 'ai-score';
+type AppMode = 'ai-generate' | 'analyze';
 
 export default function Dashboard() {
   const toHtmlFromMarkdown = (value: unknown) => {
@@ -33,12 +32,10 @@ export default function Dashboard() {
   const [mode, setMode] = useState<AppMode>('ai-generate');
   const [showStructured, setShowStructured] = useState(false);
   const [triggerAnalysis, setTriggerAnalysis] = useState(false);
-  const [triggerAIScore, setTriggerAIScore] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [generatedContent, setGeneratedContent] = useState('');
   const [showAIGenerateAnalysis, setShowAIGenerateAnalysis] = useState(false);
-  const [showAIGenerateScore, setShowAIGenerateScore] = useState(false);
   const [hasGeneratedContent, setHasGeneratedContent] = useState(false);
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [fromHistory, setFromHistory] = useState(false);
@@ -71,44 +68,34 @@ export default function Dashboard() {
   useEffect(() => {
     const loadHistoryState = () => {
       const savedState = localStorage.getItem('dashboardState');
-      console.log('savedState', savedState);
-      
+
       if (savedState) {
-        const { id, mode, content, documentId, fromHistory, analysis } = JSON.parse(savedState);
-  
-        setMode(mode as AppMode);
+        const { mode, content, documentId, fromHistory, analysis } = JSON.parse(savedState);
+        const safeMode: AppMode = mode === 'analyze' ? 'analyze' : 'ai-generate';
+
+        setMode(safeMode);
         setContent(content);
-        setAnalysis(analysis)
+        setAnalysis(analysis);
         setDocumentId(documentId);
         setFromHistory(true);
-  
-        switch (mode) {
+
+        switch (safeMode) {
           case 'analyze':
             setTriggerAnalysis(true);
             setShowStructured(true);
             setAnalysis(analysis);
             break;
-  
-          case 'ai-score':
-            setTriggerAIScore(true);
-            setShowStructured(true);
-            setAnalysis(analysis);
-            break;
-  
+
           case 'ai-generate':
             setGeneratedContent(analysis);
             setHasGeneratedContent(true);
             setAnalysis(analysis);
             break;
-  
-          case 'create':
-            setShowStructured(true);
-            break;
         }
-        localStorage.removeItem('dashboardState'); // Remove data after loading
+        localStorage.removeItem('dashboardState');
       }
     };
-  
+
     loadHistoryState();
   }, []);
 
@@ -152,39 +139,26 @@ export default function Dashboard() {
     setAnalysis(htmlContent);
   };
 
-  const handleAIScore = () => {
-    setMode('ai-score');
-    setTriggerAIScore(true);
-    const contentToScore = generatedContent || content;
-    const htmlContent = toHtmlFromMarkdown(contentToScore);
-    if (!htmlContent) return;
-    setContent(htmlContent);
-    setAnalysis(htmlContent);
-  };
-
   const handleModeChange = (newMode: AppMode) => {
     setMode(newMode);
     router.push(`/dashboard?mode=${newMode}${documentId ? `&documentId=${documentId}` : ''}`);
-    // Only reset these states if we're switching to a different mode
     if (newMode !== mode) {
       setShowStructured(false);
       setTriggerAnalysis(false);
-      setTriggerAIScore(false);
       setShowAIGenerateAnalysis(false);
-      setShowAIGenerateScore(false);
       setHasGeneratedContent(false);
     }
   };
+
   const handleShowProfile = () => {
     router.push('/profile');
   };
 
   const handleHistory = () => {
     router.push('/history');
-  }
+  };
 
   const handleContentChange = (newContent: string) => {
-    // Keep content as HTML for the editor
     setContent(newContent);
     setGeneratedContent(newContent);
     setAnalysis(newContent);
@@ -201,10 +175,9 @@ export default function Dashboard() {
 
   const downloadAsWord = () => {
     if (!generatedContent.trim()) return;
-  
-    // Convert Markdown to structured text
+
     const formattedContent = getDownloadableContent(generatedContent, 'docx');
-  
+
     const doc = new Document({
       sections: [
         {
@@ -241,17 +214,18 @@ export default function Dashboard() {
         },
       ],
     });
-  
+
     Packer.toBlob(doc).then((blob) => {
       saveAs(blob, `${title || 'GeneratedContent'}.docx`);
     });
   };
+
   const [dataFromChild, setDataFromChild] = useState("");
 
-  function handleDataFromChild(data :any) {
+  function handleDataFromChild(data: any) {
     setDataFromChild(data);
   }
-  // console.log("jaldip" ,dataFromChild)
+
   return (
     <div className="min-h-screen h-screen flex bg-white">
       {/* Sidebar */}
@@ -273,20 +247,6 @@ export default function Dashboard() {
             AI-Powered
           </button>
 
-          {/* Create Content Button */}
-          <button
-            onClick={() => handleModeChange('create')}
-            className={cn(
-              'w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg',
-              mode === 'create'
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-gray-100 text-gray-700'
-            )}
-          >
-            <Edit className="h-7 w-7" />
-            Smart Editor
-          </button>
-
           {/* Analyze Content Button */}
           <button
             onClick={() => handleModeChange('analyze')}
@@ -301,24 +261,7 @@ export default function Dashboard() {
             Deep Analysis
           </button>
 
-          {/* AI Score Button */}
-          <button
-            onClick={() => handleModeChange('ai-score')}
-            disabled={!hasContent}
-            className={cn(
-              'w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-colors text-lg',
-              mode === 'ai-score'
-                ? 'bg-blue-600 text-white'
-                : hasContent
-                  ? 'hover:bg-gray-100 text-gray-700'
-                  : 'opacity-50 cursor-not-allowed text-gray-400'
-            )}
-          >
-            <Robot className="h-7 w-7" />
-            Realness Score
-          </button>
-
-          {/* History Button at Bottom & Centered */}
+          {/* History Button */}
           <div className="flex flex-col items-center mt-auto">
             <button
               onClick={handleHistory}
@@ -386,7 +329,6 @@ export default function Dashboard() {
           {/* Content Area */}
           <div className="flex-1">
             {mode === 'ai-generate' && !hasGeneratedContent ? (
-              // Initial full-screen input view for AI Generate
               <div className="flex-1 flex items-center justify-center h-full">
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
@@ -405,7 +347,6 @@ export default function Dashboard() {
                 </motion.div>
               </div>
             ) : mode === 'ai-generate' && hasGeneratedContent ? (
-              // Two-column layout after content generation
               <div className="grid grid-cols-2 gap-10 h-full">
                 {/* Left Column - Input Panel */}
                 <motion.div
@@ -440,13 +381,6 @@ export default function Dashboard() {
                         Analyze
                       </button>
                       <button
-                        onClick={handleAIScore}
-                        className="gap-2 px-4 py-2 rounded-lg flex items-center bg-blue-600 text-white hover:bg-blue-700"
-                      >
-                        <Robot className="h-5 w-5" />
-                        AI Score
-                      </button>
-                      <button
                         onClick={downloadAsWord}
                         className="gap-2 px-4 py-2 rounded-lg flex items-center bg-green-600 text-white hover:bg-green-700"
                       >
@@ -460,60 +394,33 @@ export default function Dashboard() {
                       <MarkdownRenderer content={htmlToMarkdown(generatedContent)} />
                     </div>
                   </div>
-                  {/* Analysis/Score Panel */}
-                  {(showAIGenerateAnalysis || showAIGenerateScore) && (
+                  {/* Analysis Panel */}
+                  {showAIGenerateAnalysis && (
                     <div className="border-t border-gray-100 flex-1 overflow-hidden">
-                      {showAIGenerateAnalysis && (
-                        <Tabs defaultValue="analysis" className="h-full flex flex-col">
-                          <TabsList className="grid w-full grid-cols-3 bg-white p-4 border-b border-gray-100">
-                            <TabsTrigger value="analysis">Analysis 📊</TabsTrigger>
-                            <TabsTrigger value="outline">Outline 📝</TabsTrigger>
-                            <TabsTrigger value="infogain">Info Gain 🧠</TabsTrigger>
-                          </TabsList>
-                          <div className="flex-1 overflow-auto">
-                            <TabsContent value="analysis" className="p-4">
-                              <AnalysisPanel content={content} triggerAnalysis={showAIGenerateAnalysis} dataFromChild={content}/>
-                            </TabsContent>
-                            <TabsContent value="outline" className="p-4">
-                              <OutlinePanel content={content} triggerOutline={showAIGenerateAnalysis} dataFromChild={content}/>
-                            </TabsContent>
-                            <TabsContent value="infogain" className="p-4">
-                              <InfoGainPanel content={content} triggerInfoGain={showAIGenerateAnalysis} dataFromChild={content}/>
-                            </TabsContent>
-                          </div>
-                        </Tabs>
-                      )}
-                      {showAIGenerateScore && (
-                        <div className="p-4 flex-1 overflow-auto">
-                          <AIScorePanel content={content} triggerAIScore={triggerAIScore} />
+                      <Tabs defaultValue="analysis" className="h-full flex flex-col">
+                        <TabsList className="grid w-full grid-cols-3 bg-white p-4 border-b border-gray-100">
+                          <TabsTrigger value="analysis">Analysis 📊</TabsTrigger>
+                          <TabsTrigger value="outline">Outline 📝</TabsTrigger>
+                          <TabsTrigger value="infogain">Info Gain 🧠</TabsTrigger>
+                        </TabsList>
+                        <div className="flex-1 overflow-auto">
+                          <TabsContent value="analysis" className="p-4">
+                            <AnalysisPanel content={content} triggerAnalysis={showAIGenerateAnalysis} dataFromChild={content} />
+                          </TabsContent>
+                          <TabsContent value="outline" className="p-4">
+                            <OutlinePanel content={content} triggerOutline={showAIGenerateAnalysis} dataFromChild={content} />
+                          </TabsContent>
+                          <TabsContent value="infogain" className="p-4">
+                            <InfoGainPanel content={content} triggerInfoGain={showAIGenerateAnalysis} dataFromChild={content} />
+                          </TabsContent>
                         </div>
-                      )}
+                      </Tabs>
                     </div>
                   )}
                 </motion.div>
               </div>
-            ) : mode === 'create' && !showStructured ? (
-              // Single centered box for initial create mode
-              <div className="flex-1 flex items-center justify-center h-full">
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-lg h-full overflow-hidden"
-                >
-                  <ContentEditor
-                    initialContent={analysis}
-                    onContentChange={handleContentChange}
-                    mode={mode}
-                    sendDataToParent={handleDataFromChild}
-                    onCreate={() => setShowStructured(true)}
-                    onAnalyze={() => setTriggerAnalysis(prev => !prev)}
-                    onAIScore={() => setTriggerAIScore(true)}
-                    />
-                </motion.div>
-              </div>
             ) : (
-              // Two-column layout for other modes and after create
+              /* Two-column layout for analyze mode */
               <div className="grid grid-cols-2 gap-10 h-full">
                 {/* Left Box */}
                 <motion.div
@@ -529,7 +436,6 @@ export default function Dashboard() {
                     sendDataToParent={handleDataFromChild}
                     onCreate={() => setShowStructured(true)}
                     onAnalyze={() => setTriggerAnalysis(prev => !prev)}
-                    onAIScore={() => setTriggerAIScore(true)}
                   />
                 </motion.div>
 
@@ -601,58 +507,6 @@ export default function Dashboard() {
                         </TabsContent>
                       </motion.div>
                     </Tabs>
-                  )}
-
-                  {mode === 'create' && showStructured && (
-                    <motion.div
-                      initial={{ x: 50, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                      className="bg-white rounded-2xl border border-gray-100 shadow-lg h-[calc(100vh-200px)] overflow-hidden"
-                    >
-                      <div className="h-full flex flex-col">
-                        <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                          <h2 className="text-xl font-semibold">Structured Content</h2>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={handleAnalyze}
-                              className="gap-2 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg flex items-center"
-                            >
-                              <FileSearch className="h-5 w-5" />
-                              Analyze Content
-                            </button>
-                            <button
-                              onClick={handleAIScore}
-                              className="gap-2 bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg flex items-center"
-                            >
-                              <Robot className="h-5 w-5" />
-                              Check AI Score
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex-1 p-6 overflow-auto" style={{ position: 'relative', overflowY: 'auto', scrollbarColor: '#bab9b9 #f0f0f0' }}>
-                          <div className="prose max-w-none" style={{ position: 'absolute', paddingRight: '10px' }}>
-                            <MarkdownRenderer content={htmlToMarkdown(content)} />
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {mode === 'ai-score' && (
-                    <motion.div
-                      initial={{ x: 50, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                      className="bg-white rounded-2xl border border-gray-100 shadow-lg h-[calc(100vh-200px)] overflow-hidden"
-                    >
-                      <div className="p-4 h-full overflow-auto">
-                        <AIScorePanel
-                          content={content}
-                          triggerAIScore={triggerAIScore}
-                        />
-                      </div>
-                    </motion.div>
                   )}
                 </div>
               </div>

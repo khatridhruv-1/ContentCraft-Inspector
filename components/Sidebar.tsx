@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { Edit, FileSearch } from 'lucide-react';
+import { FileSearch, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SidebarProps {
-  onModeChange: (mode: 'create' | 'analyze') => void;
-  currentMode: 'create' | 'analyze';
+  onModeChange: (mode: 'ai-generate' | 'analyze') => void;
+  currentMode: 'ai-generate' | 'analyze';
 }
 
 export function Sidebar({ onModeChange, currentMode }: SidebarProps) {
@@ -16,16 +15,16 @@ export function Sidebar({ onModeChange, currentMode }: SidebarProps) {
         <h2 className="text-lg font-semibold mb-4">Content Tools</h2>
         <div className="space-y-2">
           <button
-            onClick={() => onModeChange('create')}
+            onClick={() => onModeChange('ai-generate')}
             className={cn(
               'w-full flex items-center gap-2 px-4 py-2 rounded-md transition-colors',
-              currentMode === 'create'
+              currentMode === 'ai-generate'
                 ? 'bg-primary text-primary-foreground'
                 : 'hover:bg-secondary'
             )}
           >
-            <Edit size={20} />
-            Create Content
+            <Wand2 size={20} />
+            AI Generation
           </button>
           <button
             onClick={() => onModeChange('analyze')}
@@ -37,10 +36,10 @@ export function Sidebar({ onModeChange, currentMode }: SidebarProps) {
             )}
           >
             <FileSearch size={20} />
-            Analyze Content
+            Deep Analysis
           </button>
         </div>
       </div>
     </div>
   );
-} 
+}

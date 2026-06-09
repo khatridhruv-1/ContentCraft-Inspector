@@ -10,7 +10,7 @@ interface ContentInputProps {
   setContent: (content: string) => void;
   onAnalyze: () => void;
   buttonText?: string;
-  mode: 'create' | 'analyze' | 'ai-score';
+  mode: 'analyze';
 }
 
 const ContentInput: React.FC<ContentInputProps> = ({
