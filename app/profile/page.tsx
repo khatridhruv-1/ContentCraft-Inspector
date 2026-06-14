@@ -6,7 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { getUser, logout, updateUserName, type AppUser } from '@/lib/user/appwrite';
 import { clearAuthSession, getSessionToken } from '@/lib/user/session';
 import { AUTH_EASE } from '@/components/auth/authFeatures';
-import HomeBackground from '@/components/home/HomeBackground';
+import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import HomeNav from '@/components/home/HomeNav';
 import HomeFooter from '@/components/home/HomeFooter';
 import { homeContainer } from '@/components/home/homeLayout';
@@ -15,6 +15,7 @@ import { waitForMinDisplay } from '@/lib/loading/minDisplay';
 import ProfileWorkspacePanel from '@/components/profile/ProfileWorkspacePanel';
 import ProfileDisplayNameRow from '@/components/profile/ProfileDisplayNameRow';
 import ProfileAccountSection from '@/components/profile/ProfileAccountSection';
+import { marketingSkipLink } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 const rise = {
@@ -159,12 +160,12 @@ export default function ProfilePage() {
     <div className="relative flex flex-col">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+        className={marketingSkipLink}
       >
         Skip to main content
       </a>
 
-      <HomeBackground />
+      <MarketingDotGrid />
       <HomeNav />
 
       <motion.main
@@ -173,12 +174,12 @@ export default function ProfilePage() {
         initial={reduced ? false : 'hidden'}
         animate="show"
         variants={rise}
-        className={cn('relative z-10 pb-6 pt-5 md:pb-8 md:pt-7', homeContainer)}
+        className={cn('relative z-10 py-6 md:py-10', homeContainer)}
       >
         {error && !editing && (
           <p
             role="alert"
-            className="mb-6 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+            className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
           >
             {error}
           </p>

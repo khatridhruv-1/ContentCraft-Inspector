@@ -1,65 +1,124 @@
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { cn } from '@/lib/utils';
 
-const renderers = {
-  h1: ({ children }: any) => (
-    <h1 className="text-4xl font-extrabold text-gray-900 mb-6 mt-8">
-      {children}
-    </h1>
+type MarkdownRendererProps = {
+  content: string;
+  /** light = history modals; dark = legacy dashboard; studio = full-width workspace preview */
+  variant?: 'light' | 'dark' | 'studio';
+  className?: string;
+};
+
+const lightRenderers = {
+  h1: ({ children }: { children?: React.ReactNode }) => (
+    <h1 className="mb-6 mt-8 text-4xl font-extrabold text-gray-900">{children}</h1>
   ),
-  h2: ({ children }: any) => (
-    <h2 className="text-2xl font-bold text-gray-800 mb-4 mt-6">
-      {children}
-    </h2>
+  h2: ({ children }: { children?: React.ReactNode }) => (
+    <h2 className="mb-4 mt-6 text-2xl font-bold text-gray-800">{children}</h2>
   ),
-  h3: ({ children }: any) => (
-    <h3 className="text-xl font-bold text-gray-700 mb-3 mt-5">
-      {children}
-    </h3>
+  h3: ({ children }: { children?: React.ReactNode }) => (
+    <h3 className="mb-3 mt-5 text-xl font-bold text-gray-700">{children}</h3>
   ),
-  p: ({ children }: any) => (
-    <p className="text-gray-700 leading-relaxed mb-4 text-lg">
-      {children}
-    </p>
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="mb-4 text-lg leading-relaxed text-gray-700">{children}</p>
   ),
-  ul: ({ children }: any) => (
-    <ul className="list-disc ml-8 space-y-2 mb-4">
-      {children}
-    </ul>
+  ul: ({ children }: { children?: React.ReactNode }) => (
+    <ul className="mb-4 ml-8 list-disc space-y-2">{children}</ul>
   ),
-  ol: ({ children }: any) => (
-    <ol className="list-decimal ml-8 space-y-2 mb-4">
-      {children}
-    </ol>
+  ol: ({ children }: { children?: React.ReactNode }) => (
+    <ol className="mb-4 ml-8 list-decimal space-y-2">{children}</ol>
   ),
-  li: ({ children }: any) => (
-    <li className="text-gray-700 leading-relaxed text-lg">{children}</li>
+  li: ({ children }: { children?: React.ReactNode }) => (
+    <li className="text-lg leading-relaxed text-gray-700">{children}</li>
   ),
-  blockquote: ({ children }: any) => (
-    <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 my-4">
+  blockquote: ({ children }: { children?: React.ReactNode }) => (
+    <blockquote className="my-4 border-l-4 border-gray-300 pl-4 italic text-gray-600">
       {children}
     </blockquote>
   ),
-  code: ({ children }: any) => (
-    <code className="bg-gray-100 rounded px-2 py-1 text-sm font-mono">
-      {children}
-    </code>
+  code: ({ children }: { children?: React.ReactNode }) => (
+    <code className="rounded bg-gray-100 px-2 py-1 font-mono text-sm">{children}</code>
   ),
-  pre: ({ children }: any) => (
-    <pre className="bg-gray-100 rounded-lg p-4 my-4 overflow-x-auto">
+  pre: ({ children }: { children?: React.ReactNode }) => (
+    <pre className="my-4 overflow-x-auto rounded-lg bg-gray-100 p-4">{children}</pre>
+  ),
+  a: ({ children, href }: { children?: React.ReactNode; href?: string }) => (
+    <a href={href} className="text-blue-600 underline hover:text-blue-800">
       {children}
-    </pre>
+    </a>
   ),
 };
 
-export default function MarkdownRenderer({ content }: { content: string }) {
+const darkRenderers = {
+  h1: ({ children }: { children?: React.ReactNode }) => (
+    <h1 className="mb-5 mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl">
+      {children}
+    </h1>
+  ),
+  h2: ({ children }: { children?: React.ReactNode }) => (
+    <h2 className="mb-3 mt-8 text-2xl font-semibold text-white/95">{children}</h2>
+  ),
+  h3: ({ children }: { children?: React.ReactNode }) => (
+    <h3 className="mb-2 mt-6 text-xl font-semibold text-white/90">{children}</h3>
+  ),
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="mb-4 text-[17px] leading-[1.75] text-white/80">{children}</p>
+  ),
+  ul: ({ children }: { children?: React.ReactNode }) => (
+    <ul className="mb-4 ml-6 list-disc space-y-2 text-white/80">{children}</ul>
+  ),
+  ol: ({ children }: { children?: React.ReactNode }) => (
+    <ol className="mb-4 ml-6 list-decimal space-y-2 text-white/80">{children}</ol>
+  ),
+  li: ({ children }: { children?: React.ReactNode }) => (
+    <li className="text-[17px] leading-[1.75] text-white/80">{children}</li>
+  ),
+  blockquote: ({ children }: { children?: React.ReactNode }) => (
+    <blockquote className="my-4 border-l-4 border-violet-500/40 pl-4 italic text-white/65">
+      {children}
+    </blockquote>
+  ),
+  code: ({ children }: { children?: React.ReactNode }) => (
+    <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-sm text-violet-200">
+      {children}
+    </code>
+  ),
+  pre: ({ children }: { children?: React.ReactNode }) => (
+    <pre className="my-4 overflow-x-auto rounded-lg border border-white/10 bg-[#141418] p-4 text-white/85">
+      {children}
+    </pre>
+  ),
+  a: ({ children, href }: { children?: React.ReactNode; href?: string }) => (
+    <a href={href} className="text-violet-400 underline hover:text-violet-300">
+      {children}
+    </a>
+  ),
+  strong: ({ children }: { children?: React.ReactNode }) => (
+    <strong className="font-semibold text-white">{children}</strong>
+  ),
+};
+
+export default function MarkdownRenderer({
+  content,
+  variant = 'light',
+  className,
+}: MarkdownRendererProps) {
+  const isDark = variant === 'dark';
+  const isStudio = variant === 'studio';
+
+  const variantClass = isDark
+    ? 'max-w-none'
+    : isStudio
+      ? 'prose prose-slate w-full max-w-none prose-p:max-w-none prose-headings:max-w-none'
+      : 'prose prose-lg max-h-[70vh] max-w-none flex-1 overflow-y-auto p-8 leading-relaxed text-gray-800';
+
   return (
-    <div className="flex-1 p-8 overflow-y-auto max-h-[70vh] prose prose-lg max-w-none text-gray-800 leading-relaxed">
-      <ReactMarkdown 
-        components={renderers} 
+    <div className={cn(variantClass, className)}>
+      <ReactMarkdown
+        components={isDark ? darkRenderers : lightRenderers}
         remarkPlugins={[remarkGfm]}
       >
-        {content.replace(/\n/g, "\n\n")}
+        {content.replace(/\n/g, '\n\n')}
       </ReactMarkdown>
     </div>
   );
@@ -70,27 +129,16 @@ export function convertMarkdownToPlainText(markdown: string): string {
 
   let plainText = markdown;
 
-  // Preserve header hierarchy
   plainText = plainText.replace(/^# (.*)/gm, '--- $1 ---');
   plainText = plainText.replace(/^## (.*)/gm, '-- $1 --');
   plainText = plainText.replace(/^### (.*)/gm, '- $1 -');
-
-  // Convert bold and italic
   plainText = plainText.replace(/(\*\*|__)(.*?)\1/g, '$2 (bold)');
   plainText = plainText.replace(/(\*|_)(.*?)\1/g, '$2 (italic)');
-
-  // Convert links
   plainText = plainText.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1 (link)');
-
-  // Handle lists
   plainText = plainText.replace(/^[-*+]\s*(.*)$/gm, '• $1');
   plainText = plainText.replace(/^\d+\.\s*(.*)$/gm, '1. $1');
-
-  // Remove code blocks
   plainText = plainText.replace(/```[\s\S]*?```/g, '[Code Block]');
   plainText = plainText.replace(/`([^`]+)`/g, '[$1]');
-
-  // Trim multiple newlines
   plainText = plainText.replace(/\n{3,}/g, '\n\n');
 
   return plainText.trim();
@@ -98,16 +146,17 @@ export function convertMarkdownToPlainText(markdown: string): string {
 
 export function getDownloadableContent(content: string, format: 'docx' | 'pdf' = 'docx') {
   const plainText = convertMarkdownToPlainText(content);
-  
+
   if (format === 'pdf') {
     return plainText;
   }
-  
-  // For DOCX, we'll preserve some basic formatting
-  return content.split('\n').map(line => {
-    // Handle headers
-    if (line.startsWith('# ')) return line.replace('# ', '').toUpperCase();
-    if (line.startsWith('## ')) return line.replace('## ', '');
-    return line;
-  }).join('\n');
+
+  return content
+    .split('\n')
+    .map(line => {
+      if (line.startsWith('# ')) return line.replace('# ', '').toUpperCase();
+      if (line.startsWith('## ')) return line.replace('## ', '');
+      return line;
+    })
+    .join('\n');
 }

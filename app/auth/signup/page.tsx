@@ -36,18 +36,18 @@ function SignupProgress({ step }: { step: Step }) {
     return cn(
       'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all duration-300',
       isCompleted || isActive
-        ? 'bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg shadow-violet-500/30'
-        : 'border border-white/[0.1] bg-white/[0.03] text-white/45'
+        ? 'bg-primary text-primary-foreground shadow-sm'
+        : 'border border-slate-200 bg-slate-50 text-slate-400'
     );
   };
 
   return (
-    <div className="mb-8" aria-label="Signup progress" role="group">
+    <div className="mb-7" aria-label="Signup progress" role="group">
       <div className="flex items-center gap-0">
         <div className={stepClass(0)}>{activeIndex > 0 || isDone ? '✓' : '1'}</div>
-        <div className="relative mx-3 h-0.5 min-w-[80px] flex-1 overflow-hidden rounded-full bg-white/[0.08]">
+        <div className="relative mx-3 h-0.5 min-w-[80px] flex-1 overflow-hidden rounded-full bg-slate-200">
           <motion.div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-violet-500 to-purple-600"
+            className="absolute inset-y-0 left-0 bg-primary"
             initial={{ width: '0%' }}
             animate={{ width: activeIndex >= 1 || isDone ? '100%' : '0%' }}
             transition={{ duration: 0.55, ease: AUTH_EASE }}
@@ -55,7 +55,7 @@ function SignupProgress({ step }: { step: Step }) {
         </div>
         <div className={stepClass(1)}>{isDone ? '✓' : '2'}</div>
       </div>
-      <p className="mt-3 text-xs font-medium text-white/50">
+      <p className="mt-3 text-xs font-medium text-slate-500">
         Step {step === 'signup' ? 1 : 2} of 2 · {step === 'signup' ? 'Account' : 'Workspace'}
       </p>
     </div>
@@ -117,7 +117,7 @@ export default function Signup() {
       <div className="mt-2.5 space-y-1.5" role="status" aria-live="polite">
         <div className="flex gap-1.5" aria-label={`Password strength: ${label}`}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-1 flex-1 overflow-hidden rounded-full bg-white/[0.08]">
+            <div key={i} className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200">
               <motion.div
                 initial={false}
                 animate={{ width: i < barsFilled ? '100%' : '0%' }}
@@ -127,7 +127,7 @@ export default function Signup() {
             </div>
           ))}
         </div>
-        <p className="text-[11px] text-white/50">{label}</p>
+        <p className="text-[11px] text-slate-500">{label}</p>
       </div>
     );
   };
@@ -301,7 +301,7 @@ export default function Signup() {
 
                 <ErrorAlert message={error?.field === 'general' ? error.message : ''} />
 
-                <p className="text-xs leading-relaxed text-white/55">
+                <p className="text-xs leading-relaxed text-slate-500">
                   By continuing, you agree to our{' '}
                   <Link href="/terms" className={marketingLink}>
                     Terms
@@ -317,11 +317,11 @@ export default function Signup() {
                   Continue to workspace setup
                 </AuthSubmitButton>
 
-                <p className="!mt-6 text-center text-sm text-white/60">
+                <p className="!mt-6 text-center text-sm text-slate-600">
                   Already have an account?{' '}
                   <Link
                     href="/auth/login"
-                    className={cn('font-semibold', marketingLink)}
+                    className={cn('font-semibold text-slate-900 underline-offset-2 hover:underline', marketingLink)}
                   >
                     Sign in
                   </Link>
@@ -344,15 +344,15 @@ export default function Signup() {
 
               {companyInfo?.company ? (
                 <>
-                  <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/[0.08] to-transparent p-8 text-center">
-                    <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-sky-500 shadow-lg shadow-cyan-400/25">
-                      <Building2 className="h-7 w-7 text-white" aria-hidden />
+                  <div className="rounded-2xl border border-sky-200 bg-sky-50 p-8 text-center">
+                    <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+                      <Building2 className="h-7 w-7" aria-hidden />
                     </div>
-                    <p className="text-base leading-relaxed text-white/80">
-                      <strong className="text-white">{companyInfo.company.name}</strong> matches your
+                    <p className="text-base leading-relaxed text-slate-700">
+                      <strong className="text-slate-900">{companyInfo.company.name}</strong> matches your
                       email domain.
                     </p>
-                    <p className="mt-2 text-sm text-white/55">Join your team in one click.</p>
+                    <p className="mt-2 text-sm text-slate-500">Join your team in one click.</p>
                   </div>
                   <AuthSubmitButton
                     type="button"
@@ -365,14 +365,14 @@ export default function Signup() {
                 </>
               ) : (
                 <>
-                  <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/[0.08] to-transparent p-8 text-center">
-                    <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/30">
-                      <UserPlus className="h-7 w-7 text-white" aria-hidden />
+                  <div className="rounded-2xl border border-violet-200 bg-violet-50 p-8 text-center">
+                    <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-700">
+                      <UserPlus className="h-7 w-7" aria-hidden />
                     </div>
-                    <p className="text-base leading-relaxed text-white/80">
+                    <p className="text-base leading-relaxed text-slate-700">
                       No company found for your domain yet.
                     </p>
-                    <p className="mt-2 text-sm text-white/55">Create a workspace for your team.</p>
+                    <p className="mt-2 text-sm text-slate-500">Create a workspace for your team.</p>
                   </div>
 
                   <AuthTextField

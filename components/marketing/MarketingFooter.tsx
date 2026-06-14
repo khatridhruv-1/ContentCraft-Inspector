@@ -1,10 +1,6 @@
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
-import {
-  marketingBrandIcon,
-  marketingBrandIconSm,
-  marketingMutedLink,
-} from '@/lib/marketing/marketingTheme';
+import ContentCraftLogo from '@/components/brand/ContentCraftLogo';
+import { marketingMutedLink } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 export const FOOTER_NAV_LINKS = [
@@ -18,32 +14,34 @@ export type FooterNavLink = { label: string; href: string };
 
 interface MarketingFooterProps {
   className?: string;
-  /** Inner container classes — defaults to centered max-w-6xl */
   containerClassName?: string;
-  /** Extra links before standard nav (e.g. Features on welcome) */
   extraLinks?: FooterNavLink[];
+  /** Wordmark for dark footer backgrounds */
+  logoVariant?: 'light' | 'dark';
 }
 
 export default function MarketingFooter({
   className,
   containerClassName = 'mx-auto w-full max-w-6xl px-6',
   extraLinks = [],
+  logoVariant = 'light',
 }: MarketingFooterProps) {
   const links: FooterNavLink[] = [...extraLinks, ...FOOTER_NAV_LINKS];
 
   return (
-    <footer className={cn('border-t border-white/[0.06] py-10', className)}>
+    <footer className={cn('border-t border-slate-200 bg-white/50 py-10', className)}>
       <div className={containerClassName}>
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href="/welcome"
-            className="flex items-center gap-2.5 transition-opacity hover:opacity-90"
+            className="transition-opacity hover:opacity-90"
             aria-label="ContentCraft Inspector home"
           >
-            <div className={cn(marketingBrandIconSm, marketingBrandIcon)}>
-              <Sparkles className="h-3.5 w-3.5 text-white" aria-hidden />
-            </div>
-            <span className="text-sm font-semibold text-white/75">ContentCraft Inspector</span>
+            <ContentCraftLogo
+              variant={logoVariant}
+              size="lg"
+              className="h-11 w-auto sm:h-12 md:h-14"
+            />
           </Link>
 
           <nav
@@ -58,9 +56,9 @@ export default function MarketingFooter({
           </nav>
         </div>
 
-        <div className="mt-6 h-px w-full bg-white/[0.06]" aria-hidden />
+        <div className="mt-6 h-px w-full bg-slate-200" aria-hidden />
 
-        <p className="mt-4 text-center text-xs text-white/40">
+        <p className="mt-4 text-center text-xs text-slate-400">
           © {new Date().getFullYear()} ContentCraft Inspector
         </p>
       </div>

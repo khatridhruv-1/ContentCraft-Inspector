@@ -106,9 +106,9 @@ function LoginForm() {
       />
 
       {returnLabel && (
-        <p className="-mt-4 mb-8 rounded-xl border border-violet-500/20 bg-violet-500/[0.06] px-4 py-3 text-sm text-white/75">
+        <p className="-mt-3 mb-6 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-900/90">
           After sign in you&apos;ll return to{' '}
-          <span className="font-semibold text-white">{returnLabel}</span>.
+          <span className="font-semibold text-violet-950">{returnLabel}</span>.
         </p>
       )}
 
@@ -156,11 +156,11 @@ function LoginForm() {
             Sign in
           </AuthSubmitButton>
 
-          <p className="!mt-6 text-center text-sm text-white/60">
+          <p className="!mt-6 text-center text-sm text-slate-600">
             New here?{' '}
             <Link
               href="/auth/signup"
-              className={cn('font-semibold', marketingLink)}
+              className={cn('font-semibold text-slate-900 underline-offset-2 hover:underline', marketingLink)}
             >
               Start creating for free
             </Link>

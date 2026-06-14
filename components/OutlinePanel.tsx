@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { List, Lightbulb, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Lightbulb, List, ListTree } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
 import router from 'next/router';
 import { getUser } from '@/lib/user/appwrite';
 import { clearAuthSession } from '@/lib/user/session';
-import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
+import DashboardPanelLoading from '@/components/dashboard/DashboardPanelLoading';
+import DashboardEmptyState from '@/components/dashboard/DashboardEmptyState';
+import DashboardResultCard from '@/components/dashboard/DashboardResultCard';
+import { dashboardBullet, dashboardListItem } from '@/components/dashboard/dashboardLayout';
 
 interface OutlinePanelProps {
   content: string;
   triggerOutline: boolean;
-  dataFromChild :string
-
+  dataFromChild: string;
 }
 
 interface OutlineItem {
@@ -27,36 +28,30 @@ interface OutlineResult {
 }
 
 const OutlinePanel: React.FC<OutlinePanelProps> = ({
-  content,
   triggerOutline,
-  
-  dataFromChild
+  dataFromChild,
 }) => {
   const [outlineResult, setOutlineResult] = useState<OutlineResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  console.log("OutlinePanel" ,dataFromChild);
-  
+
   useEffect(() => {
     const generateOutline = async () => {
-      if (!triggerOutline || !dataFromChild.trim()) {
-        return;
-      }
+      if (!triggerOutline || !dataFromChild.trim()) return;
+
       setIsLoading(true);
       setError(null);
       try {
         const response = await fetch('/api/outline', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content: dataFromChild }),
         });
-        if (!response.ok) {
-          throw new Error('Failed to generate outline');
-        }
+        if (!response.ok) throw new Error('Failed to generate outline');
+
         const result = await response.json();
         setOutlineResult(result);
+
         const documentId = localStorage.getItem('documentId');
         if (documentId) {
           await updateContent(documentId, {
@@ -64,7 +59,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
             analysis: dataFromChild,
             outline: result.outline,
             suggestions: result.suggestions,
-            contentGaps: result.contentGaps
+            contentGaps: result.contentGaps,
           });
         } else {
           const sessionToken = localStorage.getItem('sessionToken');
@@ -78,11 +73,19 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
             router.push('/auth/login');
             return;
           }
-          const res = await saveContent(dataFromChild, user.$id, dataFromChild, 'analyze', result.outline, result.suggestions, result.contentGaps);
+          const res = await saveContent(
+            dataFromChild,
+            user.$id,
+            dataFromChild,
+            'analyze',
+            result.outline,
+            result.suggestions,
+            result.contentGaps
+          );
           localStorage.setItem('documentId', res.$id);
         }
-      } catch (error) {
-        console.error('Error generating outline:', error);
+      } catch (err) {
+        console.error('Error generating outline:', err);
         setError('Failed to generate outline. Please try again.');
       } finally {
         setIsLoading(false);
@@ -93,130 +96,80 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
   }, [dataFromChild, triggerOutline]);
 
   if (isLoading) {
-    return <PageLoadingScreen label="Building outline" />;
+    return <DashboardPanelLoading label="Building outline…" />;
   }
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <p className="text-red-500">{error}</p>
+      <div className="flex h-full items-center justify-center px-4">
+        <p className="text-center text-sm text-red-300" role="alert">{error}</p>
       </div>
     );
   }
 
   if (!outlineResult) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">Content Outline</h2>
-          <p className="text-muted-foreground text-center max-w-md">
-            Click on &quot;Analyze&quot; button to get detailed insights about your content.
-          </p>
-        </div>
-      </div>
+      <DashboardEmptyState
+        icon={ListTree}
+        title="Content outline"
+        description='Run analysis to generate structure, suggestions, and content gaps.'
+      />
     );
   }
 
   return (
-    <div className="h-full flex flex-col relative">
-      <div className="absolute inset-0 overflow-y-auto">
-      <div className="p-6 space-y-6">
-      <motion.div 
-        className="flex-1 overflow-y-auto custom-scrollbar"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card>
-          <CardHeader className="bg-white border-b border-gray-200 sticky top-0 z-10">
-            <CardTitle className="flex items-center text-xl text-gray-900">
-              <List className="mr-2" />
-              Content Structure
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6 bg-white">
-            {outlineResult.outline.length > 0 ? (
-              <ul className="space-y-4">
-                {outlineResult.outline.map((item, index) => (
-                  <motion.li
-                    key={index}
-                    className="flex items-start gap-3 text-base"
-                    style={{ marginLeft: `${(item.level - 1) * 20}px` }}
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <motion.span
-                      className="w-2 h-2 rounded-full bg-blue-600 mr-2 mt-2"
-                      style={{ opacity: 1 - (item.level - 1) * 0.2 }}
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    />
-                    <span className="text-gray-700">{item.text}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-600">
-                No outline structure detected. Consider adding headers to organize your content.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+    <motion.div
+      className="space-y-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <DashboardResultCard title="Content structure" icon={<List className="h-4 w-4 text-violet-400" />}>
+        {outlineResult.outline.length > 0 ? (
+          <ul className="space-y-3">
+            {outlineResult.outline.map((item, index) => (
+              <motion.li
+                key={index}
+                className="flex items-start gap-2 text-sm text-white/75"
+                style={{ marginLeft: `${(item.level - 1) * 16}px` }}
+                initial={{ x: -12, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" aria-hidden />
+                <span>{item.text}</span>
+              </motion.li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-white/55">
+            No outline structure detected. Consider adding headers to organize your content.
+          </p>
+        )}
+      </DashboardResultCard>
 
-        <Card>
-          <CardHeader className="bg-white border-b border-gray-200 sticky top-0 z-10">
-            <CardTitle className="flex items-center text-xl text-gray-900">
-              <Lightbulb className="mr-2" />
-              Improvement Suggestions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6 bg-white">
-            <ul className="space-y-4">
-              {outlineResult.suggestions.map((suggestion, index) => (
-                <motion.li
-                  key={index}
-                  className="flex items-start gap-3 text-base border-b border-gray-200 pb-3 last:border-0 last:pb-0"
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span className="text-gray-700">{suggestion}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+      <DashboardResultCard title="Improvement suggestions" icon={<Lightbulb className="h-4 w-4 text-violet-400" />}>
+        <ul className="space-y-3">
+          {outlineResult.suggestions.map((suggestion, index) => (
+            <motion.li key={index} className={dashboardListItem} initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: index * 0.05 }}>
+              <span className={dashboardBullet}>•</span>
+              <span>{suggestion}</span>
+            </motion.li>
+          ))}
+        </ul>
+      </DashboardResultCard>
 
-        <Card>
-          <CardHeader className="bg-white border-b border-gray-200 sticky top-0 z-10">
-            <CardTitle className="flex items-center text-xl text-gray-900">
-              <AlertTriangle className="mr-2" />
-              Content Gaps
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6 bg-white">
-            <ul className="space-y-4">
-              {outlineResult.contentGaps.map((gap, index) => (
-                <motion.li
-                  key={index}
-                  className="flex items-start gap-3 text-base border-b border-gray-200 pb-3 last:border-0 last:pb-0"
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span className="text-gray-700">{gap}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </motion.div>
-    </div>
-    </div>
-    </div>
+      <DashboardResultCard title="Content gaps" icon={<AlertTriangle className="h-4 w-4 text-violet-400" />}>
+        <ul className="space-y-3">
+          {outlineResult.contentGaps.map((gap, index) => (
+            <motion.li key={index} className={dashboardListItem} initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: index * 0.05 }}>
+              <span className={dashboardBullet}>•</span>
+              <span>{gap}</span>
+            </motion.li>
+          ))}
+        </ul>
+      </DashboardResultCard>
+    </motion.div>
   );
 };
 

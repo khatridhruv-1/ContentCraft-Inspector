@@ -63,12 +63,7 @@ export function AiProductLoader({ className }: AiProductLoaderProps) {
   }, [ensurePlaying, videoFailed, reducedMotion]);
 
   if (videoFailed || reducedMotion) {
-    return (
-      <div
-        className={cn(loaderStyles.productMedia, loaderStyles.productFallback, className)}
-        aria-hidden
-      />
-    );
+    return <div className={cn(loaderStyles.productFallback, className)} aria-hidden />;
   }
 
   return (

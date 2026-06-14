@@ -1,12 +1,10 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
 import { AppLoader } from '@/components/loading/AppLoader';
 import {
   marketingFocusRing,
-  marketingPrimaryButtonBase,
+  marketingPrimaryButtonCore,
   marketingPrimaryButtonSizes,
-  marketingShimmer,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
@@ -35,29 +33,24 @@ export default function MarketingPrimaryButton({
   className,
   fullWidth,
 }: MarketingPrimaryButtonProps) {
-  const reduced = useReducedMotion();
   const isDisabled = disabled || loading;
 
   return (
-    <motion.button
+    <button
       type={type}
       onClick={onClick}
       disabled={isDisabled}
-      whileHover={reduced || isDisabled ? undefined : { scale: 1.02 }}
-      whileTap={reduced || isDisabled ? undefined : { scale: 0.98 }}
       className={cn(
-        marketingPrimaryButtonBase,
+        marketingPrimaryButtonCore,
         marketingPrimaryButtonSizes[size],
-        fullWidth !== false && size === 'md' && 'w-full',
+        fullWidth === false && size === 'md' && 'w-auto',
+        'group',
         marketingFocusRing,
         className
       )}
     >
-      <span className={marketingShimmer} aria-hidden />
-      <span className="relative flex items-center justify-center gap-2">
-        {loading && <AppLoader decorative />}
-        {loading && loadingText ? loadingText : children}
-      </span>
-    </motion.button>
+      {loading && <AppLoader decorative />}
+      {loading && loadingText ? loadingText : children}
+    </button>
   );
 }

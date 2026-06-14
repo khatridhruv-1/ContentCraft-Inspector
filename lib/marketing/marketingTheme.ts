@@ -1,104 +1,134 @@
-/** Shared design tokens for welcome, auth, home, help, and legal pages */
+/** Shared design tokens — light, minimal, production-ready */
 
-export const MARKETING_BG = '#09090b';
-export const MARKETING_FIELD_BG = '#141418';
+import { cn } from '@/lib/utils';
 
-export const MARKETING_PAGE_GRADIENT =
-  'radial-gradient(ellipse 110% 55% at 50% -5%, rgba(139,92,246,0.13) 0%, transparent 55%), #09090b';
+export const MARKETING_BG = '#f8fafc';
+export const MARKETING_SURFACE = '#ffffff';
+export const MARKETING_FIELD_BG = '#ffffff';
+
+export const MARKETING_PAGE_GRADIENT = MARKETING_BG;
 
 export const MARKETING_EASE = [0.22, 1, 0.36, 1] as const;
 
-export const marketingPageClass = 'text-white antialiased';
-export const marketingBgClass = 'bg-[#09090b]';
+export const marketingPageClass = 'text-slate-900 antialiased';
+export const marketingBgClass = 'bg-slate-50';
 
 export const marketingHeaderBar =
-  'sticky top-0 z-50 border-b border-white/[0.06] bg-[#09090b]/90 backdrop-blur-md';
+  'sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-md';
 
-export const marketingNavPill = 'border border-white/[0.08] bg-[#09090b]/80 backdrop-blur-xl';
+export const marketingNavPill =
+  'border border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-sm shadow-slate-900/[0.03]';
 
 export const marketingFocusRing =
-  'focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090b]';
+  'focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
 
-export const marketingBrandIcon =
-  'bg-gradient-to-br from-violet-500 to-purple-600';
+/** @deprecated Use ContentCraftLogo from @/components/brand/ContentCraftLogo */
+export const marketingBrandIcon = 'bg-primary';
 
+/** @deprecated Use ContentCraftLogo */
 export const marketingBrandIconSm = 'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg';
-export const marketingBrandIconMd = 'flex h-8 w-8 items-center justify-center rounded-xl shadow-lg shadow-violet-500/30';
+/** @deprecated Use ContentCraftLogo */
+export const marketingBrandIconMd =
+  'flex h-8 w-8 items-center justify-center rounded-lg shadow-sm shadow-slate-900/10';
 
-export const marketingGhostNav =
-  'text-sm text-white/70 transition-colors hover:text-white rounded-xl hover:bg-white/[0.05]';
+export const marketingLink = 'text-slate-700 hover:text-slate-900 transition-colors';
 
-export const marketingLink =
-  'text-violet-400 hover:text-violet-300 transition-colors';
-
-export const marketingMutedLink =
-  'text-white/55 hover:text-white/85 transition-colors';
+export const marketingMutedLink = 'text-slate-500 hover:text-slate-800 transition-colors';
 
 export const marketingEyebrow =
-  'inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/[0.05] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-white/60';
+  'inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-slate-600';
 
-export const marketingLabel = 'text-sm font-medium text-white/80';
+export const marketingLabel = 'text-sm font-medium text-slate-700';
 
 export const marketingFieldShell =
-  'flex w-full items-center gap-1.5 rounded-xl border border-white/[0.12] bg-[#141418] py-0 shadow-inner shadow-black/25 transition-colors hover:border-white/[0.2] hover:bg-[#18181c] focus-within:border-violet-500/50 focus-within:ring-2 focus-within:ring-violet-400/25 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
+  'flex w-full items-center gap-1.5 rounded-lg border border-slate-200 bg-white py-0 shadow-sm transition-colors hover:border-slate-300 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-400/20 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
 
 export const marketingInput =
-  'min-h-11 rounded-xl border border-white/[0.12] bg-[#141418] px-3 text-[15px] text-white shadow-inner shadow-black/25 placeholder:text-white/35 transition-colors hover:border-white/[0.2] hover:bg-[#18181c] focus-visible:border-violet-500/50 focus-visible:ring-2 focus-visible:ring-violet-400/25 focus-visible:ring-offset-0';
+  'min-h-11 rounded-lg border border-slate-200 bg-white px-3 text-[15px] text-slate-900 shadow-sm placeholder:text-slate-400 transition-colors hover:border-slate-300 focus-visible:border-slate-400 focus-visible:ring-2 focus-visible:ring-slate-400/20 focus-visible:ring-offset-0';
 
 export const marketingTextarea =
-  'min-h-[120px] resize-y rounded-xl border border-white/[0.12] bg-[#141418] px-3 py-2.5 text-[15px] text-white shadow-inner shadow-black/25 placeholder:text-white/35 transition-colors hover:border-white/[0.2] hover:bg-[#18181c] focus-visible:border-violet-500/50 focus-visible:ring-2 focus-visible:ring-violet-400/25 focus-visible:ring-offset-0';
+  'min-h-[120px] resize-y rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[15px] text-slate-900 shadow-sm placeholder:text-slate-400 transition-colors hover:border-slate-300 focus-visible:border-slate-400 focus-visible:ring-2 focus-visible:ring-slate-400/20 focus-visible:ring-offset-0';
 
 export const marketingAuthInput =
-  'min-w-0 flex-1 border-0 bg-transparent py-0 text-[15px] text-white outline-none ring-0 placeholder:text-white/35 focus-visible:outline-none focus-visible:ring-0';
+  'min-w-0 flex-1 border-0 bg-transparent py-0 text-[15px] text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-0';
 
-export const marketingPrimaryButtonBase =
-  'group relative overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-violet-700 text-white transition-shadow duration-300 disabled:cursor-not-allowed disabled:opacity-60';
+/** Shared base for all marketing buttons */
+export const marketingButtonBase =
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0';
+
+/** Uses semantic primary tokens — always present in the CSS bundle (unlike slate utilities). */
+export const marketingPrimaryButtonCore = cn(
+  marketingButtonBase,
+  'border border-primary bg-primary text-primary-foreground shadow-sm',
+  'hover:bg-primary/90',
+  'active:opacity-95'
+);
 
 export const marketingPrimaryButtonSizes = {
-  sm: 'px-5 py-2.5 text-sm font-semibold shadow-md shadow-violet-500/20 hover:shadow-lg hover:shadow-violet-500/30',
-  md: 'w-full px-4 py-3 text-base font-bold shadow-[0_0_32px_rgba(139,92,246,0.32)] hover:shadow-[0_0_48px_rgba(139,92,246,0.48)]',
-  lg: 'px-9 py-4 text-base font-bold shadow-[0_0_40px_rgba(139,92,246,0.35)] hover:shadow-[0_0_60px_rgba(139,92,246,0.52)]',
-  xl: 'px-10 py-4 text-base font-bold shadow-[0_0_40px_rgba(139,92,246,0.38)] hover:shadow-[0_0_60px_rgba(139,92,246,0.55)]',
+  sm: 'h-9 px-4 text-sm font-medium',
+  md: 'h-11 w-full px-5 text-sm font-medium',
+  lg: 'h-12 px-8 text-base font-semibold shadow-md',
+  xl: 'h-14 px-8 text-base font-bold shadow-lg',
 } as const;
 
-export const marketingShimmer =
-  'absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12';
+/** @deprecated Use marketingPrimaryButtonCore */
+export const marketingPrimaryButtonBase = marketingPrimaryButtonCore;
+
+export const marketingGhostButton = cn(
+  marketingButtonBase,
+  'h-11 w-full border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 shadow-sm',
+  'hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900'
+);
+
+export const marketingGhostNav = cn(
+  marketingButtonBase,
+  'h-9 border border-transparent bg-transparent px-3 text-sm text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+);
+
+export const marketingSecondaryButton = cn(
+  marketingButtonBase,
+  'h-10 border border-slate-200 bg-slate-50 px-4 text-sm text-slate-800 hover:bg-slate-100'
+);
+
+export const marketingDestructiveButton = cn(
+  marketingButtonBase,
+  'h-10 border border-red-200 bg-white px-4 text-sm text-red-600 shadow-sm hover:border-red-300 hover:bg-red-50'
+);
+
+/** Skip link + compact icon actions */
+export const marketingSkipLink =
+  'sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:inline-flex focus:h-9 focus:items-center focus:rounded-lg focus:bg-slate-900 focus:px-4 focus:text-sm focus:font-medium focus:text-white focus:shadow-sm';
+
+/** @deprecated Shimmer removed */
+export const marketingShimmer = 'hidden';
 
 export const marketingSectionTitle =
-  'text-4xl font-black tracking-tight text-white md:text-5xl';
+  'text-4xl font-black tracking-tight text-slate-900 md:text-5xl';
 
-export const marketingAccentSpan = 'text-violet-400';
+export const marketingAccentSpan = 'text-slate-700';
 
-/** Full-width page column (aligned with /home) — not a narrow centered card stack */
+export const marketingIconTile =
+  'flex items-center justify-center rounded-lg bg-slate-100 text-slate-700';
+export const marketingIconTileSm = 'h-10 w-10';
+export const marketingIconTileMd = 'h-12 w-12';
+
 export const marketingPageContainer = 'mx-auto w-full max-w-6xl px-6 md:px-8';
 
-/** Page hero / intro band — divider only, no card chrome */
-export const marketingFlatHero = 'border-b border-white/[0.06] pb-8 md:pb-10';
+export const marketingFlatHero = 'border-b border-slate-200 pb-8 md:pb-10';
 
-/** Section separated by horizontal rules */
-export const marketingSection =
-  'border-b border-white/[0.06] py-8 md:py-10 last:border-b-0';
+export const marketingSection = 'border-b border-slate-200 py-8 md:py-10 last:border-b-0';
 
-/** Settings: sticky sidebar + main column */
 export const marketingSplitPage =
   'grid grid-cols-1 gap-8 lg:grid-cols-[minmax(200px,240px)_minmax(0,1fr)] lg:gap-12 xl:gap-16';
 
-/** Full-width interactive row (workflows, recents, settings) */
 export const marketingListRow =
-  'group flex w-full items-center gap-4 border-b border-white/[0.06] py-4 text-left transition-colors hover:bg-white/[0.03] focus-visible:bg-white/[0.03] last:border-b-0 md:py-5';
+  'group flex w-full items-center gap-4 border-b border-slate-200 py-4 text-left transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 last:border-b-0 md:py-5';
 
-/** @deprecated Prefer marketingSection / marketingListRow for app pages */
 export const marketingGlassCard =
-  'relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-sm shadow-black/25 backdrop-blur-sm ring-1 ring-inset ring-white/[0.06]';
+  'relative overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm shadow-slate-900/[0.03]';
 
 export const marketingGlassCardDanger =
-  'relative overflow-hidden rounded-2xl border border-red-500/20 bg-red-950/20 shadow-sm shadow-black/25 backdrop-blur-sm';
+  'relative overflow-hidden rounded-xl border border-red-200 bg-red-50 shadow-sm';
 
-export const marketingGhostButton =
-  'inline-flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] bg-white/[0.04] px-4 py-2 text-sm font-medium text-white/70 transition-colors hover:border-white/[0.15] hover:bg-white/[0.08] hover:text-white disabled:cursor-not-allowed disabled:opacity-50';
-
-export const marketingDestructiveButton =
-  'inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:border-red-500/40 hover:bg-red-500/15 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50';
-
-/** @deprecated Use marketingPageContainer — flat full-width layout */
+/** @deprecated Use marketingPageContainer */
 export const marketingSettingsContainer = marketingPageContainer;

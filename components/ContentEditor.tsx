@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
-import { Button } from './ui/button';
-import { Wand2 } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { FileSearch } from 'lucide-react';
+import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
 
 interface ContentEditorProps {
   initialContent: string;
@@ -12,14 +11,13 @@ interface ContentEditorProps {
   mode: 'ai-generate' | 'analyze';
   onCreate: () => void;
   onAnalyze: () => void;
-  sendDataToParent: any;
+  sendDataToParent: (data: string) => void;
 }
 
 export function ContentEditor({
   initialContent,
   onContentChange,
   mode,
-  onCreate,
   onAnalyze,
   sendDataToParent,
 }: ContentEditorProps) {
@@ -27,9 +25,7 @@ export function ContentEditor({
   const [charCount, setCharCount] = useState(0);
   const [wordCount, setWordCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
-  const editorRef = useRef<any>(null);
-  const { resolvedTheme } = useTheme();
-// console.log("contentcontent" ,content);
+  const editorRef = useRef<unknown>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -37,7 +33,10 @@ export function ContentEditor({
 
   useEffect(() => {
     setContent(initialContent);
-  }, [initialContent]);
+    if (initialContent.trim()) {
+      sendDataToParent(initialContent);
+    }
+  }, [initialContent, sendDataToParent]);
 
   const handleEditorChange = (newContent: string) => {
     setContent(newContent);
@@ -45,9 +44,9 @@ export function ContentEditor({
     const plainText = newContent.replace(/<[^>]*>/g, '').trim();
     setCharCount(plainText.length);
     setWordCount(plainText.split(/\s+/).filter(Boolean).length);
-
     sendDataToParent(newContent);
   };
+
   const hasContent = content.trim().length > 0;
 
   if (!isMounted) {
@@ -55,12 +54,17 @@ export function ContentEditor({
   }
 
   return (
-    <div className="h-full flex flex-col gap-6 p-6">
-      <div className="flex-1 relative border rounded-lg overflow-auto bg-white shadow-lg">
+    <div className="flex h-full min-h-[360px] flex-col gap-4">
+      <div className="relative min-h-[300px] flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white">
         <Editor
-          apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
-          onInit={(evt, editor) => {
+          tinymceScriptSrc="/tinymce/tinymce.min.js"
+          licenseKey="gpl"
+          onInit={(_evt, editor) => {
             editorRef.current = editor;
+            const current = editor.getContent();
+            if (current.trim()) {
+              sendDataToParent(current);
+            }
           }}
           value={content}
           onEditorChange={handleEditorChange}
@@ -69,10 +73,12 @@ export function ContentEditor({
             menubar: true,
             branding: false,
             statusbar: false,
+            skin_url: '/tinymce/skins/ui/oxide',
+            content_css: '/tinymce/skins/content/default/content.min.css',
             plugins: [
               'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
               'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
-              'fullscreen', 'insertdatetime', 'media', 'table', 'wordcount'
+              'fullscreen', 'insertdatetime', 'media', 'table', 'wordcount',
             ],
             toolbar: [
               { name: 'history', items: ['undo', 'redo'] },
@@ -82,131 +88,45 @@ export function ContentEditor({
               { name: 'lists', items: ['numlist', 'bullist'] },
               { name: 'indentation', items: ['outdent', 'indent'] },
               { name: 'insert', items: ['link', 'image', 'table'] },
-              { name: 'view', items: ['preview', 'fullscreen'] }
+              { name: 'view', items: ['preview', 'fullscreen'] },
             ],
-            skin: 'oxide',
-            content_css: 'default',
             content_style: `
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, 
-                   Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-      font-size: 16px;
-      line-height: 1.5;
-      padding: 1rem;
-      background-color: #ffffff !important;
-      color: #000000 !important;
-      min-height: calc(100vh - 120px);
-      cursor: text;
-    }
-    
-    .tox-toolbar {
-      background-color: #f8f9fb !important;
-      border-bottom: 1px solid #e2e8f0 !important;
-    }
-    
-    .tox-toolbar__primary {
-      background-color: #f8f9fb !important;
-      border-bottom: 1px solid #e2e8f0 !important;
-    }
-    
-    .tox-toolbar-overlord {
-      background-color: #f8f9fb !important;
-    }
-    
-    .tox-menubar {
-      background-color: #f8f9fb !important;
-      border-bottom: 1px solid #e2e8f0 !important;
-    }
-    
-    .tox.tox-tinymce {
-      border: 1px solid #e2e8f0 !important;
-      border-radius: 0.75rem !important;
-      overflow: hidden;
-      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    }
-    
-    .tox-statusbar {
-      display: none !important;
-    }
-    
-    .tox-tinymce-aux {
-      z-index: 99999;
-    }
-    
-    /* Fix placeholder alignment */
-    .mce-content-body[data-mce-placeholder]:not(.mce-visualblocks)::before {
-      color: #94a3b8 !important;
-      position: absolute;
-      left: 1rem;
-      top: 1rem;
-      font-size: 16px;
-      font-family: inherit;
-      line-height: 1.5;
-      content: attr(data-mce-placeholder);
-      pointer-events: none;
-    }
-
-    /* Ensure consistent paragraph spacing */
-    p {
-      margin: 0;
-      min-height: 1.5em;
-    }
-
-    /* Fix cursor alignment */
-    .mce-content-body:not([dir=rtl])[data-mce-placeholder]:not(.mce-visualblocks)::before {
-      left: 1rem;
-    }
-  `,
-            // Ensure proper initial focus
-            setup: (editor) => {
-              editor.on('init', () => {
-                const editorContainer = editor.getContainer();
-                editorContainer.style.transition = "border-color 0.15s ease-in-out";
-
-                // Set initial cursor position
-                editor.focus();
-                const body = editor.getBody();
-                const firstChild = body.firstChild;
-                if (firstChild) {
-                  editor.selection.setCursorLocation(firstChild, 0);
-                } else {
-                  editor.selection.setCursorLocation(body, 0);
-                }
-
-                // Force white background
-                const editorIframe = editorContainer.querySelector('iframe');
-                if (editorIframe) {
-                  const iframeDocument = editorIframe.contentDocument;
-                  if (iframeDocument) {
-                    iframeDocument.documentElement.style.backgroundColor = '#ffffff';
-                  }
-                }
-              });
-            },
-            placeholder: 'Start writing your content...',
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+                font-size: 16px;
+                line-height: 1.6;
+                padding: 1rem;
+                background-color: #ffffff !important;
+                color: #0f172a !important;
+                min-height: calc(100vh - 200px);
+              }
+              p { margin: 0; min-height: 1.5em; }
+            `,
+            placeholder: 'Paste or write your content here…',
             forced_root_block: 'p',
             remove_trailing_brs: true,
           }}
         />
       </div>
-      <div className="flex justify-between items-center">
-        <div className="flex space-x-8 text-lg text-muted-foreground">
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-6 text-sm text-slate-500">
           <span>Characters: {charCount}</span>
           <span>Words: {wordCount}</span>
         </div>
-        {mode === 'analyze' && (
-          <div className="flex gap-4">
-            <Button
-              onClick={onAnalyze}
-              disabled={!hasContent}
-              className="gap-3 px-8 py-6 text-lg rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-              size="lg"
-            >
-              <Wand2 className="h-7 w-7" />
-              Analyze
-            </Button>
-          </div>
-        )}
+        {mode === 'analyze' ? (
+          <MarketingPrimaryButton
+            type="button"
+            size="sm"
+            fullWidth={false}
+            disabled={!hasContent}
+            onClick={onAnalyze}
+            className="!w-auto sm:min-w-[140px]"
+          >
+            <FileSearch className="h-4 w-4" aria-hidden />
+            Run analysis
+          </MarketingPrimaryButton>
+        ) : null}
       </div>
     </div>
   );

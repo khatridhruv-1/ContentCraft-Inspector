@@ -1,102 +1,196 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { FileSearch } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AIGeneratePanel from '@/components/AIGeneratePanel';
-import AnalysisPanel from '@/components/AnalysisPanel';
-import OutlinePanel from '@/components/OutlinePanel';
-import InfoGainPanel from '@/components/InfoGainPanel';
-import MarkdownRenderer from '@/components/MarkdownRenderer';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  studioHistoryColumn,
+  studioSplitShell,
+  studioWorkspaceColumn,
+} from '@/components/dashboard/dashboardLayout';
+import StudioHistorySidebar from '@/components/dashboard/StudioHistorySidebar';
+import StudioWorkspacePanel from '@/components/dashboard/StudioWorkspacePanel';
+import { useAiContentGenerate } from '@/hooks/useAiContentGenerate';
+import { deleteHistoryItem, fetchHistory } from '@/lib/content/appwrite';
+import { studioChatTitle, type StudioHistoryItem } from '@/lib/dashboard/studioHistory';
+import { getUser } from '@/lib/user/appwrite';
+import { getSessionToken } from '@/lib/user/session';
 import { htmlToMarkdown } from '@/lib/utils';
+import type { DiscoveredKeyword } from '@/types/seo';
 
 interface AIGenerateViewProps {
-  content: string;
   generatedContent: string;
-  showAIGenerateAnalysis: boolean;
-  onContentGenerated: (content: string) => void;
+  discoveredKeywords?: DiscoveredKeyword[];
+  initialBrief?: string;
+  onContentGenerated: (content: string, meta?: { keywords?: DiscoveredKeyword[] }) => void;
   onAnalyze: () => void;
+  onOpenAnalyzeChat?: (item: StudioHistoryItem) => void;
   onDownloadAsWord: () => void;
 }
 
+const HISTORY_LIMIT = 40;
+
 export default function AIGenerateView({
-  content,
   generatedContent,
-  showAIGenerateAnalysis,
+  discoveredKeywords = [],
+  initialBrief,
   onContentGenerated,
   onAnalyze,
+  onOpenAnalyzeChat,
   onDownloadAsWord,
 }: AIGenerateViewProps) {
-  return (
-    <div className="grid grid-cols-2 gap-10 h-full">
-      {/* Left Column - Input Panel */}
-      <motion.div
-        initial={{ x: -50, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="bg-white rounded-2xl border border-gray-100 shadow-lg h-full overflow-hidden flex flex-col"
-      >
-        <div className="p-4 border-b border-gray-100 flex-shrink-0">
-          <h2 className="text-xl font-semibold">Generate New Content</h2>
-        </div>
-        <div className="flex-1 overflow-auto p-6">
-          <AIGeneratePanel onContentGenerated={onContentGenerated} />
-        </div>
-      </motion.div>
+  const [historyItems, setHistoryItems] = useState<StudioHistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+  const [brief, setBrief] = useState(initialBrief ?? '');
+  const [tone, setTone] = useState('');
+  const [keywords, setKeywords] = useState('');
+  const [localKeywords, setLocalKeywords] = useState<DiscoveredKeyword[]>(discoveredKeywords);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { generate, loading } = useAiContentGenerate();
 
-      {/* Right Column - Output and Analysis */}
-      <motion.div
-        initial={{ x: 50, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="bg-white rounded-2xl border border-gray-100 shadow-lg h-full flex flex-col"
-      >
-        <div className="p-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
-          <h2 className="text-xl font-semibold">Generated Content</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={onAnalyze}
-              className="gap-2 px-4 py-2 rounded-lg flex items-center bg-blue-600 text-white hover:bg-blue-700"
-            >
-              <FileSearch className="h-5 w-5" />
-              Analyze
-            </button>
-            <button
-              onClick={onDownloadAsWord}
-              className="gap-2 px-4 py-2 rounded-lg flex items-center bg-green-600 text-white hover:bg-green-700"
-            >
-              📄 Download as Word
-            </button>
-          </div>
-        </div>
-        <div className="flex-1 p-6 overflow-auto" style={{ position: 'relative', overflowY: 'auto', scrollbarColor: '#bab9b9 #f0f0f0' }}>
-          <div className="prose max-w-none" style={{ position: 'absolute', paddingRight: '10px' }}>
-            <MarkdownRenderer content={htmlToMarkdown(generatedContent)} />
-          </div>
-        </div>
-        {showAIGenerateAnalysis && (
-          <div className="border-t border-gray-100 flex-1 overflow-hidden">
-            <Tabs defaultValue="analysis" className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-3 bg-white p-4 border-b border-gray-100">
-                <TabsTrigger value="analysis">Analysis 📊</TabsTrigger>
-                <TabsTrigger value="outline">Outline 📝</TabsTrigger>
-                <TabsTrigger value="infogain">Info Gain 🧠</TabsTrigger>
-              </TabsList>
-              <div className="flex-1 overflow-auto">
-                <TabsContent value="analysis" className="p-4">
-                  <AnalysisPanel content={content} triggerAnalysis={showAIGenerateAnalysis} dataFromChild={content} />
-                </TabsContent>
-                <TabsContent value="outline" className="p-4">
-                  <OutlinePanel content={content} triggerOutline={showAIGenerateAnalysis} dataFromChild={content} />
-                </TabsContent>
-                <TabsContent value="infogain" className="p-4">
-                  <InfoGainPanel content={content} triggerInfoGain={showAIGenerateAnalysis} dataFromChild={content} />
-                </TabsContent>
-              </div>
-            </Tabs>
-          </div>
-        )}
-      </motion.div>
+  const loadHistory = useCallback(async () => {
+    try {
+      const sessionToken = getSessionToken();
+      if (!sessionToken) return;
+
+      const user = await getUser(sessionToken);
+      if (!user?.$id) return;
+
+      const result = await fetchHistory(user.$id, 1, HISTORY_LIMIT);
+      setHistoryItems(result.documents as StudioHistoryItem[]);
+    } catch (err) {
+      console.error('Failed to load studio history:', err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadHistory();
+  }, [loadHistory]);
+
+  useEffect(() => {
+    if (initialBrief) setBrief(initialBrief);
+  }, [initialBrief]);
+
+  const handleSelectChat = useCallback(
+    (item: StudioHistoryItem) => {
+      if (item.mode === 'analyze') {
+        onOpenAnalyzeChat?.(item);
+        return;
+      }
+
+      setActiveChatId(item.$id);
+      setBrief(htmlToMarkdown(item.content).trim() || item.content);
+      setErrorMessage(null);
+      localStorage.setItem('documentId', item.$id);
+
+      if (item.analysis?.trim()) {
+        onContentGenerated(item.analysis, {});
+      } else {
+        onContentGenerated('', {});
+      }
+    },
+    [onContentGenerated, onOpenAnalyzeChat]
+  );
+
+  const handleNewChat = useCallback(() => {
+    setActiveChatId(null);
+    setBrief('');
+    setTone('');
+    setKeywords('');
+    setErrorMessage(null);
+    localStorage.removeItem('documentId');
+    onContentGenerated('', {});
+  }, [onContentGenerated]);
+
+  const handleDeleteChat = useCallback(
+    async (item: StudioHistoryItem) => {
+      const title = studioChatTitle(item.content);
+      const confirmed = window.confirm(`Delete "${title}"? This cannot be undone.`);
+      if (!confirmed) return;
+
+      setDeletingId(item.$id);
+      setErrorMessage(null);
+
+      try {
+        await deleteHistoryItem(item.$id);
+        setHistoryItems(prev => prev.filter(entry => entry.$id !== item.$id));
+
+        if (activeChatId === item.$id) {
+          handleNewChat();
+        }
+      } catch (error) {
+        console.error('Failed to delete chat:', error);
+        setErrorMessage('Failed to delete chat. Please try again.');
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [activeChatId, handleNewChat]
+  );
+
+  const handleGenerate = useCallback(async () => {
+    const text = brief.trim();
+    if (!text || loading) return;
+
+    setErrorMessage(null);
+
+    try {
+      const result = await generate(text, { tone: tone || undefined, keywords });
+      const keywordList = result.keywords ?? [];
+      setLocalKeywords(keywordList);
+      onContentGenerated(result.content, { keywords: keywordList });
+
+      const docId = localStorage.getItem('documentId');
+      setActiveChatId(docId);
+      await loadHistory();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Something went wrong. Please try again.'
+      );
+    }
+  }, [brief, generate, keywords, loadHistory, loading, onContentGenerated, tone]);
+
+  const activeItem = historyItems.find(item => item.$id === activeChatId);
+  const activeTitle = activeItem
+    ? studioChatTitle(activeItem.content)
+    : brief.trim()
+      ? studioChatTitle(brief)
+      : null;
+
+  return (
+    <div className={studioSplitShell}>
+      <div className={studioHistoryColumn}>
+        <StudioHistorySidebar
+          items={historyItems}
+          activeId={activeChatId}
+          loading={historyLoading}
+          deletingId={deletingId}
+          onSelect={handleSelectChat}
+          onDelete={item => void handleDeleteChat(item)}
+          onNewChat={handleNewChat}
+        />
+      </div>
+      <div className={studioWorkspaceColumn}>
+        <StudioWorkspacePanel
+          generatedContent={generatedContent}
+          activeTitle={activeTitle}
+          discoveredKeywords={localKeywords.length > 0 ? localKeywords : discoveredKeywords}
+          historyLoading={historyLoading}
+          loading={loading}
+          brief={brief}
+          tone={tone}
+          keywords={keywords}
+          errorMessage={errorMessage}
+          onBriefChange={setBrief}
+          onToneChange={setTone}
+          onKeywordsChange={setKeywords}
+          onGenerate={() => void handleGenerate()}
+          onAnalyze={onAnalyze}
+          onDownloadAsWord={onDownloadAsWord}
+        />
+      </div>
     </div>
   );
 }

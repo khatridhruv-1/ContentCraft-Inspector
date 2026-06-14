@@ -7,7 +7,7 @@ import { getUser } from '@/lib/user/appwrite';
 import { clearAuthSession, getSessionToken } from '@/lib/user/session';
 import { fetchHistory } from '@/lib/content/appwrite';
 import { AUTH_EASE } from '@/components/auth/authFeatures';
-import HomeBackground from '@/components/home/HomeBackground';
+import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import HomeNav from '@/components/home/HomeNav';
 import HomeFooter from '@/components/home/HomeFooter';
 import HomeSectionHeader from '@/components/home/HomeSectionHeader';
@@ -20,12 +20,8 @@ import {
   MODE_LABELS,
   type HomeModeId,
 } from '@/components/home/homeWorkflows';
+import { marketingAccentSpan, marketingSkipLink } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
-
-const rise = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: AUTH_EASE } },
-};
 
 function previewText(raw: string, max = 72) {
   const plain = raw.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
@@ -91,24 +87,21 @@ export default function Home() {
   };
 
   return (
-    <div className="relative flex flex-col">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
-      >
+    <div className="relative flex min-h-full flex-col">
+      <a href="#main-content" className={marketingSkipLink}>
         Skip to main content
       </a>
 
-      <HomeBackground />
+      <MarketingDotGrid />
       <HomeNav />
 
       <motion.main
         id="main-content"
         aria-label="Workspace home"
-        initial={reduced ? false : 'hidden'}
-        animate="show"
-        variants={rise}
-        className={cn('relative z-10 pb-6 pt-5 md:pb-8 md:pt-7', homeContainer)}
+        initial={reduced ? false : { opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, ease: AUTH_EASE }}
+        className={cn('relative z-10 flex-1 py-6 md:py-10', homeContainer)}
       >
         <HomeWorkspacePanel
           userName={userName}
@@ -118,15 +111,20 @@ export default function Home() {
           onOpenRecent={openRecent}
         />
 
+        <div className="mb-8 md:mb-10" aria-hidden>
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+        </div>
+
         <section aria-labelledby="workflows-heading">
           <HomeSectionHeader
-            className="mb-5 md:mb-6"
+            className="mb-8 md:mb-10"
             headingId="workflows-heading"
+            centered
             eyebrow="Workflows"
             title={
               <>
                 What do you want to{' '}
-                <span className="text-violet-400">work on?</span>
+                <span className={marketingAccentSpan}>work on?</span>
               </>
             }
             description="Each card opens the dashboard in that mode — your only launchers on this page."

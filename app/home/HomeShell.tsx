@@ -15,7 +15,6 @@ export default function HomeShell({ children }: { children: ReactNode }) {
     <div
       className={`home-page marketing-page fixed inset-0 flex flex-col overflow-y-auto ${marketingBgClass} ${marketingPageClass}`}
       style={{
-        colorScheme: 'dark',
         background: MARKETING_PAGE_GRADIENT,
       }}
     >

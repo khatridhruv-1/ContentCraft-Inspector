@@ -14,7 +14,8 @@
     "db:push": "supabase db push",
     "db:status": "supabase migration list",
     "db:link": "supabase link --project-ref $SUPABASE_PROJECT_REF",
-    "db:setup": "bash scripts/supabase-setup.sh"
+    "db:setup": "bash scripts/supabase-setup.sh",
+    "postinstall": "node scripts/copy-tinymce.mjs"
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "^5.9.4",
@@ -90,6 +91,7 @@
     "tailwind-merge": "^2.2.0",
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.7",
+    "tinymce": "^8.6.0",
     "typescript": "5.2.2",
     "vaul": "^0.8.0"
   },
@@ -98,6 +100,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/html-docx-js": "^0.3.4",
     "@types/quill": "^2.0.14",
+    "fs-extra": "^11.3.5",
     "supabase": "^2.101.0"
   }
 }

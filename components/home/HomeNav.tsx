@@ -2,73 +2,92 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { HelpCircle, History, LayoutDashboard, Sparkles, User } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { HelpCircle, History, LayoutDashboard, User } from 'lucide-react';
+import ContentCraftNavBrand from '@/components/brand/ContentCraftNavBrand';
+import { AUTH_EASE } from '@/components/auth/authFeatures';
 import { homeContainer } from '@/components/home/homeLayout';
 import {
-  marketingBrandIcon,
-  marketingHeaderBar,
-  marketingBrandIconSm,
   marketingFocusRing,
+  marketingGhostNav,
+  marketingNavPill,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 export default function HomeNav() {
   const router = useRouter();
   const pathname = usePathname();
+  const reduced = useReducedMotion();
   const isProfile = pathname === '/profile';
 
-  const navBtn = cn(
-    'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm text-white/65 transition-colors hover:bg-white/[0.06] hover:text-white sm:px-3',
-    marketingFocusRing
-  );
-
-  const profileNavClass = cn(
-    navBtn,
-    isProfile && 'bg-white/[0.08] text-white',
-    'px-2.5'
-  );
+  const navBtn = (active = false) =>
+    cn(
+      marketingGhostNav,
+      '!h-9 px-2.5 text-sm sm:px-3',
+      active && 'bg-slate-100 text-slate-900 font-medium',
+      marketingFocusRing
+    );
 
   return (
-    <header className={marketingHeaderBar}>
-      <div className={cn(homeContainer, 'flex h-12 items-center justify-between gap-3 md:h-14')}>
+    <motion.nav
+      initial={reduced ? false : { y: -12, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: AUTH_EASE }}
+      className="sticky top-0 z-50 px-4 py-2.5 md:px-6"
+      aria-label="Workspace navigation"
+    >
+      <div
+        className={cn(
+          homeContainer,
+          'relative flex min-h-[3.75rem] items-center justify-between gap-3 !px-3 py-2 sm:!px-4'
+        )}
+      >
+        <div
+          className={cn('absolute inset-x-0 inset-y-0 rounded-2xl -z-10', marketingNavPill)}
+        />
+
         <Link
           href="/home"
-          className={cn('flex min-w-0 items-center gap-2', marketingFocusRing)}
-          aria-label="ContentCraft home"
+          className={cn('flex min-w-0 max-w-[58%] items-center sm:max-w-none', marketingFocusRing)}
+          aria-label="ContentCraft Inspector home"
         >
-          <div className={cn(marketingBrandIconSm, marketingBrandIcon)}>
-            <Sparkles className="h-3.5 w-3.5 text-white" aria-hidden />
-          </div>
-          <span className="text-sm font-semibold tracking-tight text-white/90">
-            ContentCraft
-            <span className="hidden text-white/40 sm:inline"> Inspector</span>
-          </span>
+          <ContentCraftNavBrand priority />
         </Link>
 
-        <nav className="flex shrink-0 items-center gap-0.5" aria-label="Workspace navigation">
-          <button type="button" onClick={() => router.push('/dashboard')} className={navBtn}>
+        <div className="flex shrink-0 items-center gap-0.5">
+          <button
+            type="button"
+            onClick={() => router.push('/dashboard')}
+            className={navBtn()}
+            aria-label="Dashboard"
+          >
             <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden />
             <span className="hidden lg:inline">Dashboard</span>
           </button>
-          <button type="button" onClick={() => router.push('/history')} className={navBtn}>
+          <button
+            type="button"
+            onClick={() => router.push('/history')}
+            className={navBtn()}
+            aria-label="History"
+          >
             <History className="h-4 w-4 shrink-0" aria-hidden />
             <span className="hidden lg:inline">History</span>
           </button>
-          <Link href="/help" className={navBtn}>
+          <Link href="/help" className={navBtn()} aria-label="Help">
             <HelpCircle className="h-4 w-4 shrink-0" aria-hidden />
             <span className="hidden lg:inline">Help</span>
           </Link>
           <Link
             href="/profile"
-            className={profileNavClass}
+            className={navBtn(isProfile)}
             aria-label="Profile"
             aria-current={isProfile ? 'page' : undefined}
           >
             <User className="h-4 w-4 shrink-0" aria-hidden />
             <span className="hidden lg:inline">Profile</span>
           </Link>
-        </nav>
+        </div>
       </div>
-    </header>
+    </motion.nav>
   );
 }

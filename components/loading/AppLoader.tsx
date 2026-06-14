@@ -13,7 +13,7 @@ export interface AppLoaderProps {
   label?: string;
 }
 
-/** Small violet ring for buttons and inline actions */
+/** Small violet + primary ring for buttons and inline actions */
 export function AppLoader({
   className,
   label = 'Loading',

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 870 240" width="870" height="240" role="img" aria-label="ContentCraft Inspector">
+  <style>
+    .lens {
+      fill: none;
+      stroke: #F4F7FA;
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 430;
+      stroke-dashoffset: 430;
+      animation: draw 1.6s cubic-bezier(.65,.05,.36,1) forwards;
+    }
+    .line {
+      stroke: #F4F7FA;
+      stroke-width: 8;
+      stroke-linecap: round;
+      opacity: 0;
+      transform-origin: 78px 106px;
+      animation: reveal .5s ease-out 1.5s forwards;
+    }
+    .line2 { animation-delay: 1.62s; }
+    .nib {
+      fill: #FF5A64;
+      opacity: 0;
+      transform-origin: 185px 185px;
+      animation: mark .4s cubic-bezier(.2,1.4,.4,1) 1.45s forwards;
+    }
+    .wordmark {
+      font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      fill: #F4F7FA;
+      opacity: 0;
+      animation: fadein .7s ease-out 1.1s forwards;
+    }
+    .brand { font-size: 58px; font-weight: 700; letter-spacing: -1px; }
+    .sub   { font-size: 58px; font-weight: 300; letter-spacing: -0.5px; }
+    @keyframes draw   { to { stroke-dashoffset: 0; } }
+    @keyframes reveal { from { opacity: 0; transform: scaleX(0); } to { opacity: 1; transform: scaleX(1); } }
+    @keyframes mark   { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadein { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+    @media (prefers-reduced-motion: reduce) {
+      .lens { animation: none; stroke-dashoffset: 0; }
+      .line, .nib, .wordmark { animation: none; opacity: 1; transform: none; }
+    }
+  </style>
+
+  <path class="lens" d="M 152 144 A 60 60 0 1 0 148.4 148.4 L 185 185" />
+  <line class="line line1" x1="78" y1="92"  x2="134" y2="92" />
+  <line class="line line2" x1="78" y1="116" x2="118" y2="116" />
+  <circle class="nib" cx="185" cy="185" r="9" />
+
+  <text class="wordmark" x="244" y="126" dominant-baseline="middle">
+    <tspan class="brand">ContentCraft</tspan><tspan class="sub" dx="14">Inspector</tspan>
+  </text>
+</svg>

@@ -1,5 +1,20 @@
-import axios from "axios";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { groqChat, groqErrorResponse, parseGroqJson } from '@/lib/ai/groq';
+import {
+  ANALYSIS_MAX_PLAIN_CHARS,
+  ANALYSIS_MIN_PLAIN_CHARS,
+  normalizeAnalysisInput,
+} from '@/lib/content/plainText';
+
+type AnalysisResult = {
+  contentScore: number;
+  wordCount: number;
+  readingTime: number;
+  readability: number;
+  tone: string;
+  keyInsights: string[];
+  improvements: string[];
+};
 
 async function validateContent(req: Request): Promise<string | NextResponse> {
   let content: unknown;
@@ -7,79 +22,81 @@ async function validateContent(req: Request): Promise<string | NextResponse> {
     const body = await req.json();
     content = body?.content;
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
-  if (!content || typeof content !== "string" || !content.trim()) {
-    return NextResponse.json({ error: "Content is required" }, { status: 400 });
+  if (!content || typeof content !== 'string' || !content.trim()) {
+    return NextResponse.json({ error: 'Content is required' }, { status: 400 });
   }
 
-  if (content.length > 10000) {
+  const plain = normalizeAnalysisInput(content);
+  if (!plain) {
     return NextResponse.json(
-      { error: "Content exceeds maximum length of 10000 characters" },
+      { error: 'Content is empty after removing formatting. Please add text to analyze.' },
       { status: 400 }
     );
   }
 
-  return content;
-}
-
-async function fetchAnalysis(content: string): Promise<object | NextResponse> {
-  const response = await axios.post(
-    "https://api.openai.com/v1/chat/completions",
-    {
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `
-            You are a powerful AI assistant that analyzes content and provides detailed insights and scores.
-            Your task is to evaluate the given content and return the following results in JSON format:
-            {
-              "contentScore": number, // Overall vibe of the content (0-100, with 100 being the best). Calculate this score based on these factors:
-                - Readability (weight: 30%)
-                - Structure and organization (weight: 30%)
-                - Tone appropriateness (weight: 20%)
-                - Use of engaging and concise language (weight: 20%)
-              "wordCount": number, // Total word count of the content
-              "readingTime": number, // Estimated reading time in minutes (assume 150 words per minute)
-              "readability": number, // Readability score (0-100, with 100 being the easiest to read)
-              "tone": string, // The tone of the content (e.g., "formal", "casual", "persuasive", etc.)
-              "keyInsights": string[], // Key insights from the content (up to 5 points)
-              "improvements": string[] // Suggested improvements to make the content stronger (up to 5 points)
-            }
-            Provide clear and concise results based on your analysis.
-          `,
-        },
-        {
-          role: "user",
-          content: `Analyze the following content and provide scores and insights: ${content}`,
-        },
-      ],
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-    }
-  );
-
-  const data = response.data.choices[0].message.content;
-  try {
-    return JSON.parse(data);
-  } catch {
+  if (plain.length < ANALYSIS_MIN_PLAIN_CHARS) {
     return NextResponse.json(
-      { error: "Invalid analysis response" },
-      { status: 502 }
+      { error: `Content is too short to analyze. Add at least ${ANALYSIS_MIN_PLAIN_CHARS} characters of text.` },
+      { status: 400 }
     );
   }
+
+  if (plain.length > ANALYSIS_MAX_PLAIN_CHARS) {
+    return NextResponse.json(
+      { error: `Content exceeds maximum length of ${ANALYSIS_MAX_PLAIN_CHARS} characters.` },
+      { status: 400 }
+    );
+  }
+
+  return plain;
+}
+
+async function fetchAnalysis(content: string): Promise<AnalysisResult> {
+  const raw = await groqChat({
+    messages: [
+      {
+        role: 'system',
+        content: `
+You are a powerful AI assistant that analyzes content and provides detailed insights and scores.
+Evaluate the given content and return ONLY valid JSON with this structure:
+{
+  "contentScore": number,
+  "wordCount": number,
+  "readingTime": number,
+  "readability": number,
+  "tone": string,
+  "keyInsights": string[],
+  "improvements": string[]
+}
+
+Scoring rules for contentScore (0-100):
+- Readability (30%)
+- Structure and organization (30%)
+- Tone appropriateness (20%)
+- Engaging, concise language (20%)
+
+Assume 150 words per minute for readingTime. Provide up to 5 keyInsights and up to 5 improvements.
+        `.trim(),
+      },
+      {
+        role: 'user',
+        content: `Analyze the following content and provide scores and insights:\n\n${content}`,
+      },
+    ],
+    temperature: 0.3,
+    maxTokens: 2048,
+  });
+
+  return parseGroqJson<AnalysisResult>(raw);
 }
 
 export async function POST(req: Request) {
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.GROQ_API_KEY?.trim()) {
     return NextResponse.json(
-      { error: "Server configuration error" },
+      { error: 'Server configuration error: GROQ_API_KEY is not set' },
       { status: 500 }
     );
   }
@@ -91,14 +108,13 @@ export async function POST(req: Request) {
 
   try {
     const analysis = await fetchAnalysis(validated);
-    if (analysis instanceof NextResponse) {
-      return analysis;
-    }
     return NextResponse.json(analysis);
-  } catch {
+  } catch (error) {
+    console.error('Error in content analysis:', error);
+    const { status, body } = groqErrorResponse(error);
     return NextResponse.json(
-      { error: "Analysis service unavailable" },
-      { status: 502 }
+      { error: body.error || 'Analysis service unavailable' },
+      { status: status === 429 ? 429 : 502 }
     );
   }
 }

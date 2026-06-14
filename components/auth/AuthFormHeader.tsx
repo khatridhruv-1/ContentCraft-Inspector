@@ -19,18 +19,16 @@ export default function AuthFormHeader({ title, subtitle, badge }: AuthFormHeade
       initial={reduced ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: AUTH_EASE }}
-      className="mb-7"
+      className="mb-6 text-center lg:text-left"
     >
       {badge && (
-        <span className={cn('mb-4 px-3 py-1 text-[11px] text-violet-200/90', marketingEyebrow)}>
-          {badge}
-        </span>
+        <span className={cn('mb-4', marketingEyebrow)}>{badge}</span>
       )}
-      <h1 className="text-3xl font-black leading-tight tracking-tight text-white sm:text-[2rem]">
+      <h1 className="text-balance text-2xl font-black leading-tight tracking-tight text-slate-900 sm:text-3xl">
         {title}
       </h1>
       {subtitle && (
-        <p className="mt-3 text-[15px] leading-relaxed text-white/65">{subtitle}</p>
+        <p className="mt-2.5 text-[15px] leading-relaxed text-slate-600">{subtitle}</p>
       )}
     </motion.header>
   );

@@ -8,7 +8,6 @@ const LAST_UPDATED = 'May 28, 2026';
 export default function TermsPage() {
   return (
     <LegalPageShell
-      badge="Terms of Service"
       heading={
         <>
           Terms of <span className={marketingAccentSpan}>Service</span>

@@ -13,14 +13,12 @@ import {
 } from '@/lib/marketing/marketingTheme';
 
 interface LegalPageShellProps {
-  badge: string;
   heading: ReactNode;
   description?: string;
   children: ReactNode;
 }
 
 export default function LegalPageShell({
-  badge,
   heading,
   description,
   children,
@@ -32,7 +30,7 @@ export default function LegalPageShell({
       className={`marketing-page min-h-screen ${marketingPageClass}`}
       style={{ background: MARKETING_PAGE_GRADIENT }}
     >
-      <MarketingSubpageHeader badge={badge} maxWidth="6xl" />
+      <MarketingSubpageHeader maxWidth="6xl" />
 
       <main className="px-6 py-12">
         <motion.div
@@ -43,12 +41,12 @@ export default function LegalPageShell({
         >
           <h1 className={marketingSectionTitle}>{heading}</h1>
           {description && (
-            <p className="mx-auto mt-4 max-w-xl text-base text-white/70">{description}</p>
+            <p className="mx-auto mt-4 max-w-xl text-base text-slate-600">{description}</p>
           )}
         </motion.div>
 
         <div className="mx-auto max-w-3xl">
-          <div className="prose-legal space-y-8 text-white/75">{children}</div>
+          <div className="prose-legal space-y-8 text-slate-600">{children}</div>
         </div>
 
         <MarketingFooter className="mt-12" />
@@ -68,10 +66,10 @@ function LegalSection({
 }) {
   return (
     <section id={id} aria-labelledby={`${id}-heading`}>
-      <h2 id={`${id}-heading`} className="mb-3 text-xl font-bold text-white">
+      <h2 id={`${id}-heading`} className="mb-3 text-xl font-bold text-slate-900">
         {title}
       </h2>
-      <div className="space-y-3 text-sm leading-relaxed text-white/70">{children}</div>
+      <div className="space-y-3 text-sm leading-relaxed text-slate-600">{children}</div>
     </section>
   );
 }

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 870 240" width="870" height="240" role="img" aria-label="ContentCraft Inspector">
+  <path fill="none" stroke="#16242F" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" d="M 152 144 A 60 60 0 1 0 148.4 148.4 L 185 185" />
+  <line x1="78" y1="92" x2="134" y2="92" stroke="#16242F" stroke-width="8" stroke-linecap="round" />
+  <line x1="78" y1="116" x2="118" y2="116" stroke="#16242F" stroke-width="8" stroke-linecap="round" />
+  <circle cx="185" cy="185" r="9" fill="#D33F49" />
+  <text x="244" y="126" dominant-baseline="middle" font-family="ui-sans-serif, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" fill="#16242F">
+    <tspan font-size="58" font-weight="700" letter-spacing="-1">ContentCraft</tspan>
+    <tspan font-size="58" font-weight="300" letter-spacing="-0.5" dx="14">Inspector</tspan>
+  </text>
+</svg>

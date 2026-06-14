@@ -1,40 +1,64 @@
 'use client';
 
 import { type ReactNode } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import AuthBrandPanel from '@/components/auth/AuthBrandPanel';
-import AuthFormPanel from '@/components/auth/AuthFormPanel';
+import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
+import MarketingFooter from '@/components/marketing/MarketingFooter';
+import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
 import { GuestSessionGate } from '@/components/loading/SessionLoadingGate';
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
-import { marketingBgClass, marketingPageClass } from '@/lib/marketing/marketingTheme';
+import {
+  MARKETING_EASE,
+  MARKETING_PAGE_GRADIENT,
+  marketingGlassCard,
+  marketingPageClass,
+  marketingSkipLink,
+} from '@/lib/marketing/marketingTheme';
+import { cn } from '@/lib/utils';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export default function AuthLayout({ children }: LayoutProps) {
-  useMarketingPageBackground({ lockScroll: true, includeHtml: true });
+  const reduced = useReducedMotion();
+  useMarketingPageBackground();
 
   return (
     <div
-      className={`auth-page marketing-page fixed inset-0 flex h-dvh w-full overflow-hidden ${marketingBgClass} ${marketingPageClass}`}
-      style={{ colorScheme: 'dark' }}
+      className={cn('auth-page marketing-page min-h-screen', marketingPageClass)}
+      style={{ background: MARKETING_PAGE_GRADIENT }}
     >
-      <a
-        href="#auth-form"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
-      >
+      <a href="#auth-form" className={marketingSkipLink}>
         Skip to form
       </a>
 
-      <div className="relative hidden h-full w-[42%] max-w-[540px] shrink-0 border-r border-white/[0.06] md:block">
-        <AuthBrandPanel />
-      </div>
+      <MarketingDotGrid />
+      <MarketingSubpageHeader maxWidth="6xl" />
 
-      <div className="flex h-full min-w-0 flex-1 flex-col">
-        <AuthFormPanel>
-          <GuestSessionGate>{children}</GuestSessionGate>
-        </AuthFormPanel>
-      </div>
+      <main className="relative px-6 py-10 md:py-14">
+        <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_420px]">
+          <motion.div
+            id="auth-form"
+            initial={reduced ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: MARKETING_EASE }}
+            className={cn(
+              marketingGlassCard,
+              'order-1 mx-auto w-full max-w-md p-7 sm:p-8 lg:order-2 lg:mx-0 lg:max-w-none lg:sticky lg:top-24'
+            )}
+          >
+            <GuestSessionGate>{children}</GuestSessionGate>
+          </motion.div>
+
+          <div className="order-2 lg:order-1">
+            <AuthBrandPanel />
+          </div>
+        </div>
+
+        <MarketingFooter className="mt-14" containerClassName="mx-auto w-full max-w-6xl" />
+      </main>
     </div>
   );
 }

@@ -85,7 +85,6 @@ export default function ContactPage() {
 
   return (
     <LegalPageShell
-      badge="Contact"
       heading={
         <>
           Contact <span className={marketingAccentSpan}>us</span>
@@ -98,7 +97,7 @@ export default function ContactPage() {
           href={`mailto:${SUPPORT_EMAIL}`}
           className="flex items-start gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 transition-colors hover:border-white/[0.14] hover:bg-white/[0.05]"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-700">
             <Mail className="h-4 w-4 text-white" aria-hidden />
           </span>
           <span>
@@ -110,7 +109,7 @@ export default function ContactPage() {
           href="/help"
           className="flex items-start gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 transition-colors hover:border-white/[0.14] hover:bg-white/[0.05]"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
             <MessageSquare className="h-4 w-4 text-white" aria-hidden />
           </span>
           <span>

@@ -3,10 +3,10 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { UserPlus, LayoutDashboard, Wand2, BarChart2 } from 'lucide-react';
 import {
-  MARKETING_BG,
   MARKETING_EASE,
   marketingAccentSpan,
   marketingEyebrow,
+  marketingGlassCard,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
@@ -17,28 +17,32 @@ const steps = [
     icon: UserPlus,
     title: 'Create your account',
     description: 'Sign up for free — no credit card needed. Takes less than 60 seconds.',
-    gradient: 'from-violet-500 to-purple-600',
+    iconSurface: 'bg-violet-100',
+    iconColor: 'text-violet-700',
   },
   {
     number: 2,
     icon: LayoutDashboard,
     title: 'Open the dashboard',
     description: 'After login, head to the dashboard to kick off your first content project.',
-    gradient: 'from-cyan-400 to-sky-500',
+    iconSurface: 'bg-slate-100',
+    iconColor: 'text-slate-700',
   },
   {
     number: 3,
     icon: Wand2,
     title: 'Generate content',
-    description: 'Use AI Generation to draft polished content from a brief in seconds.',
-    gradient: 'from-blue-500 to-indigo-500',
+    description: 'Enter a topic — we pull related searches from Google Trends and autocomplete, then draft SEO-ready content in seconds.',
+    iconSurface: 'bg-violet-100',
+    iconColor: 'text-violet-700',
   },
   {
     number: 4,
     icon: BarChart2,
     title: 'Analyze & optimize',
     description: 'Run Deep Analysis for SEO insights, outlines, and content gaps — then publish with confidence.',
-    gradient: 'from-pink-500 to-rose-500',
+    iconSurface: 'bg-sky-50',
+    iconColor: 'text-sky-700',
   },
 ];
 
@@ -56,8 +60,13 @@ export default function UserGuideSection() {
   const reduced = useReducedMotion();
 
   return (
-    <section data-testid="homepage-user-guide" className="mb-16" aria-labelledby="guide-heading">
-      {/* Header — static violet accent, no animated gradient */}
+    <section
+      id="how-it-works"
+      data-testid="homepage-user-guide"
+      className="relative scroll-mt-24 px-6 py-14 md:py-20"
+      aria-labelledby="guide-heading"
+    >
+      <div className="mx-auto max-w-6xl">
       <motion.div
         initial={{ opacity: 0, y: 22 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -69,13 +78,11 @@ export default function UserGuideSection() {
         <h2 id="guide-heading" className={marketingSectionTitle}>
           Up and running in <span className={marketingAccentSpan}>four steps</span>
         </h2>
-        {/* Contrast raised: white/40 → white/65 */}
-        <p className="mt-4 text-white/65 max-w-xl mx-auto text-lg">
+        <p className="mt-4 text-slate-600 max-w-xl mx-auto text-lg">
           From sign-up to publishing — a simple path to your first piece of AI-powered content.
         </p>
       </motion.div>
 
-      {/* Steps grid */}
       <motion.div
         variants={container}
         initial="hidden"
@@ -83,48 +90,41 @@ export default function UserGuideSection() {
         viewport={{ once: true, margin: '-40px' }}
         className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5"
       >
-        {steps.map(({ number, icon: Icon, title, description, gradient }) => (
+        {steps.map(({ number, icon: Icon, title, description, iconSurface, iconColor }) => (
           <motion.div
             key={number}
             variants={card}
-            whileHover={reduced ? undefined : { y: -5 }}
-            className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 md:p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.15] hover:shadow-2xl cursor-default"
+            whileHover={reduced ? undefined : { y: -2 }}
+            className={cn(
+              marketingGlassCard,
+              'group relative p-5 md:p-6 transition-colors duration-300 hover:border-slate-300'
+            )}
           >
-            {/* Corner glow */}
-            <div
-              className={`absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${gradient} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-20`}
-              aria-hidden
-            />
-
             <div className="relative flex items-start gap-4">
-              {/* Step icon with number badge */}
               <div className="relative shrink-0">
-                <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}>
-                  <Icon className="h-5 w-5 text-white" />
-                </div>
-                <span
-                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border text-[10px] font-black text-white/65"
-                  style={{ borderColor: 'rgba(255,255,255,0.1)', background: MARKETING_BG }}
+                <div
+                  className={cn(
+                    'flex h-12 w-12 items-center justify-center rounded-xl',
+                    iconSurface,
+                    iconColor
+                  )}
                 >
+                  <Icon className="h-5 w-5" aria-hidden />
+                </div>
+                <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 bg-white text-[10px] font-black text-slate-500">
                   {number}
                 </span>
               </div>
 
               <div>
-                <h3 className="mb-1.5 text-lg font-bold text-white">{title}</h3>
-                {/* Contrast raised: white/45 → white/65 */}
-                <p className="text-sm leading-relaxed text-white/65">{description}</p>
+                <h3 className="mb-1.5 text-lg font-bold text-slate-900">{title}</h3>
+                <p className="text-sm leading-relaxed text-slate-600">{description}</p>
               </div>
             </div>
-
-            {/* Hover gradient underline */}
-            <div
-              className={`mt-4 h-px w-0 rounded-full bg-gradient-to-r ${gradient} transition-all duration-500 group-hover:w-full`}
-              aria-hidden
-            />
           </motion.div>
         ))}
       </motion.div>
+      </div>
     </section>
   );
 }

@@ -9,104 +9,45 @@ import {
   Scale,
   Zap,
   Shield,
-  Download,
-  Globe,
-  Rocket,
   HelpCircle,
   Bot,
+  BarChart2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { WELCOME_FAQ_ITEMS } from '@/lib/marketing/welcomeContent';
+import {
+  MARKETING_EASE,
+  marketingAccentSpan,
+  marketingEyebrow,
+  marketingSectionTitle,
+} from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
-type FaqItem = {
-  question: string;
-  answer: string;
-  icon: LucideIcon;
-  tag: string;
+const FAQ_ICONS: Record<string, LucideIcon> = {
+  Overview: HelpCircle,
+  Generation: Sparkles,
+  SEO: Search,
+  Analysis: BarChart2,
+  Pricing: Zap,
+  Ownership: Scale,
+  Security: Shield,
+  Comparison: Bot,
 };
-
-const faqs: FaqItem[] = [
-  {
-    question: 'What types of content can I generate with ContentCraft Inspector?',
-    answer:
-      'You can generate blog posts, social media captions, product descriptions, ad copy, email drafts, and long-form articles. Simply provide a topic or brief, choose your tone and format, and the AI produces a ready-to-edit draft in seconds.',
-    icon: Sparkles,
-    tag: 'Generation',
-  },
-  {
-    question: 'How does the SEO analysis work?',
-    answer:
-      'ContentCraft Inspector scans your content for keyword density, readability score, meta-tag completeness, and heading structure — then scores each factor against current search-engine best practices. You get a prioritised list of fixes so you know exactly what to change to improve ranking potential.',
-    icon: Search,
-    tag: 'SEO',
-  },
-  {
-    question: 'Does ContentCraft Inspector support multiple languages?',
-    answer:
-      'Yes — content generation and analysis are supported in multiple languages, including English, Spanish, French, German, Portuguese, and Japanese. Select your target language before generating, or paste existing content for multilingual SEO analysis.',
-    icon: Globe,
-    tag: 'Languages',
-  },
-  {
-    question: "How do I get started if I'm not a writer?",
-    answer:
-      "No writing experience is needed. Choose a content type, fill in a short prompt describing your topic and audience, and the AI handles the rest. The generated content is ready to use or analyze instantly.",
-    icon: Rocket,
-    tag: 'Getting started',
-  },
-  {
-    question: 'Who owns the content I create?',
-    answer:
-      'You do — entirely. All content you generate or upload belongs to you. ContentCraft Inspector does not claim any licence or ownership over your work, and we never use your content to train our models.',
-    icon: Scale,
-    tag: 'Ownership',
-  },
-  {
-    question: "What's the difference between the Free and Pro plans?",
-    answer:
-      'The Free plan gives you access to AI generation and basic deep analysis with a monthly usage limit. Pro unlocks unlimited generations, advanced analysis, priority processing, and team collaboration seats.',
-    icon: Zap,
-    tag: 'Pricing',
-  },
-  {
-    question: 'Is my content private and secure?',
-    answer:
-      'Yes. All data is encrypted in transit and at rest using industry-standard encryption. Your drafts and projects are visible only to you — or to team members you explicitly invite. We never share your data with third parties.',
-    icon: Shield,
-    tag: 'Security',
-  },
-  {
-    question: 'How is this different from just using ChatGPT?',
-    answer:
-      'ContentCraft Inspector is purpose-built for the full content workflow — not just generation. It combines AI writing with deep analysis (readability, SEO insights, content gaps, outlines, and info gain) in one seamless workspace. ChatGPT requires you to assemble those tools yourself.',
-    icon: Bot,
-    tag: 'vs ChatGPT',
-  },
-  {
-    question: 'Can I export my content to other formats?',
-    answer:
-      'Yes — export any piece of content as plain text, Markdown, or HTML directly from the editor. Copy-to-clipboard is available for every format, making it easy to paste into your CMS, email tool, or document editor.',
-    icon: Download,
-    tag: 'Export',
-  },
-];
 
 const FAQ_COLUMNS = [
   {
     id: 'product',
     label: 'Product & features',
-    description: 'Generation, SEO, languages, and getting started',
-    items: faqs.slice(0, 4),
+    description: 'Generation, SEO, analysis, and getting started',
+    items: WELCOME_FAQ_ITEMS.slice(0, 4),
     startIndex: 0,
-    gradient: 'from-violet-500 to-cyan-500',
   },
   {
     id: 'account',
     label: 'Plans, privacy & more',
-    description: 'Pricing, security, ownership, export, and comparisons',
-    items: faqs.slice(4),
+    description: 'Pricing, security, ownership, and comparisons',
+    items: WELCOME_FAQ_ITEMS.slice(4),
     startIndex: 4,
-    gradient: 'from-cyan-500 to-blue-500',
   },
 ] as const;
 
@@ -129,19 +70,23 @@ const itemVariants: Variants = {
 };
 
 function FaqAccordionItem({
-  faq,
+  question,
+  answer,
+  tag,
   index,
   isOpen,
   onToggle,
   reducedMotion,
 }: {
-  faq: FaqItem;
+  question: string;
+  answer: string;
+  tag: string;
   index: number;
   isOpen: boolean;
   onToggle: () => void;
   reducedMotion: boolean | null;
 }) {
-  const Icon = faq.icon;
+  const Icon = FAQ_ICONS[tag] ?? HelpCircle;
 
   return (
     <motion.div variants={itemVariants} className="min-h-0">
@@ -149,15 +94,14 @@ function FaqAccordionItem({
         className={cn(
           'group relative rounded-xl border transition-all duration-300',
           isOpen
-            ? 'border-white/[0.15] bg-white/[0.06] shadow-lg'
-            : 'border-white/[0.07] bg-white/[0.03] hover:border-white/[0.12] hover:bg-white/[0.05]'
+            ? 'border-violet-200 bg-violet-50/50 shadow-sm'
+            : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'
         )}
       >
-        {/* Left accent bar */}
         <span
           aria-hidden
           className={cn(
-            'absolute left-0 top-0 h-full w-0.5 rounded-l-xl bg-gradient-to-b from-violet-400 via-cyan-400 to-blue-400 transition-opacity duration-200',
+            'absolute left-0 top-0 h-full w-0.5 rounded-l-xl bg-violet-400 transition-opacity duration-200',
             isOpen ? 'opacity-100' : 'opacity-0'
           )}
         />
@@ -168,26 +112,25 @@ function FaqAccordionItem({
           onClick={onToggle}
           aria-expanded={isOpen}
           aria-controls={`faq-answer-${index}`}
-          className="flex w-full items-start gap-3 px-4 py-3.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+          className="flex w-full items-start gap-3 px-4 py-3.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
         >
           <span
             className={cn(
               'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-200',
               isOpen
-                ? 'bg-gradient-to-br from-violet-500 to-cyan-500 text-white'
-                : 'bg-white/[0.07] text-white/55 group-hover:bg-white/[0.12] group-hover:text-white/75'
+                ? 'bg-slate-900 text-white'
+                : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-slate-700'
             )}
           >
             <Icon className="h-4 w-4" aria-hidden />
           </span>
 
           <span className="min-w-0 flex-1">
-            <span className="mb-1 inline-flex rounded-full bg-white/[0.08] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/50">
-              {faq.tag}
+            <span className="mb-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              {tag}
             </span>
-            {/* Contrast raised: text-white/80 kept (already fine) */}
-            <span className="block text-[0.8125rem] font-semibold leading-snug text-white/85">
-              {faq.question}
+            <span className="block text-[0.8125rem] font-semibold leading-snug text-slate-800">
+              {question}
             </span>
           </span>
 
@@ -195,8 +138,8 @@ function FaqAccordionItem({
             className={cn(
               'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-colors duration-200',
               isOpen
-                ? 'border-white/[0.15] bg-white/[0.08] text-white/75'
-                : 'border-white/[0.08] text-white/40'
+                ? 'border-slate-300 bg-white text-slate-700'
+                : 'border-slate-200 text-slate-400'
             )}
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: reducedMotion ? 0 : 0.22 }}
@@ -216,9 +159,8 @@ function FaqAccordionItem({
           }
           className="overflow-hidden"
         >
-          {/* Contrast raised: white/45 → white/65 */}
-          <p className="border-t border-white/[0.06] px-4 pb-4 pt-2.5 pl-[3.25rem] text-[0.8125rem] leading-relaxed text-white/65">
-            {faq.answer}
+          <p className="border-t border-slate-200 px-4 pb-4 pt-2.5 pl-[3.25rem] text-[0.8125rem] leading-relaxed text-slate-600">
+            {answer}
           </p>
         </motion.div>
       </div>
@@ -240,13 +182,12 @@ function FaqColumn({
   return (
     <motion.div
       variants={columnVariants}
-      className="flex min-w-0 flex-1 flex-col rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 backdrop-blur-sm sm:p-5"
+      className="flex min-w-0 flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
     >
       <div className="mb-5 shrink-0">
-        <div className={cn('mb-2.5 h-1 w-10 rounded-full bg-gradient-to-r', column.gradient)} aria-hidden />
-        <h3 className="text-base font-bold text-white">{column.label}</h3>
-        {/* Contrast raised: white/35 → white/55 */}
-        <p className="mt-0.5 text-xs text-white/55">{column.description}</p>
+        <div className="mb-2.5 h-1 w-10 rounded-full bg-violet-400" aria-hidden />
+        <h3 className="text-base font-bold text-slate-900">{column.label}</h3>
+        <p className="mt-0.5 text-xs text-slate-500">{column.description}</p>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -255,7 +196,9 @@ function FaqColumn({
           return (
             <FaqAccordionItem
               key={faq.question}
-              faq={faq}
+              question={faq.question}
+              answer={faq.answer}
+              tag={faq.tag}
               index={index}
               isOpen={openIndex === index}
               onToggle={() => onToggle(index)}
@@ -277,60 +220,48 @@ export default function FaqSection() {
   };
 
   return (
-    <motion.section
+    <section
       id="faq"
-      data-testid="homepage-faq"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: '-60px' }}
-      variants={{
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
-      }}
-      className="relative mb-16 scroll-mt-8"
+      className="relative scroll-mt-24 px-6 py-14 md:py-20"
       aria-labelledby="faq-heading"
     >
-      {/* Ambient blobs */}
-      <div className="pointer-events-none absolute -left-12 top-1/4 h-48 w-48 rounded-full bg-violet-500/8 blur-3xl" aria-hidden />
-      <div className="pointer-events-none absolute -right-10 bottom-0 h-56 w-56 rounded-full bg-cyan-500/6 blur-3xl" aria-hidden />
+      <div className="mx-auto max-w-6xl">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.7, ease: MARKETING_EASE }}
+          className="mb-10 text-center"
+        >
+          <span className={cn('mb-4', marketingEyebrow)}>FAQ</span>
+          <h2 id="faq-heading" className={marketingSectionTitle}>
+            Frequently asked{' '}
+            <span className={marketingAccentSpan}>questions</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-lg text-lg text-slate-600">
+            Answers about AI content generation, keyword discovery, SEO analysis, pricing, and
+            privacy.
+          </p>
+        </motion.div>
 
-      {/* Section header — static violet accent, no animated gradient */}
-      <motion.div variants={columnVariants} className="relative mb-10 text-center">
-        {/* Cyan-tinted badge — differentiates FAQ section (Expert 5) */}
-        <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/[0.05] px-4 py-1 text-xs font-semibold uppercase tracking-widest text-white/55">
-          <HelpCircle className="h-3.5 w-3.5" aria-hidden />
-          FAQ
-        </span>
-        <h2 id="faq-heading" className="mb-2 text-4xl font-black tracking-tight text-white md:text-5xl">
-          Frequently asked{' '}
-          {/* violet-300 → violet-400 for visual hierarchy (Expert 9) */}
-          <span className="text-violet-400">questions</span>
-        </h2>
-        {/* Contrast raised: white/40 → white/65 */}
-        <p className="mx-auto max-w-lg text-white/65 text-base">
-          Everything you need to know — split into product and account topics so you can scan faster.
-        </p>
-      </motion.div>
-
-      {/* Columns */}
-      <motion.div
-        variants={{
-          hidden: { opacity: 0 },
-          visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-        }}
-        className="relative mx-auto flex w-full max-w-5xl flex-col gap-4 sm:flex-row sm:items-start sm:gap-5"
-      >
-        {FAQ_COLUMNS.map(column => (
-          <FaqColumn
-            key={column.id}
-            column={column}
-            openIndex={openIndex}
-            onToggle={toggle}
-            reducedMotion={reducedMotion}
-          />
-        ))}
-      </motion.div>
-
-    </motion.section>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.5, staggerChildren: 0.1 }}
+          className="flex w-full flex-col gap-4 sm:flex-row sm:items-start sm:gap-5"
+        >
+          {FAQ_COLUMNS.map(column => (
+            <FaqColumn
+              key={column.id}
+              column={column}
+              openIndex={openIndex}
+              onToggle={toggle}
+              reducedMotion={reducedMotion}
+            />
+          ))}
+        </motion.div>
+      </div>
+    </section>
   );
 }

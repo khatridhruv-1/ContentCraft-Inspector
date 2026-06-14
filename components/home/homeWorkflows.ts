@@ -12,21 +12,21 @@ export type HomeWorkflow = {
   title: string;
   description: string;
   icon: LucideIcon;
-  gradient: string;
+  iconSurface: string;
+  iconColor: string;
   hoverBorder: string;
   tag: string;
-  glowColor: string;
 };
 
 export const HOME_WORKFLOWS: HomeWorkflow[] = CONTENTCRAFT_WORKFLOWS.map(w => ({
   id: w.id,
   title: w.title,
-  description: w.shortDescription,
+  description: w.description,
   icon: w.icon,
-  gradient: w.gradient,
+  iconSurface: w.iconSurface,
+  iconColor: w.iconColor,
   hoverBorder: w.hoverBorder,
   tag: w.tag,
-  glowColor: w.glowColor,
 }));
 
 export { MODE_LABELS };

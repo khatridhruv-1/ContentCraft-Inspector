@@ -56,13 +56,12 @@ export default function AuthTextField({
       <div
         className={cn(
           fieldShell,
-          error && 'border-red-400/70 focus-within:border-red-400/70 focus-within:ring-red-400/20'
+          error && 'border-red-300 focus-within:border-red-400 focus-within:ring-red-400/20'
         )}
-        style={{ colorScheme: 'dark' }}
       >
         {icon && (
           <span
-            className="flex h-4 w-4 shrink-0 items-center justify-center text-white/45 [&_svg]:h-4 [&_svg]:w-4"
+            className="flex h-4 w-4 shrink-0 items-center justify-center text-slate-400 [&_svg]:h-4 [&_svg]:w-4"
             aria-hidden
           >
             {icon}
@@ -88,19 +87,13 @@ export default function AuthTextField({
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
           className={marketingAuthInput}
-          style={{
-            backgroundColor: 'transparent',
-            color: '#ffffff',
-            WebkitBoxShadow: 'none',
-            WebkitTextFillColor: '#ffffff',
-          }}
         />
         {isPasswordField && (
           <button
             type="button"
             onClick={() => setShowPassword(prev => !prev)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/50 hover:text-white/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
@@ -114,7 +107,7 @@ export default function AuthTextField({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-1.5 text-sm text-red-400"
+            className="flex items-center gap-1.5 text-sm text-red-600"
           >
             <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
             {error}

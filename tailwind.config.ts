@@ -2,10 +2,22 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   darkMode: ['class'],
+  safelist: [
+    {
+      pattern:
+        /^(bg|text|border|hover:bg|hover:text|hover:border|active:bg|focus:bg|focus-visible:bg|data-\[state=active\]:bg)-slate-(50|100|200|300|400|500|600|700|800|900|950)$/,
+    },
+    {
+      pattern:
+        /^(bg|text|border|hover:bg|hover:text|hover:border|active:bg)-slate-(50|100|200|300|400|500|600|700|800|900|950)\/(5|10|20|30|40|45|50|60|70|80|90)$/,
+    },
+  ],
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './lib/**/*.{js,ts,jsx,tsx,mdx}',
+    './hooks/**/*.{js,ts,jsx,tsx,mdx}',
     '*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {

@@ -9,10 +9,10 @@ export type ContentCraftWorkflow = {
   description: string;
   shortDescription: string;
   icon: LucideIcon;
-  gradient: string;
+  iconSurface: string;
+  iconColor: string;
   hoverBorder: string;
   tag: string;
-  glowColor: string;
 };
 
 export const CONTENTCRAFT_WORKFLOWS: ContentCraftWorkflow[] = [
@@ -20,13 +20,13 @@ export const CONTENTCRAFT_WORKFLOWS: ContentCraftWorkflow[] = [
     id: 'ai-generate',
     title: 'AI Generation',
     description:
-      'Draft blog posts, ad copy, and emails from a brief — with structure and tone you control.',
-    shortDescription: 'Draft posts, ads, and emails with structure you control.',
+      'Draft blog posts from a brief — auto-discover trending keywords from search trends and autocomplete, then weave them naturally into SEO-ready content.',
+    shortDescription: 'Auto keyword discovery + human-sounding drafts with tone control.',
     icon: Wand2,
-    gradient: 'from-violet-500 to-purple-600',
-    hoverBorder: 'hover:border-violet-500/40',
+    iconSurface: 'bg-violet-100',
+    iconColor: 'text-violet-700',
+    hoverBorder: 'hover:border-violet-200',
     tag: 'AI Powered',
-    glowColor: 'rgba(139,92,246,0.28)',
   },
   {
     id: 'analyze',
@@ -35,10 +35,10 @@ export const CONTENTCRAFT_WORKFLOWS: ContentCraftWorkflow[] = [
       'Get readability, SEO structure, and content-gap insights in one pass.',
     shortDescription: 'SEO, readability, and content-gap insights in one pass.',
     icon: FileSearch,
-    gradient: 'from-blue-500 to-indigo-500',
-    hoverBorder: 'hover:border-blue-500/40',
+    iconSurface: 'bg-sky-50',
+    iconColor: 'text-sky-700',
+    hoverBorder: 'hover:border-sky-200',
     tag: 'Analytics',
-    glowColor: 'rgba(99,102,241,0.26)',
   },
 ];
 

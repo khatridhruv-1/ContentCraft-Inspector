@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Sparkles } from 'lucide-react';
-import { MARKETING_EASE, marketingAccentSpan } from '@/lib/marketing/marketingTheme';
+import ContentCraftLogo from '@/components/brand/ContentCraftLogo';
+import { MARKETING_EASE, marketingAccentSpan, marketingGlassCard } from '@/lib/marketing/marketingTheme';
 import HomeRecentSection, { type HomeRecentItem } from '@/components/home/HomeRecentSection';
 import HomeSectionHeader from '@/components/home/HomeSectionHeader';
 import { cn } from '@/lib/utils';
@@ -49,21 +49,16 @@ export default function HomeWorkspacePanel({
       initial={reduced ? false : { opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: MARKETING_EASE }}
-      className="relative mb-6 md:mb-7"
+      className="relative mb-8 md:mb-10"
       aria-labelledby="workspace-heading"
     >
-      <div
-        className={cn(
-          'relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 shadow-sm shadow-black/25 backdrop-blur-sm md:p-6',
-          'ring-1 ring-inset ring-white/[0.06]'
-        )}
-      >
+      <div className={cn(marketingGlassCard, 'relative overflow-hidden p-6 md:p-8')}>
         <div
-          className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-violet-500/15 blur-3xl"
+          className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -bottom-24 -left-12 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl"
+          className="pointer-events-none absolute -bottom-24 -left-12 h-40 w-40 rounded-full bg-indigo-500/8 blur-3xl"
           aria-hidden
         />
 
@@ -72,6 +67,7 @@ export default function HomeWorkspacePanel({
             <HomeSectionHeader
               headingLevel="h1"
               headingId="workspace-heading"
+              prominent
               eyebrow="Workspace"
               title={
                 userName ? (
@@ -89,14 +85,14 @@ export default function HomeWorkspacePanel({
               description={description}
             />
 
-            <span className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-white/50">
-              <Sparkles className={cn('h-3 w-3 shrink-0', marketingAccentSpan)} aria-hidden />
+            <span className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
+              <ContentCraftLogo iconOnly size="xs" className="shrink-0" />
               {todayLabel ?? '\u00a0'}
             </span>
           </div>
 
           {recentCount > 0 && (
-            <div className="border-t border-white/[0.06] pt-5">
+            <div className="border-t border-slate-200/80 pt-5">
               <HomeRecentSection
                 items={recentItems}
                 formatRelativeTime={formatRelativeTime}

@@ -4,8 +4,6 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(to bottom right, #e3f2fd, #ffffff);
-  color: #1e3a8a;
 }
 
 /* Custom Scrollbar Styles */
@@ -34,7 +32,7 @@ body {
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
+    --primary: 222 47% 11%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -46,7 +44,7 @@ body {
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 215 20% 65%;
     --radius: 0.75rem;
   }
 }
@@ -60,21 +58,21 @@ body {
   }
 }
 
-/* Marketing + auth pages — dark inputs + autofill */
+/* Marketing + auth pages — light inputs + autofill */
 .auth-page input:not([type='button']):not([type='submit']):not([type='checkbox']):not([type='radio']),
 .marketing-page input:not([type='button']):not([type='submit']):not([type='checkbox']):not([type='radio']),
 .marketing-page textarea {
-  color: #fff !important;
+  color: #0f172a !important;
 }
 
 .auth-page input::placeholder,
 .marketing-page input::placeholder,
 .marketing-page textarea::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  color: #94a3b8;
 }
 
 .auth-page .auth-field {
-  background-color: #141418;
+  background-color: #ffffff;
 }
 
 .auth-page input:-webkit-autofill,
@@ -89,10 +87,10 @@ body {
 .marketing-page textarea:-webkit-autofill:hover,
 .marketing-page textarea:-webkit-autofill:focus,
 .marketing-page textarea:-webkit-autofill:active {
-  -webkit-text-fill-color: #fff !important;
-  -webkit-box-shadow: 0 0 0 1000px #141418 inset !important;
-  box-shadow: 0 0 0 1000px #141418 inset !important;
-  caret-color: #fff;
+  -webkit-text-fill-color: #0f172a !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  caret-color: #0f172a;
   transition: background-color 99999s ease-in-out 0s;
 }
 
@@ -216,21 +214,112 @@ h1, h2, h3 {
 }
 
 .btn-primary {
-  background: #1e3a8a;
+  background: #0f172a;
   color: white;
-  box-shadow: 0px 4px 10px rgba(30, 58, 138, 0.3);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
 }
 
 .btn-primary:hover {
-  background: #1c3faa;
+  background: #1e293b;
 }
 
 .btn-secondary {
-  background: #f1f5f9;
-  color: #1e3a8a;
-  border: 2px solid #1e3a8a;
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #e2e8f0;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* ContentCraft button system — in components layer so it ships with the bundle */
+@layer components {
+.cc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  line-height: 1.25;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.cc-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.cc-btn--primary {
+  border: 1px solid #0f172a;
+  background-color: #0f172a;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+
+.cc-btn--primary:hover:not(:disabled) {
+  background-color: #1e293b;
+  border-color: #1e293b;
+}
+
+.cc-btn--primary:active:not(:disabled) {
+  background-color: #020617;
+  border-color: #020617;
+}
+
+.cc-btn--ghost {
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #334155;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.cc-btn--ghost:hover:not(:disabled) {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.cc-btn--sm {
+  height: 2.25rem;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}
+
+.cc-btn--md {
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  font-size: 0.875rem;
+}
+
+.cc-btn--lg {
+  height: 2.75rem;
+  padding: 0 1.5rem;
+  font-size: 0.875rem;
+}
+
+.cc-btn--xl {
+  height: 3rem;
+  padding: 0 2rem;
+  font-size: 1rem;
+}
+
+.cc-btn--full {
+  width: 100%;
+}
+
+.cc-btn svg {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+}
+
 }

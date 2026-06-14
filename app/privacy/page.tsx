@@ -8,7 +8,6 @@ const LAST_UPDATED = 'May 28, 2026';
 export default function PrivacyPage() {
   return (
     <LegalPageShell
-      badge="Privacy Policy"
       heading={
         <>
           Privacy <span className={marketingAccentSpan}>Policy</span>
