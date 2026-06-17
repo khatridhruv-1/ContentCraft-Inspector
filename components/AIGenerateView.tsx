@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import {
   studioHistoryColumn,
   studioSplitShell,
@@ -8,19 +9,31 @@ import {
 } from '@/components/dashboard/dashboardLayout';
 import StudioHistorySidebar from '@/components/dashboard/StudioHistorySidebar';
 import StudioWorkspacePanel from '@/components/dashboard/StudioWorkspacePanel';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { buttonVariants } from '@/components/ui/button';
 import { useAiContentGenerate } from '@/hooks/useAiContentGenerate';
-import { deleteHistoryItem, fetchHistory } from '@/lib/content/appwrite';
-import { studioChatTitle, type StudioHistoryItem } from '@/lib/dashboard/studioHistory';
-import { getUser } from '@/lib/user/appwrite';
-import { getSessionToken } from '@/lib/user/session';
-import { htmlToMarkdown } from '@/lib/utils';
-import type { DiscoveredKeyword } from '@/types/seo';
+import { deleteHistoryItem } from '@/lib/content/appwrite';
+import { fetchHistoryCached } from '@/lib/content/fetchHistoryCached';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import {
+  extractDraftTitle,
+  studioItemTitle,
+  type StudioHistoryItem,
+} from '@/lib/dashboard/studioHistory';
+import { htmlToMarkdown, cn } from '@/lib/utils';
 
 interface AIGenerateViewProps {
   generatedContent: string;
-  discoveredKeywords?: DiscoveredKeyword[];
   initialBrief?: string;
-  onContentGenerated: (content: string, meta?: { keywords?: DiscoveredKeyword[] }) => void;
+  onContentGenerated: (content: string) => void;
   onAnalyze: () => void;
   onOpenAnalyzeChat?: (item: StudioHistoryItem) => void;
   onDownloadAsWord: () => void;
@@ -30,40 +43,35 @@ const HISTORY_LIMIT = 40;
 
 export default function AIGenerateView({
   generatedContent,
-  discoveredKeywords = [],
   initialBrief,
   onContentGenerated,
   onAnalyze,
   onOpenAnalyzeChat,
   onDownloadAsWord,
 }: AIGenerateViewProps) {
+  const { user } = useCurrentUser();
   const [historyItems, setHistoryItems] = useState<StudioHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [brief, setBrief] = useState(initialBrief ?? '');
   const [tone, setTone] = useState('');
-  const [keywords, setKeywords] = useState('');
-  const [localKeywords, setLocalKeywords] = useState<DiscoveredKeyword[]>(discoveredKeywords);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const { generate, loading } = useAiContentGenerate();
+  const [deleteTarget, setDeleteTarget] = useState<StudioHistoryItem | null>(null);
+  const { generate, loading, error: generateError } = useAiContentGenerate();
 
   const loadHistory = useCallback(async () => {
     try {
-      const sessionToken = getSessionToken();
-      if (!sessionToken) return;
-
-      const user = await getUser(sessionToken);
       if (!user?.$id) return;
 
-      const result = await fetchHistory(user.$id, 1, HISTORY_LIMIT);
+      const result = await fetchHistoryCached(user.$id, 1, HISTORY_LIMIT);
       setHistoryItems(result.documents as StudioHistoryItem[]);
     } catch (err) {
       console.error('Failed to load studio history:', err);
     } finally {
       setHistoryLoading(false);
     }
-  }, []);
+  }, [user.$id]);
 
   useEffect(() => {
     void loadHistory();
@@ -86,9 +94,9 @@ export default function AIGenerateView({
       localStorage.setItem('documentId', item.$id);
 
       if (item.analysis?.trim()) {
-        onContentGenerated(item.analysis, {});
+        onContentGenerated(item.analysis);
       } else {
-        onContentGenerated('', {});
+        onContentGenerated('');
       }
     },
     [onContentGenerated, onOpenAnalyzeChat]
@@ -98,37 +106,44 @@ export default function AIGenerateView({
     setActiveChatId(null);
     setBrief('');
     setTone('');
-    setKeywords('');
     setErrorMessage(null);
     localStorage.removeItem('documentId');
-    onContentGenerated('', {});
+    onContentGenerated('');
   }, [onContentGenerated]);
 
-  const handleDeleteChat = useCallback(
-    async (item: StudioHistoryItem) => {
-      const title = studioChatTitle(item.content);
-      const confirmed = window.confirm(`Delete "${title}"? This cannot be undone.`);
-      if (!confirmed) return;
+  const handleDeleteRequest = useCallback((item: StudioHistoryItem) => {
+    setDeleteTarget(item);
+  }, []);
 
-      setDeletingId(item.$id);
-      setErrorMessage(null);
+  const handleDeleteDialogOpenChange = useCallback((open: boolean) => {
+    if (!open && !deletingId) {
+      setDeleteTarget(null);
+    }
+  }, [deletingId]);
 
-      try {
-        await deleteHistoryItem(item.$id);
-        setHistoryItems(prev => prev.filter(entry => entry.$id !== item.$id));
+  const confirmDeleteChat = useCallback(async () => {
+    if (!deleteTarget) return;
 
-        if (activeChatId === item.$id) {
-          handleNewChat();
-        }
-      } catch (error) {
-        console.error('Failed to delete chat:', error);
-        setErrorMessage('Failed to delete chat. Please try again.');
-      } finally {
-        setDeletingId(null);
+    const item = deleteTarget;
+    setDeletingId(item.$id);
+    setErrorMessage(null);
+
+    try {
+      await deleteHistoryItem(item.$id);
+      setHistoryItems(prev => prev.filter(entry => entry.$id !== item.$id));
+
+      if (activeChatId === item.$id) {
+        handleNewChat();
       }
-    },
-    [activeChatId, handleNewChat]
-  );
+
+      setDeleteTarget(null);
+    } catch (error) {
+      console.error('Failed to delete chat:', error);
+      setErrorMessage('Failed to delete chat. Please try again.');
+    } finally {
+      setDeletingId(null);
+    }
+  }, [activeChatId, deleteTarget, handleNewChat]);
 
   const handleGenerate = useCallback(async () => {
     const text = brief.trim();
@@ -137,10 +152,8 @@ export default function AIGenerateView({
     setErrorMessage(null);
 
     try {
-      const result = await generate(text, { tone: tone || undefined, keywords });
-      const keywordList = result.keywords ?? [];
-      setLocalKeywords(keywordList);
-      onContentGenerated(result.content, { keywords: keywordList });
+      const result = await generate(text, { tone: tone || undefined });
+      onContentGenerated(result.content);
 
       const docId = localStorage.getItem('documentId');
       setActiveChatId(docId);
@@ -150,47 +163,87 @@ export default function AIGenerateView({
         error instanceof Error ? error.message : 'Something went wrong. Please try again.'
       );
     }
-  }, [brief, generate, keywords, loadHistory, loading, onContentGenerated, tone]);
+  }, [brief, generate, loadHistory, loading, onContentGenerated, tone]);
 
-  const activeItem = historyItems.find(item => item.$id === activeChatId);
-  const activeTitle = activeItem
-    ? studioChatTitle(activeItem.content)
-    : brief.trim()
-      ? studioChatTitle(brief)
-      : null;
+  const activeTitle = useMemo(() => {
+    if (generatedContent.trim()) {
+      const title = extractDraftTitle(htmlToMarkdown(generatedContent));
+      if (title) return title;
+    }
+
+    const activeItem = historyItems.find(item => item.$id === activeChatId);
+    if (activeItem) return studioItemTitle(activeItem);
+
+    return null;
+  }, [activeChatId, generatedContent, historyItems]);
+
+  const deleteTargetTitle = deleteTarget ? studioItemTitle(deleteTarget) : '';
 
   return (
-    <div className={studioSplitShell}>
-      <div className={studioHistoryColumn}>
-        <StudioHistorySidebar
-          items={historyItems}
-          activeId={activeChatId}
-          loading={historyLoading}
-          deletingId={deletingId}
-          onSelect={handleSelectChat}
-          onDelete={item => void handleDeleteChat(item)}
-          onNewChat={handleNewChat}
-        />
+    <>
+      <div className={studioSplitShell}>
+        <div className={studioHistoryColumn}>
+          <StudioHistorySidebar
+            items={historyItems}
+            activeId={activeChatId}
+            loading={historyLoading}
+            deletingId={deletingId}
+            onSelect={handleSelectChat}
+            onDelete={handleDeleteRequest}
+            onNewChat={handleNewChat}
+          />
+        </div>
+        <div className={studioWorkspaceColumn}>
+          <StudioWorkspacePanel
+            generatedContent={generatedContent}
+            activeTitle={activeTitle}
+            historyLoading={historyLoading}
+            loading={loading}
+            brief={brief}
+            tone={tone}
+            errorMessage={errorMessage ?? generateError}
+            onBriefChange={setBrief}
+            onToneChange={setTone}
+            onGenerate={() => void handleGenerate()}
+            onRefine={() => void handleGenerate()}
+            onAnalyze={onAnalyze}
+            onDownloadAsWord={onDownloadAsWord}
+          />
+        </div>
       </div>
-      <div className={studioWorkspaceColumn}>
-        <StudioWorkspacePanel
-          generatedContent={generatedContent}
-          activeTitle={activeTitle}
-          discoveredKeywords={localKeywords.length > 0 ? localKeywords : discoveredKeywords}
-          historyLoading={historyLoading}
-          loading={loading}
-          brief={brief}
-          tone={tone}
-          keywords={keywords}
-          errorMessage={errorMessage}
-          onBriefChange={setBrief}
-          onToneChange={setTone}
-          onKeywordsChange={setKeywords}
-          onGenerate={() => void handleGenerate()}
-          onAnalyze={onAnalyze}
-          onDownloadAsWord={onDownloadAsWord}
-        />
-      </div>
-    </div>
+
+      <AlertDialog open={Boolean(deleteTarget)} onOpenChange={handleDeleteDialogOpenChange}>
+        <AlertDialogContent className="border-slate-200 bg-white text-slate-900 sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-slate-900">Delete this chat?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600">
+              <span className="font-medium text-slate-800">&ldquo;{deleteTargetTitle}&rdquo;</span>{' '}
+              will be permanently removed from your history. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={Boolean(deletingId)}>Cancel</AlertDialogCancel>
+            <button
+              type="button"
+              onClick={() => void confirmDeleteChat()}
+              disabled={Boolean(deletingId)}
+              className={cn(
+                buttonVariants(),
+                'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600'
+              )}
+            >
+              {deletingId ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  Deleting…
+                </>
+              ) : (
+                'Delete'
+              )}
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

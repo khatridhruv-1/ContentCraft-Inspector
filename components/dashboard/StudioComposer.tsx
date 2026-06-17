@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { ChevronDown, Sparkles, Wand2 } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { AlertCircle, Wand2 } from 'lucide-react';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
 import { STUDIO_FORMATS, STUDIO_TONES } from '@/lib/dashboard/studioOptions';
 import {
@@ -10,8 +10,6 @@ import {
   studioComposer,
   studioField,
   studioFormatChip,
-  studioInputRow,
-  studioSectionLabel,
 } from '@/lib/dashboard/studioTheme';
 import { marketingFieldShell, marketingFocusRing } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
@@ -19,210 +17,150 @@ import { cn } from '@/lib/utils';
 type StudioComposerProps = {
   brief: string;
   tone: string;
-  keywords: string;
   loading: boolean;
   errorMessage?: string | null;
   variant?: 'hero' | 'docked';
+  autoFocus?: boolean;
   onBriefChange: (value: string) => void;
   onToneChange: (tone: string) => void;
-  onKeywordsChange: (keywords: string) => void;
   onGenerate: () => void;
 };
 
 export default function StudioComposer({
   brief,
   tone,
-  keywords,
   loading,
   errorMessage,
   variant = 'hero',
+  autoFocus = false,
   onBriefChange,
   onToneChange,
-  onKeywordsChange,
   onGenerate,
 }: StudioComposerProps) {
-  const [optionsOpen, setOptionsOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isHero = variant === 'hero';
+  const briefTrimmed = brief.trim();
+  const canGenerate = briefTrimmed.length > 0;
+  const generateDisabled = !canGenerate || loading;
+
+  useEffect(() => {
+    if (!autoFocus || !textareaRef.current) return;
+    const timer = window.setTimeout(() => textareaRef.current?.focus(), isHero ? 120 : 80);
+    return () => window.clearTimeout(timer);
+  }, [autoFocus, isHero]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
       event.preventDefault();
-      if (brief.trim() && !loading) onGenerate();
+      if (canGenerate && !loading) onGenerate();
     }
   };
 
   const handleInput = (event: React.FormEvent<HTMLTextAreaElement>) => {
     const target = event.currentTarget;
     target.style.height = 'auto';
-    target.style.height = `${Math.min(target.scrollHeight, isHero ? 160 : 120)}px`;
+    target.style.height = `${Math.min(target.scrollHeight, isHero ? 140 : 120)}px`;
   };
 
   return (
     <div
       className={cn(
-        studioComposer,
-        'w-full',
-        isHero ? 'max-w-2xl p-6 shadow-lg md:p-8' : 'max-w-xl p-4 shadow-md md:p-5'
+        'flex w-full flex-col',
+        isHero ? cn(studioComposer, 'max-w-2xl p-5 shadow-lg md:p-6') : 'gap-4'
       )}
     >
-      {isHero ? (
-        <div className="mb-5 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-700">
-            <Wand2 className="h-6 w-6" aria-hidden />
+      {isHero && !briefTrimmed ? (
+        <div className="mb-4 text-center">
+          <div className="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+            <Wand2 className="h-5 w-5" aria-hidden />
           </div>
-          <h3 className="text-lg font-bold tracking-tight text-slate-900">What are we creating?</h3>
+          <h3 className="text-base font-semibold text-slate-900">What are we creating?</h3>
           <p className="mt-1 text-sm text-slate-500">
-            Describe your topic, audience, and angle — then generate a draft.
+            Describe your topic — we&apos;ll find keywords, then draft SEO-ready content.
           </p>
-        </div>
-      ) : (
-        <div className="mb-3 flex items-center gap-2">
-          <Wand2 className="h-4 w-4 shrink-0 text-violet-600" aria-hidden />
-          <p className="text-sm font-semibold text-slate-900">Refine &amp; regenerate</p>
-        </div>
-      )}
-
-      <div className="space-y-3">
-        <div className={cn(marketingFieldShell, 'items-start gap-2 px-3 py-3')}>
-          <Wand2 className="mt-0.5 h-4 w-4 shrink-0 text-violet-500" aria-hidden />
-          <textarea
-            ref={textareaRef}
-            id="studio-brief"
-            value={brief}
-            onChange={e => onBriefChange(e.target.value)}
-            onInput={handleInput}
-            onKeyDown={handleKeyDown}
-            rows={isHero ? 4 : 2}
-            placeholder="Topic, audience, angle, and key points…"
-            disabled={loading}
-            aria-label="Your brief"
-            className={cn(
-              studioField,
-              isHero ? 'min-h-[108px] max-h-[160px]' : 'min-h-[72px] max-h-[120px]'
-            )}
-          />
-        </div>
-
-        {!optionsOpen && !isHero ? (
-          <div className="flex flex-wrap gap-1.5">
-            {STUDIO_TONES.slice(0, 4).map(t => (
+          <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+            {STUDIO_FORMATS.map(format => (
               <button
-                key={t}
+                key={format.label}
                 type="button"
-                onClick={() => onToneChange(tone === t ? '' : t)}
-                className={cn(studioChip, tone === t && studioChipActive, marketingFocusRing)}
+                onClick={() => onBriefChange(format.prompt)}
+                className={cn(studioFormatChip, marketingFocusRing)}
               >
-                {t}
+                {format.label}
               </button>
             ))}
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        <button
-          type="button"
-          onClick={() => setOptionsOpen(open => !open)}
-          className={cn(
-            'inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700',
-            marketingFocusRing,
-            'rounded-md px-1'
-          )}
-          aria-expanded={optionsOpen}
-        >
-          <Sparkles className="h-3.5 w-3.5" aria-hidden />
-          Tone &amp; options
-          <ChevronDown
-            className={cn('h-3.5 w-3.5 transition-transform', optionsOpen && 'rotate-180')}
-            aria-hidden
-          />
-        </button>
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
+        <div>
+          <label htmlFor="studio-brief" className="sr-only">
+            Content brief
+          </label>
+          <div className={cn(marketingFieldShell, 'items-start gap-2 px-3 py-2.5')}>
+            <Wand2 className="mt-0.5 h-4 w-4 shrink-0 text-violet-500" aria-hidden />
+            <textarea
+              ref={textareaRef}
+              id="studio-brief"
+              value={brief}
+              onChange={e => onBriefChange(e.target.value)}
+              onInput={handleInput}
+              onKeyDown={handleKeyDown}
+              rows={isHero ? 3 : 4}
+              placeholder="Topic, audience, and angle…"
+              disabled={loading}
+              className={cn(
+                studioField,
+                isHero ? 'min-h-[88px] max-h-[140px]' : 'min-h-[96px] max-h-[160px]'
+              )}
+            />
+          </div>
+        </div>
 
-        {optionsOpen ? (
-          <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/80 p-3">
-            <div>
-              <p className={studioSectionLabel}>Tone</p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {STUDIO_TONES.map(t => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => onToneChange(tone === t ? '' : t)}
-                    className={cn(studioChip, tone === t && studioChipActive, marketingFocusRing)}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className={studioSectionLabel}>Format</p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {STUDIO_FORMATS.map(f => (
-                  <button
-                    key={f.label}
-                    type="button"
-                    onClick={() => onBriefChange(brief.trim() ? brief : f.prompt)}
-                    className={cn(studioFormatChip, marketingFocusRing)}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label htmlFor="studio-composer-keywords" className={studioSectionLabel}>
-                SEO keywords
-              </label>
-              <input
-                id="studio-composer-keywords"
-                type="text"
-                value={keywords}
-                onChange={e => onKeywordsChange(e.target.value)}
-                placeholder="Auto-discovered when empty"
-                className={cn(studioInputRow, 'mt-1.5 text-xs')}
-              />
-            </div>
+        <div className="flex flex-wrap gap-1.5">
+          {(isHero ? STUDIO_TONES.slice(0, 4) : STUDIO_TONES).map(t => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => onToneChange(tone === t ? '' : t)}
+              disabled={loading}
+              className={cn(studioChip, tone === t && studioChipActive, marketingFocusRing)}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {errorMessage ? (
+          <div
+            className="flex gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+            role="alert"
+          >
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            <p>{errorMessage}</p>
           </div>
         ) : null}
 
-        {errorMessage ? (
-          <p
-            className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700"
-            role="alert"
-          >
-            {errorMessage}
-          </p>
-        ) : null}
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          {isHero ? (
-            <p className="text-xs text-slate-400">
-              <kbd className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[10px]">
-                ⌘
-              </kbd>
-              {' + '}
-              <kbd className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[10px]">
-                ↵
-              </kbd>
-              {' '}to generate
-            </p>
-          ) : (
-            <span className="hidden sm:block" />
-          )}
+        <div className="mt-auto flex items-center justify-end gap-3 border-t border-slate-200/80 pt-4">
           <MarketingPrimaryButton
             type="button"
-            size={isHero ? 'md' : 'sm'}
+            size="sm"
             fullWidth={false}
-            disabled={!brief.trim()}
+            disabled={generateDisabled}
             loading={loading}
-            loadingText={keywords.trim() ? 'Generating…' : 'Finding keywords…'}
+            loadingText="Generating…"
             onClick={onGenerate}
-            className={cn('shrink-0 sm:ml-auto', isHero ? 'min-w-[168px] !w-auto' : '!w-auto')}
+            className="!h-10 min-w-[140px] !w-auto shrink-0"
           >
             <Wand2 className="h-4 w-4" aria-hidden />
             Generate
           </MarketingPrimaryButton>
         </div>
+
+        {canGenerate && !loading ? (
+          <p className="text-center text-[11px] text-slate-400">⌘↵ to generate</p>
+        ) : null}
       </div>
     </div>
   );

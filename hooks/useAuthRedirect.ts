@@ -2,20 +2,32 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { getUser } from '@/lib/user/appwrite';
+import type { AppUser } from '@/lib/user/appwrite';
+import type { BootstrapHistoryItem } from '@/lib/user/sessionBootstrap';
+import { bootstrapSessionCached } from '@/lib/user/sessionBootstrapCached';
 import { clearAuthSession, getSessionToken } from '@/lib/user/session';
 import { waitForMinDisplay } from '@/lib/loading/minDisplay';
 
 export type SessionStatus = 'checking' | 'ready' | 'redirecting';
 
+export type AuthGuardState = {
+  status: SessionStatus;
+  user: AppUser | null;
+  companyId: string | null;
+  recentHistory: BootstrapHistoryItem[];
+};
+
 /**
  * Redirect unauthenticated users to login, preserving the current path as returnUrl.
- * Returns status so pages can show PageLoadingScreen while checking.
+ * Returns status and validated user so pages can show PageLoadingScreen while checking.
  */
-export function useAuthGuard(): SessionStatus {
+export function useAuthGuard(): AuthGuardState {
   const router = useRouter();
   const pathname = usePathname();
   const [status, setStatus] = useState<SessionStatus>('checking');
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [companyId, setCompanyId] = useState<string | null>(null);
+  const [recentHistory, setRecentHistory] = useState<BootstrapHistoryItem[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -26,30 +38,50 @@ export function useAuthGuard(): SessionStatus {
       const sessionToken = getSessionToken();
       if (!sessionToken) {
         await waitForMinDisplay(startedAt);
-        if (!cancelled) setStatus('redirecting');
+        if (!cancelled) {
+          setUser(null);
+          setCompanyId(null);
+          setRecentHistory([]);
+          setStatus('redirecting');
+        }
         router.replace(`/auth/login?returnUrl=${encodeURIComponent(pathname)}`);
         return;
       }
 
       try {
-        const user = await getUser(sessionToken);
+        const session = await bootstrapSessionCached(sessionToken);
         if (cancelled) return;
 
-        if (!user) {
+        if (!session) {
           clearAuthSession();
           await waitForMinDisplay(startedAt);
-          if (!cancelled) setStatus('redirecting');
+          if (!cancelled) {
+            setUser(null);
+            setCompanyId(null);
+            setRecentHistory([]);
+            setStatus('redirecting');
+          }
           router.replace(`/auth/login?returnUrl=${encodeURIComponent(pathname)}`);
           return;
         }
 
         await waitForMinDisplay(startedAt);
-        if (!cancelled) setStatus('ready');
+        if (!cancelled) {
+          setUser(session.user);
+          setCompanyId(session.companyId);
+          setRecentHistory(session.recentHistory);
+          setStatus('ready');
+        }
       } catch {
         if (cancelled) return;
         clearAuthSession();
         await waitForMinDisplay(startedAt);
-        if (!cancelled) setStatus('redirecting');
+        if (!cancelled) {
+          setUser(null);
+          setCompanyId(null);
+          setRecentHistory([]);
+          setStatus('redirecting');
+        }
         router.replace(`/auth/login?returnUrl=${encodeURIComponent(pathname)}`);
       }
     }
@@ -60,7 +92,7 @@ export function useAuthGuard(): SessionStatus {
     };
   }, [router, pathname]);
 
-  return status;
+  return { status, user, companyId, recentHistory };
 }
 
 /**
@@ -85,10 +117,10 @@ export function useGuestGuard(redirectTo = '/home'): SessionStatus {
       }
 
       try {
-        const user = await getUser(sessionToken);
+        const session = await bootstrapSessionCached(sessionToken);
         if (cancelled) return;
 
-        if (user) {
+        if (session) {
           await waitForMinDisplay(startedAt);
           if (!cancelled) setStatus('redirecting');
           router.replace(redirectTo);

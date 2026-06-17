@@ -16,6 +16,23 @@ import { Theme } from './types/theme';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
+import { AppLoader } from '@/components/loading/AppLoader';
+
+type AppLoaderCenterProps = {
+  size?: 'sm' | 'md' | 'lg';
+  title?: string;
+  tone?: string;
+  className?: string;
+  label?: string;
+};
+
+function AppLoaderCenter({ className, label }: AppLoaderCenterProps) {
+  return (
+    <div className={cn('flex min-h-[40vh] items-center justify-center', className)}>
+      <AppLoader decorative={false} label={label ?? 'Loading…'} />
+    </div>
+  );
+}
 
 const AnalysisPanel = () => {
   // const [theme, setTheme] = useState<Theme>('light');

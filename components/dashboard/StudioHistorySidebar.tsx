@@ -7,7 +7,7 @@ import {
   studioChatInitial,
   studioChatMode,
   studioChatPreviewForItem,
-  studioChatTitle,
+  studioItemTitle,
   type StudioHistoryItem,
 } from '@/lib/dashboard/studioHistory';
 import { MODE_LABELS } from '@/lib/marketing/workflows';
@@ -42,7 +42,7 @@ export default function StudioHistorySidebar({
     const q = searchQuery.trim().toLowerCase();
     if (!q) return items;
     return items.filter(item => {
-      const title = studioChatTitle(item.content).toLowerCase();
+      const title = studioItemTitle(item).toLowerCase();
       const preview = studioChatPreviewForItem(item).toLowerCase();
       const mode = MODE_LABELS[studioChatMode(item)].toLowerCase();
       return title.includes(q) || preview.includes(q) || mode.includes(q);
@@ -113,7 +113,7 @@ export default function StudioHistorySidebar({
         ) : (
           <ul role="list">
             {filteredItems.map(item => {
-              const title = studioChatTitle(item.content);
+              const title = studioItemTitle(item);
               const active = activeId === item.$id;
               const preview = studioChatPreviewForItem(item);
               const time = formatStudioChatTime(item.updatedAt || item.createdAt);
@@ -127,7 +127,7 @@ export default function StudioHistorySidebar({
                 <li
                   key={item.$id}
                   className={cn(
-                    'relative min-h-[4.75rem] border-b border-slate-200/60',
+                    'relative border-b border-slate-200/60',
                     active && 'bg-white shadow-sm'
                   )}
                   onMouseEnter={() => setHoveredId(item.$id)}
@@ -139,7 +139,7 @@ export default function StudioHistorySidebar({
                     aria-current={active ? 'true' : undefined}
                     disabled={isDeleting}
                     className={cn(
-                      'flex h-full w-full min-h-[4.75rem] min-w-0 gap-3 px-3 py-3 pr-14 text-left transition-colors',
+                      'flex w-full min-w-0 gap-3 px-3 py-3.5 pr-14 text-left transition-colors',
                       !active && 'hover:bg-white/70',
                       isDeleting && 'opacity-60',
                       marketingFocusRing
@@ -161,13 +161,13 @@ export default function StudioHistorySidebar({
                       {studioChatInitial(title)}
                     </div>
                     <div className="min-w-0 flex-1 overflow-hidden">
-                      <div className="flex min-w-0 items-baseline justify-between gap-2">
-                        <span className="min-w-0 truncate text-sm font-semibold text-slate-900">
+                      <div className="flex min-w-0 items-start justify-between gap-2">
+                        <span className="min-w-0 line-clamp-2 text-sm font-semibold leading-snug text-slate-900">
                           {title}
                         </span>
                         <span
                           className={cn(
-                            'shrink-0 text-[11px] text-slate-400',
+                            'shrink-0 pt-0.5 text-xs text-slate-500',
                             showDelete && 'invisible'
                           )}
                           aria-hidden={showDelete}
@@ -175,10 +175,10 @@ export default function StudioHistorySidebar({
                           {time}
                         </span>
                       </div>
-                      <div className="mt-0.5 flex min-w-0 items-center gap-2">
+                      <div className="mt-1.5 flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
                         <span
                           className={cn(
-                            'shrink-0 rounded px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide',
+                            'w-fit shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
                             mode === 'analyze'
                               ? 'bg-sky-50 text-sky-700'
                               : 'bg-violet-50 text-violet-700'
@@ -186,7 +186,9 @@ export default function StudioHistorySidebar({
                         >
                           {modeLabel}
                         </span>
-                        <p className="min-w-0 truncate text-xs text-slate-500">{preview}</p>
+                        <p className="min-w-0 line-clamp-2 text-xs leading-relaxed text-slate-600 sm:line-clamp-1">
+                          {preview}
+                        </p>
                       </div>
                     </div>
                   </button>

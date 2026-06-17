@@ -1,3 +1,9 @@
+import {
+  fetchSerpGoogleAutocomplete,
+  fetchSerpGoogleTrendsRelated,
+  isSerpApiConfigured,
+} from '@/lib/seo/serpapi';
+
 const FETCH_HEADERS = {
   Accept: 'application/json, text/plain, */*',
   'User-Agent':
@@ -12,6 +18,8 @@ export type KeywordSignals = {
   googleAutocomplete: string[];
   duckDuckGo: string[];
   googleTrends: string[];
+  /** Rising-query growth scores from Google Trends (query lowercase → %) */
+  risingTrendScores: Record<string, number>;
 };
 
 async function fetchWithTimeout(url: string, init?: RequestInit): Promise<Response> {
@@ -35,12 +43,11 @@ async function fetchWithTimeout(url: string, init?: RequestInit): Promise<Respon
 
 function parseGoogleTrendsJson(text: string): unknown {
   const trimmed = text.trim();
-  const prefix = ")]}',";
-  const jsonText = trimmed.startsWith(prefix) ? trimmed.slice(prefix.length) : trimmed;
+  const jsonText = trimmed.replace(/^\)\]\}'?,?\s*/, '');
   return JSON.parse(jsonText);
 }
 
-export async function fetchGoogleAutocomplete(topic: string): Promise<string[]> {
+async function fetchGoogleAutocompleteDirect(topic: string): Promise<string[]> {
   const url = new URL('https://suggestqueries.google.com/complete/search');
   url.searchParams.set('client', 'firefox');
   url.searchParams.set('q', topic);
@@ -105,7 +112,7 @@ type TrendsRankedKeyword = {
   query?: string;
 };
 
-export async function fetchGoogleTrendsRelated(topic: string): Promise<string[]> {
+async function fetchGoogleTrendsRelatedDirect(topic: string): Promise<string[]> {
   const exploreReq = {
     comparisonItem: [{ keyword: topic, geo: '', time: 'today 12-m' }],
     category: 0,
@@ -150,24 +157,73 @@ export async function fetchGoogleTrendsRelated(topic: string): Promise<string[]>
     default?: { rankedList?: { rankedKeyword?: TrendsRankedKeyword[] }[] };
   };
 
+  const rankedList = widgetData.default?.rankedList ?? [];
+  const rising = (rankedList[1]?.rankedKeyword ?? [])
+    .map(item => item.query?.trim())
+    .filter((query): query is string => Boolean(query));
+  const top = (rankedList[0]?.rankedKeyword ?? [])
+    .map(item => item.query?.trim())
+    .filter((query): query is string => Boolean(query));
+
+  const seen = new Set<string>();
   const terms: string[] = [];
-  for (const list of widgetData.default?.rankedList ?? []) {
-    for (const item of list.rankedKeyword ?? []) {
-      if (item.query?.trim()) {
-        terms.push(item.query.trim());
-      }
+  for (const query of [...rising, ...top]) {
+    const key = query.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      terms.push(query);
     }
   }
 
   return terms;
 }
 
-/** Fallback when Trends explore API is unavailable (e.g. rate limited). */
+async function fetchGoogleAutocomplete(topic: string): Promise<string[]> {
+  if (isSerpApiConfigured()) {
+    try {
+      return await fetchSerpGoogleAutocomplete(topic);
+    } catch (error) {
+      console.warn('SerpAPI Google Autocomplete failed, using direct fallback:', error);
+    }
+  }
+  return fetchGoogleAutocompleteDirect(topic);
+}
+
+type GoogleTrendsFetchResult = {
+  terms: string[];
+  risingTrendScores: Record<string, number>;
+};
+
+async function fetchGoogleTrendsRelated(topic: string): Promise<GoogleTrendsFetchResult> {
+  if (isSerpApiConfigured()) {
+    try {
+      const result = await fetchSerpGoogleTrendsRelated(topic);
+      return { terms: result.terms, risingTrendScores: result.risingScores };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(`SerpAPI Google Trends unavailable: ${message}`);
+      return { terms: [], risingTrendScores: {} };
+    }
+  }
+
+  try {
+    const terms = await fetchGoogleTrendsRelatedDirect(topic);
+    return { terms, risingTrendScores: {} };
+  } catch (error) {
+    console.warn('Direct Google Trends unavailable:', error);
+    return { terms: [], risingTrendScores: {} };
+  }
+}
+
+/** Fallback when Trends is unavailable — uses free autocomplete to avoid extra SerpAPI calls. */
 async function fetchTrendStyleSuggestions(topic: string): Promise<string[]> {
+  const autocomplete = isSerpApiConfigured()
+    ? fetchGoogleAutocompleteDirect
+    : fetchGoogleAutocomplete;
   const variants = [`${topic} 2026`, `${topic} trends`, `${topic} ideas`];
   const batches = await Promise.all(
     variants.map(variant =>
-      fetchSourceSafely('google_autocomplete', () => fetchGoogleAutocomplete(variant), [])
+      fetchSourceSafely('google_autocomplete', () => autocomplete(variant), [])
     )
   );
 
@@ -192,25 +248,46 @@ async function fetchSourceSafely<T>(
   try {
     return await fetcher();
   } catch (error) {
-    console.warn(`Keyword source "${source}" failed:`, error);
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`Keyword source "${source}" failed: ${message}`);
     return fallback;
   }
 }
 
-export async function collectKeywordSignals(topic: string): Promise<KeywordSignals> {
+export type CollectKeywordSignalsOptions = {
+  /** When false, skips Google Trends (saves SerpAPI quota during live preview). */
+  includeTrends?: boolean;
+};
+
+export async function collectKeywordSignals(
+  topic: string,
+  options: CollectKeywordSignalsOptions = {}
+): Promise<KeywordSignals> {
+  const { includeTrends = true } = options;
   const seed = topic.trim();
-  const [googleAutocomplete, duckDuckGo, googleTrendsRaw] = await Promise.all([
+  const emptyTrends = { terms: [] as string[], risingTrendScores: {} as Record<string, number> };
+
+  const [googleAutocomplete, duckDuckGo, googleTrendsResult] = await Promise.all([
     fetchSourceSafely('google_autocomplete', () => fetchGoogleAutocomplete(seed), []),
     fetchSourceSafely('duckduckgo', () => fetchDuckDuckGoSuggest(seed), []),
-    fetchSourceSafely('google_trends', () => fetchGoogleTrendsRelated(seed), []),
+    includeTrends
+      ? fetchSourceSafely('google_trends', () => fetchGoogleTrendsRelated(seed), emptyTrends)
+      : Promise.resolve(emptyTrends),
   ]);
 
   const googleTrends =
-    googleTrendsRaw.length > 0
-      ? googleTrendsRaw
-      : await fetchTrendStyleSuggestions(seed);
+    includeTrends && googleTrendsResult.terms.length > 0
+      ? googleTrendsResult.terms
+      : includeTrends
+        ? await fetchTrendStyleSuggestions(seed)
+        : [];
 
-  return { googleAutocomplete, duckDuckGo, googleTrends };
+  return {
+    googleAutocomplete,
+    duckDuckGo,
+    googleTrends,
+    risingTrendScores: googleTrendsResult.risingTrendScores,
+  };
 }
 
 export function formatSignalsForPrompt(signals: KeywordSignals): string {
@@ -222,7 +299,12 @@ export function formatSignalsForPrompt(signals: KeywordSignals): string {
       ? `DuckDuckGo suggestions:\n${signals.duckDuckGo.map(term => `- ${term}`).join('\n')}`
       : '',
     signals.googleTrends.length
-      ? `Google Trends related & rising:\n${signals.googleTrends.map(term => `- ${term}`).join('\n')}`
+      ? `Google Trends (rising first, then related):\n${signals.googleTrends
+          .map(term => {
+            const rising = signals.risingTrendScores[term.toLowerCase()];
+            return rising ? `- ${term} (+${rising}% rising)` : `- ${term}`;
+          })
+          .join('\n')}`
       : '',
   ].filter(Boolean);
 

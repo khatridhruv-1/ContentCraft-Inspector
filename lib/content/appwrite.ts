@@ -1,6 +1,7 @@
 "use server";
 
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { coerceRelatedLinks } from "@/lib/dashboard/studioHistory";
 
 type RelatedLink = {
   url: string;
@@ -9,6 +10,15 @@ type RelatedLink = {
   score: number;
   raw_content: string | null;
 };
+
+function normalizeRelatedLinks(value: unknown) {
+  const links = coerceRelatedLinks(value);
+  return links.map(link => ({
+    title: link.title!,
+    url: link.url!,
+    description: link.description ?? link.content ?? '',
+  }));
+}
 
 function normalizeRow(row: any) {
   return {
@@ -26,7 +36,7 @@ function normalizeRow(row: any) {
     humanizedVersion: row.humanized_version,
     keyInsights: row.key_insights,
     contentGaps: row.content_gaps,
-    relatedLinks: row.related_links,
+    relatedLinks: normalizeRelatedLinks(row.related_links),
   };
 }
 

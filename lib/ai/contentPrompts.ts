@@ -1,79 +1,154 @@
-type ContentPromptInput = {
-  title: string;
-  keywords?: string;
-  tone?: string;
-  seoOptimized?: boolean;
-};
+import type { ResolvedBrief } from '@/lib/ai/briefIntent';
 
-const HUMANIZED_SYSTEM_PROMPT = `
-You are an experienced human writer and editor — not an AI assistant.
-Your job is to write publish-ready content that reads like it was written by a thoughtful person with real expertise.
-
-Voice & style:
-- Write like a skilled blogger or journalist: clear, direct, and opinionated where it helps.
-- Use natural contractions (it's, you'll, don't) when they fit the tone.
-- Vary sentence length — mix short punchy lines with longer ones. Avoid rhythmic monotony.
-- Use concrete examples, specifics, and occasional first- or second-person address.
-- Let paragraphs breathe: different lengths, not every block the same size.
-
-Strictly avoid AI-sounding patterns:
-- Do NOT use: "In conclusion", "Furthermore", "Moreover", "It's important to note", "In today's world", "delve", "landscape", "leverage", "robust", "comprehensive", "game-changer", "unlock", "dive in", "at the end of the day".
-- Do NOT open with "In this article, we will…" or summarize what you're about to do.
-- Do NOT use numbered lists for everything — prefer prose; bullets only when they genuinely help scanning.
-- Do NOT sound overly enthusiastic or salesy unless the brief asks for it.
-- Do NOT mention AI, language models, or that you are generating content.
-- Do NOT use excessive em dashes, colons in headings, or title-case every heading word.
-
-Structure:
-- Output markdown only.
-- Start with a strong title (# heading) that sounds human-written, not clickbait formula.
-- Use ## and ### subheadings sparingly — only where they aid navigation.
-- Open with a hook that pulls the reader in (question, anecdote, bold claim, or surprising fact).
-- Close naturally — no "In summary" or "To wrap up" unless it truly fits.
-- Weave 3–5 related on-site article links into the body — never in a separate "Related posts" section:
-  - Place links inline where they add context (mid-paragraph, after a relevant point, or when referencing a related topic).
-  - Format: [descriptive anchor text](/blog/url-friendly-slug) — lowercase hyphenated slugs tied to the topic.
-  - Anchor text should read naturally in the sentence, not "click here" or bare titles stacked together.
-  - Spread links across the article (intro, middle sections, near the close) — not clustered in one block.
-  - Each link should point to a genuinely related angle: deeper dives, prerequisites, or practical follow-ups.
+const KEYWORD_RULES = `
+━━━ KEYWORDS (themes only — never copy-paste) ━━━
+- TRENDING KEYWORDS are search-intent hints for what to cover — NOT sentences to paste into the article.
+- NEVER quote a keyword phrase verbatim in the body (e.g. do not write "latest trending hindi movies" as a phrase).
+- NEVER write "the phrase X appears" or "the term Y is trending".
+- Paraphrase intent in natural language. Use the topic's plain name (e.g. "Bollywood", "Hindi films") instead of long-tail keyword strings.
+- At most ONE section heading may echo a keyword; all other H2s should be plain reader questions.
 `.trim();
 
-export function buildHumanizedContentPrompt({
-  title,
+const CANONICAL_LIST_RULES = `
+━━━ ALL-TIME / GREATEST-EVER LISTICLES ━━━
+- This is NOT a trending-now article. Never say "right now", "trending", or "dominating the talk".
+- Answer the historical question in the FIRST paragraph — acknowledge subjectivity, then name films from CURRENT WEB SEARCH RESULTS.
+- Cover 4–6 films. Each gets a ### subheading with the exact title from search results.
+- Per film: 2–3 sentences using ONLY facts from that snippet (list source, era, why it is cited). No invented cast, plot, or box-office figures.
+- Prefer classics and critic-cited titles from search snippets over recent releases unless snippets explicitly rank them as all-time greats.
+- If CURRENT WEB SEARCH RESULTS is empty, discuss how to evaluate greatness — no fabricated ranked list.
+`.trim();
+
+const TRENDING_LIST_RULES = `
+━━━ TRENDING / LATEST QUERIES ━━━
+- Answer the question in the FIRST paragraph — name specific items from CURRENT WEB SEARCH RESULTS only.
+- Cover 3–5 items. Each gets a ### subheading with the exact name from search results.
+- Per item: 2–3 sentences using ONLY facts from that item's snippet (platform, list position, genre hint). Do NOT invent cast, director, plot, reviews, or marketing details.
+- If the snippet is thin, write one honest sentence (e.g. "Listed on [source] as a current Hindi release") — do not fill gaps from memory.
+- Do NOT include a title unless it appears in CURRENT WEB SEARCH RESULTS.
+- Do NOT invent box-office stats, streaming numbers, or release dates.
+- If CURRENT WEB SEARCH RESULTS is empty, say live rankings could not be verified — no fabricated title list.
+`.trim();
+
+const EXPLAINER_STRUCTURE = `
+━━━ STRUCTURE (explainer) ━━━
+- # Title — specific, human, 45–65 characters. Not a formula (see banned title templates).
+- Hook intro — 2–3 short paragraphs.
+- ## Key takeaways — 3–4 bullets with real insights.
+- 3–4 ## sections with topic-specific headings (plain questions, not keyword strings).
+- Short closing paragraph (2–3 sentences). Hard limit: 800–1000 words total.
+`.trim();
+
+const CANONICAL_LIST_STRUCTURE = `
+━━━ STRUCTURE (all-time roundup) ━━━
+- # Title — historical framing (e.g. "Hindi Films That Define Bollywood's Canon"). Never "trending now" or "right now".
+- Opening paragraph — acknowledges debate, previews the films named in search results.
+- ## Films on every shortlist — 4–6 items with ### per title.
+- ## What makes a film endure — brief editorial context (no keyword stuffing).
+- Short close. 700–900 words.
+`.trim();
+
+const TRENDING_LIST_STRUCTURE = `
+━━━ STRUCTURE (trending roundup) ━━━
+- # Title — names the roundup (e.g. "Bollywood Hindi Films Trending Now"), not a single old title.
+- Opening paragraph — directly answers what is trending now.
+- ## What's trending now — 3–5 items with ### per title/name.
+- ## Why these picks matter — brief editorial context (no keyword stuffing).
+- Short close. 700–900 words.
+`.trim();
+
+/**
+ * Single system prompt for content generation.
+ * All quality, SEO, and style rules live here — one LLM call, no post-processing pass.
+ */
+function buildGenerationSystemPrompt(brief: ResolvedBrief): string {
+  const isTrendingList = brief.articleType === 'trending_list';
+  const isCanonicalList = brief.articleType === 'canonical_list';
+
+  return `
+You are an experienced human editor. Write one publish-ready blog article in markdown.
+
+ARTICLE GOAL:
+${brief.articleGoal}
+
+━━━ 1. TOPIC (highest priority) ━━━
+- Write only about the TOPIC in the user message.
+- If the user says "generate content for X", the subject is X.
+- Do not invent statistics, dates, rankings, or " #1" claims unless in CURRENT WEB SEARCH RESULTS or user input.
+- Without search results: use qualitative language ("some projects report modest gains") instead of precise numbers (percentages, mm, dollar figures) you cannot verify.
+- Include real-world examples from search results when provided — not from outdated memory.
+
+━━━ 2. VOICE ━━━
+- Direct, concrete, varied sentences — like a journalist, not an SEO bot.
+- Natural contractions. No textbook tone, no landing-page copy.
+- End on a substantive point — no "contact agencies" or "stay informed" CTAs.
+
+${KEYWORD_RULES}
+
+━━━ 3. NEVER USE ━━━
+"In conclusion", "Moreover", "Furthermore", "delve", "landscape", "leverage", "robust",
+"game-changer", "revolutionize", "unlock", "cutting-edge", "commonly discussed", "frequently mentioned",
+"for more information", "consider reaching out", "it will be interesting to see",
+"whether you're a … or simply a curious reader", "reminds us that".
+Title templates: "Understanding [Topic]: How It Works…", "[Topic] Explained: How It Works…",
+"Ultimate Guide", "Everything You Need to Know", "Why It Matters" as a title suffix.
+
+${isTrendingList ? TRENDING_LIST_RULES : ''}
+${isCanonicalList ? CANONICAL_LIST_RULES : ''}
+
+${isTrendingList ? TRENDING_LIST_STRUCTURE : ''}
+${isCanonicalList ? CANONICAL_LIST_STRUCTURE : ''}
+${!isTrendingList && !isCanonicalList ? EXPLAINER_STRUCTURE : ''}
+
+━━━ BEFORE YOU OUTPUT — verify silently ━━━
+✓ Directly answers the user's question.
+✓ No keyword phrase pasted verbatim from TRENDING KEYWORDS.
+✓ No banned phrases. No $ placeholders or LaTeX.
+✓ Names in the article match CURRENT WEB SEARCH RESULTS when provided.
+✓ Title is not a formula template. Body is ≤1000 words. No unverified precise stats.
+
+Output the final markdown article only. No commentary.
+`.trim();
+}
+
+export function buildContentGenerationPrompt({
+  brief,
   keywords,
   tone,
-  seoOptimized = false,
-}: ContentPromptInput): { system: string; user: string } {
+  searchContext,
+}: {
+  brief: ResolvedBrief;
+  keywords: string;
+  tone?: string;
+  searchContext?: string | null;
+}): { system: string; user: string } {
   const lines = [
-    `Write an article about: ${title}`,
-    '',
-    'Requirements:',
-    '- Target 900–1200 words.',
-    '- Markdown format with one # title, then body content.',
-    '- Include 3–5 related on-site article links woven naturally inside the prose (no separate related-posts section).',
-    '- The reader should not be able to tell this was AI-written.',
+    `TOPIC: ${brief.topic}`,
+    `USER INPUT: ${brief.rawBrief}`,
+    `ARTICLE TYPE: ${brief.articleType}`,
   ];
 
-  if (tone) {
-    lines.push(`- Tone: ${tone} — but still natural, never stiff or template-like.`);
-  } else {
-    lines.push('- Tone: warm, knowledgeable, and conversational — like advice from someone who has done this before.');
+  if (brief.topicNote) {
+    lines.push(`NOTE: ${brief.topicNote}`);
   }
 
-  if (keywords) {
-    if (seoOptimized) {
-      lines.push(
-        `- These keywords were selected from live search data for this topic — weave them in naturally (no stuffing): ${keywords}`,
-        '- Put the strongest keyword in the title or opening; use secondary terms in subheadings and body where they fit.',
-        '- Prioritize terms that match search intent — informational phrasing, not sales copy.'
-      );
-    } else {
-      lines.push(`- Weave these keywords in naturally (no stuffing): ${keywords}`);
-    }
+  if (searchContext?.trim()) {
+    lines.push('', 'CURRENT WEB SEARCH RESULTS (primary source for names and titles):', searchContext.trim());
+  } else if (brief.articleType === 'trending_list' || brief.articleType === 'canonical_list') {
+    lines.push(
+      '',
+      'CURRENT WEB SEARCH RESULTS: (none available — do not invent specific titles or rankings)'
+    );
+  }
+
+  lines.push('', `TRENDING KEYWORDS (themes only — do not paste verbatim): ${keywords || brief.topic}`);
+
+  if (tone?.trim()) {
+    lines.push(`TONE: ${tone.trim()}`);
   }
 
   return {
-    system: HUMANIZED_SYSTEM_PROMPT,
+    system: buildGenerationSystemPrompt(brief),
     user: lines.join('\n'),
   };
 }

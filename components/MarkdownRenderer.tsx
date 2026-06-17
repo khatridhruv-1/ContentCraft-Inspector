@@ -9,6 +9,43 @@ type MarkdownRendererProps = {
   className?: string;
 };
 
+/** Legacy drafts used /blog/slug links that don't exist — send readers to a relevant web search. */
+function resolveMarkdownHref(href?: string): string | undefined {
+  if (!href) return undefined;
+  if (/^https?:\/\//i.test(href)) return href;
+  if (href.startsWith('/blog/')) {
+    const slug = href.replace(/^\/blog\//, '').replace(/\/$/, '');
+    if (!slug) return href;
+    return `https://www.google.com/search?q=${encodeURIComponent(slug.replace(/-/g, ' '))}`;
+  }
+  return href;
+}
+
+function MarkdownAnchor({
+  children,
+  href,
+  className,
+}: {
+  children?: React.ReactNode;
+  href?: string;
+  className: string;
+}) {
+  const resolved = resolveMarkdownHref(href);
+  const opensExternally = Boolean(resolved?.startsWith('http'));
+
+  return (
+    <a
+      href={resolved}
+      className={className}
+      {...(opensExternally
+        ? { target: '_blank', rel: 'noopener noreferrer' }
+        : {})}
+    >
+      {children}
+    </a>
+  );
+}
+
 const lightRenderers = {
   h1: ({ children }: { children?: React.ReactNode }) => (
     <h1 className="mb-6 mt-8 text-4xl font-extrabold text-gray-900">{children}</h1>
@@ -43,9 +80,9 @@ const lightRenderers = {
     <pre className="my-4 overflow-x-auto rounded-lg bg-gray-100 p-4">{children}</pre>
   ),
   a: ({ children, href }: { children?: React.ReactNode; href?: string }) => (
-    <a href={href} className="text-blue-600 underline hover:text-blue-800">
+    <MarkdownAnchor href={href} className="text-blue-600 underline hover:text-blue-800">
       {children}
-    </a>
+    </MarkdownAnchor>
   ),
 };
 
@@ -89,9 +126,9 @@ const darkRenderers = {
     </pre>
   ),
   a: ({ children, href }: { children?: React.ReactNode; href?: string }) => (
-    <a href={href} className="text-violet-400 underline hover:text-violet-300">
+    <MarkdownAnchor href={href} className="text-violet-400 underline hover:text-violet-300">
       {children}
-    </a>
+    </MarkdownAnchor>
   ),
   strong: ({ children }: { children?: React.ReactNode }) => (
     <strong className="font-semibold text-white">{children}</strong>

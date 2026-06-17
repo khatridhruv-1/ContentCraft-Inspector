@@ -29,7 +29,7 @@ export const studioSplitShell =
   'flex h-full min-h-0 flex-1 flex-row overflow-hidden max-sm:flex-col';
 
 export const studioHistoryColumn =
-  'relative flex h-full min-h-0 w-80 max-w-[34%] shrink-0 flex-col overflow-hidden border-r border-slate-200/80 max-sm:h-[40%] max-sm:w-full max-sm:max-w-none max-sm:border-r-0 max-sm:border-b';
+  'relative flex h-full min-h-0 w-85 max-w-[35%] shrink-0 flex-col overflow-hidden border-r border-slate-200/80 max-sm:h-[40%] max-sm:w-full max-sm:max-w-none max-sm:border-r-0 max-sm:border-b';
 
 export const studioWorkspaceColumn =
   'flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden max-sm:h-[60%]';

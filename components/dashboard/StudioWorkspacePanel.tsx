@@ -1,39 +1,31 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Check, Copy, FileDown, FileSearch, Wand2 } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Check, Copy, Eye, FileDown, FileSearch, Wand2 } from 'lucide-react';
 import StudioComposer from '@/components/dashboard/StudioComposer';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
 import { AppLoader } from '@/components/loading/AppLoader';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 import { StudioWorkspaceSkeleton } from '@/components/dashboard/StudioPanelSkeleton';
 import { studioActionGhost } from '@/lib/dashboard/studioTheme';
+import { saveBlogPreview } from '@/lib/dashboard/blogPreviewStorage';
 import { marketingFocusRing } from '@/lib/marketing/marketingTheme';
 import { htmlToMarkdown } from '@/lib/utils';
 import { cn } from '@/lib/utils';
-import type { DiscoveredKeyword } from '@/types/seo';
 
 type StudioWorkspacePanelProps = {
   generatedContent: string;
   activeTitle?: string | null;
-  discoveredKeywords?: DiscoveredKeyword[];
   historyLoading?: boolean;
   loading: boolean;
   brief: string;
   tone: string;
-  keywords: string;
   errorMessage?: string | null;
   onBriefChange: (value: string) => void;
   onToneChange: (tone: string) => void;
-  onKeywordsChange: (keywords: string) => void;
   onGenerate: () => void;
+  onRefine: () => void;
   onAnalyze: () => void;
   onDownloadAsWord: () => void;
 };
@@ -41,32 +33,23 @@ type StudioWorkspacePanelProps = {
 export default function StudioWorkspacePanel({
   generatedContent,
   activeTitle,
-  discoveredKeywords = [],
   historyLoading = false,
   loading,
   brief,
   tone,
-  keywords,
   errorMessage,
   onBriefChange,
   onToneChange,
-  onKeywordsChange,
   onGenerate,
+  onRefine,
   onAnalyze,
   onDownloadAsWord,
 }: StudioWorkspacePanelProps) {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
-  const [refineOpen, setRefineOpen] = useState(false);
-  const wasLoadingRef = useRef(false);
   const hasOutput = generatedContent.trim().length > 0;
   const showHero = !hasOutput && !loading;
-
-  useEffect(() => {
-    if (wasLoadingRef.current && !loading && refineOpen && !errorMessage) {
-      setRefineOpen(false);
-    }
-    wasLoadingRef.current = loading;
-  }, [loading, refineOpen, errorMessage]);
+  const canRefine = brief.trim().length > 0;
 
   if (historyLoading) {
     return <StudioWorkspaceSkeleton />;
@@ -85,99 +68,108 @@ export default function StudioWorkspacePanel({
     }
   };
 
+  const handlePreview = () => {
+    const markdown = htmlToMarkdown(generatedContent).trim();
+    if (!markdown) return;
+
+    saveBlogPreview({
+      title: activeTitle?.trim() || 'Draft preview',
+      content: markdown,
+    });
+    router.push('/dashboard/preview');
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col bg-white">
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 px-4 py-3 sm:px-5">
         <div className="min-w-0">
-          <h2 className="truncate text-sm font-semibold text-slate-900">
-            {activeTitle || 'New draft'}
-          </h2>
+          {hasOutput && activeTitle ? (
+            <h1 className="line-clamp-2 text-base font-bold leading-snug text-slate-900 sm:text-lg">
+              {activeTitle}
+            </h1>
+          ) : (
+            <h2 className="truncate text-sm font-semibold text-slate-900">New draft</h2>
+          )}
           <p className="text-xs text-slate-500">
             {hasOutput ? 'Draft preview' : 'Compose your brief below'}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setRefineOpen(true)}
-            disabled={!hasOutput || loading}
-            className={cn(studioActionGhost, 'gap-1.5 !h-8 text-xs', marketingFocusRing)}
-          >
-            <Wand2 className="h-3.5 w-3.5" aria-hidden />
-            Refine
-          </button>
-          <button
-            type="button"
-            onClick={onAnalyze}
-            disabled={!hasOutput}
-            className={cn(studioActionGhost, 'gap-1.5 !h-8 text-xs', marketingFocusRing)}
-          >
-            <FileSearch className="h-3.5 w-3.5" aria-hidden />
-            Analyze
-          </button>
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!hasOutput}
-            className={cn(studioActionGhost, 'gap-1.5 !h-8 text-xs', marketingFocusRing)}
-          >
-            {copied ? (
-              <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
-            ) : (
-              <Copy className="h-3.5 w-3.5" aria-hidden />
-            )}
-            {copied ? 'Copied' : 'Copy'}
-          </button>
-          <MarketingPrimaryButton
-            type="button"
-            size="sm"
-            fullWidth={false}
-            disabled={!hasOutput}
-            onClick={onDownloadAsWord}
-            className="!h-8 !w-auto px-3 text-xs"
-          >
-            <FileDown className="h-3.5 w-3.5" aria-hidden />
-            Export
-          </MarketingPrimaryButton>
+          {hasOutput ? (
+            <>
+              <button
+                type="button"
+                onClick={onRefine}
+                disabled={loading || !canRefine}
+                className={cn(studioActionGhost, 'gap-1.5 !h-9 text-xs', marketingFocusRing)}
+              >
+                <Wand2 className="h-3.5 w-3.5" aria-hidden />
+                {loading ? 'Regenerating…' : 'Refine'}
+              </button>
+              <button
+                type="button"
+                onClick={onAnalyze}
+                className={cn(studioActionGhost, 'gap-1.5 !h-9 text-xs', marketingFocusRing)}
+              >
+                <FileSearch className="h-3.5 w-3.5" aria-hidden />
+                Analyze
+              </button>
+              <button
+                type="button"
+                onClick={handlePreview}
+                className={cn(studioActionGhost, 'gap-1.5 !h-9 text-xs', marketingFocusRing)}
+              >
+                <Eye className="h-3.5 w-3.5" aria-hidden />
+                Preview
+              </button>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className={cn(studioActionGhost, 'gap-1.5 !h-9 text-xs', marketingFocusRing)}
+              >
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" aria-hidden />
+                )}
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+              <MarketingPrimaryButton
+                type="button"
+                size="sm"
+                fullWidth={false}
+                onClick={onDownloadAsWord}
+                className="!h-9 !w-auto px-3 text-xs"
+              >
+                <FileDown className="h-3.5 w-3.5" aria-hidden />
+                Export
+              </MarketingPrimaryButton>
+            </>
+          ) : (
+            <span className="text-xs text-slate-400">Actions unlock after your first draft</span>
+          )}
         </div>
       </header>
 
-      {discoveredKeywords.length > 0 ? (
-        <div className="shrink-0 border-b border-violet-100 bg-violet-50/70 px-4 py-2 sm:px-5">
-          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-violet-700">
-            Keywords
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {discoveredKeywords.map(item => (
-              <span
-                key={item.keyword}
-                className="inline-flex items-center rounded-md border border-violet-200 bg-white px-2 py-0.5 text-xs font-medium text-violet-900"
-              >
-                {item.keyword}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
       {showHero ? (
-        <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto p-6 md:p-10">
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto p-4 sm:p-6">
           <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(139,92,246,0.06)_0%,_transparent_70%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(139,92,246,0.04)_0%,_transparent_70%)]"
             aria-hidden
           />
-          <StudioComposer
-            variant="hero"
-            brief={brief}
-            tone={tone}
-            keywords={keywords}
-            loading={loading}
-            errorMessage={errorMessage}
-            onBriefChange={onBriefChange}
-            onToneChange={onToneChange}
-            onKeywordsChange={onKeywordsChange}
-            onGenerate={onGenerate}
-          />
+          <div className="relative mx-auto flex w-full max-w-2xl flex-1 items-center justify-center py-4">
+            <StudioComposer
+              variant="hero"
+              autoFocus
+              brief={brief}
+              tone={tone}
+              loading={loading}
+              errorMessage={errorMessage}
+              onBriefChange={onBriefChange}
+              onToneChange={onToneChange}
+              onGenerate={onGenerate}
+            />
+          </div>
         </div>
       ) : (
         <div
@@ -194,12 +186,16 @@ export default function StudioWorkspacePanel({
 
           <div className="h-full min-h-0 overflow-y-auto overscroll-y-contain custom-scrollbar">
             {loading && !hasOutput ? (
-              <div className="flex min-h-full flex-col items-center justify-center gap-3 p-8 text-center">
+              <div className="flex min-h-full flex-col items-center justify-center gap-4 p-8 text-center">
                 <AppLoader decorative className="!h-8 !w-8" />
-                <p className="text-sm font-medium text-slate-700">Writing your draft…</p>
-                <p className="max-w-xs text-xs text-slate-500">
-                  Finding keywords and generating content.
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-slate-700">
+                    Finding keywords, then writing your draft…
+                  </p>
+                  <p className="mx-auto max-w-xs text-xs leading-relaxed text-slate-500">
+                    We fetch trending keywords for your topic, then generate content around them.
+                  </p>
+                </div>
               </div>
             ) : hasOutput ? (
               <article className="w-full bg-white px-5 py-5 sm:px-6 md:px-8 md:py-6">
@@ -212,34 +208,6 @@ export default function StudioWorkspacePanel({
           </div>
         </div>
       )}
-
-      <Sheet open={refineOpen} onOpenChange={setRefineOpen}>
-        <SheetContent
-          side="right"
-          className="w-full overflow-y-auto border-slate-200 bg-white text-slate-900 sm:max-w-lg"
-        >
-          <SheetHeader className="text-left">
-            <SheetTitle className="text-slate-900">Refine &amp; regenerate</SheetTitle>
-            <SheetDescription className="text-slate-500">
-              Update your brief or tone, then generate a new draft.
-            </SheetDescription>
-          </SheetHeader>
-          <div className="mt-6">
-            <StudioComposer
-              variant="docked"
-              brief={brief}
-              tone={tone}
-              keywords={keywords}
-              loading={loading}
-              errorMessage={errorMessage}
-              onBriefChange={onBriefChange}
-              onToneChange={onToneChange}
-              onKeywordsChange={onKeywordsChange}
-              onGenerate={onGenerate}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }

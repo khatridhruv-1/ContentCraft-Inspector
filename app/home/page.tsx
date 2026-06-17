@@ -1,11 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
-import { getUser } from '@/lib/user/appwrite';
-import { clearAuthSession, getSessionToken } from '@/lib/user/session';
-import { fetchHistory } from '@/lib/content/appwrite';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { AUTH_EASE } from '@/components/auth/authFeatures';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import HomeNav from '@/components/home/HomeNav';
@@ -43,40 +40,10 @@ function formatRelativeTime(iso: string) {
 export default function Home() {
   const router = useRouter();
   const reduced = useReducedMotion();
+  const { user, recentHistory } = useCurrentUser();
 
-  const [userName, setUserName] = useState('');
-  const [recentItems, setRecentItems] = useState<HomeRecentItem[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      try {
-        const sessionToken = getSessionToken();
-        if (!sessionToken) return;
-
-        const user = await getUser(sessionToken);
-        if (cancelled) return;
-        if (!user) {
-          clearAuthSession();
-          router.replace('/auth/login?returnUrl=/home');
-          return;
-        }
-        setUserName(user.name?.split(' ')[0] || '');
-
-        const history = await fetchHistory(user.$id, 1, 2);
-        if (cancelled) return;
-        setRecentItems((history.documents as HomeRecentItem[]) || []);
-      } catch {
-        if (!cancelled) setRecentItems([]);
-      }
-    }
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [router]);
+  const userName = user.name?.split(' ')[0] || '';
+  const recentItems = recentHistory as HomeRecentItem[];
 
   const goToMode = (mode: HomeModeId) => router.push(`/dashboard?mode=${mode}`);
 

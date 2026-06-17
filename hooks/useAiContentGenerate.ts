@@ -3,14 +3,13 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
-import { getUser } from '@/lib/user/appwrite';
 import { clearAuthSession } from '@/lib/user/session';
 import { useCompanyId } from '@/hooks/useCompany';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { DiscoveredKeyword } from '@/types/seo';
 
 type GenerateOptions = {
   tone?: string;
-  keywords?: string;
 };
 
 type GenerateResult = {
@@ -20,6 +19,7 @@ type GenerateResult = {
 
 export function useAiContentGenerate() {
   const router = useRouter();
+  const { user } = useCurrentUser();
   const { companyId }: { companyId?: string | null } = useCompanyId();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,11 +35,9 @@ export function useAiContentGenerate() {
       setLoading(true);
 
       try {
-        const requestData: Record<string, string | boolean> = { title };
-        if (options.keywords?.trim()) {
-          requestData.keywords = options.keywords.trim();
-          requestData.autoKeywords = false;
-        }
+        const requestData: Record<string, string> = {
+          title,
+        };
         if (options.tone) requestData.tone = options.tone;
 
         const response = await fetch('/api/ai-content', {
@@ -63,21 +61,27 @@ export function useAiContentGenerate() {
           throw new Error(apiError);
         }
 
-        const data = await response.json();
-        const safeContent = typeof data?.content === 'string' ? data.content : '';
+        const payload = (await response.json().catch(() => ({}))) as {
+          content?: unknown;
+          keywords?: DiscoveredKeyword[];
+        };
+
+        const safeContent =
+          typeof payload.content === 'string' ? payload.content : String(payload.content ?? '');
+
         if (!safeContent.trim()) {
           throw new Error('AI response was empty. Please try again.');
         }
 
-        const discoveredKeywords = Array.isArray(data?.discoveredKeywords)
-          ? data.discoveredKeywords
-          : undefined;
+        const discoveredKeywords = Array.isArray(payload.keywords) ? payload.keywords : undefined;
+        const storedLinks: Array<{ title: string; url: string; description: string }> = [];
 
         const documentId = localStorage.getItem('documentId');
         if (documentId) {
           await updateContent(documentId, {
             input: title,
             analysis: safeContent,
+            relatedLinks: storedLinks,
             companyId: companyId ?? undefined,
           });
         } else {
@@ -86,8 +90,7 @@ export function useAiContentGenerate() {
             router.push('/auth/login');
             throw new Error('No session found');
           }
-          const user = await getUser(sessionToken);
-          if (!user) {
+          if (!user?.$id) {
             clearAuthSession();
             router.push('/auth/login');
             throw new Error('Session expired');
@@ -113,7 +116,7 @@ export function useAiContentGenerate() {
               undefined,
               undefined,
               undefined,
-              undefined,
+              storedLinks,
               companyId
             );
             localStorage.setItem('documentId', res.$id);
@@ -129,7 +132,7 @@ export function useAiContentGenerate() {
         setLoading(false);
       }
     },
-    [companyId, loading, router]
+    [companyId, router, user]
   );
 
   const clearError = useCallback(() => setError(null), []);

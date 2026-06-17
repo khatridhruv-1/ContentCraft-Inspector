@@ -1,25 +1,24 @@
 import { NextResponse } from 'next/server';
-import { buildHumanizedContentPrompt } from '@/lib/ai/contentPrompts';
-import { groqChat, groqErrorResponse } from '@/lib/ai/groq';
-import {
-  discoverKeywordsForTopic,
-  formatKeywordsForPrompt,
-  isKeywordDiscoveryConfigured,
-} from '@/lib/seo/keywords';
-import type { DiscoveredKeyword } from '@/types/seo';
+import { generateContentFromTopic } from '@/lib/ai/generateContent';
+import { ollamaErrorResponse, OllamaAuthError, OllamaRateLimitError } from '@/lib/ai/ollama';
+import { keywordDiscoveryErrorResponse } from '@/lib/seo/keywords';
 
 interface AIContentRequest {
   title?: string;
-  keywords?: string;
   tone?: string;
-  /** When true (default), auto-discover keywords from search signals if keywords are empty */
-  autoKeywords?: boolean;
 }
 
 export async function POST(req: Request) {
+  if (!process.env.OLLAMA_API_KEY?.trim()) {
+    return NextResponse.json(
+      { error: 'Server configuration error: OLLAMA_API_KEY is not set' },
+      { status: 500 }
+    );
+  }
+
   if (!process.env.GROQ_API_KEY?.trim()) {
     return NextResponse.json(
-      { error: 'Server configuration error: GROQ_API_KEY is not set' },
+      { error: 'Server configuration error: GROQ_API_KEY is not set (required for keyword discovery)' },
       { status: 500 }
     );
   }
@@ -27,9 +26,7 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as AIContentRequest;
     const title = body?.title?.trim();
-    let keywords = body?.keywords?.trim();
     const tone = body?.tone?.trim();
-    const autoKeywords = body?.autoKeywords !== false;
 
     if (!title) {
       return NextResponse.json(
@@ -38,41 +35,29 @@ export async function POST(req: Request) {
       );
     }
 
-    let discoveredKeywords: DiscoveredKeyword[] | undefined;
-
-    if (!keywords && autoKeywords && isKeywordDiscoveryConfigured()) {
-      try {
-        discoveredKeywords = await discoverKeywordsForTopic(title);
-        keywords = formatKeywordsForPrompt(discoveredKeywords);
-      } catch (error) {
-        console.warn('Keyword discovery failed, generating without SEO keywords:', error);
-      }
-    }
-
-    const { system, user } = buildHumanizedContentPrompt({
-      title,
-      keywords,
-      tone,
-      seoOptimized: Boolean(keywords),
-    });
-
-    const contentResponse = await groqChat({
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-      temperature: 0.88,
-      topP: 0.92,
-      maxTokens: 4096,
+    const result = await generateContentFromTopic({
+      rawBrief: title,
+      tone: tone || undefined,
     });
 
     return NextResponse.json({
-      content: contentResponse,
-      discoveredKeywords,
+      content: result.content,
+      keywords: result.keywords,
+      topic: result.topic,
     });
   } catch (error) {
     console.error('Error in AI content generation:', error);
-    const { status, body } = groqErrorResponse(error);
-    return NextResponse.json(body, { status });
+
+    if (
+      error instanceof OllamaAuthError ||
+      error instanceof OllamaRateLimitError ||
+      (error instanceof Error && error.message.toLowerCase().includes('ollama'))
+    ) {
+      const { status, body } = ollamaErrorResponse(error);
+      return NextResponse.json(body, { status });
+    }
+
+    const keywordError = keywordDiscoveryErrorResponse(error);
+    return NextResponse.json(keywordError.body, { status: keywordError.status });
   }
 }

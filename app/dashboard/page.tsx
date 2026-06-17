@@ -28,8 +28,7 @@ import {
 } from '@/lib/marketing/marketingTheme';
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import { cn } from '@/lib/utils';
-import type { StudioHistoryItem } from '@/lib/dashboard/studioHistory';
-import type { DiscoveredKeyword } from '@/types/seo';
+import { extractDraftTitle, type StudioHistoryItem } from '@/lib/dashboard/studioHistory';
 
 type AppMode = HomeModeId;
 
@@ -52,7 +51,6 @@ export default function Dashboard() {
   const [title, setTitle] = useState<string>('GeneratedContent');
   const [dataFromChild, setDataFromChild] = useState('');
   const [analysisRunId, setAnalysisRunId] = useState(0);
-  const [discoveredKeywords, setDiscoveredKeywords] = useState<DiscoveredKeyword[]>([]);
   const [initialBrief, setInitialBrief] = useState<string | undefined>();
 
   const router = useRouter();
@@ -67,8 +65,22 @@ export default function Dashboard() {
       const savedState = localStorage.getItem('dashboardState');
       if (!savedState) return;
 
-      const { mode: savedMode, content: savedContent, documentId: savedDocId, fromHistory: wasHistory, analysis: savedAnalysis } =
-        JSON.parse(savedState);
+      let parsed: any;
+      try {
+        parsed = JSON.parse(savedState);
+      } catch {
+        // Ignore corrupted dashboard state (e.g. after a previous crash).
+        localStorage.removeItem('dashboardState');
+        return;
+      }
+
+      const {
+        mode: savedMode,
+        content: savedContent,
+        documentId: savedDocId,
+        fromHistory: wasHistory,
+        analysis: savedAnalysis,
+      } = parsed;
       const safeMode: AppMode = savedMode === 'analyze' ? 'analyze' : 'ai-generate';
 
       setMode(safeMode);
@@ -131,24 +143,19 @@ export default function Dashboard() {
     setAnalysis(newContent);
   };
 
-  const handleGeneratedContent = (
-    newGenerated: string,
-    meta?: { keywords?: DiscoveredKeyword[] }
-  ) => {
+  const handleGeneratedContent = (newGenerated: string) => {
     const safeGeneratedContent = typeof newGenerated === 'string' ? newGenerated.trim() : '';
     if (!safeGeneratedContent) {
       setGeneratedContent('');
       setContent('');
       setAnalysis('');
-      setDiscoveredKeywords(meta?.keywords ?? []);
       return;
     }
 
     const generatedHtmlContent = toHtmlFromMarkdown(safeGeneratedContent);
     if (!generatedHtmlContent) return;
     handleContentChange(generatedHtmlContent);
-    setTitle(safeGeneratedContent.split('\n')[0] || 'GeneratedContent');
-    setDiscoveredKeywords(meta?.keywords ?? []);
+    setTitle(extractDraftTitle(safeGeneratedContent) ?? 'GeneratedContent');
   };
 
   const downloadAsWord = () => {
@@ -241,7 +248,6 @@ export default function Dashboard() {
           {mode === 'ai-generate' ? (
             <AIGenerateView
               generatedContent={generatedContent}
-              discoveredKeywords={discoveredKeywords}
               initialBrief={initialBrief}
               onContentGenerated={handleGeneratedContent}
               onAnalyze={handleAnalyze}

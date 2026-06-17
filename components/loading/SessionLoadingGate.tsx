@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { useAuthGuard, useGuestGuard } from '@/hooks/useAuthRedirect';
+import { SessionProvider } from '@/hooks/useCurrentUser';
 import { PageLoadingScreen } from '@/components/loading/PageLoadingScreen';
 
 type GateProps = {
@@ -14,9 +15,9 @@ export function AuthSessionGate({
   children,
   label = 'Loading your workspace',
 }: GateProps) {
-  const status = useAuthGuard();
+  const { status, user, companyId, recentHistory } = useAuthGuard();
 
-  if (status !== 'ready') {
+  if (status !== 'ready' || !user) {
     return (
       <PageLoadingScreen
         label={status === 'redirecting' ? 'Redirecting' : label}
@@ -24,7 +25,11 @@ export function AuthSessionGate({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <SessionProvider user={user} companyId={companyId} recentHistory={recentHistory}>
+      {children}
+    </SessionProvider>
+  );
 }
 
 /** Blocks auth forms until guest session check completes — fullscreen GIF loader only */
