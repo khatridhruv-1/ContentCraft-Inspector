@@ -93,3 +93,5 @@ jobs:
           TRIGGER_ISSUE_NUMBER: ${{ github.event.issue.number || '' }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_NOTIFY_USER_ID: ${{ secrets.SLACK_NOTIFY_USER_ID }}
+          # GitHub Project board: https://github.com/users/khatridhruv-1/projects/1
+          PROJECT_NUMBER: "1"
