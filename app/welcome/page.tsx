@@ -77,12 +77,6 @@ export default function Welcome() {
           >
             Features
           </a>
-          <Link
-            href="/help"
-            className={cn('hidden px-3 py-2 md:inline', marketingGhostNav, marketingFocusRing)}
-          >
-            Help
-          </Link>
           <button
             type="button"
             onClick={() => router.push('/auth/login')}
