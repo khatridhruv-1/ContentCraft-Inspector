@@ -1,6 +1,7 @@
 import { resolveBriefIntent, type ResolvedBrief } from '@/lib/ai/briefIntent';
 import { buildContentGenerationPrompt } from '@/lib/ai/contentPrompts';
 import { ollamaChat } from '@/lib/ai/ollama';
+import { countPlaceholderLines, stripPlaceholderLines } from '@/lib/ai/sanitizeContent';
 import {
   discoverKeywordsForTopic,
   formatKeywordsForPrompt,
@@ -28,6 +29,28 @@ function normalizeHtmlEntities(text: string): string {
     .replace(/&#39;|&apos;/g, "'")
     .replace(/&quot;/g, '"')
     .replace(/&amp;/g, '&');
+}
+
+type OllamaMessage = { role: 'system' | 'user' | 'assistant'; content: string };
+
+const OLLAMA_CALL_OPTS = { temperature: 0.35, topP: 0.85, maxTokens: 4096 } as const;
+
+const PLACEHOLDER_RETRY_MESSAGE =
+  'Your draft contained $1 placeholder lines. Rewrite the full article with complete sentences in every bullet and numbered step — no $1, $2, or any other $N placeholders.';
+
+async function generateWithPlaceholderGuard(messages: OllamaMessage[]): Promise<string> {
+  const first = await ollamaChat({ messages, ...OLLAMA_CALL_OPTS });
+
+  if (countPlaceholderLines(first) === 0) return first;
+
+  const retryMessages: OllamaMessage[] = [
+    ...messages,
+    { role: 'assistant', content: first },
+    { role: 'user', content: PLACEHOLDER_RETRY_MESSAGE },
+  ];
+
+  const second = await ollamaChat({ messages: retryMessages, ...OLLAMA_CALL_OPTS });
+  return stripPlaceholderLines(second);
 }
 
 /** Google Trends via SerpAPI is slow and often times out — autocomplete is enough for generation. */
@@ -61,15 +84,10 @@ export async function generateContentFromTopic({
       searchContext,
     });
 
-    const content = await ollamaChat({
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: user },
-      ],
-      temperature: 0.35,
-      topP: 0.85,
-      maxTokens: 4096,
-    });
+    const content = await generateWithPlaceholderGuard([
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ]);
 
     return {
       content: normalizeHtmlEntities(content),
@@ -88,15 +106,10 @@ export async function generateContentFromTopic({
     searchContext: null,
   });
 
-  const content = await ollamaChat({
-    messages: [
-      { role: 'system', content: system },
-      { role: 'user', content: user },
-    ],
-    temperature: 0.35,
-    topP: 0.85,
-    maxTokens: 4096,
-  });
+  const content = await generateWithPlaceholderGuard([
+    { role: 'system', content: system },
+    { role: 'user', content: user },
+  ]);
 
   return {
     content: normalizeHtmlEntities(content),
