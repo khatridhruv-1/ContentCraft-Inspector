@@ -25,7 +25,7 @@ export default function AuthBrandPanel() {
       variants={{ show: { transition: { staggerChildren: 0.08 } } }}
       className="space-y-8 lg:space-y-10"
     >
-      <motion.div variants={rise} className="text-center lg:text-left">
+      <motion.div variants={rise} className="text-center">
         <span className={cn('mb-4', marketingEyebrow)}>
           <ContentCraftLogo iconOnly size="xs" className="shrink-0" />
           AI Content Platform
@@ -34,7 +34,7 @@ export default function AuthBrandPanel() {
           Create content{' '}
           <span className={marketingAccentSpan}>that converts</span>
         </h2>
-        <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-600 lg:mx-0 mx-auto">
+        <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-600 mx-auto">
           Publish faster with AI drafts, auto keyword discovery, and deep content analysis — the
           same workspace you saw on the landing page.
         </p>
