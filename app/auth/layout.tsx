@@ -52,7 +52,7 @@ export default function AuthLayout({ children }: LayoutProps) {
             <GuestSessionGate>{children}</GuestSessionGate>
           </motion.div>
 
-          <div className="order-2 lg:order-1 lg:self-stretch lg:flex lg:items-center">
+          <div className="order-2 lg:order-1 lg:self-stretch lg:flex lg:items-center lg:justify-center">
             <AuthBrandPanel />
           </div>
         </div>
