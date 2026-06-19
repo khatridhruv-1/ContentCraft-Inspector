@@ -100,10 +100,17 @@ ${isTrendingList ? TRENDING_LIST_STRUCTURE : ''}
 ${isCanonicalList ? CANONICAL_LIST_STRUCTURE : ''}
 ${!isTrendingList && !isCanonicalList ? EXPLAINER_STRUCTURE : ''}
 
+━━━ PLACEHOLDER BAN (hard rule) ━━━
+NEVER output $1, $2, $3, or any $N on its own line — not in bullets, not in numbered steps, not anywhere.
+Every bullet point and numbered step must be a complete sentence with real content.
+If you are tempted to write $1 as a placeholder, write the actual content instead.
+Do NOT output [INSERT], TBD, TODO, or empty list items.
+
 ━━━ BEFORE YOU OUTPUT — verify silently ━━━
 ✓ Directly answers the user's question.
 ✓ No keyword phrase pasted verbatim from TRENDING KEYWORDS.
 ✓ No banned phrases. No $ placeholders or LaTeX.
+✓ SCAN every line: if any line contains only $1 or similar, rewrite it before outputting.
 ✓ Names in the article match CURRENT WEB SEARCH RESULTS when provided.
 ✓ Title is not a formula template. Body is ≤1000 words. No unverified precise stats.
 

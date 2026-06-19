@@ -3,7 +3,7 @@ const DEFAULT_OLLAMA_HOST = 'https://ollama.com';
 /** Default cloud model for direct ollama.com API (override via OLLAMA_MODEL). */
 export const OLLAMA_DEFAULT_MODEL = 'gpt-oss:120b-cloud';
 
-type OllamaMessage = {
+export type OllamaMessage = {
   role: 'system' | 'user' | 'assistant';
   content: string;
 };
