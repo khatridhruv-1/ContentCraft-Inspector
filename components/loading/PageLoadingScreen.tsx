@@ -4,7 +4,6 @@ import { useEffect, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { MarketingPageLoader } from '@/components/loading/MarketingPageLoader';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
-import { BRAND_ASSETS } from '@/lib/brand/assets';
 import { acquireScrollLock } from '@/lib/loading/scrollLock';
 import { marketingGlassCard } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
@@ -45,15 +44,13 @@ export function PageLoadingScreen({ label = 'Loading' }: PageLoadingScreenProps)
       >
         <MarketingPageLoader />
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={BRAND_ASSETS.logoWordmark}
-          alt="ContentCraft Inspector"
-          width={640}
-          height={90}
-          className="mt-8 block h-10 w-auto sm:h-11"
-          draggable={false}
-        />
+        {/* HTML text avoids SVG <text>-node font rendering artifacts */}
+        <span
+          aria-hidden
+          className="mt-8 block select-none text-2xl leading-none font-bold tracking-tight text-slate-900 sm:text-[1.625rem]"
+        >
+          ContentCraft <span className="font-light">Inspector</span>
+        </span>
 
         <p className="mt-4 text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">
           {label}
