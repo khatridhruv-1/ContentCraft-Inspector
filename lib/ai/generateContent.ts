@@ -1,6 +1,6 @@
 import { resolveBriefIntent, type ResolvedBrief } from '@/lib/ai/briefIntent';
 import { buildContentGenerationPrompt } from '@/lib/ai/contentPrompts';
-import { ollamaChat } from '@/lib/ai/ollama';
+import { ollamaChat, type OllamaMessage } from '@/lib/ai/ollama';
 import { countPlaceholderLines, stripPlaceholderLines } from '@/lib/ai/sanitizeContent';
 import {
   discoverKeywordsForTopic,
@@ -30,8 +30,6 @@ function normalizeHtmlEntities(text: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&amp;/g, '&');
 }
-
-type OllamaMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
 const OLLAMA_CALL_OPTS = { temperature: 0.35, topP: 0.85, maxTokens: 4096 } as const;
 
