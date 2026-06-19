@@ -38,7 +38,7 @@ export default function AuthLayout({ children }: LayoutProps) {
       <MarketingSubpageHeader maxWidth="6xl" />
 
       <main className="relative px-6 py-10 md:py-14">
-        <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_420px]">
           <motion.div
             id="auth-form"
             initial={reduced ? false : { opacity: 0, y: 16 }}
@@ -46,13 +46,13 @@ export default function AuthLayout({ children }: LayoutProps) {
             transition={{ duration: 0.5, ease: MARKETING_EASE }}
             className={cn(
               marketingGlassCard,
-              'order-1 mx-auto w-full max-w-md p-7 sm:p-8 lg:order-2 lg:mx-0 lg:max-w-none lg:sticky lg:top-24'
+              'order-1 mx-auto w-full max-w-md p-7 sm:p-8 lg:order-2 lg:mx-0 lg:max-w-none lg:sticky lg:top-24 lg:self-start'
             )}
           >
             <GuestSessionGate>{children}</GuestSessionGate>
           </motion.div>
 
-          <div className="order-2 lg:order-1 lg:self-stretch lg:flex lg:items-center">
+          <div className="order-2 lg:order-1 lg:flex lg:items-center">
             <AuthBrandPanel />
           </div>
         </div>
