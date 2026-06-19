@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
-import { HelpCircle, History, LayoutDashboard, User } from 'lucide-react';
+import { History, LayoutDashboard, User } from 'lucide-react';
 import ContentCraftNavBrand from '@/components/brand/ContentCraftNavBrand';
 import { AUTH_EASE } from '@/components/auth/authFeatures';
 import { homeContainer } from '@/components/home/homeLayout';
@@ -73,10 +73,6 @@ export default function HomeNav() {
             <History className="h-4 w-4 shrink-0" aria-hidden />
             <span className="hidden lg:inline">History</span>
           </button>
-          <Link href="/help" className={navBtn()} aria-label="Help">
-            <HelpCircle className="h-4 w-4 shrink-0" aria-hidden />
-            <span className="hidden lg:inline">Help</span>
-          </Link>
           <Link
             href="/profile"
             className={navBtn(isProfile)}
