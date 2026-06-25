@@ -14,6 +14,14 @@ REPO_URL="${CONTENTCRAFT_REPO:-https://github.com/khatridhruv-1/ContentCraft-Ins
 BRANCH="${CONTENTCRAFT_BRANCH:-master}"
 INSTALL_ROOT="${CONTENTCRAFT_INSTALL_ROOT:-}"
 API_URL="${CONTENTCRAFT_API_URL:-http://localhost:3000}"
+CLONE_TMP_DIR=""
+
+cleanup_clone() {
+  if [[ -n "${CLONE_TMP_DIR:-}" ]]; then
+    rm -rf "$CLONE_TMP_DIR"
+    CLONE_TMP_DIR=""
+  fi
+}
 
 usage() {
   cat <<'EOF'
@@ -127,7 +135,7 @@ mkdir -p "$CURSOR_DIR"
 
 resolve_source() {
   if [[ -n "$INSTALL_ROOT" && -d "$INSTALL_ROOT/integrations" ]]; then
-    echo "$INSTALL_ROOT"
+    SOURCE_ROOT="$INSTALL_ROOT"
     return
   fi
 
@@ -138,7 +146,7 @@ resolve_source() {
     local repo_root="$(cd "$script_dir/.." && pwd)"
 
     if [[ -d "$repo_root/integrations" ]]; then
-      echo "$repo_root"
+      SOURCE_ROOT="$repo_root"
       return
     fi
   fi
@@ -148,19 +156,19 @@ resolve_source() {
     exit 1
   fi
 
-  local tmp
-  tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' EXIT
+  CLONE_TMP_DIR="$(mktemp -d)"
+  trap cleanup_clone EXIT
   echo "Cloning ContentCraft Inspector (${BRANCH})..." >&2
-  if ! git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$tmp/repo" >/dev/null 2>&1; then
+  if ! git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$CLONE_TMP_DIR/repo" >/dev/null 2>&1; then
     echo "error: failed to clone ${REPO_URL} (branch: ${BRANCH})" >&2
     echo "  Clone the repo locally and run: CONTENTCRAFT_INSTALL_ROOT=/path/to/repo bash $0 $METHOD $SCOPE" >&2
     exit 1
   fi
-  echo "$tmp/repo"
+  SOURCE_ROOT="$CLONE_TMP_DIR/repo"
 }
 
-SOURCE_ROOT="$(resolve_source)"
+SOURCE_ROOT=""
+resolve_source
 MCP_SRC="$SOURCE_ROOT/integrations/mcp"
 SKILL_SRC="$SOURCE_ROOT/integrations/skill/contentcraft-content-generation"
 
