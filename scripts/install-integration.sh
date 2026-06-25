@@ -6,6 +6,8 @@
 
 set -euo pipefail
 
+export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:${PATH:-}"
+
 METHOD="${1:-}"
 SCOPE="${2:---global}"
 REPO_URL="${CONTENTCRAFT_REPO:-https://github.com/khatridhruv-1/ContentCraft-Inspector.git}"
@@ -129,13 +131,16 @@ resolve_source() {
     return
   fi
 
-  local script_dir
-  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  local repo_root="$(cd "$script_dir/.." && pwd)"
+  local script_path="${BASH_SOURCE[0]:-}"
+  if [[ -n "$script_path" && "$script_path" != "-" ]]; then
+    local script_dir
+    script_dir="$(cd "$(dirname "$script_path")" && pwd)"
+    local repo_root="$(cd "$script_dir/.." && pwd)"
 
-  if [[ -d "$repo_root/integrations" ]]; then
-    echo "$repo_root"
-    return
+    if [[ -d "$repo_root/integrations" ]]; then
+      echo "$repo_root"
+      return
+    fi
   fi
 
   if ! command -v git >/dev/null 2>&1; then
@@ -146,7 +151,7 @@ resolve_source() {
   local tmp
   tmp="$(mktemp -d)"
   trap 'rm -rf "$tmp"' EXIT
-  echo "Cloning ContentCraft Inspector (${BRANCH})..."
+  echo "Cloning ContentCraft Inspector (${BRANCH})..." >&2
   if ! git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$tmp/repo" >/dev/null 2>&1; then
     echo "error: failed to clone ${REPO_URL} (branch: ${BRANCH})" >&2
     echo "  Clone the repo locally and run: CONTENTCRAFT_INSTALL_ROOT=/path/to/repo bash $0 $METHOD $SCOPE" >&2
@@ -171,7 +176,7 @@ install_mcp() {
   mkdir -p "$mcp_home"
   cp -R "$MCP_SRC/." "$mcp_home/"
 
-  echo "Installing MCP dependencies..."
+  echo "Installing MCP dependencies..." >&2
   if ! (cd "$mcp_home" && npm install --omit=dev --silent); then
     echo "error: npm install failed in $mcp_home" >&2
     exit 1
