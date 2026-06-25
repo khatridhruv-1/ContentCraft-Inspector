@@ -19,6 +19,7 @@
     "integrate:mcp:project": "bash scripts/install-integration.sh mcp --project",
     "integrate:skill": "bash scripts/install-integration.sh skill --global",
     "integrate:skill:project": "bash scripts/install-integration.sh skill --project",
+    "test:integration:100": "bash scripts/test-integration-100.sh",
     "postinstall": "node scripts/copy-tinymce.mjs"
   },
   "dependencies": {
