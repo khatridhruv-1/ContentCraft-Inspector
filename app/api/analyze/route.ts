@@ -6,6 +6,8 @@ import {
   normalizeAnalysisInput,
 } from '@/lib/content/plainText';
 
+export const runtime = 'edge';
+
 type AnalysisResult = {
   contentScore: number;
   wordCount: number;

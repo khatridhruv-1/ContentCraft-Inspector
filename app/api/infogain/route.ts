@@ -3,6 +3,8 @@ import { NextResponse } from "next/server"
 
 const TAVILY_API_KEY = process.env.TAVILY_API_KEY
 
+export const runtime = 'edge';
+
 async function getTavilyResults(query: string) {
   const url = "https://api.tavily.com/search"
 

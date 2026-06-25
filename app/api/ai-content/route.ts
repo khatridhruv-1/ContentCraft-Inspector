@@ -4,6 +4,8 @@ import { ollamaErrorResponse, OllamaAuthError, OllamaRateLimitError } from '@/li
 import { keywordDiscoveryErrorResponse } from '@/lib/seo/keywords';
 import { parseContentPlatform } from '@/types/contentPlatform';
 
+export const runtime = 'edge';
+
 interface AIContentRequest {
   title?: string;
   tone?: string;

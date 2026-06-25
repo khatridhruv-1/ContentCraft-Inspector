@@ -242,7 +242,7 @@ export default function Signup() {
 
   return (
     <>
-      {step !== 'done' && <SignupProgress step={step} />}
+      <SignupProgress step={step} />
 
       <AnimatePresence mode="wait">
         {step === 'signup' && (

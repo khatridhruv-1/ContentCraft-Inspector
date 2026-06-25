@@ -77,14 +77,12 @@ export function useAiContentGenerate() {
         }
 
         const discoveredKeywords = Array.isArray(payload.keywords) ? payload.keywords : undefined;
-        const storedLinks: Array<{ title: string; url: string; description: string }> = [];
 
         const documentId = localStorage.getItem('documentId');
         if (documentId) {
           await updateContent(documentId, {
             input: title,
             analysis: safeContent,
-            relatedLinks: storedLinks,
             companyId: companyId ?? undefined,
           });
         } else {
@@ -119,7 +117,7 @@ export function useAiContentGenerate() {
               undefined,
               undefined,
               undefined,
-              storedLinks,
+              undefined,
               companyId
             );
             localStorage.setItem('documentId', res.$id);

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { groqChat, groqErrorResponse, parseGroqJson } from '@/lib/ai/groq';
 
+export const runtime = 'edge';
+
 type OutlineResult = {
   outline: Array<{ level: number; text: string }>;
   suggestions: string[];
