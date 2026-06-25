@@ -2,10 +2,12 @@ import { NextResponse } from 'next/server';
 import { generateContentFromTopic } from '@/lib/ai/generateContent';
 import { ollamaErrorResponse, OllamaAuthError, OllamaRateLimitError } from '@/lib/ai/ollama';
 import { keywordDiscoveryErrorResponse } from '@/lib/seo/keywords';
+import { parseContentPlatform } from '@/types/contentPlatform';
 
 interface AIContentRequest {
   title?: string;
   tone?: string;
+  platform?: string;
 }
 
 export async function POST(req: Request) {
@@ -27,6 +29,7 @@ export async function POST(req: Request) {
     const body = (await req.json()) as AIContentRequest;
     const title = body?.title?.trim();
     const tone = body?.tone?.trim();
+    const platform = parseContentPlatform(body?.platform);
 
     if (!title) {
       return NextResponse.json(
@@ -35,15 +38,24 @@ export async function POST(req: Request) {
       );
     }
 
+    if (body?.platform !== undefined && body.platform !== '' && !platform) {
+      return NextResponse.json(
+        { error: 'Invalid platform. Use: website, linkedin, quora, medium, or substack.' },
+        { status: 400 }
+      );
+    }
+
     const result = await generateContentFromTopic({
       rawBrief: title,
       tone: tone || undefined,
+      platform,
     });
 
     return NextResponse.json({
       content: result.content,
       keywords: result.keywords,
       topic: result.topic,
+      platform: result.platform,
     });
   } catch (error) {
     console.error('Error in AI content generation:', error);

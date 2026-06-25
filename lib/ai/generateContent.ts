@@ -12,16 +12,20 @@ import {
   keywordsFromSearchResults,
 } from '@/lib/seo/trendingContext';
 import type { DiscoveredKeyword } from '@/types/seo';
+import { resolveGenerationPlatform } from '@/lib/content/platformFromText';
+import type { ContentPlatformId } from '@/types/contentPlatform';
 
 export type GenerateContentInput = {
   rawBrief: string;
   tone?: string;
+  platform?: ContentPlatformId;
 };
 
 export type GenerateContentResult = {
   content: string;
   keywords: DiscoveredKeyword[];
   topic: string;
+  platform: ContentPlatformId;
 };
 
 function normalizeHtmlEntities(text: string): string {
@@ -51,9 +55,6 @@ async function generateWithPlaceholderGuard(messages: OllamaMessage[]): Promise<
   return stripPlaceholderLines(second);
 }
 
-/** Google Trends via SerpAPI is slow and often times out — autocomplete is enough for generation. */
-const KEYWORD_OPTIONS = { includeTrends: false } as const;
-
 /** List-style articles ground titles in live organic search. */
 function usesSearchGrounding(articleType: ResolvedBrief['articleType']): boolean {
   return articleType === 'trending_list' || articleType === 'canonical_list';
@@ -62,15 +63,17 @@ function usesSearchGrounding(articleType: ResolvedBrief['articleType']): boolean
 export async function generateContentFromTopic({
   rawBrief,
   tone,
+  platform: platformInput,
 }: GenerateContentInput): Promise<GenerateContentResult> {
   const brief = resolveBriefIntent(rawBrief);
+  const platform = resolveGenerationPlatform({ platform: platformInput, rawBrief });
 
   if (usesSearchGrounding(brief.articleType)) {
     const searchResults = await fetchTrendingSearchContext(brief.searchTopic);
     const discovered =
       searchResults && searchResults.length > 0
         ? keywordsFromSearchResults(searchResults)
-        : await discoverKeywordsForTopic(rawBrief, KEYWORD_OPTIONS);
+        : await discoverKeywordsForTopic(rawBrief);
 
     const keywordLine = formatKeywordsForPrompt(discovered);
     const searchContext = searchResults ? formatTrendingSearchContext(searchResults) : null;
@@ -79,6 +82,7 @@ export async function generateContentFromTopic({
       brief,
       keywords: keywordLine,
       tone,
+      platform,
       searchContext,
     });
 
@@ -91,16 +95,18 @@ export async function generateContentFromTopic({
       content: normalizeHtmlEntities(content),
       keywords: discovered,
       topic: brief.topic,
+      platform,
     };
   }
 
-  const discovered = await discoverKeywordsForTopic(rawBrief, KEYWORD_OPTIONS);
+  const discovered = await discoverKeywordsForTopic(rawBrief);
   const keywordLine = formatKeywordsForPrompt(discovered);
 
   const { system, user } = buildContentGenerationPrompt({
     brief,
     keywords: keywordLine,
     tone,
+    platform,
     searchContext: null,
   });
 
@@ -113,5 +119,6 @@ export async function generateContentFromTopic({
     content: normalizeHtmlEntities(content),
     keywords: discovered,
     topic: brief.topic,
+    platform,
   };
 }

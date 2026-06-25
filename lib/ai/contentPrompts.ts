@@ -1,4 +1,7 @@
 import type { ResolvedBrief } from '@/lib/ai/briefIntent';
+import { getPlatformPromptSection } from '@/lib/content/platformPrompts';
+import type { ContentPlatformId } from '@/types/contentPlatform';
+import { PLATFORM_READING_TARGET } from '@/types/contentPlatform';
 
 const KEYWORD_RULES = `
 ━━━ KEYWORDS (themes only — never copy-paste) ━━━
@@ -30,15 +33,6 @@ const TRENDING_LIST_RULES = `
 - If CURRENT WEB SEARCH RESULTS is empty, say live rankings could not be verified — no fabricated title list.
 `.trim();
 
-const EXPLAINER_STRUCTURE = `
-━━━ STRUCTURE (explainer) ━━━
-- # Title — specific, human, 45–65 characters. Not a formula (see banned title templates).
-- Hook intro — 2–3 short paragraphs.
-- ## Key takeaways — 3–4 bullets with real insights.
-- 3–4 ## sections with topic-specific headings (plain questions, not keyword strings).
-- Short closing paragraph (2–3 sentences). Hard limit: 800–1000 words total.
-`.trim();
-
 const CANONICAL_LIST_STRUCTURE = `
 ━━━ STRUCTURE (all-time roundup) ━━━
 - # Title — historical framing (e.g. "Hindi Films That Define Bollywood's Canon"). Never "trending now" or "right now".
@@ -61,12 +55,18 @@ const TRENDING_LIST_STRUCTURE = `
  * Single system prompt for content generation.
  * All quality, SEO, and style rules live here — one LLM call, no post-processing pass.
  */
-function buildGenerationSystemPrompt(brief: ResolvedBrief): string {
+function buildGenerationSystemPrompt(
+  brief: ResolvedBrief,
+  platform: ContentPlatformId
+): string {
   const isTrendingList = brief.articleType === 'trending_list';
   const isCanonicalList = brief.articleType === 'canonical_list';
 
   return `
-You are an experienced human editor. Write one publish-ready blog article in markdown.
+You are an experienced human editor. Write one publish-ready piece in markdown (adapt formatting to the target platform rules below).
+
+TARGET PLATFORM:
+${getPlatformPromptSection(platform)}
 
 ARTICLE GOAL:
 ${brief.articleGoal}
@@ -98,7 +98,6 @@ ${isCanonicalList ? CANONICAL_LIST_RULES : ''}
 
 ${isTrendingList ? TRENDING_LIST_STRUCTURE : ''}
 ${isCanonicalList ? CANONICAL_LIST_STRUCTURE : ''}
-${!isTrendingList && !isCanonicalList ? EXPLAINER_STRUCTURE : ''}
 
 ━━━ PLACEHOLDER BAN (hard rule) ━━━
 NEVER output $1, $2, $3, or any $N on its own line — not in bullets, not in numbered steps, not anywhere.
@@ -107,12 +106,13 @@ If you are tempted to write $1 as a placeholder, write the actual content instea
 Do NOT output [INSERT], TBD, TODO, or empty list items.
 
 ━━━ BEFORE YOU OUTPUT — verify silently ━━━
+✓ Matches TARGET PLATFORM formatting and voice.
 ✓ Directly answers the user's question.
 ✓ No keyword phrase pasted verbatim from TRENDING KEYWORDS.
 ✓ No banned phrases. No $ placeholders or LaTeX.
 ✓ SCAN every line: if any line contains only $1 or similar, rewrite it before outputting.
 ✓ Names in the article match CURRENT WEB SEARCH RESULTS when provided.
-✓ Title is not a formula template. Body is ≤1000 words. No unverified precise stats.
+✓ Title is not a formula template. Body is ${PLATFORM_READING_TARGET.minWords}–${PLATFORM_READING_TARGET.maxWords} words (${PLATFORM_READING_TARGET.label}). No unverified precise stats.
 
 Output the final markdown article only. No commentary.
 `.trim();
@@ -122,17 +122,20 @@ export function buildContentGenerationPrompt({
   brief,
   keywords,
   tone,
+  platform,
   searchContext,
 }: {
   brief: ResolvedBrief;
   keywords: string;
   tone?: string;
+  platform: ContentPlatformId;
   searchContext?: string | null;
 }): { system: string; user: string } {
   const lines = [
     `TOPIC: ${brief.topic}`,
     `USER INPUT: ${brief.rawBrief}`,
     `ARTICLE TYPE: ${brief.articleType}`,
+    `TARGET PLATFORM: ${platform}`,
   ];
 
   if (brief.topicNote) {
@@ -155,7 +158,7 @@ export function buildContentGenerationPrompt({
   }
 
   return {
-    system: buildGenerationSystemPrompt(brief),
+    system: buildGenerationSystemPrompt(brief, platform),
     user: lines.join('\n'),
   };
 }

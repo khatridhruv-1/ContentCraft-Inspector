@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { AlertCircle, Wand2 } from 'lucide-react';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
+import StudioPlatformPicker from '@/components/dashboard/StudioPlatformPicker';
 import { STUDIO_FORMATS, STUDIO_TONES } from '@/lib/dashboard/studioOptions';
 import {
   studioChip,
@@ -13,28 +14,33 @@ import {
 } from '@/lib/dashboard/studioTheme';
 import { marketingFieldShell, marketingFocusRing } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
+import type { ContentPlatformId } from '@/types/contentPlatform';
 
 type StudioComposerProps = {
   brief: string;
   tone: string;
+  platform: ContentPlatformId;
   loading: boolean;
   errorMessage?: string | null;
   variant?: 'hero' | 'docked';
   autoFocus?: boolean;
   onBriefChange: (value: string) => void;
   onToneChange: (tone: string) => void;
+  onPlatformChange: (platform: ContentPlatformId) => void;
   onGenerate: () => void;
 };
 
 export default function StudioComposer({
   brief,
   tone,
+  platform,
   loading,
   errorMessage,
   variant = 'hero',
   autoFocus = false,
   onBriefChange,
   onToneChange,
+  onPlatformChange,
   onGenerate,
 }: StudioComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -76,7 +82,8 @@ export default function StudioComposer({
           </div>
           <h3 className="text-base font-semibold text-slate-900">What are we creating?</h3>
           <p className="mt-1 text-sm text-slate-500">
-            Describe your topic — we&apos;ll find keywords, then draft SEO-ready content.
+            Pick a platform, describe your topic — we&apos;ll find keywords and draft for that
+            channel.
           </p>
           <div className="mt-3 flex flex-wrap justify-center gap-1.5">
             {STUDIO_FORMATS.map(format => (
@@ -117,6 +124,12 @@ export default function StudioComposer({
             />
           </div>
         </div>
+
+        <StudioPlatformPicker
+          platform={platform}
+          disabled={loading}
+          onPlatformChange={onPlatformChange}
+        />
 
         <div className="flex flex-wrap gap-1.5">
           {(isHero ? STUDIO_TONES.slice(0, 4) : STUDIO_TONES).map(t => (

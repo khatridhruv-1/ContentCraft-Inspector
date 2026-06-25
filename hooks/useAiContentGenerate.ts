@@ -7,9 +7,11 @@ import { clearAuthSession } from '@/lib/user/session';
 import { useCompanyId } from '@/hooks/useCompany';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { DiscoveredKeyword } from '@/types/seo';
+import type { ContentPlatformId } from '@/types/contentPlatform';
 
 type GenerateOptions = {
   tone?: string;
+  platform?: ContentPlatformId;
 };
 
 type GenerateResult = {
@@ -39,6 +41,7 @@ export function useAiContentGenerate() {
           title,
         };
         if (options.tone) requestData.tone = options.tone;
+        if (options.platform) requestData.platform = options.platform;
 
         const response = await fetch('/api/ai-content', {
           method: 'POST',

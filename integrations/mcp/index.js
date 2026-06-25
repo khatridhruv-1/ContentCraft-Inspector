@@ -12,6 +12,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import { resolveGenerationPlatform } from './platform.js';
 
 const API_BASE = (process.env.CONTENTCRAFT_API_URL || 'http://localhost:3000').replace(/\/$/, '');
 
@@ -19,14 +20,24 @@ const TOOLS = [
   {
     name: 'generate_content',
     description:
-      'Generate SEO-ready blog content from a topic or brief using ContentCraft Inspector.',
+      'Generate platform-specific content (website, LinkedIn, Quora, Medium, Substack) from a topic or brief. Always set `platform` when the user names a channel (e.g. "LinkedIn post about …" → platform: linkedin). ~3–4 min read per platform.',
     inputSchema: {
       type: 'object',
       properties: {
-        title: { type: 'string', description: 'Topic, title, or content brief' },
+        title: {
+          type: 'string',
+          description:
+            'Topic or brief. May include platform wording (e.g. "LinkedIn post about remote work") — platform is also detected from this text.',
+        },
         tone: {
           type: 'string',
           description: 'Optional tone (e.g. professional, casual, authoritative)',
+        },
+        platform: {
+          type: 'string',
+          description:
+            'Target platform. Set when user asks for a specific channel: website (personal blog), linkedin, quora, medium, substack. Inferred from title if omitted.',
+          enum: ['website', 'linkedin', 'quora', 'medium', 'substack'],
         },
       },
       required: ['title'],
@@ -90,9 +101,16 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
       if (!args?.title || typeof args.title !== 'string') {
         throw new Error('title is required');
       }
+
+      const platform = resolveGenerationPlatform({
+        platform: typeof args.platform === 'string' ? args.platform : undefined,
+        rawBrief: args.title,
+      });
+
       result = await postJson('/api/ai-content', {
         title: args.title,
         tone: typeof args.tone === 'string' ? args.tone : undefined,
+        platform,
       });
     } else if (name === 'analyze_content') {
       if (!args?.content || typeof args.content !== 'string') {

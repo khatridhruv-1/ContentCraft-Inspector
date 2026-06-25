@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Copy, Eye, FileDown, FileSearch, Wand2 } from 'lucide-react';
 import StudioComposer from '@/components/dashboard/StudioComposer';
+import StudioPlatformPicker from '@/components/dashboard/StudioPlatformPicker';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
 import { AppLoader } from '@/components/loading/AppLoader';
@@ -13,6 +14,7 @@ import { saveBlogPreview } from '@/lib/dashboard/blogPreviewStorage';
 import { marketingFocusRing } from '@/lib/marketing/marketingTheme';
 import { htmlToMarkdown } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import type { ContentPlatformId } from '@/types/contentPlatform';
 
 type StudioWorkspacePanelProps = {
   generatedContent: string;
@@ -21,9 +23,11 @@ type StudioWorkspacePanelProps = {
   loading: boolean;
   brief: string;
   tone: string;
+  platform: ContentPlatformId;
   errorMessage?: string | null;
   onBriefChange: (value: string) => void;
   onToneChange: (tone: string) => void;
+  onPlatformChange: (platform: ContentPlatformId) => void;
   onGenerate: () => void;
   onRefine: () => void;
   onAnalyze: () => void;
@@ -37,9 +41,11 @@ export default function StudioWorkspacePanel({
   loading,
   brief,
   tone,
+  platform,
   errorMessage,
   onBriefChange,
   onToneChange,
+  onPlatformChange,
   onGenerate,
   onRefine,
   onAnalyze,
@@ -151,6 +157,17 @@ export default function StudioWorkspacePanel({
         </div>
       </header>
 
+      {hasOutput ? (
+        <div className="shrink-0 border-b border-slate-200/80 bg-slate-50/80 px-4 py-3 sm:px-5">
+          <StudioPlatformPicker
+            platform={platform}
+            disabled={loading}
+            compact
+            onPlatformChange={onPlatformChange}
+          />
+        </div>
+      ) : null}
+
       {showHero ? (
         <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto p-4 sm:p-6">
           <div
@@ -163,10 +180,12 @@ export default function StudioWorkspacePanel({
               autoFocus
               brief={brief}
               tone={tone}
+              platform={platform}
               loading={loading}
               errorMessage={errorMessage}
               onBriefChange={onBriefChange}
               onToneChange={onToneChange}
+              onPlatformChange={onPlatformChange}
               onGenerate={onGenerate}
             />
           </div>

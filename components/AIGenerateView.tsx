@@ -29,6 +29,10 @@ import {
   type StudioHistoryItem,
 } from '@/lib/dashboard/studioHistory';
 import { htmlToMarkdown, cn } from '@/lib/utils';
+import {
+  DEFAULT_CONTENT_PLATFORM,
+  type ContentPlatformId,
+} from '@/types/contentPlatform';
 
 interface AIGenerateViewProps {
   generatedContent: string;
@@ -55,6 +59,7 @@ export default function AIGenerateView({
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [brief, setBrief] = useState(initialBrief ?? '');
   const [tone, setTone] = useState('');
+  const [platform, setPlatform] = useState<ContentPlatformId>(DEFAULT_CONTENT_PLATFORM);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<StudioHistoryItem | null>(null);
@@ -106,6 +111,7 @@ export default function AIGenerateView({
     setActiveChatId(null);
     setBrief('');
     setTone('');
+    setPlatform(DEFAULT_CONTENT_PLATFORM);
     setErrorMessage(null);
     localStorage.removeItem('documentId');
     onContentGenerated('');
@@ -152,7 +158,10 @@ export default function AIGenerateView({
     setErrorMessage(null);
 
     try {
-      const result = await generate(text, { tone: tone || undefined });
+      const result = await generate(text, {
+        tone: tone || undefined,
+        platform,
+      });
       onContentGenerated(result.content);
 
       const docId = localStorage.getItem('documentId');
@@ -163,7 +172,7 @@ export default function AIGenerateView({
         error instanceof Error ? error.message : 'Something went wrong. Please try again.'
       );
     }
-  }, [brief, generate, loadHistory, loading, onContentGenerated, tone]);
+  }, [brief, generate, loadHistory, loading, onContentGenerated, platform, tone]);
 
   const activeTitle = useMemo(() => {
     if (generatedContent.trim()) {
@@ -201,9 +210,11 @@ export default function AIGenerateView({
             loading={loading}
             brief={brief}
             tone={tone}
+            platform={platform}
             errorMessage={errorMessage ?? generateError}
             onBriefChange={setBrief}
             onToneChange={setTone}
+            onPlatformChange={setPlatform}
             onGenerate={() => void handleGenerate()}
             onRefine={() => void handleGenerate()}
             onAnalyze={onAnalyze}

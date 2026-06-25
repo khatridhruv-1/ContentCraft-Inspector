@@ -1,6 +1,6 @@
 ---
 name: contentcraft-content-generation
-description: Generate SEO-ready content, analyze copy, and build outlines using ContentCraft Inspector APIs. Use when the user asks to generate blog posts, draft SEO content, analyze readability, discover keywords, or integrate ContentCraft into a workflow.
+description: Generate SEO-ready content for website, LinkedIn, Quora, Medium, or Substack, analyze copy, and build outlines using ContentCraft Inspector APIs. Use when the user asks to generate blog posts, platform-specific posts, draft SEO content, analyze readability, discover keywords, or integrate ContentCraft into a workflow.
 ---
 
 # ContentCraft Content Generation
@@ -24,22 +24,53 @@ All requests use `POST` with `Content-Type: application/json`. No auth header is
 ```json
 {
   "title": "How to improve Core Web Vitals in 2026",
-  "tone": "professional"
+  "tone": "professional",
+  "platform": "linkedin"
 }
 ```
 
-**Response:** `{ "content": "...", "keywords": [...], "topic": "..." }`
-
 - `title` is required — topic, headline, or brief.
 - `tone` is optional — e.g. `professional`, `casual`, `authoritative`.
+- `platform` is optional — `website`, `linkedin`, `quora`, `medium`, or `substack` (default `website`). ~3–4 min read per platform.
 - Content includes keyword discovery from Google Trends and autocomplete.
 
-**Example (curl):**
+**Response:** `{ "content": "...", "keywords": [...], "topic": "...", "platform": "linkedin" }`
+
+## Platform-specific generation
+
+When the user names a channel, **always pass `platform`** (or include the platform name in `title` — the API detects it automatically).
+
+| User says | `platform` value |
+|-----------|------------------|
+| LinkedIn post / for LinkedIn | `linkedin` |
+| Quora answer / for Quora | `quora` |
+| Medium article / for Medium | `medium` |
+| Substack newsletter / for Substack | `substack` |
+| Personal website / my blog | `website` |
+| No platform mentioned | `website` (default) |
+
+**Examples:**
+
+```json
+{ "title": "Why async teams ship faster", "platform": "linkedin", "tone": "professional" }
+```
+
+```json
+{ "title": "Quora answer: how do I start investing in my 20s?", "platform": "quora" }
+```
+
+```json
+{ "title": "Write a Substack essay on creator burnout", "platform": "substack" }
+```
+
+If using the **ContentCraft MCP** `generate_content` tool, pass the same `platform` field (or put the platform name in `title` — it is detected automatically). Restart Cursor after updating MCP.
+
+**curl example:**
 
 ```bash
 curl -s -X POST "$CONTENTCRAFT_API_URL/api/ai-content" \
   -H "Content-Type: application/json" \
-  -d '{"title":"Benefits of serverless edge computing","tone":"professional"}'
+  -d '{"title":"Benefits of serverless edge computing","tone":"professional","platform":"medium"}'
 ```
 
 ## Analyze content
@@ -71,10 +102,11 @@ Minimum ~100 characters of plain text after stripping markup.
 ## Agent workflow
 
 1. Confirm `CONTENTCRAFT_API_URL` is set (the installer writes it into this file).
-2. For new articles: call `/api/ai-content` with a clear `title` and optional `tone`.
-3. For optimization: call `/api/analyze` on the draft.
-4. For structure: call `/api/outline` before or after drafting.
-5. Return generated HTML/markdown to the user; surface `keywords` and analysis insights.
+2. **Detect platform** from the user request (LinkedIn, Quora, Medium, Substack, personal website) and pass `platform` on every generate call.
+3. For new content: call `/api/ai-content` (or MCP `generate_content`) with `title`, optional `tone`, and `platform`.
+4. For optimization: call `/api/analyze` on the draft.
+5. For structure: call `/api/outline` before or after drafting.
+6. Return the draft formatted for the target platform; mention `platform` and discovered `keywords` in your reply.
 
 ## Install via CLI
 
