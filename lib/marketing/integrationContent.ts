@@ -50,21 +50,22 @@ export const INTEGRATION_METHODS: IntegrationMethodContent[] = [
     ],
     steps: [
       {
-        title: 'Install globally (recommended)',
+        title: 'From a cloned repo (recommended)',
         description:
-          'Adds the MCP server to your user-level Cursor config. Set CONTENTCRAFT_API_URL to your deployed app or http://localhost:3000 for local dev.',
+          'Clone with GitHub access, then run the installer. Works with private repos; set CONTENTCRAFT_API_URL to your deployment or http://localhost:3000.',
+        command: `git clone --depth 1 -b ${INTEGRATION_REPO_BRANCH} ${INTEGRATION_REPO} && cd ContentCraft-Inspector && bash ./scripts/install-integration.sh mcp --global`,
+      },
+      {
+        title: 'Remote one-liner (public repo only)',
+        description:
+          'Requires a public GitHub repo. Adds the MCP server to your user-level Cursor config.',
         command: curlInstall('mcp', '--global'),
       },
       {
-        title: 'Install for this project only',
+        title: 'Project scope from clone',
         description:
           'Writes .cursor/mcp.json in the current directory — ideal when integrating into a specific codebase.',
-        command: curlInstall('mcp', '--project'),
-      },
-      {
-        title: 'From a cloned repo',
-        description: 'Run the installer locally after cloning ContentCraft Inspector.',
-        command: './scripts/install-integration.sh mcp --global',
+        command: 'bash ./scripts/install-integration.sh mcp --project',
       },
     ],
     verifyCommand: 'cat ~/.cursor/mcp.json | grep contentcraft',
@@ -86,19 +87,20 @@ export const INTEGRATION_METHODS: IntegrationMethodContent[] = [
     ],
     steps: [
       {
-        title: 'Install globally',
-        description: 'Available in every Cursor workspace on your machine.',
+        title: 'From a cloned repo (recommended)',
+        description:
+          'Clone with GitHub access, then install. Works with private repos.',
+        command: `git clone --depth 1 -b ${INTEGRATION_REPO_BRANCH} ${INTEGRATION_REPO} && cd ContentCraft-Inspector && bash ./scripts/install-integration.sh skill --global`,
+      },
+      {
+        title: 'Remote one-liner (public repo only)',
+        description: 'Requires a public GitHub repo. Installs to every Cursor workspace on your machine.',
         command: curlInstall('skill', '--global'),
       },
       {
-        title: 'Install for this project only',
+        title: 'Project scope from clone',
         description: 'Copies the skill into .cursor/skills/ in the current directory.',
-        command: curlInstall('skill', '--project'),
-      },
-      {
-        title: 'From a cloned repo',
-        description: 'Run the installer locally after cloning ContentCraft Inspector.',
-        command: './scripts/install-integration.sh skill --project',
+        command: 'bash ./scripts/install-integration.sh skill --project',
       },
     ],
     verifyCommand: 'ls ~/.cursor/skills/contentcraft-content-generation/SKILL.md',
@@ -161,6 +163,9 @@ export const INTEGRATION_PLATFORM_NOTES = [
     note: 'The installer requires bash. Use Git Bash or WSL instead.',
   },
 ] as const;
+
+export const INTEGRATION_PRIVATE_REPO_NOTE =
+  'This repository is private. The curl one-liner requires a public repo or GitHub authentication. Clone with access, then run the installer locally (see “Alternative: clone the repo first” below).';
 
 export const INTEGRATION_CLONE_FALLBACK = `git clone --depth 1 -b ${INTEGRATION_REPO_BRANCH} ${INTEGRATION_REPO}
 cd ContentCraft-Inspector

@@ -10,6 +10,7 @@ import {
   INTEGRATION_METHODS,
   INTEGRATION_PLATFORM_NOTES,
   INTEGRATION_PREREQUISITES,
+  INTEGRATION_PRIVATE_REPO_NOTE,
 } from '@/lib/marketing/integrationContent';
 import {
   MARKETING_EASE,
@@ -85,8 +86,11 @@ export default function IntegrationSection() {
             </div>
 
             <div className="mt-6 border-t border-slate-200 pt-6">
+              <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900">
+                {INTEGRATION_PRIVATE_REPO_NOTE}
+              </p>
               <p className="mb-3 text-sm font-medium text-slate-700">
-                Alternative: clone the repo first
+                Recommended: clone the repo first
               </p>
               <p className="mb-3 text-sm text-slate-600">
                 If the remote one-liner fails, clone and run the installer from your machine:
