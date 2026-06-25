@@ -7,7 +7,8 @@ export const INTEGRATION_REPO_BRANCH = 'master';
 
 export const INTEGRATION_REPO_RAW = `https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/${INTEGRATION_REPO_BRANCH}`;
 
-export const INTEGRATION_INSTALL_SCRIPT_URL = `${INTEGRATION_REPO_RAW}/scripts/install-integration.sh`;
+/** jsDelivr serves fresh files; raw.githubusercontent.com branch URLs can lag after pushes. */
+export const INTEGRATION_INSTALL_SCRIPT_URL = `https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@${INTEGRATION_REPO_BRANCH}/scripts/install-integration.sh`;
 
 function curlInstall(method: 'mcp' | 'skill', scope: '--global' | '--project') {
   return `curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} | bash -s -- ${method} ${scope}`;

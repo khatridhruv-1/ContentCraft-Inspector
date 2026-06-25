@@ -4,7 +4,7 @@ set -euo pipefail
 export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 REPO="https://github.com/khatridhruv-1/ContentCraft-Inspector.git"
-RAW="https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master"
+RAW="https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@master"
 TEST_BASE=$(mktemp -d /tmp/cc-retest5-XXXXXX)
 PASS=0
 FAIL=0

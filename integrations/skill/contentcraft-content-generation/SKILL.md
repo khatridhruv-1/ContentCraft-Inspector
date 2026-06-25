@@ -81,10 +81,10 @@ Minimum ~100 characters of plain text after stripping markup.
 
 ```bash
 # MCP tool (tools in agent chat)
-curl -fsSL https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master/scripts/install-integration.sh | bash -s -- mcp --global
+curl -fsSL https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@master/scripts/install-integration.sh | bash -s -- mcp --global
 
 # This skill (project copy)
-curl -fsSL https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master/scripts/install-integration.sh | bash -s -- skill --project
+curl -fsSL https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@master/scripts/install-integration.sh | bash -s -- skill --project
 ```
 
 Or clone and install locally:
