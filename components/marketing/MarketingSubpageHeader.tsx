@@ -5,13 +5,14 @@ import { marketingFocusRing, marketingMutedLink } from '@/lib/marketing/marketin
 import { cn } from '@/lib/utils';
 
 interface MarketingSubpageHeaderProps {
-  maxWidth?: '3xl' | '6xl';
+  maxWidth?: '2xl' | '3xl' | '6xl';
 }
 
 export default function MarketingSubpageHeader({
   maxWidth = '3xl',
 }: MarketingSubpageHeaderProps) {
-  const container = maxWidth === '6xl' ? 'max-w-6xl' : 'max-w-3xl';
+  const container =
+    maxWidth === '6xl' ? 'max-w-6xl' : maxWidth === '2xl' ? 'max-w-2xl' : 'max-w-3xl';
 
   return (
     <header className="border-b border-slate-200 bg-white/70 px-6 py-4 backdrop-blur-sm">

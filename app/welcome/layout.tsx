@@ -6,7 +6,7 @@ import { WELCOME_SEO_KEYWORDS } from '@/lib/marketing/welcomeContent';
 
 const TITLE = 'ContentCraft Inspector — AI Content Generator, SEO Analysis & MCP Integrations';
 const DESCRIPTION =
-  'Generate SEO-ready blog posts with automatic keyword discovery and deep content analysis. Integrate via MCP tool, Cursor skill, or REST API — install in one CLI command. Free to start.';
+  'Generate SEO-ready blog posts with automatic keyword discovery and deep content analysis. Integrate via MCP tool, agent skill, or REST API — install in one CLI command. Free to start.';
 
 export const metadata: Metadata = {
   title: TITLE,

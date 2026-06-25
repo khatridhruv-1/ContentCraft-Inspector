@@ -1,5 +1,6 @@
 'use client';
 
+import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
 import IntegrationSection from '@/app/integrate/IntegrationSection';
@@ -7,10 +8,10 @@ import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import {
   MARKETING_EASE,
   MARKETING_PAGE_GRADIENT,
-  marketingAccentSpan,
+  marketingEyebrow,
   marketingPageClass,
-  marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
+import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 export default function IntegratePage() {
@@ -18,30 +19,31 @@ export default function IntegratePage() {
 
   return (
     <div
-      className={`min-h-screen ${marketingPageClass}`}
+      className={cn('marketing-page relative min-h-screen', marketingPageClass)}
       style={{ background: MARKETING_PAGE_GRADIENT }}
     >
+      <MarketingDotGrid />
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="py-12">
+      <main className="relative pb-16 pt-12 md:pt-16">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: MARKETING_EASE }}
-          className="mx-auto mb-10 max-w-6xl px-6 text-center"
+          transition={{ duration: 0.55, ease: MARKETING_EASE }}
+          className="mx-auto max-w-6xl px-6 text-center"
         >
-          <h1 className={marketingSectionTitle}>
-            Add ContentCraft to <span className={marketingAccentSpan}>your stack</span>
+          <span className={marketingEyebrow}>Cursor integration</span>
+          <h1 className="mt-5 text-balance text-3xl font-bold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
+            Add ContentCraft to Cursor
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-base text-slate-600">
-            Install via CLI — choose an MCP tool for agent chat or a Cursor skill for API-driven
-            workflows. One command, works in any project.
+          <p className="mx-auto mt-4 max-w-xl text-base font-medium leading-relaxed text-slate-700">
+            One terminal command connects your editor or agent to our hosted API. No setup, no API keys.
           </p>
         </motion.div>
 
         <IntegrationSection />
 
-        <MarketingFooter className="mt-4" />
+        <MarketingFooter className="relative mt-12" />
       </main>
     </div>
   );

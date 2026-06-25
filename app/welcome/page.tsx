@@ -136,7 +136,7 @@ export default function Welcome() {
             className="mb-8 max-w-2xl text-balance text-lg leading-relaxed text-slate-600 md:text-xl"
           >
             ContentCraft Inspector combines AI blog generation, automatic keyword discovery, and
-            deep SEO analysis in one workspace — plus MCP, Cursor skill, and API integrations for
+            deep SEO analysis in one workspace — plus MCP, agent skill, and API integrations for
             your projects.
           </motion.p>
 

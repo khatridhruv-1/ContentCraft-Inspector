@@ -56,7 +56,7 @@ export const WELCOME_FAQ_ITEMS: WelcomeFaqItem[] = [
   {
     question: 'Can I integrate ContentCraft into Cursor or my own project?',
     answer:
-      'Yes. Install the ContentCraft MCP tool or Cursor skill via a single CLI command to generate and analyze content from agent chat. You can also call our REST API (/api/ai-content, /api/analyze, /api/outline) from your own apps or pipelines. See the Integrations page for setup steps.',
+      'Yes. Install the ContentCraft MCP tool or agent skill via a single CLI command to generate and analyze content from Cursor, Claude Code, Antigravity, and other agents. You can also call our REST API (/api/ai-content, /api/analyze, /api/outline) from your own apps or pipelines. See the Integrations page for setup steps.',
     tag: 'Integrations',
   },
   {
@@ -77,7 +77,7 @@ export const WELCOME_SEO_KEYWORDS = [
   'content gap analysis',
   'AI writing assistant',
   'MCP content generation',
-  'Cursor skill AI writing',
+  'agent skill AI writing',
   'AI content API',
   'integrate content generation',
 ] as const;

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ContentCraft Inspector — install MCP server or Cursor skill via CLI.
+# ContentCraft Inspector — install MCP server or cross-platform agent skill via CLI.
 # Usage:
 #   bash ./scripts/install-integration.sh <mcp|skill> [--global|--project]
 #   curl -fsSL .../master/scripts/install-integration.sh | bash -s -- mcp --global
@@ -31,10 +31,10 @@ Usage:
   install-integration.sh <mcp|skill> [--global|--project]
 
 Options:
-  mcp       Install the ContentCraft MCP server (Cursor / Claude Desktop)
-  skill     Install the ContentCraft Cursor skill
-  --global  User-level install (~/.cursor) — default
-  --project Project-level install (.cursor in current directory)
+  mcp       Install the ContentCraft MCP server (Cursor, Claude Desktop, Antigravity, …)
+  skill     Install the ContentCraft agent skill (Cursor, Claude Code, Antigravity, …)
+  --global  User-level install — default
+  --project Project-level install (current directory)
 
 Environment:
   CONTENTCRAFT_API_URL       API origin (default: http://localhost:3000)
@@ -55,26 +55,30 @@ EOF
 
 preflight() {
   local missing=0
-  for cmd in bash node; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-      echo "error: required command not found: $cmd" >&2
-      missing=1
-    fi
-  done
-
-  if [[ "$METHOD" == "mcp" ]] && ! command -v npm >/dev/null 2>&1; then
-    echo "error: npm is required for MCP install" >&2
+  if ! command -v bash >/dev/null 2>&1; then
+    echo "error: required command not found: bash" >&2
     missing=1
   fi
 
-  if [[ "$missing" -ne 0 ]]; then
-    exit 1
+  if [[ "$METHOD" == "mcp" ]]; then
+    for cmd in node npm; do
+      if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "error: required command not found: $cmd" >&2
+        missing=1
+      fi
+    done
+
+    if [[ "$missing" -eq 0 ]]; then
+      local major
+      major="$(node -e "process.stdout.write(String(process.versions.node.split('.')[0]))")"
+      if [[ "$major" -lt 18 ]]; then
+        echo "error: Node.js 18+ required (found v$(node -v))" >&2
+        exit 1
+      fi
+    fi
   fi
 
-  local major
-  major="$(node -e "process.stdout.write(String(process.versions.node.split('.')[0]))")"
-  if [[ "$major" -lt 18 ]]; then
-    echo "error: Node.js 18+ required (found v$(node -v))" >&2
+  if [[ "$missing" -ne 0 ]]; then
     exit 1
   fi
 }
@@ -199,6 +203,47 @@ install_mcp() {
   echo "  Restart Cursor to load the MCP server."
 }
 
+skill_dest_roots() {
+  if [[ "$SCOPE" == "--global" ]]; then
+    printf '%s\n' \
+      "${HOME}/.cursor/skills" \
+      "${HOME}/.claude/skills" \
+      "${HOME}/.agents/skills" \
+      "${HOME}/.gemini/antigravity/skills" \
+      "${HOME}/.gemini/antigravity-ide/skills"
+  else
+    printf '%s\n' \
+      "$(pwd)/.cursor/skills" \
+      "$(pwd)/.claude/skills" \
+      "$(pwd)/.agents/skills" \
+      "$(pwd)/.agent/skills"
+  fi
+}
+
+install_skill_copy() {
+  local skills_root="$1"
+  local dest="$skills_root/contentcraft-content-generation"
+
+  mkdir -p "$skills_root"
+  rm -rf "$dest"
+  cp -R "$SKILL_SRC" "$dest"
+
+  if command -v node >/dev/null 2>&1; then
+    node - "$dest/SKILL.md" "$API_URL" <<'NODE'
+const fs = require('fs');
+const [file, apiUrl] = process.argv.slice(2);
+let text = fs.readFileSync(file, 'utf8');
+text = text.replace(
+  /export CONTENTCRAFT_API_URL="[^"]*"/,
+  `export CONTENTCRAFT_API_URL="${apiUrl}"`
+);
+fs.writeFileSync(file, text);
+NODE
+  fi
+
+  echo "  • $dest/SKILL.md"
+}
+
 install_skill() {
   if [[ ! -f "$SKILL_SRC/SKILL.md" ]]; then
     echo "error: skill not found at $SKILL_SRC" >&2
@@ -206,14 +251,14 @@ install_skill() {
     exit 1
   fi
 
-  local skills_dir="$CURSOR_DIR/skills"
-  local dest="$skills_dir/contentcraft-content-generation"
-  mkdir -p "$skills_dir"
-  rm -rf "$dest"
-  cp -R "$SKILL_SRC" "$dest"
+  echo "✓ ContentCraft agent skill installed:"
+  while IFS= read -r skills_root; do
+    [[ -n "$skills_root" ]] || continue
+    install_skill_copy "$skills_root"
+  done < <(skill_dest_roots)
 
-  echo "✓ ContentCraft skill installed → $dest/SKILL.md"
-  echo "  Set CONTENTCRAFT_API_URL=$API_URL in your environment or project .env"
+  echo "  API URL baked into SKILL.md: $API_URL"
+  echo "  Restart your AI assistant (Cursor, Claude Code, Antigravity, etc.)."
 }
 
 case "$METHOD" in

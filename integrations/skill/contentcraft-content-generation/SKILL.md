@@ -5,18 +5,17 @@ description: Generate SEO-ready content, analyze copy, and build outlines using 
 
 # ContentCraft Content Generation
 
-Use ContentCraft Inspector HTTP APIs to generate and optimize content from any Cursor project or agent workflow.
+Use ContentCraft Inspector HTTP APIs to generate and optimize content from any AI agent workflow — Cursor, Claude Code, Antigravity, Windsurf, or custom agents that read skill files.
 
 ## Configuration
 
 Set the API base URL before calling endpoints:
 
 ```bash
-export CONTENTCRAFT_API_URL="http://localhost:3000"   # local dev
-# export CONTENTCRAFT_API_URL="https://your-deployed-app.com"
+export CONTENTCRAFT_API_URL="http://localhost:3000"   # replaced by installer with your hosted URL
 ```
 
-All requests use `POST` with `Content-Type: application/json`. No auth header is required for the public API routes when keys are configured on the server.
+All requests use `POST` with `Content-Type: application/json`. No auth header is required on your machine — keys live on the hosted ContentCraft server.
 
 ## Generate content
 
@@ -71,7 +70,7 @@ Minimum ~100 characters of plain text after stripping markup.
 
 ## Agent workflow
 
-1. Confirm `CONTENTCRAFT_API_URL` is set and the server is running.
+1. Confirm `CONTENTCRAFT_API_URL` is set (the installer writes it into this file).
 2. For new articles: call `/api/ai-content` with a clear `title` and optional `tone`.
 3. For optimization: call `/api/analyze` on the draft.
 4. For structure: call `/api/outline` before or after drafting.
@@ -79,30 +78,41 @@ Minimum ~100 characters of plain text after stripping markup.
 
 ## Install via CLI
 
+One command installs this skill for **all supported platforms** (Cursor, Claude Code, Antigravity, and shared `.agents` paths):
+
 ```bash
-# MCP tool (tools in agent chat)
+CONTENTCRAFT_API_URL="https://your-hosted-app.com" \
+  curl -fsSL https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@master/scripts/install-integration.sh \
+  | bash -s -- skill --global
+```
+
+For a single project only, use `--project` instead of `--global`.
+
+**MCP alternative** (native tools in chat — also cross-platform):
+
+```bash
 curl -fsSL https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@master/scripts/install-integration.sh | bash -s -- mcp --global
-
-# This skill (project copy)
-curl -fsSL https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@master/scripts/install-integration.sh | bash -s -- skill --project
 ```
 
-Or clone and install locally:
+Run with **bash** (Git Bash or WSL on Windows). Full setup: `/integrate` on your ContentCraft deployment.
 
-```bash
-git clone --depth 1 -b master https://github.com/khatridhruv-1/ContentCraft-Inspector.git
-cd ContentCraft-Inspector
-bash ./scripts/install-integration.sh mcp --global
-```
+## Platform paths
 
-Run with **bash** (Git Bash or WSL on Windows). Full setup docs: `/integrate` on your ContentCraft Inspector deployment.
+| Platform | Global install path |
+|----------|---------------------|
+| Cursor | `~/.cursor/skills/contentcraft-content-generation/` |
+| Claude Code | `~/.claude/skills/contentcraft-content-generation/` |
+| Antigravity | `~/.gemini/antigravity/skills/` or `~/.gemini/antigravity-ide/skills/` |
+| Universal | `~/.agents/skills/contentcraft-content-generation/` |
+
+Project installs use `.cursor/skills/`, `.claude/skills/`, `.agents/skills/`, or `.agent/skills/` in the repo root.
 
 ## Errors
 
 | Status | Meaning |
 |--------|---------|
 | 400 | Missing or invalid `title` / `content` |
-| 500 | Server missing `OLLAMA_API_KEY`, `GROQ_API_KEY`, etc. |
+| 500 | Server misconfiguration on the hosted API |
 | 502 | Upstream AI or keyword service unavailable |
 
-Surface the `error` field from JSON responses to the user with a actionable next step.
+Surface the `error` field from JSON responses to the user with an actionable next step.

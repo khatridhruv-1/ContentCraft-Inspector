@@ -5,7 +5,7 @@ import { WELCOME_SEO_KEYWORDS } from '@/lib/marketing/welcomeContent';
 
 const TITLE = 'Integrations — ContentCraft Inspector';
 const DESCRIPTION =
-  'Add ContentCraft content generation to Cursor, Claude Desktop, or any project via CLI. Install the MCP tool or Cursor skill in one command.';
+  'Add ContentCraft to your AI assistant in one CLI command. MCP tools or cross-platform agent skill — no API keys required.';
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   keywords: [
     ...WELCOME_SEO_KEYWORDS,
     'ContentCraft MCP',
-    'Cursor skill',
+    'agent skill',
     'AI content API',
     'CLI integration',
   ],

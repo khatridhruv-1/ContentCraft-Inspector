@@ -21,7 +21,7 @@ export default function WelcomeStructuredData() {
     url: siteUrl,
     logo: logoUrl,
     description:
-      'AI content generation and SEO analysis platform with MCP tool, Cursor skill, and REST API integrations for developers and content teams.',
+      'AI content generation and SEO analysis platform with MCP tool, cross-platform agent skill, and REST API integrations for developers and content teams.',
   };
 
   const webSite = {
@@ -30,7 +30,7 @@ export default function WelcomeStructuredData() {
     name: 'ContentCraft Inspector',
     url: siteUrl,
     description:
-      'Generate SEO-ready blog posts with automatic keyword discovery, run deep content analysis, and integrate via MCP, Cursor skill, or REST API.',
+      'Generate SEO-ready blog posts with automatic keyword discovery, run deep content analysis, and integrate via MCP, agent skill, or REST API.',
     publisher: {
       '@type': 'Organization',
       name: 'ContentCraft Inspector',
@@ -45,7 +45,7 @@ export default function WelcomeStructuredData() {
     operatingSystem: 'Web',
     url: siteUrl,
     description:
-      'AI content generator with automatic keyword discovery, readability scoring, SEO insights, outlines, content-gap analysis, and developer integrations (MCP, Cursor skill, REST API).',
+      'AI content generator with automatic keyword discovery, readability scoring, SEO insights, outlines, content-gap analysis, and developer integrations (MCP, agent skill, REST API).',
     offers: {
       '@type': 'Offer',
       price: '0',
@@ -59,7 +59,7 @@ export default function WelcomeStructuredData() {
       'Content outline and gap insights',
       'Export to Word and Markdown',
       'MCP tool for Cursor and Claude Desktop',
-      'Cursor skill for agent workflows',
+      'Cross-platform agent skill for SEO workflows',
       'REST API for custom integrations',
       'CLI installer for one-command setup',
     ],
