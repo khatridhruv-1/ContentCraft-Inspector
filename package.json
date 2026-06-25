@@ -15,6 +15,10 @@
     "db:status": "supabase migration list",
     "db:link": "supabase link --project-ref $SUPABASE_PROJECT_REF",
     "db:setup": "bash scripts/supabase-setup.sh",
+    "integrate:mcp": "bash scripts/install-integration.sh mcp --global",
+    "integrate:mcp:project": "bash scripts/install-integration.sh mcp --project",
+    "integrate:skill": "bash scripts/install-integration.sh skill --global",
+    "integrate:skill:project": "bash scripts/install-integration.sh skill --project",
     "postinstall": "node scripts/copy-tinymce.mjs"
   },
   "dependencies": {

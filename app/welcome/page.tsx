@@ -10,6 +10,7 @@ import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButto
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
+import IntegrationsLandingSection from '@/app/welcome/IntegrationsLandingSection';
 import { CONTENTCRAFT_WORKFLOWS } from '@/lib/marketing/workflows';
 import {
   MARKETING_EASE,
@@ -72,6 +73,12 @@ export default function Welcome() {
 
         <div className="flex items-center gap-1 sm:gap-4">
           <a
+            href="#integrations"
+            className={cn('hidden px-3 py-2 md:inline', marketingGhostNav, marketingFocusRing)}
+          >
+            Integrations
+          </a>
+          <a
             href="#features"
             className={cn('hidden px-3 py-2 sm:inline', marketingGhostNav, marketingFocusRing)}
           >
@@ -129,7 +136,8 @@ export default function Welcome() {
             className="mb-8 max-w-2xl text-balance text-lg leading-relaxed text-slate-600 md:text-xl"
           >
             ContentCraft Inspector combines AI blog generation, automatic keyword discovery, and
-            deep SEO analysis in one workspace — built for marketers, writers, and content teams.
+            deep SEO analysis in one workspace — plus MCP, Cursor skill, and API integrations for
+            your projects.
           </motion.p>
 
           <motion.div variants={rise} className="flex flex-col items-center gap-4">
@@ -151,8 +159,12 @@ export default function Welcome() {
 
             <p className="text-sm text-slate-500">
               Free plan · Cancel anytime ·{' '}
+              <Link href="/integrate" className={cn(marketingLink, 'underline-offset-2 hover:underline')}>
+                MCP &amp; skill integrations
+              </Link>
+              {' · '}
               <Link href="/help" className={cn(marketingLink, 'underline-offset-2 hover:underline')}>
-                Guides &amp; FAQ in Help Center
+                Help Center
               </Link>
             </p>
           </motion.div>
@@ -230,7 +242,10 @@ export default function Welcome() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.6, ease: MARKETING_EASE }}
-              className={cn(marketingGlassCard, 'mt-8 flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:text-left md:p-8')}
+              className={cn(
+                marketingGlassCard,
+                'mt-8 flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:text-left md:p-8'
+              )}
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700">
                 <BookOpen className="h-6 w-6" aria-hidden />
@@ -249,12 +264,18 @@ export default function Welcome() {
                   marketingFocusRing
                 )}
               >
-                Visit Help Center
+                Help Center
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
             </motion.div>
           </div>
         </section>
+
+        <div className="mx-auto max-w-6xl px-6" aria-hidden>
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+        </div>
+
+        <IntegrationsLandingSection />
 
         <section
           id="get-started"
@@ -277,8 +298,8 @@ export default function Welcome() {
               </h2>
 
               <p className="mx-auto mb-8 max-w-lg text-lg text-slate-600">
-                Join ContentCraft Inspector free — discover keywords, generate drafts, and analyze
-                content in minutes.
+                Join ContentCraft Inspector free — discover keywords, generate drafts, analyze
+                content, and integrate via MCP or API in minutes.
               </p>
 
               <MarketingPrimaryButton

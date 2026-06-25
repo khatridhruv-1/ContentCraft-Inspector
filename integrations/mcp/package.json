@@ -1,0 +1,17 @@
+{
+  "name": "@contentcraft/mcp-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MCP server for ContentCraft Inspector — generate and analyze SEO content",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "contentcraft-mcp": "index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  }
+}

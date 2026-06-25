@@ -4,9 +4,9 @@ import { InitialMountLoader } from '@/components/loading/InitialMountLoader';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
 import { WELCOME_SEO_KEYWORDS } from '@/lib/marketing/welcomeContent';
 
-const TITLE = 'ContentCraft Inspector — AI Content Generator & SEO Analysis Tool';
+const TITLE = 'ContentCraft Inspector — AI Content Generator, SEO Analysis & MCP Integrations';
 const DESCRIPTION =
-  'Generate SEO-ready blog posts with automatic keyword discovery, then analyze readability, structure, and content gaps in one AI workspace. Free to start — no credit card required.';
+  'Generate SEO-ready blog posts with automatic keyword discovery and deep content analysis. Integrate via MCP tool, Cursor skill, or REST API — install in one CLI command. Free to start.';
 
 export const metadata: Metadata = {
   title: TITLE,

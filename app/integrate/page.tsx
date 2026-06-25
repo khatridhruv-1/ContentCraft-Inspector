@@ -3,10 +3,6 @@
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
 import IntegrationSection from '@/app/integrate/IntegrationSection';
-import FaqSection from '@/app/welcome/FaqSection';
-import ProductPreviewSection from '@/app/welcome/ProductPreviewSection';
-import SeoKeywordsSection from '@/app/welcome/SeoKeywordsSection';
-import UserGuideSection from '@/app/welcome/UserGuideSection';
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import {
   MARKETING_EASE,
@@ -17,7 +13,7 @@ import {
 } from '@/lib/marketing/marketingTheme';
 import { motion } from 'framer-motion';
 
-export default function HelpPage() {
+export default function IntegratePage() {
   useMarketingPageBackground();
 
   return (
@@ -35,19 +31,15 @@ export default function HelpPage() {
           className="mx-auto mb-10 max-w-6xl px-6 text-center"
         >
           <h1 className={marketingSectionTitle}>
-            How can we <span className={marketingAccentSpan}>help?</span>
+            Add ContentCraft to <span className={marketingAccentSpan}>your stack</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-base text-slate-600">
-            Guides, CLI integrations (MCP &amp; skill), SEO workflow details, product overview, and
-            answers to common questions.
+          <p className="mx-auto mt-4 max-w-2xl text-base text-slate-600">
+            Install via CLI — choose an MCP tool for agent chat or a Cursor skill for API-driven
+            workflows. One command, works in any project.
           </p>
         </motion.div>
 
-        <UserGuideSection />
         <IntegrationSection />
-        <SeoKeywordsSection />
-        <ProductPreviewSection />
-        <FaqSection />
 
         <MarketingFooter className="mt-4" />
       </main>
