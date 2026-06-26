@@ -2,7 +2,8 @@
 
 import { getSiteUrl } from '@/lib/marketing/siteUrl';
 
-export const INTEGRATION_INSTALL_SCRIPT_URL = `https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@master/scripts/install-integration.sh`;
+export const INTEGRATION_INSTALL_SCRIPT_URL =
+  'https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master/scripts/install-integration.sh';
 
 export function integrationApiUrl(origin?: string) {
   return (origin ?? getSiteUrl()).replace(/\/$/, '');
