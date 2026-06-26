@@ -130,14 +130,19 @@ Run with **bash** (Git Bash or WSL on Windows). Full setup: `/integrate` on your
 
 ## Install paths
 
-| Scope | Global install path |
-|-------|---------------------|
-| Editor agents | `~/.cursor/skills/contentcraft-content-generation/` |
-| Terminal agents | `~/.claude/skills/contentcraft-content-generation/` |
-| Gemini IDE | `~/.gemini/antigravity/skills/` or `~/.gemini/antigravity-ide/skills/` |
-| Universal | `~/.agents/skills/contentcraft-content-generation/` |
+| Artifact | Global install path |
+|----------|---------------------|
+| MCP server | `~/.contentcraft/contentcraft-mcp/` |
+| MCP client snippet | `~/.contentcraft/mcp.json` |
+| Agent skill | `~/.contentcraft/skills/contentcraft-content-generation/` |
+| Shared skill mirror | `~/.agents/skills/contentcraft-content-generation/` |
 
-Project installs use `.cursor/skills/`, `.claude/skills/`, `.agents/skills/`, or `.agent/skills/` in the repo root.
+Project installs use `./.contentcraft/` (and `./.agents/skills/` for the skill).
+
+**Optional env vars**
+
+- `CONTENTCRAFT_MCP_CONFIG` — comma-separated MCP client config files to merge into automatically
+- `CONTENTCRAFT_SKILL_DIRS` — comma-separated extra skill directories to copy into
 
 ## Errors
 

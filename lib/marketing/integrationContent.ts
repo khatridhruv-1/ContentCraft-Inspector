@@ -57,8 +57,8 @@ export const INTEGRATION_INSTALL_OPTIONS = [
     tagline: 'Native tools in agent chat — generate, analyze, outline',
     steps: [
       'Run the command in Terminal (bash) — AI chat cannot run install scripts for you',
-      'Restart your AI agent or editor',
-      'Ask the agent to use generate_content',
+      'Add the contentcraft entry from ~/.contentcraft/mcp.json to your MCP client settings',
+      'Restart your agent, then ask it to use generate_content',
     ],
   },
   {
@@ -67,14 +67,14 @@ export const INTEGRATION_INSTALL_OPTIONS = [
     tagline: 'Cross-platform API docs — lighter, no MCP server',
     steps: [
       'Run the command in Terminal (bash)',
-      `Restart your agent — installs to ${INTEGRATION_AGENT_PLATFORMS_LABEL}`,
+      'Restart your agent — skill files land in ~/.contentcraft/skills and ~/.agents/skills',
       'Ask the agent to generate SEO content with ContentCraft',
     ],
   },
 ];
 
 export const INTEGRATION_AFTER_INSTALL =
-  'Run in Terminal (not inside AI chat). Requires bash and curl (Node 18+ for MCP). Configures common MCP clients automatically. Windows: Git Bash or WSL. No API keys on your machine.';
+  'Run in Terminal (not inside AI chat). Requires bash and curl (Node 18+ for MCP). MCP writes ~/.contentcraft/mcp.json — paste into your client. Optional: CONTENTCRAFT_MCP_CONFIG for auto-merge. Windows: Git Bash or WSL.';
 
 /** Landing page — keep short for /welcome */
 export const INTEGRATION_LANDING_HIGHLIGHTS = [

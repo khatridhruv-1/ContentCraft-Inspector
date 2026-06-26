@@ -41,17 +41,19 @@ Environment:
   CONTENTCRAFT_REPO          Git clone URL for source files
   CONTENTCRAFT_BRANCH        Branch to clone (default: master)
   CONTENTCRAFT_INSTALL_ROOT  Use existing repo path instead of cloning
+  CONTENTCRAFT_MCP_CONFIG    Optional comma-separated MCP client config files to merge into
+  CONTENTCRAFT_SKILL_DIRS    Optional comma-separated extra skill directories (skill install)
 
 Examples:
   bash ./scripts/install-integration.sh mcp --global
   bash ./scripts/install-integration.sh skill --project
   CONTENTCRAFT_API_URL=https://app.example.com bash ./scripts/install-integration.sh mcp
+  CONTENTCRAFT_MCP_CONFIG="$HOME/.my-agent/mcp.json" bash ./scripts/install-integration.sh mcp --global
 
 Platform notes:
   Run with bash (not sh/dash). On Windows, use Git Bash or WSL.
-  On WSL + Windows, install from the same environment your agent uses.
   AI chat cannot run this for you — use Terminal.
-  Global MCP installs configure common MCP client config files automatically.
+  MCP: installs server files + writes ~/.contentcraft/mcp.json — paste into your MCP client settings.
 EOF
 }
 
@@ -85,14 +87,46 @@ preflight() {
   fi
 }
 
-write_mcp_json() {
-  local mcp_json="$1"
+contentcraft_root() {
+  if [[ "$SCOPE" == "--global" ]]; then
+    printf '%s\n' "${HOME}/.contentcraft"
+  else
+    printf '%s\n' "$(pwd)/.contentcraft"
+  fi
+}
+
+write_mcp_snippet() {
+  local snippet_file="$1"
   local mcp_home="$2"
   local api_url="$3"
 
-  mkdir -p "$(dirname "$mcp_json")"
+  mkdir -p "$(dirname "$snippet_file")"
 
-  node - "$mcp_json" "$mcp_home" "$api_url" <<'NODE'
+  node - "$snippet_file" "$mcp_home" "$api_url" <<'NODE'
+const fs = require('fs');
+const path = require('path');
+const [file, home, apiUrl] = process.argv.slice(2);
+const data = {
+  mcpServers: {
+    contentcraft: {
+      command: 'node',
+      args: [path.join(home, 'index.js')],
+      env: { CONTENTCRAFT_API_URL: apiUrl },
+    },
+  },
+};
+fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
+NODE
+}
+
+merge_mcp_into_client() {
+  local client_config="$1"
+  local mcp_home="$2"
+  local api_url="$3"
+
+  mkdir -p "$(dirname "$client_config")"
+
+  node - "$client_config" "$mcp_home" "$api_url" <<'NODE'
 const fs = require('fs');
 const path = require('path');
 const [file, home, apiUrl] = process.argv.slice(2);
@@ -115,28 +149,18 @@ fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
 NODE
 }
 
-# MCP client config files to update (global installs).
-mcp_config_paths() {
-  if [[ "$SCOPE" == "--project" ]]; then
-    printf '%s\n' "$(pwd)/.cursor/mcp.json"
-    return
-  fi
-
-  printf '%s\n' "${HOME}/.cursor/mcp.json"
-
-  case "$(uname -s)" in
-    Darwin)
-      printf '%s\n' "${HOME}/Library/Application Support/Claude/claude_desktop_config.json"
-      ;;
-    Linux)
-      printf '%s\n' "${HOME}/.config/Claude/claude_desktop_config.json"
-      ;;
-    MINGW*|MSYS*|CYGWIN*)
-      if [[ -n "${APPDATA:-}" ]]; then
-        printf '%s\n' "${APPDATA}/Claude/claude_desktop_config.json"
-      fi
-      ;;
-  esac
+optional_mcp_client_paths() {
+  local raw="${CONTENTCRAFT_MCP_CONFIG:-}"
+  [[ -n "$raw" ]] || return 0
+  local IFS=','
+  read -r -a paths <<< "$raw"
+  local entry
+  for entry in "${paths[@]}"; do
+    entry="${entry#"${entry%%[![:space:]]*}"}"
+    entry="${entry%"${entry##*[![:space:]]}"}"
+    [[ -n "$entry" ]] || continue
+    printf '%s\n' "$entry"
+  done
 }
 
 if [[ -z "$METHOD" ]] || [[ "$METHOD" == "-h" ]] || [[ "$METHOD" == "--help" ]]; then
@@ -158,12 +182,7 @@ fi
 
 preflight
 
-if [[ "$SCOPE" == "--global" ]]; then
-  INSTALL_DIR="${HOME}/.contentcraft"
-else
-  INSTALL_DIR="$(pwd)/.cursor"
-fi
-
+INSTALL_DIR="$(contentcraft_root)"
 mkdir -p "$INSTALL_DIR"
 
 resolve_source() {
@@ -212,12 +231,13 @@ install_mcp() {
     exit 1
   fi
 
-  # Remove legacy global install path (pre–multi-client installer).
+  # Legacy global install path (older installer versions).
   if [[ "$SCOPE" == "--global" && -d "${HOME}/.cursor/contentcraft-mcp" ]]; then
     rm -rf "${HOME}/.cursor/contentcraft-mcp"
   fi
 
   local mcp_home="$INSTALL_DIR/contentcraft-mcp"
+  local snippet_file="$INSTALL_DIR/mcp.json"
   rm -rf "$mcp_home"
   mkdir -p "$mcp_home"
   cp -R "$MCP_SRC/." "$mcp_home/"
@@ -228,39 +248,49 @@ install_mcp() {
     exit 1
   fi
 
-  local wrote=0
-  while IFS= read -r mcp_json; do
-    [[ -n "$mcp_json" ]] || continue
-    write_mcp_json "$mcp_json" "$mcp_home" "$API_URL"
-    echo "✓ ContentCraft MCP installed → $mcp_json"
-    wrote=1
-  done < <(mcp_config_paths)
+  write_mcp_snippet "$snippet_file" "$mcp_home" "$API_URL"
 
-  if [[ "$wrote" -eq 0 ]]; then
-    echo "error: no MCP config path found for this platform" >&2
-    exit 1
-  fi
-
+  echo "✓ ContentCraft MCP server installed"
   echo "  Server path: $mcp_home"
   echo "  API URL: $API_URL"
-  echo "  Restart your AI agent or editor to load the MCP server."
+  echo "  Client config snippet: $snippet_file"
+  echo ""
+  echo "Next: open your MCP client settings and add the \"contentcraft\" entry from that file,"
+  echo "      then restart your agent."
+
+  local merged=0
+  while IFS= read -r client_config; do
+    [[ -n "$client_config" ]] || continue
+    merge_mcp_into_client "$client_config" "$mcp_home" "$API_URL"
+    echo "✓ Merged into $client_config"
+    merged=1
+  done < <(optional_mcp_client_paths)
+
+  if [[ "$merged" -eq 0 && -n "${CONTENTCRAFT_MCP_CONFIG:-}" ]]; then
+    echo "warning: CONTENTCRAFT_MCP_CONFIG was set but no valid paths were found" >&2
+  fi
 }
 
 skill_dest_roots() {
-  if [[ "$SCOPE" == "--global" ]]; then
-    printf '%s\n' \
-      "${HOME}/.cursor/skills" \
-      "${HOME}/.claude/skills" \
-      "${HOME}/.agents/skills" \
-      "${HOME}/.gemini/antigravity/skills" \
-      "${HOME}/.gemini/antigravity-ide/skills"
+  printf '%s\n' "$INSTALL_DIR/skills"
+
+  if [[ "$SCOPE" == "--project" ]]; then
+    printf '%s\n' "$(pwd)/.agents/skills"
   else
-    printf '%s\n' \
-      "$(pwd)/.cursor/skills" \
-      "$(pwd)/.claude/skills" \
-      "$(pwd)/.agents/skills" \
-      "$(pwd)/.agent/skills"
+    printf '%s\n' "${HOME}/.agents/skills"
   fi
+
+  local raw="${CONTENTCRAFT_SKILL_DIRS:-}"
+  [[ -n "$raw" ]] || return 0
+  local IFS=','
+  read -r -a extra <<< "$raw"
+  local entry
+  for entry in "${extra[@]}"; do
+    entry="${entry#"${entry%%[![:space:]]*}"}"
+    entry="${entry%"${entry##*[![:space:]]}"}"
+    [[ -n "$entry" ]] || continue
+    printf '%s\n' "$entry"
+  done
 }
 
 install_skill_copy() {
@@ -301,7 +331,8 @@ install_skill() {
   done < <(skill_dest_roots)
 
   echo "  API URL baked into SKILL.md: $API_URL"
-  echo "  Restart your AI agent or editor."
+  echo "  Canonical path: $INSTALL_DIR/skills/contentcraft-content-generation/"
+  echo "  Restart your agent. If it uses another skills folder, set CONTENTCRAFT_SKILL_DIRS or copy from the canonical path."
 }
 
 case "$METHOD" in
