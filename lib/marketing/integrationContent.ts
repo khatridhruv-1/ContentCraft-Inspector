@@ -56,7 +56,7 @@ export const INTEGRATION_INSTALL_OPTIONS = [
     tagline: 'Native tools in agent chat — generate, analyze, outline',
     steps: [
       'Run the command in Terminal (bash) — AI chat cannot run install scripts for you',
-      'Add the contentcraft entry from ~/.contentcraft/mcp.json to your MCP client settings',
+      'Installer auto-registers in detected MCP client configs when present',
       'Restart your agent, then ask it to use generate_content',
     ],
   },
@@ -73,7 +73,7 @@ export const INTEGRATION_INSTALL_OPTIONS = [
 ];
 
 export const INTEGRATION_AFTER_INSTALL =
-  'Run in Terminal (not inside AI chat). Requires bash and curl (Node 18+ for MCP). MCP writes ~/.contentcraft/mcp.json — paste into your client. Optional: CONTENTCRAFT_MCP_CONFIG for auto-merge. Windows: Git Bash or WSL.';
+  'Run in Terminal (not inside AI chat). Requires bash and curl (Node 18+ for MCP). Auto-configures when an MCP client folder is detected; reference config at ~/.contentcraft/mcp.json. Windows: Git Bash or WSL.';
 
 /** Landing page — keep short for /welcome */
 export const INTEGRATION_LANDING_HIGHLIGHTS = [

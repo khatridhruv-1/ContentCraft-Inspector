@@ -141,8 +141,10 @@ Project installs use `./.contentcraft/` (and `./.agents/skills/` for the skill).
 
 **Optional env vars**
 
-- `CONTENTCRAFT_MCP_CONFIG` — comma-separated MCP client config files to merge into automatically
+- `CONTENTCRAFT_MCP_CONFIG` — comma-separated extra MCP client config files to register in
 - `CONTENTCRAFT_SKILL_DIRS` — comma-separated extra skill directories to copy into
+
+If no MCP client folder is detected, copy the `contentcraft` entry from `~/.contentcraft/mcp.json` manually.
 
 ## Errors
 

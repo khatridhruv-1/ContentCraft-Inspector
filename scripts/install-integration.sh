@@ -59,7 +59,7 @@ Examples:
 Platform notes:
   Run with bash (not sh/dash). On Windows, use Git Bash or WSL.
   AI chat cannot run this for you — use Terminal.
-  MCP: installs server files + writes ~/.contentcraft/mcp.json — paste into your MCP client settings.
+  MCP: installs server + ~/.contentcraft/mcp.json; auto-merges into detected MCP client configs.
 EOF
 }
 
@@ -146,13 +146,61 @@ if (fs.existsSync(file)) {
   }
 }
 data.mcpServers = data.mcpServers || {};
-data.mcpServers.contentcraft = {
+const needsPluginTemplate =
+  file.includes(`${path.sep}.gemini${path.sep}`) && file.endsWith('mcp_config.json');
+const server = {
   command: 'node',
   args: [path.join(home, 'index.js')],
   env: { CONTENTCRAFT_API_URL: apiUrl },
 };
+if (needsPluginTemplate) {
+  server.$typeName = 'exa.cascade_plugins_pb.CascadePluginCommandTemplate';
+}
+data.mcpServers.contentcraft = server;
 fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
 NODE
+}
+
+# Auto-merge into MCP client configs when the parent app folder already exists.
+discover_mcp_client_configs() {
+  if [[ "$SCOPE" == "--project" ]]; then
+    [[ -d "$(pwd)/.cursor" ]] && printf '%s\n' "$(pwd)/.cursor/mcp.json"
+    if [[ -d "$(pwd)/.gemini" ]]; then
+      printf '%s\n' "$(pwd)/.gemini/config/mcp_config.json"
+      [[ -d "$(pwd)/.gemini/antigravity-ide" ]] && printf '%s\n' "$(pwd)/.gemini/antigravity-ide/mcp_config.json"
+    fi
+    return
+  fi
+
+  [[ -d "${HOME}/.cursor" ]] && printf '%s\n' "${HOME}/.cursor/mcp.json"
+
+  if [[ -d "${HOME}/.gemini" ]]; then
+    printf '%s\n' "${HOME}/.gemini/config/mcp_config.json"
+    [[ -d "${HOME}/.gemini/antigravity-ide" ]] && printf '%s\n' "${HOME}/.gemini/antigravity-ide/mcp_config.json"
+  fi
+
+  case "$(uname -s)" in
+    Darwin)
+      [[ -d "${HOME}/Library/Application Support/Claude" ]] && \
+        printf '%s\n' "${HOME}/Library/Application Support/Claude/claude_desktop_config.json"
+      ;;
+    Linux)
+      [[ -d "${HOME}/.config/Claude" ]] && \
+        printf '%s\n' "${HOME}/.config/Claude/claude_desktop_config.json"
+      ;;
+    MINGW*|MSYS*|CYGWIN*)
+      if [[ -n "${APPDATA:-}" && -d "${APPDATA}/Claude" ]]; then
+        printf '%s\n' "${APPDATA}/Claude/claude_desktop_config.json"
+      fi
+      ;;
+  esac
+}
+
+mcp_client_config_targets() {
+  {
+    discover_mcp_client_configs
+    optional_mcp_client_paths
+  } | awk 'NF && !seen[$0]++'
 }
 
 optional_mcp_client_paths() {
@@ -259,20 +307,26 @@ install_mcp() {
   echo "✓ ContentCraft MCP server installed"
   echo "  Server path: $mcp_home"
   echo "  API URL: $API_URL"
-  echo "  Client config snippet: $snippet_file"
-  echo ""
-  echo "Next: open your MCP client settings and add the \"contentcraft\" entry from that file,"
-  echo "      then restart your agent."
+  echo "  Reference config: $snippet_file"
 
   local merged=0
   while IFS= read -r client_config; do
     [[ -n "$client_config" ]] || continue
     merge_mcp_into_client "$client_config" "$mcp_home" "$API_URL"
-    echo "✓ Merged into $client_config"
+    echo "✓ Registered in $client_config"
     merged=1
-  done < <(optional_mcp_client_paths)
+  done < <(mcp_client_config_targets)
 
-  if [[ "$merged" -eq 0 && -n "${CONTENTCRAFT_MCP_CONFIG:-}" ]]; then
+  if [[ "$merged" -eq 0 ]]; then
+    echo ""
+    echo "No MCP client config detected on this machine."
+    echo "Add the \"contentcraft\" entry from $snippet_file to your agent's MCP settings."
+  else
+    echo ""
+    echo "Restart your agent to load the MCP server."
+  fi
+
+  if [[ -n "${CONTENTCRAFT_MCP_CONFIG:-}" ]] && [[ "$merged" -eq 0 ]]; then
     echo "warning: CONTENTCRAFT_MCP_CONFIG was set but no valid paths were found" >&2
   fi
 }
