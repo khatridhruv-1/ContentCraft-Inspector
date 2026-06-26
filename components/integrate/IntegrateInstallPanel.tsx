@@ -5,11 +5,13 @@ import { CheckCircle2, Plug, Sparkles } from 'lucide-react';
 import CliCommandBlock from '@/components/integrate/CliCommandBlock';
 import {
   INTEGRATION_AFTER_INSTALL,
-  INTEGRATION_HOSTED_API_URL,
   INTEGRATION_INSTALL_OPTIONS,
-  INTEGRATION_IS_LOCAL_PREVIEW,
   INTEGRATION_SKILL_PLATFORMS,
+  integrationInstallCommand,
+  integrationInstallCommandDisplay,
+  isLocalIntegrationPreview,
 } from '@/lib/marketing/integrationContent';
+import { useIntegrationApiUrl } from '@/hooks/useIntegrationApiUrl';
 import { MARKETING_EASE, marketingFocusRing, marketingGlassCard } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -27,7 +29,10 @@ const methodMeta = {
 
 export default function IntegrateInstallPanel() {
   const [active, setActive] = useState<'mcp' | 'skill'>('mcp');
+  const apiUrl = useIntegrationApiUrl();
   const option = INTEGRATION_INSTALL_OPTIONS.find(o => o.id === active)!;
+  const installCommand = integrationInstallCommand(active, apiUrl);
+  const installCommandDisplay = integrationInstallCommandDisplay(active, apiUrl);
 
   return (
     <section className="px-6 pb-12 pt-6" aria-labelledby="install-heading">
@@ -93,10 +98,10 @@ export default function IntegrateInstallPanel() {
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <span className="text-sm font-semibold text-slate-800">API endpoint</span>
                 <code className="overflow-x-auto font-mono text-sm font-medium text-slate-900">
-                  {INTEGRATION_HOSTED_API_URL}
+                  {apiUrl}
                 </code>
               </div>
-              {INTEGRATION_IS_LOCAL_PREVIEW ? (
+              {isLocalIntegrationPreview(apiUrl) ? (
                 <p className="mt-2 text-xs font-medium text-amber-800">
                   Dev preview — set <code className="font-mono">NEXT_PUBLIC_SITE_URL</code> on deploy
                   for your production domain.
@@ -113,8 +118,8 @@ export default function IntegrateInstallPanel() {
                 transition={{ duration: 0.15, ease: MARKETING_EASE }}
               >
                 <CliCommandBlock
-                  command={option.command}
-                  displayCommand={option.commandDisplay}
+                  command={installCommand}
+                  displayCommand={installCommandDisplay}
                   label="Run in Terminal"
                 />
 

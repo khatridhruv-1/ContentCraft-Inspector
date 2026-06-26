@@ -10,9 +10,10 @@ import {
   INTEGRATION_HERO_SUBTITLE,
   INTEGRATION_HERO_TITLE,
   INTEGRATION_HERO_TITLE_ACCENT,
-  INTEGRATION_LANDING_CLI,
   INTEGRATION_LANDING_HIGHLIGHTS,
+  integrationInstallCommand,
 } from '@/lib/marketing/integrationContent';
+import { useIntegrationApiUrl } from '@/hooks/useIntegrationApiUrl';
 import {
   marketingAccentSpan,
   marketingEyebrow,
@@ -31,6 +32,8 @@ const HIGHLIGHT_STYLES = {
 
 export default function IntegrationsLandingSection() {
   const reduced = useReducedMotion();
+  const apiUrl = useIntegrationApiUrl();
+  const installCommand = integrationInstallCommand('mcp', apiUrl);
 
   return (
     <section
@@ -96,7 +99,7 @@ export default function IntegrationsLandingSection() {
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           </div>
-          <CliCommandBlock command={INTEGRATION_LANDING_CLI} />
+          <CliCommandBlock command={installCommand} />
         </ScrollReveal>
       </div>
     </section>

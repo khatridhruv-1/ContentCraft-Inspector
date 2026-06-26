@@ -4,21 +4,27 @@ import { getSiteUrl } from '@/lib/marketing/siteUrl';
 
 export const INTEGRATION_INSTALL_SCRIPT_URL = `https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@master/scripts/install-integration.sh`;
 
-export const INTEGRATION_HOSTED_API_URL = getSiteUrl();
-
-export const INTEGRATION_IS_LOCAL_PREVIEW = INTEGRATION_HOSTED_API_URL.includes('localhost');
-
-function installCommandLines(method: 'mcp' | 'skill') {
-  return `CONTENTCRAFT_API_URL="${INTEGRATION_HOSTED_API_URL}" curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} | bash -s -- ${method} --global`;
+export function integrationApiUrl(origin?: string) {
+  return (origin ?? getSiteUrl()).replace(/\/$/, '');
 }
 
-export function integrationInstallCommand(method: 'mcp' | 'skill') {
-  return installCommandLines(method);
+export function isLocalIntegrationPreview(apiUrl: string) {
+  return apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1');
 }
 
-export function integrationInstallCommandDisplay(method: 'mcp' | 'skill') {
+function installCommandLines(method: 'mcp' | 'skill', apiUrl: string) {
+  const origin = integrationApiUrl(apiUrl);
+  return `CONTENTCRAFT_API_URL="${origin}" curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} | bash -s -- ${method} --global`;
+}
+
+export function integrationInstallCommand(method: 'mcp' | 'skill', apiUrl?: string) {
+  return installCommandLines(method, apiUrl ?? getSiteUrl());
+}
+
+export function integrationInstallCommandDisplay(method: 'mcp' | 'skill', apiUrl?: string) {
+  const origin = integrationApiUrl(apiUrl ?? getSiteUrl());
   return [
-    `CONTENTCRAFT_API_URL="${INTEGRATION_HOSTED_API_URL}"`,
+    `CONTENTCRAFT_API_URL="${origin}"`,
     '',
     `curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} \\`,
     `  | bash -s -- ${method} --global`,
@@ -49,8 +55,6 @@ export const INTEGRATION_INSTALL_OPTIONS = [
     id: 'mcp' as const,
     title: 'MCP Tool',
     tagline: 'Native tools in agent chat — generate, analyze, outline',
-    command: integrationInstallCommand('mcp'),
-    commandDisplay: integrationInstallCommandDisplay('mcp'),
     steps: [
       'Run the command in Terminal (bash) — AI chat cannot run install scripts for you',
       'Restart your AI agent or editor',
@@ -61,8 +65,6 @@ export const INTEGRATION_INSTALL_OPTIONS = [
     id: 'skill' as const,
     title: 'Agent Skill',
     tagline: 'Cross-platform API docs — lighter, no MCP server',
-    command: integrationInstallCommand('skill'),
-    commandDisplay: integrationInstallCommandDisplay('skill'),
     steps: [
       'Run the command in Terminal (bash)',
       `Restart your agent — installs to ${INTEGRATION_AGENT_PLATFORMS_LABEL}`,
@@ -91,5 +93,3 @@ export const INTEGRATION_LANDING_HIGHLIGHTS = [
     tag: 'Skill',
   },
 ] as const;
-
-export const INTEGRATION_LANDING_CLI = integrationInstallCommand('mcp');
