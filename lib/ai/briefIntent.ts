@@ -1,5 +1,11 @@
-export type TopicCategory = 'geopolitical' | 'general';
+import {
+  isComparisonTopic,
+  isMarketingTechTopic,
+} from '@/lib/content/brandVoice';
+
 export type ArticleType = 'explainer' | 'trending_list' | 'canonical_list';
+
+export type TopicCategory = 'geopolitical' | 'general';
 
 export type ResolvedBrief = {
   rawBrief: string;
@@ -193,7 +199,12 @@ function resolveTopicHints(
   return { searchTopic };
 }
 
-function buildArticleGoal(topic: string, category: TopicCategory, articleType: ArticleType): string {
+function buildArticleGoal(
+  topic: string,
+  category: TopicCategory,
+  articleType: ArticleType,
+  rawBrief: string
+): string {
   if (articleType === 'canonical_list') {
     return [
       `Answer the reader's question: what are the best / greatest "${topic}" picks across Bollywood history.`,
@@ -222,10 +233,29 @@ function buildArticleGoal(topic: string, category: TopicCategory, articleType: A
     ].join(' ');
   }
 
+  if (isComparisonTopic(topic, rawBrief)) {
+    return [
+      `Explain "${topic}" as a clear comparison — define each term, show how they differ, and how they work together in practice.`,
+      'Open with the shift in how people discover information (search engines vs AI assistants).',
+      'Give one crisp definition per concept. Use contrast pairs, not repetitive paragraphs.',
+      'Synthesize with a "not X or Y — both" insight and one practical implication for the reader.',
+      'Practitioner editorial voice — not a glossary, not a sales pitch, not marketing for any tool or service.',
+    ].join(' ');
+  }
+
+  if (isMarketingTechTopic(topic, rawBrief)) {
+    return [
+      `Write a practitioner-led explainer about "${topic}" for marketers and founders who need clarity, not hype.`,
+      'Cover: what it is, why it matters in 2026, how it works in practice, and one actionable takeaway.',
+      'Frame around changing discovery (search + AI). Emphasize authority, useful answers, and clarity over vanity metrics.',
+      'Use narrative sections with specific headings — not generic "Introduction" blocks.',
+    ].join(' ');
+  }
+
   return [
     `Write an informational, SEO-friendly blog article that explains "${topic}" to a curious reader.`,
     'Cover: what it is, why it matters, how it works in practice, examples or use cases, and actionable advice.',
-    'Use an explainer/editorial style — not sales copy, not a product page.',
+    'Use an explainer/editorial style — not sales copy, not a product page, not author or tool marketing.',
   ].join(' ');
 }
 
@@ -235,7 +265,7 @@ export function resolveBriefIntent(rawBrief: string): ResolvedBrief {
   const articleType = detectArticleType(topic, trimmed);
   const topicCategory = detectTopicCategory(topic);
   const { searchTopic, topicNote } = resolveTopicHints(topic, topicCategory, articleType);
-  const articleGoal = buildArticleGoal(topic, topicCategory, articleType);
+  const articleGoal = buildArticleGoal(topic, topicCategory, articleType, trimmed);
 
   return {
     rawBrief: trimmed,

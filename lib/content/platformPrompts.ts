@@ -11,61 +11,62 @@ const READING_LENGTH_RULE = `
 
 const PLATFORM_RULES: Record<ContentPlatformId, string> = {
   website: `
-━━━ PLATFORM: PERSONAL WEBSITE ━━━
-- Publish-ready blog post for a personal site or portfolio blog.
-- Use markdown: one # title, 3–4 ## sections with plain, specific headings.
-- SEO-friendly but human-first — no keyword stuffing.
-- Opening hook in the first 2 paragraphs; end with a clear takeaway (no sales CTA).
-- Scannable: short paragraphs, occasional bullets where they help.
+━━━ PLATFORM: PERSONAL WEBSITE / BLOG ━━━
+- Publish-ready blog post: clear title, strong hook, scannable ## sections.
+- Use markdown: one # title, 3–5 ## sections with specific headings (not "Introduction" or "Conclusion").
+- SEO-friendly but human-first — weave keywords naturally; never stuff or paste keyword strings.
+- Opening: context shift or direct answer in paragraph 1.
+- Short paragraphs, occasional bullets only when listing parallel options.
+- End with a substantive takeaway — no sales CTA, author plug, or "subscribe" pitch.
 ${READING_LENGTH_RULE}
 `.trim(),
 
   linkedin: `
 ━━━ PLATFORM: LINKEDIN ━━━
-- Long-form LinkedIn post (not a formal article URL) — optimized for the feed.
-- NO markdown headings (# or ##). Use short paragraphs separated by blank lines.
-- First 2 lines must hook before "see more" — lead with insight, tension, or a bold claim.
-- One idea per paragraph (1–3 sentences). Use line breaks generously.
-- Professional, first-person when natural. Concrete examples > generic advice.
-- End with a question or reflection to invite comments (not "follow for more").
-- Final line: 3–5 relevant hashtags (e.g. #Topic #Industry).
-- No emoji spam; 0–2 emojis max only if they fit the tone.
+- Long-form LinkedIn post for the feed — narrative essay style, NOT an emoji listicle.
+- NO markdown headings (# or ##). Short paragraphs separated by blank lines.
+- First 2 lines must hook before "see more" — insight, tension, or a clear before/after ("For years…").
+- One idea per paragraph (1–3 sentences). Professional, first-person when it adds authenticity.
+- Prefer prose over bullets. If bullets are used, max 3 items and no emoji prefixes on every line.
+- Concrete examples and contrasts > generic advice ("educate don't sell" without substance).
+- End with a thoughtful question or reflection — not "follow for more" or product pitches.
+- Final line only: 3–5 specific hashtags (e.g. #GEO #SEO #ContentMarketing).
+- Emoji: 0–1 total, only if it genuinely fits — never emoji-spam or ✍️📈💡 stacks.
 ${READING_LENGTH_RULE}
 `.trim(),
 
   quora: `
 ━━━ PLATFORM: QUORA ━━━
-- Write as a direct, helpful Quora answer to the topic as a question.
-- Open with the answer in the first 2–3 sentences — no throat-clearing.
-- Conversational, credible, first-person OK when it adds authenticity.
-- Use short sections; bold lead-ins sparingly (**like this**) instead of markdown headings.
-- Explain why, not just what. Include 1–2 practical examples or mini-stories.
-- No clickbait, no "As an AI", no self-promotional links.
-- Close with a concise summary or actionable next step.
+- Direct answer to the question in the first 2–3 sentences — no preamble.
+- Conversational, credible, practitioner voice — first-person OK when it adds trust.
+- Short sections; bold lead-ins sparingly (**like this**) instead of markdown headings.
+- Explain why and how, with 1–2 practical examples. Define acronyms plainly.
+- No clickbait, no "As an AI", no self-promotional links, product pitches, or author marketing.
+- Close with a concise summary or one actionable next step.
 ${READING_LENGTH_RULE}
 `.trim(),
 
   medium: `
 ━━━ PLATFORM: MEDIUM ━━━
-- Medium-style essay: narrative, thoughtful, reader-respectful.
-- # Title on line 1; optional *subtitle* on line 2 (italic).
-- Strong opening scene or tension in paragraph 1.
-- 3–4 ## sections with evocative, non-generic headings.
-- Mix insight with story — at least one concrete anecdote or example.
-- Medium voice: smart, accessible, not corporate. Varied sentence rhythm.
-- End with a resonant closing thought (not a subscribe CTA).
+- Medium essay: narrative, thoughtful, reader-respectful — match practitioner long-form style.
+- # Title on line 1; optional *subtitle* on line 2 (italic, one line).
+- Opening: context shift ("For years… But today…") or a crisp tension statement.
+- 3–5 ## sections with specific, non-generic headings.
+- Short paragraphs throughout. Minimal bullets — prefer flowing prose.
+- Smart, accessible voice — not corporate, not listicle-hype. Varied sentence rhythm.
+- End with a resonant forward-looking line (not "subscribe on Medium").
 ${READING_LENGTH_RULE}
 `.trim(),
 
   substack: `
 ━━━ PLATFORM: SUBSTACK ━━━
-- Newsletter essay for email subscribers — intimate, direct, valuable.
-- # Subject-style title; treat the reader as "you".
-- First paragraph must deliver the promise of the topic immediately.
-- 3–4 ## sections; conversational but structured.
-- One personal angle or observation that feels written by a human editor.
-- Lighter on SEO tricks; heavier on clarity and voice.
-- Soft close — reflection or one question for replies (no hard sell).
+- Newsletter essay for email subscribers — intimate, direct, high signal.
+- # Subject-style title; write to "you" where natural.
+- First paragraph delivers the promise of the topic — no filler intro.
+- 3–5 ## sections; conversational but structured like a letter from someone who knows the space.
+- One personal observation or "here's what I'm seeing" angle per piece.
+- Lighter on SEO tricks; heavier on clarity, definitions, and practical insight.
+- Soft close — reflection or one question for replies (no hard sell, no "visit my site").
 ${READING_LENGTH_RULE}
 `.trim(),
 };

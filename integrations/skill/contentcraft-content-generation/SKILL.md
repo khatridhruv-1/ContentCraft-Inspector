@@ -65,6 +65,22 @@ When the user names a channel, **always pass `platform`** (or include the platfo
 
 If using the **ContentCraft MCP** `generate_content` tool, pass the same `platform` field (or put the platform name in `title` — it is detected automatically). Restart your agent after updating MCP.
 
+## Editorial style (built-in)
+
+Generated drafts follow a **practitioner editorial voice** — aligned with long-form marketing explainers (e.g. GEO vs SEO vs AEO):
+
+- **Hook:** context shift ("For years… But today…") or direct tension — not generic intros.
+- **Tone:** smart peer explaining a real change; no guru hype, emoji listicles, or "Golden Rules" templates.
+- **Structure:** short paragraphs; prose over bullets; define terms plainly; contrast pairs (SEO finds your site, GEO helps AI cite you).
+- **Comparison topics:** each term defined → how they differ → how they work together → one practical takeaway.
+- **No self-marketing:** never mention ContentCraft, FlowCreator, install links, or author/service CTAs unless the user's topic explicitly requires reviewing that product.
+- **Platform norms:**
+  - **LinkedIn** — narrative essay, 0–1 emoji, hashtags only on the last line.
+  - **Medium / website / Substack** — `##` sections, year-aware titles when relevant.
+  - **Quora** — direct answer in the first 2–3 sentences.
+
+Override with `tone` only when the user asks for a different voice.
+
 **curl example:**
 
 ```bash
