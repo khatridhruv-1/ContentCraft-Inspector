@@ -7,6 +7,8 @@ import {
   marketingAccentSpan,
   marketingEyebrow,
   marketingGlassCard,
+  marketingLandingSection,
+  marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
@@ -63,7 +65,7 @@ export default function UserGuideSection() {
     <section
       id="how-it-works"
       data-testid="homepage-user-guide"
-      className="relative scroll-mt-24 px-6 py-14 md:py-20"
+      className={marketingLandingSection}
       aria-labelledby="guide-heading"
     >
       <div className="mx-auto max-w-6xl">
@@ -72,7 +74,7 @@ export default function UserGuideSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.7, ease: MARKETING_EASE }}
-        className="mb-12 text-center"
+        className={marketingSectionHeader}
       >
         <span className={cn('mb-4', marketingEyebrow)}>Getting started</span>
         <h2 id="guide-heading" className={marketingSectionTitle}>

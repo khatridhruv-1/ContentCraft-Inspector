@@ -12,6 +12,7 @@ import EnterReveal from '@/components/marketing/EnterReveal';
 import ScrollReveal, { alternateScrollDirection } from '@/components/marketing/ScrollReveal';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
+import MarketingSectionDivider from '@/components/marketing/MarketingSectionDivider';
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import IntegrationsLandingSection from '@/app/welcome/IntegrationsLandingSection';
 import { CONTENTCRAFT_WORKFLOWS } from '@/lib/marketing/workflows';
@@ -26,6 +27,9 @@ import {
   marketingLink,
   marketingNavPill,
   marketingPageClass,
+  marketingLandingHero,
+  marketingLandingSection,
+  marketingSectionHeader,
   marketingSectionTitle,
   marketingSkipLink,
 } from '@/lib/marketing/marketingTheme';
@@ -101,7 +105,7 @@ export default function Welcome() {
 
       <main id="main-content">
         <section
-          className="relative flex flex-col items-center overflow-visible px-6 pt-32 pb-15 text-center md:pb-20"
+          className={marketingLandingHero}
           aria-labelledby="hero-heading"
         >
           <EnterReveal direction="up" delay={0.05} ready={heroReady} className="mb-7">
@@ -174,17 +178,15 @@ export default function Welcome() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-6xl px-6 pt-2 md:pt-4" aria-hidden>
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-        </div>
+        <MarketingSectionDivider />
 
         <section
           id="features"
-          className="relative scroll-mt-24 px-6 py-14 md:py-20"
+          className={marketingLandingSection}
           aria-labelledby="features-heading"
         >
           <div className="mx-auto max-w-6xl">
-            <ScrollReveal direction="up" className="mb-12 text-center">
+            <ScrollReveal direction="up" className={marketingSectionHeader}>
               <span className={cn('mb-4', marketingEyebrow)}>Core features</span>
               <h2 id="features-heading" className={marketingSectionTitle}>
                 AI generation and{' '}
@@ -266,9 +268,7 @@ export default function Welcome() {
           </div>
         </section>
 
-        <div className="mx-auto max-w-6xl px-6" aria-hidden>
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-        </div>
+        <MarketingSectionDivider />
 
         <IntegrationsLandingSection />
       </main>

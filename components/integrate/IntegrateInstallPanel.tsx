@@ -35,7 +35,7 @@ export default function IntegrateInstallPanel() {
   const installCommandDisplay = integrationInstallCommandDisplay(active, apiUrl);
 
   return (
-    <section className="px-6 pb-12 pt-6" aria-labelledby="install-heading">
+    <section className="px-6 pb-10 pt-4" aria-labelledby="install-heading">
       <div className="mx-auto max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -19,6 +19,8 @@ import {
   marketingEyebrow,
   marketingFocusRing,
   marketingGlassCard,
+  marketingLandingSection,
+  marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
 import { scrollRevealProps } from '@/lib/marketing/scrollReveal';
@@ -39,11 +41,11 @@ export default function IntegrationsLandingSection() {
     <section
       id="integrations"
       data-testid="landing-integrations"
-      className="relative scroll-mt-24 px-6 py-14 md:py-20"
+      className={marketingLandingSection}
       aria-labelledby="integrations-heading"
     >
       <div className="mx-auto max-w-4xl">
-        <ScrollReveal direction="up" className="mb-10 text-center">
+        <ScrollReveal direction="up" className={marketingSectionHeader}>
           <span className={cn('mb-4', marketingEyebrow)}>{INTEGRATION_HERO_EYEBROW}</span>
           <h2 id="integrations-heading" className={marketingSectionTitle}>
             Use ContentCraft in{' '}

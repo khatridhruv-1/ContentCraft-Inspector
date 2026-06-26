@@ -30,7 +30,7 @@ export default function IntegratePage() {
       <MarketingDotGrid />
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="relative pb-16 pt-12 md:pt-16">
+      <main className="relative pb-12 pt-8 md:pt-10">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

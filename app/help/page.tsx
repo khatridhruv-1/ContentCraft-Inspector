@@ -1,5 +1,6 @@
 'use client';
 
+import MarketingSectionDivider from '@/components/marketing/MarketingSectionDivider';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
 import IntegrationSection from '@/app/integrate/IntegrationSection';
@@ -27,12 +28,12 @@ export default function HelpPage() {
     >
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="py-12">
+      <main className="py-8 md:py-10">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: MARKETING_EASE }}
-          className="mx-auto mb-10 max-w-6xl px-6 text-center"
+          className="mx-auto mb-6 max-w-6xl px-6 text-center md:mb-8"
         >
           <h1 className={marketingSectionTitle}>
             How can we <span className={marketingAccentSpan}>help?</span>
@@ -44,12 +45,16 @@ export default function HelpPage() {
         </motion.div>
 
         <UserGuideSection />
+        <MarketingSectionDivider />
         <IntegrationSection />
+        <MarketingSectionDivider />
         <SeoKeywordsSection />
+        <MarketingSectionDivider />
         <ProductPreviewSection />
+        <MarketingSectionDivider />
         <FaqSection />
 
-        <MarketingFooter className="mt-4" />
+        <MarketingFooter className="mt-2" />
       </main>
     </div>
   );

@@ -114,6 +114,19 @@ export const marketingIconTileMd = 'h-12 w-12';
 
 export const marketingPageContainer = 'mx-auto w-full max-w-6xl px-6 md:px-8';
 
+/** Welcome / marketing landing — hero bottom + section rhythm */
+export const marketingLandingHero =
+  'relative flex flex-col items-center overflow-visible px-6 pt-32 pb-6 text-center md:pb-8';
+
+export const marketingLandingSection = 'relative scroll-mt-24 px-6 py-10 md:py-12';
+
+export const marketingSectionHeader = 'mb-8 text-center md:mb-10';
+
+export const marketingSectionDividerWrap = 'mx-auto max-w-6xl px-6';
+
+export const marketingSectionDividerLine =
+  'h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent';
+
 export const marketingFlatHero = 'border-b border-slate-200 pb-8 md:pb-10';
 
 export const marketingSection = 'border-b border-slate-200 py-8 md:py-10 last:border-b-0';
