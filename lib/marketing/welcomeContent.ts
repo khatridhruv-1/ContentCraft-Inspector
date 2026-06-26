@@ -54,18 +54,21 @@ export const WELCOME_FAQ_ITEMS: WelcomeFaqItem[] = [
     tag: 'Comparison',
   },
   {
-    question: 'Can I integrate ContentCraft into Cursor or my own project?',
+    question: 'Can I integrate ContentCraft into my AI agent or my own project?',
     answer:
-      'Yes. Install the ContentCraft MCP tool or agent skill via a single CLI command to generate and analyze content from Cursor, Claude Code, Antigravity, and other agents. You can also call our REST API (/api/ai-content, /api/analyze, /api/outline) from your own apps or pipelines. See the Integrations page for setup steps.',
+      'Yes. Install the ContentCraft MCP tool or agent skill via a single CLI command — works with any MCP- or skills-capable AI agent. You can also call our REST API (/api/ai-content, /api/analyze, /api/outline) from your own apps or pipelines. See the Integrations page for setup steps.',
     tag: 'Integrations',
   },
   {
     question: 'What is the ContentCraft MCP server?',
     answer:
-      'The MCP (Model Context Protocol) server exposes ContentCraft tools — generate_content, analyze_content, and create_outline — to AI assistants like Cursor and Claude Desktop. Install it globally or per-project with one terminal command.',
+      'The MCP (Model Context Protocol) server exposes ContentCraft tools — generate_content, analyze_content, and create_outline — to any MCP-capable AI agent. Install globally with one terminal command.',
     tag: 'Integrations',
   },
 ];
+
+/** Memberstack-style hero doodle (SVG includes chevrons + handwritten label). */
+export const HERO_CTA_DOODLE_SRC = '/marketing/hero-cta-doodle.svg';
 
 export const WELCOME_SEO_KEYWORDS = [
   'AI content generator',

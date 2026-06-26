@@ -4,18 +4,23 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Plug, Sparkles, Terminal } from 'lucide-react';
 import CliCommandBlock from '@/components/integrate/CliCommandBlock';
+import ScrollReveal, { alternateScrollDirection } from '@/components/marketing/ScrollReveal';
 import {
+  INTEGRATION_HERO_EYEBROW,
+  INTEGRATION_HERO_SUBTITLE,
+  INTEGRATION_HERO_TITLE,
+  INTEGRATION_HERO_TITLE_ACCENT,
   INTEGRATION_LANDING_CLI,
   INTEGRATION_LANDING_HIGHLIGHTS,
 } from '@/lib/marketing/integrationContent';
 import {
-  MARKETING_EASE,
   marketingAccentSpan,
   marketingEyebrow,
   marketingFocusRing,
   marketingGlassCard,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
+import { scrollRevealProps } from '@/lib/marketing/scrollReveal';
 import { cn } from '@/lib/utils';
 
 const HIGHLIGHT_ICONS = { mcp: Plug, skill: Sparkles } as const;
@@ -35,34 +40,26 @@ export default function IntegrationsLandingSection() {
       aria-labelledby="integrations-heading"
     >
       <div className="mx-auto max-w-4xl">
-        <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.7, ease: MARKETING_EASE }}
-          className="mb-10 text-center"
-        >
-          <span className={cn('mb-4', marketingEyebrow)}>Cursor integrations</span>
+        <ScrollReveal direction="up" className="mb-10 text-center">
+          <span className={cn('mb-4', marketingEyebrow)}>{INTEGRATION_HERO_EYEBROW}</span>
           <h2 id="integrations-heading" className={marketingSectionTitle}>
-            Use ContentCraft in <span className={marketingAccentSpan}>Cursor</span>
+            Use ContentCraft in{' '}
+            <span className={marketingAccentSpan}>{INTEGRATION_HERO_TITLE_ACCENT}</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600">
-            One CLI command. MCP tools or a cross-platform agent skill. No API keys on your machine.
-          </p>
-        </motion.div>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600">{INTEGRATION_HERO_SUBTITLE}</p>
+        </ScrollReveal>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2"
-        >
-          {INTEGRATION_LANDING_HIGHLIGHTS.map(item => {
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {INTEGRATION_LANDING_HIGHLIGHTS.map((item, index) => {
             const Icon = HIGHLIGHT_ICONS[item.id];
             const styles = HIGHLIGHT_STYLES[item.id];
             return (
               <motion.article
                 key={item.id}
+                {...scrollRevealProps(alternateScrollDirection(index), {
+                  delay: index * 0.1,
+                  reduced,
+                })}
                 whileHover={reduced ? undefined : { y: -2 }}
                 className={cn(marketingGlassCard, 'p-5 md:p-6')}
               >
@@ -80,19 +77,13 @@ export default function IntegrationsLandingSection() {
               </motion.article>
             );
           })}
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.6, ease: MARKETING_EASE }}
-          className={cn(marketingGlassCard, 'p-6')}
-        >
+        <ScrollReveal direction="up" delay={0.12} className={cn(marketingGlassCard, 'p-6')}>
           <div className="mb-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Terminal className="h-5 w-5 text-slate-600" aria-hidden />
-              <span className="font-semibold text-slate-900">MCP install</span>
+              <span className="font-semibold text-slate-900">One-command install</span>
             </div>
             <Link
               href="/integrate"
@@ -106,7 +97,7 @@ export default function IntegrationsLandingSection() {
             </Link>
           </div>
           <CliCommandBlock command={INTEGRATION_LANDING_CLI} />
-        </motion.div>
+        </ScrollReveal>
       </div>
     </section>
   );

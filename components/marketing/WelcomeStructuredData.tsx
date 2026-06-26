@@ -58,7 +58,7 @@ export default function WelcomeStructuredData() {
       'Deep SEO and readability analysis',
       'Content outline and gap insights',
       'Export to Word and Markdown',
-      'MCP tool for Cursor and Claude Desktop',
+      'MCP tool for any MCP-capable AI assistant',
       'Cross-platform agent skill for SEO workflows',
       'REST API for custom integrations',
       'CLI installer for one-command setup',

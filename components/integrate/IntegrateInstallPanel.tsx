@@ -17,11 +17,11 @@ import { useState } from 'react';
 const methodMeta = {
   mcp: {
     icon: Plug,
-    description: 'Native tools in agent chat',
+    description: 'Native tools in any MCP-capable agent',
   },
   skill: {
     icon: Sparkles,
-    description: 'Works on Cursor, Claude, Antigravity & more',
+    description: 'Works with editors, terminals, and any skills-capable agent',
   },
 } as const;
 

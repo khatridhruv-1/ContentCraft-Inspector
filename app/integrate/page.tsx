@@ -4,6 +4,11 @@ import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
 import IntegrationSection from '@/app/integrate/IntegrationSection';
+import {
+  INTEGRATION_HERO_EYEBROW,
+  INTEGRATION_HERO_SUBTITLE,
+  INTEGRATION_HERO_TITLE,
+} from '@/lib/marketing/integrationContent';
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import {
   MARKETING_EASE,
@@ -32,12 +37,12 @@ export default function IntegratePage() {
           transition={{ duration: 0.55, ease: MARKETING_EASE }}
           className="mx-auto max-w-6xl px-6 text-center"
         >
-          <span className={marketingEyebrow}>Cursor integration</span>
+          <span className={marketingEyebrow}>{INTEGRATION_HERO_EYEBROW}</span>
           <h1 className="mt-5 text-balance text-3xl font-bold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
-            Add ContentCraft to Cursor
+            {INTEGRATION_HERO_TITLE}
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base font-medium leading-relaxed text-slate-700">
-            One terminal command connects your editor or agent to our hosted API. No setup, no API keys.
+            {INTEGRATION_HERO_SUBTITLE}
           </p>
         </motion.div>
 

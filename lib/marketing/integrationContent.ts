@@ -26,12 +26,23 @@ export function integrationInstallCommandDisplay(method: 'mcp' | 'skill') {
 }
 
 export const INTEGRATION_SKILL_PLATFORMS = [
-  'Cursor',
-  'Claude Code',
-  'Antigravity',
-  'Windsurf',
-  'Any skills-capable agent',
+  'MCP-capable agents',
+  'Skills-capable agents',
+  'Editors & terminals',
+  'Cross-platform',
+  'Any AI agent',
 ] as const;
+
+export const INTEGRATION_AGENT_PLATFORMS_LABEL = 'editors, terminals, and AI agents';
+
+export const INTEGRATION_HERO_EYEBROW = 'AI agent integrations';
+
+export const INTEGRATION_HERO_TITLE = 'Use ContentCraft in any AI agent';
+
+export const INTEGRATION_HERO_TITLE_ACCENT = 'any AI agent';
+
+export const INTEGRATION_HERO_SUBTITLE =
+  'One CLI command connects MCP tools or an agent skill to our hosted API. Works across editors and agents — no API keys on your machine.';
 
 export const INTEGRATION_INSTALL_OPTIONS = [
   {
@@ -41,8 +52,8 @@ export const INTEGRATION_INSTALL_OPTIONS = [
     command: integrationInstallCommand('mcp'),
     commandDisplay: integrationInstallCommandDisplay('mcp'),
     steps: [
-      'Run the command in Terminal (bash)',
-      'Restart your AI assistant',
+      'Run the command in Terminal (bash) — AI chat cannot run install scripts for you',
+      'Restart your AI agent or editor',
       'Ask the agent to use generate_content',
     ],
   },
@@ -54,22 +65,22 @@ export const INTEGRATION_INSTALL_OPTIONS = [
     commandDisplay: integrationInstallCommandDisplay('skill'),
     steps: [
       'Run the command in Terminal (bash)',
-      'Restart Cursor, Claude Code, Antigravity, or your agent',
+      `Restart your agent — installs to ${INTEGRATION_AGENT_PLATFORMS_LABEL}`,
       'Ask the agent to generate SEO content with ContentCraft',
     ],
   },
 ];
 
 export const INTEGRATION_AFTER_INSTALL =
-  'Requires bash and curl (Node 18+ for MCP only). Windows: Git Bash or WSL. No API keys on your machine.';
+  'Run in Terminal (not inside AI chat). Requires bash and curl (Node 18+ for MCP). Configures common MCP clients automatically. Windows: Git Bash or WSL. No API keys on your machine.';
 
 /** Landing page — keep short for /welcome */
 export const INTEGRATION_LANDING_HIGHLIGHTS = [
   {
     id: 'mcp',
     title: 'MCP Tool',
-    description: 'Add generate_content, analyze_content, and create_outline to agent chat.',
-    bullets: ['One CLI command', 'Hosted API', 'Cursor, Claude, Antigravity'],
+    description: 'Add generate_content, analyze_content, and create_outline to any MCP-capable agent.',
+    bullets: ['One CLI command', 'Hosted API', INTEGRATION_AGENT_PLATFORMS_LABEL],
     tag: 'MCP',
   },
   {

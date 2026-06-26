@@ -5,7 +5,7 @@ description: Generate SEO-ready content for website, LinkedIn, Quora, Medium, or
 
 # ContentCraft Content Generation
 
-Use ContentCraft Inspector HTTP APIs to generate and optimize content from any AI agent workflow — Cursor, Claude Code, Antigravity, Windsurf, or custom agents that read skill files.
+Use ContentCraft Inspector HTTP APIs to generate and optimize content from any AI agent workflow — editors, terminals, or custom agents that read skill files.
 
 ## Configuration
 
@@ -63,7 +63,7 @@ When the user names a channel, **always pass `platform`** (or include the platfo
 { "title": "Write a Substack essay on creator burnout", "platform": "substack" }
 ```
 
-If using the **ContentCraft MCP** `generate_content` tool, pass the same `platform` field (or put the platform name in `title` — it is detected automatically). Restart Cursor after updating MCP.
+If using the **ContentCraft MCP** `generate_content` tool, pass the same `platform` field (or put the platform name in `title` — it is detected automatically). Restart your agent after updating MCP.
 
 **curl example:**
 
@@ -110,7 +110,7 @@ Minimum ~100 characters of plain text after stripping markup.
 
 ## Install via CLI
 
-One command installs this skill for **all supported platforms** (Cursor, Claude Code, Antigravity, and shared `.agents` paths):
+One command installs this skill for **all supported agent skill directories** (including shared `.agents` paths):
 
 ```bash
 CONTENTCRAFT_API_URL="https://your-hosted-app.com" \
@@ -128,13 +128,13 @@ curl -fsSL https://cdn.jsdelivr.net/gh/khatridhruv-1/ContentCraft-Inspector@mast
 
 Run with **bash** (Git Bash or WSL on Windows). Full setup: `/integrate` on your ContentCraft deployment.
 
-## Platform paths
+## Install paths
 
-| Platform | Global install path |
-|----------|---------------------|
-| Cursor | `~/.cursor/skills/contentcraft-content-generation/` |
-| Claude Code | `~/.claude/skills/contentcraft-content-generation/` |
-| Antigravity | `~/.gemini/antigravity/skills/` or `~/.gemini/antigravity-ide/skills/` |
+| Scope | Global install path |
+|-------|---------------------|
+| Editor agents | `~/.cursor/skills/contentcraft-content-generation/` |
+| Terminal agents | `~/.claude/skills/contentcraft-content-generation/` |
+| Gemini IDE | `~/.gemini/antigravity/skills/` or `~/.gemini/antigravity-ide/skills/` |
 | Universal | `~/.agents/skills/contentcraft-content-generation/` |
 
 Project installs use `.cursor/skills/`, `.claude/skills/`, `.agents/skills/`, or `.agent/skills/` in the repo root.

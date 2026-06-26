@@ -31,8 +31,8 @@ Usage:
   install-integration.sh <mcp|skill> [--global|--project]
 
 Options:
-  mcp       Install the ContentCraft MCP server (Cursor, Claude Desktop, Antigravity, …)
-  skill     Install the ContentCraft agent skill (Cursor, Claude Code, Antigravity, …)
+  mcp       Install the ContentCraft MCP server (any MCP-capable agent)
+  skill     Install the ContentCraft agent skill (any skills-capable agent)
   --global  User-level install — default
   --project Project-level install (current directory)
 
@@ -49,7 +49,9 @@ Examples:
 
 Platform notes:
   Run with bash (not sh/dash). On Windows, use Git Bash or WSL.
-  For WSL + Windows Cursor, install from the same environment Cursor uses.
+  On WSL + Windows, install from the same environment your agent uses.
+  AI chat cannot run this for you — use Terminal.
+  Global MCP installs configure common MCP client config files automatically.
 EOF
 }
 
@@ -88,8 +90,11 @@ write_mcp_json() {
   local mcp_home="$2"
   local api_url="$3"
 
+  mkdir -p "$(dirname "$mcp_json")"
+
   node - "$mcp_json" "$mcp_home" "$api_url" <<'NODE'
 const fs = require('fs');
+const path = require('path');
 const [file, home, apiUrl] = process.argv.slice(2);
 let data = {};
 if (fs.existsSync(file)) {
@@ -103,11 +108,35 @@ if (fs.existsSync(file)) {
 data.mcpServers = data.mcpServers || {};
 data.mcpServers.contentcraft = {
   command: 'node',
-  args: [`${home}/index.js`],
+  args: [path.join(home, 'index.js')],
   env: { CONTENTCRAFT_API_URL: apiUrl },
 };
 fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
 NODE
+}
+
+# MCP client config files to update (global installs).
+mcp_config_paths() {
+  if [[ "$SCOPE" == "--project" ]]; then
+    printf '%s\n' "$(pwd)/.cursor/mcp.json"
+    return
+  fi
+
+  printf '%s\n' "${HOME}/.cursor/mcp.json"
+
+  case "$(uname -s)" in
+    Darwin)
+      printf '%s\n' "${HOME}/Library/Application Support/Claude/claude_desktop_config.json"
+      ;;
+    Linux)
+      printf '%s\n' "${HOME}/.config/Claude/claude_desktop_config.json"
+      ;;
+    MINGW*|MSYS*|CYGWIN*)
+      if [[ -n "${APPDATA:-}" ]]; then
+        printf '%s\n' "${APPDATA}/Claude/claude_desktop_config.json"
+      fi
+      ;;
+  esac
 }
 
 if [[ -z "$METHOD" ]] || [[ "$METHOD" == "-h" ]] || [[ "$METHOD" == "--help" ]]; then
@@ -130,12 +159,12 @@ fi
 preflight
 
 if [[ "$SCOPE" == "--global" ]]; then
-  CURSOR_DIR="${HOME}/.cursor"
+  INSTALL_DIR="${HOME}/.contentcraft"
 else
-  CURSOR_DIR="$(pwd)/.cursor"
+  INSTALL_DIR="$(pwd)/.cursor"
 fi
 
-mkdir -p "$CURSOR_DIR"
+mkdir -p "$INSTALL_DIR"
 
 resolve_source() {
   if [[ -n "$INSTALL_ROOT" && -d "$INSTALL_ROOT/integrations" ]]; then
@@ -183,7 +212,12 @@ install_mcp() {
     exit 1
   fi
 
-  local mcp_home="$CURSOR_DIR/contentcraft-mcp"
+  # Remove legacy global install path (pre–multi-client installer).
+  if [[ "$SCOPE" == "--global" && -d "${HOME}/.cursor/contentcraft-mcp" ]]; then
+    rm -rf "${HOME}/.cursor/contentcraft-mcp"
+  fi
+
+  local mcp_home="$INSTALL_DIR/contentcraft-mcp"
   rm -rf "$mcp_home"
   mkdir -p "$mcp_home"
   cp -R "$MCP_SRC/." "$mcp_home/"
@@ -194,13 +228,22 @@ install_mcp() {
     exit 1
   fi
 
-  local mcp_json="$CURSOR_DIR/mcp.json"
-  write_mcp_json "$mcp_json" "$mcp_home" "$API_URL"
+  local wrote=0
+  while IFS= read -r mcp_json; do
+    [[ -n "$mcp_json" ]] || continue
+    write_mcp_json "$mcp_json" "$mcp_home" "$API_URL"
+    echo "✓ ContentCraft MCP installed → $mcp_json"
+    wrote=1
+  done < <(mcp_config_paths)
 
-  echo "✓ ContentCraft MCP installed → $mcp_json"
+  if [[ "$wrote" -eq 0 ]]; then
+    echo "error: no MCP config path found for this platform" >&2
+    exit 1
+  fi
+
   echo "  Server path: $mcp_home"
   echo "  API URL: $API_URL"
-  echo "  Restart Cursor to load the MCP server."
+  echo "  Restart your AI agent or editor to load the MCP server."
 }
 
 skill_dest_roots() {
@@ -258,7 +301,7 @@ install_skill() {
   done < <(skill_dest_roots)
 
   echo "  API URL baked into SKILL.md: $API_URL"
-  echo "  Restart your AI assistant (Cursor, Claude Code, Antigravity, etc.)."
+  echo "  Restart your AI agent or editor."
 }
 
 case "$METHOD" in

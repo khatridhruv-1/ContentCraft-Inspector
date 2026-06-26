@@ -7,6 +7,9 @@ import { ArrowRight, BookOpen } from 'lucide-react';
 import ContentCraftLogo from '@/components/brand/ContentCraftLogo';
 import ContentCraftNavBrand from '@/components/brand/ContentCraftNavBrand';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
+import HeroHandwrittenCallout from '@/components/marketing/HeroHandwrittenCallout';
+import EnterReveal from '@/components/marketing/EnterReveal';
+import ScrollReveal, { alternateScrollDirection } from '@/components/marketing/ScrollReveal';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
@@ -26,21 +29,14 @@ import {
   marketingSectionTitle,
   marketingSkipLink,
 } from '@/lib/marketing/marketingTheme';
+import { scrollRevealProps } from '@/lib/marketing/scrollReveal';
+import { useMountReveal } from '@/hooks/useMountReveal';
 import { cn } from '@/lib/utils';
-
-const stagger = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-};
-
-const rise = {
-  hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: MARKETING_EASE } },
-};
 
 export default function Welcome() {
   const router = useRouter();
   const reduced = useReducedMotion();
+  const heroReady = useMountReveal();
   useMarketingPageBackground();
 
   return (
@@ -104,14 +100,11 @@ export default function Welcome() {
       </motion.nav>
 
       <main id="main-content">
-        <motion.section
-          variants={stagger}
-          initial={reduced ? false : 'hidden'}
-          animate="show"
-          className="relative flex flex-col items-center px-6 pt-32 pb-14 text-center md:pb-16"
+        <section
+          className="relative flex flex-col items-center overflow-visible px-6 pt-32 pb-15 text-center md:pb-20"
           aria-labelledby="hero-heading"
         >
-          <motion.div variants={rise} className="mb-7">
+          <EnterReveal direction="up" delay={0.05} ready={heroReady} className="mb-7">
             <span className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-sm font-medium text-slate-700">
               <ContentCraftLogo iconOnly size="xs" className="shrink-0" />
               <span>AI Content Generator &amp; SEO Analysis</span>
@@ -119,58 +112,69 @@ export default function Welcome() {
                 Free plan
               </span>
             </span>
-          </motion.div>
+          </EnterReveal>
 
-          <motion.div variants={rise} className="mb-5">
-            <h1
-              id="hero-heading"
-              className="text-balance text-5xl font-black tracking-tight leading-[1.05] md:text-7xl lg:text-[5.5rem]"
+          <h1
+            id="hero-heading"
+            className="mb-5 text-balance text-5xl font-black tracking-tight leading-[1.05] md:text-7xl lg:text-[5.5rem]"
+          >
+            <EnterReveal
+              as="span"
+              direction="left"
+              delay={0.15}
+              ready={heroReady}
+              className="block text-slate-900"
             >
-              <span className="block text-slate-900">Create SEO-Ready Content</span>
-              <span className="mt-1 block text-slate-900">That Ranks and Converts</span>
-            </h1>
-          </motion.div>
+              Create SEO-Ready Content
+            </EnterReveal>
+            <EnterReveal
+              as="span"
+              direction="right"
+              delay={0.25}
+              ready={heroReady}
+              className="mt-1 block text-slate-900"
+            >
+              That Ranks and Converts
+            </EnterReveal>
+          </h1>
 
-          <motion.p
-            variants={rise}
+          <EnterReveal
+            as="p"
+            direction="left"
+            delay={0.35}
+            ready={heroReady}
             className="mb-8 max-w-2xl text-balance text-lg leading-relaxed text-slate-600 md:text-xl"
           >
             ContentCraft Inspector combines AI blog generation, automatic keyword discovery, and
             deep SEO analysis in one workspace — plus MCP, agent skill, and API integrations for
             your projects.
-          </motion.p>
+          </EnterReveal>
 
-          <motion.div variants={rise} className="flex flex-col items-center gap-4">
-            <MarketingPrimaryButton
-              type="button"
-              size="xl"
-              onClick={() => router.push('/auth/signup')}
-              className="min-w-[260px]"
-              fullWidth={false}
-            >
-              <span className="flex items-center gap-2">
-                Start Free — No Credit Card
-                <ArrowRight
-                  className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                  aria-hidden
-                />
-              </span>
-            </MarketingPrimaryButton>
+          <div className="flex flex-col items-center overflow-visible">
+            <div className="flex items-start justify-center gap-0.5 overflow-visible">
+              <EnterReveal direction="left" delay={0.45} ready={heroReady}>
+                <MarketingPrimaryButton
+                  type="button"
+                  size="xl"
+                  onClick={() => router.push('/auth/signup')}
+                  className="shrink-0"
+                  fullWidth={false}
+                >
+                  <span className="flex items-center gap-2">
+                    Start Free — No Credit Card
+                    <ArrowRight
+                      className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+                      aria-hidden
+                    />
+                  </span>
+                </MarketingPrimaryButton>
+              </EnterReveal>
+              <HeroHandwrittenCallout ready={heroReady} />
+            </div>
+          </div>
+        </section>
 
-            <p className="text-sm text-slate-500">
-              Free plan · Cancel anytime ·{' '}
-              <Link href="/integrate" className={cn(marketingLink, 'underline-offset-2 hover:underline')}>
-                MCP &amp; skill integrations
-              </Link>
-              {' · '}
-              <Link href="/help" className={cn(marketingLink, 'underline-offset-2 hover:underline')}>
-                Help Center
-              </Link>
-            </p>
-          </motion.div>
-        </motion.section>
-
-        <div className="mx-auto max-w-6xl px-6" aria-hidden>
+        <div className="mx-auto max-w-6xl px-6 pt-2 md:pt-4" aria-hidden>
           <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
         </div>
 
@@ -180,13 +184,7 @@ export default function Welcome() {
           aria-labelledby="features-heading"
         >
           <div className="mx-auto max-w-6xl">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.7, ease: MARKETING_EASE }}
-              className="mb-12 text-center"
-            >
+            <ScrollReveal direction="up" className="mb-12 text-center">
               <span className={cn('mb-4', marketingEyebrow)}>Core features</span>
               <h2 id="features-heading" className={marketingSectionTitle}>
                 AI generation and{' '}
@@ -196,17 +194,17 @@ export default function Welcome() {
                 Two powerful workflows in one platform — draft faster, then optimize every piece
                 before you publish.
               </p>
-            </motion.div>
+            </ScrollReveal>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5">
               {CONTENTCRAFT_WORKFLOWS.map(
                 ({ icon: Icon, title, description, shortDescription, iconSurface, iconColor, hoverBorder, tag }, i) => (
                   <motion.article
                     key={title}
-                    initial={{ opacity: 0, y: 28 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: '-40px' }}
-                    transition={{ duration: 0.6, delay: i * 0.08, ease: MARKETING_EASE }}
+                    {...scrollRevealProps(alternateScrollDirection(i), {
+                      delay: i * 0.08,
+                      reduced,
+                    })}
                     whileHover={reduced ? undefined : { y: -2 }}
                     className={cn(
                       marketingGlassCard,
@@ -237,11 +235,8 @@ export default function Welcome() {
               )}
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.6, ease: MARKETING_EASE }}
+            <ScrollReveal
+              direction="right"
               className={cn(
                 marketingGlassCard,
                 'mt-8 flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:text-left md:p-8'
@@ -267,7 +262,7 @@ export default function Welcome() {
                 Help Center
                 <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
-            </motion.div>
+            </ScrollReveal>
           </div>
         </section>
 
@@ -276,52 +271,6 @@ export default function Welcome() {
         </div>
 
         <IntegrationsLandingSection />
-
-        <section
-          id="get-started"
-          className="relative scroll-mt-24 px-6 py-14 md:py-20"
-          aria-labelledby="cta-heading"
-        >
-          <div className="mx-auto max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.75, ease: MARKETING_EASE }}
-              className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm md:p-14"
-            >
-              <ContentCraftLogo iconOnly size="lg" className="mx-auto mb-5" />
-
-              <h2 id="cta-heading" className={cn('mb-4', marketingSectionTitle)}>
-                Start creating
-                <span className={cn('block', marketingAccentSpan)}>SEO-optimized content today</span>
-              </h2>
-
-              <p className="mx-auto mb-8 max-w-lg text-lg text-slate-600">
-                Join ContentCraft Inspector free — discover keywords, generate drafts, analyze
-                content, and integrate via MCP or API in minutes.
-              </p>
-
-              <MarketingPrimaryButton
-                type="button"
-                size="xl"
-                onClick={() => router.push('/auth/signup')}
-                className="!w-auto mx-auto"
-                fullWidth={false}
-              >
-                <span className="flex items-center justify-center gap-2">
-                  Create Your Free Account
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                    aria-hidden
-                  />
-                </span>
-              </MarketingPrimaryButton>
-
-              <p className="mt-3 text-sm text-slate-500">No credit card required</p>
-            </motion.div>
-          </div>
-        </section>
       </main>
 
       <MarketingFooter />
