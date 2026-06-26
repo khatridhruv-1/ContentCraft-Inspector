@@ -115,7 +115,7 @@ One command installs this skill for **all supported agent skill directories** (i
 ```bash
 CONTENTCRAFT_API_URL="https://your-hosted-app.com" \
   curl -fsSL https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master/scripts/install-integration.sh \
-  | bash -s -- skill --global
+  | CONTENTCRAFT_API_URL="https://your-hosted-app.com" bash -s -- skill --global
 ```
 
 For a single project only, use `--project` instead of `--global`.
@@ -123,7 +123,7 @@ For a single project only, use `--project` instead of `--global`.
 **MCP alternative** (native tools in chat — also cross-platform):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master/scripts/install-integration.sh | bash -s -- mcp --global
+curl -fsSL https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master/scripts/install-integration.sh | CONTENTCRAFT_API_URL="https://your-hosted-app.com" bash -s -- mcp --global
 ```
 
 Run with **bash** (Git Bash or WSL on Windows). Full setup: `/integrate` on your ContentCraft deployment.

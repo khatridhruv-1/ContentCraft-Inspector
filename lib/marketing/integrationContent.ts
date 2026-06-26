@@ -15,7 +15,7 @@ export function isLocalIntegrationPreview(apiUrl: string) {
 
 function installCommandLines(method: 'mcp' | 'skill', apiUrl: string) {
   const origin = integrationApiUrl(apiUrl);
-  return `CONTENTCRAFT_API_URL="${origin}" curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} | bash -s -- ${method} --global`;
+  return `curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} | CONTENTCRAFT_API_URL="${origin}" bash -s -- ${method} --global`;
 }
 
 export function integrationInstallCommand(method: 'mcp' | 'skill', apiUrl?: string) {
@@ -25,10 +25,8 @@ export function integrationInstallCommand(method: 'mcp' | 'skill', apiUrl?: stri
 export function integrationInstallCommandDisplay(method: 'mcp' | 'skill', apiUrl?: string) {
   const origin = integrationApiUrl(apiUrl ?? getSiteUrl());
   return [
-    `CONTENTCRAFT_API_URL="${origin}"`,
-    '',
     `curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} \\`,
-    `  | bash -s -- ${method} --global`,
+    `  | CONTENTCRAFT_API_URL="${origin}" bash -s -- ${method} --global`,
   ].join('\n');
 }
 

@@ -2,7 +2,8 @@
 # ContentCraft Inspector — install MCP server or cross-platform agent skill via CLI.
 # Usage:
 #   bash ./scripts/install-integration.sh <mcp|skill> [--global|--project]
-#   curl -fsSL .../master/scripts/install-integration.sh | bash -s -- mcp --global
+#   curl -fsSL .../install-integration.sh | CONTENTCRAFT_API_URL=https://app.example.com bash -s -- mcp --global
+#   curl -fsSL .../install-integration.sh | bash -s -- mcp --global https://app.example.com
 
 set -euo pipefail
 
@@ -13,7 +14,11 @@ SCOPE="${2:---global}"
 REPO_URL="${CONTENTCRAFT_REPO:-https://github.com/khatridhruv-1/ContentCraft-Inspector.git}"
 BRANCH="${CONTENTCRAFT_BRANCH:-master}"
 INSTALL_ROOT="${CONTENTCRAFT_INSTALL_ROOT:-}"
-API_URL="${CONTENTCRAFT_API_URL:-http://localhost:3000}"
+API_URL_DEFAULT="http://localhost:3000"
+if [[ "${3:-}" == http://* || "${3:-}" == https://* ]]; then
+  API_URL_DEFAULT="${3%/}"
+fi
+API_URL="${CONTENTCRAFT_API_URL:-$API_URL_DEFAULT}"
 CLONE_TMP_DIR=""
 
 cleanup_clone() {
@@ -48,7 +53,8 @@ Examples:
   bash ./scripts/install-integration.sh mcp --global
   bash ./scripts/install-integration.sh skill --project
   CONTENTCRAFT_API_URL=https://app.example.com bash ./scripts/install-integration.sh mcp
-  CONTENTCRAFT_MCP_CONFIG="$HOME/.my-agent/mcp.json" bash ./scripts/install-integration.sh mcp --global
+  curl -fsSL .../install-integration.sh | CONTENTCRAFT_API_URL=https://app.example.com bash -s -- mcp --global
+  curl -fsSL .../install-integration.sh | bash -s -- mcp --global https://app.example.com
 
 Platform notes:
   Run with bash (not sh/dash). On Windows, use Git Bash or WSL.
