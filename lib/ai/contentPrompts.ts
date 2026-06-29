@@ -110,7 +110,7 @@ Do NOT output [INSERT], TBD, TODO, or empty list items.
 ━━━ BEFORE YOU OUTPUT — verify silently ━━━
 ✓ Matches TARGET PLATFORM formatting and voice.
 ✓ Directly answers the user's question.
-✓ No self-marketing: no ContentCraft, FlowCreator, product pitches, or author CTAs.
+✓ No self-marketing: no BlogCreator, FlowCreator, product pitches, or author CTAs.
 ✓ No keyword phrase pasted verbatim from TRENDING KEYWORDS.
 ✓ No banned phrases. No $ placeholders or LaTeX.
 ✓ SCAN every line: if any line contains only $1 or similar, rewrite it before outputting.

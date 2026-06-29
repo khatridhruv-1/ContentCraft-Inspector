@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import ContentCraftLogo from '@/components/brand/ContentCraftLogo';
+import BlogCreatorLogo from '@/components/brand/BlogCreatorLogo';
 import {
   MARKETING_EASE,
   marketingAccentSpan,
@@ -27,7 +27,7 @@ export default function AuthBrandPanel() {
     >
       <motion.div variants={rise} className="text-center lg:text-left">
         <span className={cn('mb-4', marketingEyebrow)}>
-          <ContentCraftLogo iconOnly size="xs" className="shrink-0" />
+          <BlogCreatorLogo iconOnly size="xs" className="shrink-0" />
           AI Content Platform
         </span>
         <h2 className={cn('text-balance text-3xl md:text-4xl', marketingSectionTitle)}>

@@ -1,5 +1,7 @@
 import { BRAND_ASSETS } from '@/lib/brand/assets';
+import { LANDING_DESCRIPTION, LANDING_PATH, LANDING_TITLE } from '@/lib/marketing/landingSeo';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
+import { WELCOME_FAQ_ITEMS } from '@/lib/marketing/welcomeContent';
 
 function JsonLd({ data }: { data: Record<string, unknown> }) {
   return (
@@ -11,65 +13,102 @@ function JsonLd({ data }: { data: Record<string, unknown> }) {
 }
 
 export default function WelcomeStructuredData() {
-  const siteUrl = absoluteUrl('/welcome');
+  const siteUrl = absoluteUrl(LANDING_PATH);
   const logoUrl = absoluteUrl(BRAND_ASSETS.logoHeader);
 
   const organization = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'ContentCraft Inspector',
+    name: 'BlogCreator',
     url: siteUrl,
     logo: logoUrl,
-    description:
-      'AI content generation and SEO analysis platform with MCP tool, cross-platform agent skill, and REST API integrations for developers and content teams.',
+    description: LANDING_DESCRIPTION,
   };
 
   const webSite = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'ContentCraft Inspector',
+    name: 'BlogCreator',
     url: siteUrl,
-    description:
-      'Generate SEO-ready blog posts with automatic keyword discovery, run deep content analysis, and integrate via MCP, agent skill, or REST API.',
+    description: LANDING_DESCRIPTION,
     publisher: {
       '@type': 'Organization',
-      name: 'ContentCraft Inspector',
+      name: 'BlogCreator',
     },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${absoluteUrl('/help')}?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
+  const webPage = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: LANDING_TITLE,
+    description: LANDING_DESCRIPTION,
+    url: siteUrl,
+    isPartOf: { '@type': 'WebSite', name: 'BlogCreator', url: siteUrl },
+    about: [
+      'AI blog generator',
+      'content generator',
+      'platform-based content generation',
+      'SEO content analysis',
+    ],
   };
 
   const softwareApp = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'ContentCraft Inspector',
+    name: 'BlogCreator',
     applicationCategory: 'BusinessApplication',
+    applicationSubCategory: 'Content Creation',
     operatingSystem: 'Web',
     url: siteUrl,
-    description:
-      'AI content generator with automatic keyword discovery, readability scoring, SEO insights, outlines, content-gap analysis, and developer integrations (MCP, agent skill, REST API).',
+    description: LANDING_DESCRIPTION,
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
-      description: 'Free plan available — no credit card required',
+      description: 'Free for everyone',
     },
     featureList: [
-      'AI blog post generation',
+      'AI blog generator',
+      'AI content generator',
+      'Platform-based content generation',
       'Automatic keyword discovery',
       'Deep SEO and readability analysis',
       'Content outline and gap insights',
       'Export to Word and Markdown',
-      'MCP tool for any MCP-capable AI assistant',
-      'Cross-platform agent skill for SEO workflows',
+      'MCP tool for AI assistants',
+      'Cross-platform agent skill',
       'REST API for custom integrations',
-      'CLI installer for one-command setup',
     ],
+  };
+
+  const faqPage = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: WELCOME_FAQ_ITEMS.map(item => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
   };
 
   return (
     <>
       <JsonLd data={organization} />
       <JsonLd data={webSite} />
+      <JsonLd data={webPage} />
       <JsonLd data={softwareApp} />
+      <JsonLd data={faqPage} />
     </>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { AuthSessionGate } from '@/components/loading/SessionLoadingGate';
 
 export const metadata: Metadata = {
-  title: 'History — ContentCraft Inspector',
+  title: 'History — BlogCreator',
   description: 'View and resume your saved content drafts.',
 };
 

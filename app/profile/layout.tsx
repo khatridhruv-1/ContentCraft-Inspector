@@ -3,7 +3,7 @@ import HomeShell from '../home/HomeShell';
 import { AuthSessionGate } from '@/components/loading/SessionLoadingGate';
 
 export const metadata: Metadata = {
-  title: 'Profile — ContentCraft Inspector',
+  title: 'Profile — BlogCreator',
   description: 'Manage your display name, account details, and session.',
 };
 

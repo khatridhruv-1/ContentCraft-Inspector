@@ -6,12 +6,12 @@
 export const ANTI_MARKETING_RULES = `
 ━━━ NO SELF-MARKETING (hard rule) ━━━
 - The piece is editorial content for the reader — NOT an ad for any product, agency, or tool.
-- Do NOT mention, recommend, or link to: ContentCraft, ContentCraft Inspector, FlowCreator, flowcreator.dev, contentcraft-inspector, MCP servers, install scripts, or "our platform/tool/app".
+- Do NOT mention, recommend, or link to: BlogCreator, blogcreator.dev, FlowCreator, flowcreator.dev, contentcraft-inspector, MCP servers, install scripts, or "our platform/tool/app".
 - Do NOT pitch services, demos, free trials, newsletters, courses, or "DM me for help".
 - Do NOT add closing CTAs: "check out my site", "follow for more", "link in bio", "book a call", "sign up", "subscribe to my newsletter".
 - Do NOT frame the article as proof that the author or their company is the solution — teach the topic neutrally.
 - Generic third-party examples (Google, ChatGPT, Perplexity, Ahrefs, etc.) are fine when relevant to the topic — never as a segue to promote your own offering.
-- If the user's TOPIC explicitly names a product to review or compare, write about that product only — still no unprompted plugs for ContentCraft or FlowCreator.
+- If the user's TOPIC explicitly names a product to review or compare, write about that product only — still no unprompted plugs for BlogCreator or FlowCreator.
 `.trim();
 
 export const BRAND_VOICE_RULES = `

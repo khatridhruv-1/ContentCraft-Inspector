@@ -2,8 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { AUTH_EASE } from '@/components/auth/authFeatures';
-import { homeFocusRing } from '@/components/home/homeLayout';
+import { MARKETING_EASE, marketingFocusRing } from '@/lib/marketing/marketingTheme';
 import { marketingGlassCard } from '@/lib/marketing/marketingTheme';
 import type { HomeWorkflow } from '@/components/home/homeWorkflows';
 import { cn } from '@/lib/utils';
@@ -24,7 +23,7 @@ export default function HomeWorkflowCard({ workflow, index, onSelect }: HomeWork
       onClick={onSelect}
       initial={reduced ? false : { opacity: 0, y: 28 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.08, ease: AUTH_EASE }}
+      transition={{ duration: 0.6, delay: index * 0.08, ease: MARKETING_EASE }}
       whileHover={reduced ? undefined : { y: -2 }}
       whileTap={reduced ? undefined : { scale: 0.99 }}
       aria-label={`Open ${title}`}
@@ -32,7 +31,7 @@ export default function HomeWorkflowCard({ workflow, index, onSelect }: HomeWork
         marketingGlassCard,
         'group relative flex w-full flex-col p-5 text-left transition-colors duration-300 md:p-7',
         hoverBorder,
-        homeFocusRing
+        marketingFocusRing
       )}
     >
       <div className="mb-5 flex items-center justify-between">

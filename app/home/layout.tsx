@@ -3,7 +3,7 @@ import HomeShell from './HomeShell';
 import { AuthSessionGate } from '@/components/loading/SessionLoadingGate';
 
 export const metadata: Metadata = {
-  title: 'Home — ContentCraft Inspector',
+  title: 'Home — BlogCreator',
   description: 'Pick a workflow to generate, edit, analyze, or score your content.',
 };
 

@@ -11,11 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { marketingAccentSpan, marketingLink } from '@/lib/marketing/marketingTheme';
+import { SITE_EMAILS } from '@/lib/marketing/siteConfig';
 
 const fieldClassName =
   'border-white/[0.12] bg-white/[0.05] text-white placeholder:text-white/35 focus-visible:ring-violet-500';
 
-const SUPPORT_EMAIL = 'support@contentcraftinspector.com';
+const SUPPORT_EMAIL = SITE_EMAILS.support;
 
 type FormState = {
   name: string;
@@ -90,7 +91,7 @@ export default function ContactPage() {
           Contact <span className={marketingAccentSpan}>us</span>
         </>
       }
-      description="Questions about your account, billing, privacy, or how to use ContentCraft Inspector? Send us a message and we'll get back to you as soon as we can."
+      description="Questions about your account, billing, privacy, or how to use BlogCreator? Send us a message and we'll get back to you as soon as we can."
     >
       <div className="grid gap-4 sm:grid-cols-2 not-prose">
         <a

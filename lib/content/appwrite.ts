@@ -27,7 +27,6 @@ function normalizeRow(row: any) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     userId: row.user_id,
-    companyId: row.company_id,
     contentScore: row.content_score,
     wordCount: row.word_count,
     readingTime: row.reading_time,
@@ -59,8 +58,7 @@ export async function saveContent(
   suggestions?: string[],
   contentGaps?: string[],
   summary?: string,
-  relatedLinks?: { title: string; url: string; description: string }[],
-  companyId?: string
+  relatedLinks?: { title: string; url: string; description: string }[]
 ) {
   const supabase = getSupabaseAdmin();
 
@@ -84,7 +82,6 @@ export async function saveContent(
     content_gaps: contentGaps ?? [],
     summary: summary ?? null,
     related_links: relatedLinks ?? [],
-    company_id: companyId ?? null,
   };
 
   const { data, error } = await supabase.from("contents").insert(payload).select("*").single();
@@ -138,7 +135,6 @@ export async function updateContent(
     contentGaps,
     summary,
     relatedLinks,
-    companyId,
   }: {
     input?: string;
     analysis?: string;
@@ -157,7 +153,6 @@ export async function updateContent(
     contentGaps?: string[];
     summary?: string;
     relatedLinks?: RelatedLink[];
-    companyId?: string;
   }
 ) {
   const supabase = getSupabaseAdmin();
@@ -180,7 +175,6 @@ export async function updateContent(
   if (contentGaps !== undefined) updatePayload.content_gaps = contentGaps;
   if (summary !== undefined) updatePayload.summary = summary;
   if (relatedLinks !== undefined) updatePayload.related_links = relatedLinks;
-  if (companyId !== undefined) updatePayload.company_id = companyId;
 
   const { data, error } = await supabase
     .from("contents")

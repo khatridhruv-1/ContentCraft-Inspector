@@ -13,9 +13,9 @@ type GateProps = {
 /** Blocks protected pages until session is validated — fullscreen GIF loader only */
 export function AuthSessionGate({
   children,
-  label = 'Loading your workspace',
+  label = 'Loading your account',
 }: GateProps) {
-  const { status, user, companyId, recentHistory } = useAuthGuard();
+  const { status, user, recentHistory } = useAuthGuard();
 
   if (status !== 'ready' || !user) {
     return (
@@ -26,7 +26,7 @@ export function AuthSessionGate({
   }
 
   return (
-    <SessionProvider user={user} companyId={companyId} recentHistory={recentHistory}>
+    <SessionProvider user={user} recentHistory={recentHistory}>
       {children}
     </SessionProvider>
   );

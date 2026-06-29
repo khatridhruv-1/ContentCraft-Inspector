@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { AUTH_EASE } from '@/components/auth/authFeatures';
+import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
 import { marketingEyebrow } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
@@ -18,7 +18,7 @@ export default function AuthFormHeader({ title, subtitle, badge }: AuthFormHeade
     <motion.header
       initial={reduced ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.55, ease: AUTH_EASE }}
+      transition={{ duration: 0.55, ease: MARKETING_EASE }}
       className="mb-6 text-center lg:text-left"
     >
       {badge && (

@@ -1,3 +1,5 @@
+import { PRODUCTION_SITE_URL } from '@/lib/marketing/siteConfig';
+
 /** Public site origin for canonical URLs, JSON-LD, and integration install commands. */
 export function getSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -8,6 +10,10 @@ export function getSiteUrl(): string {
 
   const vercel = process.env.VERCEL_URL?.trim();
   if (vercel) return `https://${vercel.replace(/\/$/, '')}`;
+
+  if (process.env.NODE_ENV === 'production') {
+    return PRODUCTION_SITE_URL;
+  }
 
   return 'http://localhost:3000';
 }

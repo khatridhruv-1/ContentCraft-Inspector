@@ -12,6 +12,7 @@ import {
   HelpCircle,
   Bot,
   BarChart2,
+  Plug,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { WELCOME_FAQ_ITEMS } from '@/lib/marketing/welcomeContent';
@@ -34,6 +35,7 @@ const FAQ_ICONS: Record<string, LucideIcon> = {
   Ownership: Scale,
   Security: Shield,
   Comparison: Bot,
+  Integrations: Plug,
 };
 
 const FAQ_COLUMNS = [
@@ -41,15 +43,15 @@ const FAQ_COLUMNS = [
     id: 'product',
     label: 'Product & features',
     description: 'Generation, SEO, analysis, and getting started',
-    items: WELCOME_FAQ_ITEMS.slice(0, 4),
+    items: WELCOME_FAQ_ITEMS.slice(0, 5),
     startIndex: 0,
   },
   {
     id: 'account',
     label: 'Plans, privacy & more',
-    description: 'Pricing, security, ownership, and comparisons',
-    items: WELCOME_FAQ_ITEMS.slice(4),
-    startIndex: 4,
+    description: 'Pricing, security, ownership, and integrations',
+    items: WELCOME_FAQ_ITEMS.slice(5),
+    startIndex: 5,
   },
 ] as const;
 

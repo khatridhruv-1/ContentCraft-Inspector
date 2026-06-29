@@ -6,7 +6,6 @@ import type { BootstrapHistoryItem } from '@/lib/user/sessionBootstrap';
 
 type SessionContextValue = {
   user: AppUser;
-  companyId: string | null;
   recentHistory: BootstrapHistoryItem[];
 };
 
@@ -14,19 +13,14 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 
 export function SessionProvider({
   user,
-  companyId,
   recentHistory,
   children,
 }: {
   user: AppUser;
-  companyId: string | null;
   recentHistory: BootstrapHistoryItem[];
   children: ReactNode;
 }) {
-  const value = useMemo(
-    () => ({ user, companyId, recentHistory }),
-    [user, companyId, recentHistory]
-  );
+  const value = useMemo(() => ({ user, recentHistory }), [user, recentHistory]);
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

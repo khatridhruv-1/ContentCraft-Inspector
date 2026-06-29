@@ -4,14 +4,14 @@ import { InitialMountLoader } from '@/components/loading/InitialMountLoader';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
 import { WELCOME_SEO_KEYWORDS } from '@/lib/marketing/welcomeContent';
 
-const TITLE = 'Help Center — ContentCraft Inspector';
+const TITLE = 'Help Center — BlogCreator';
 const DESCRIPTION =
-  'Setup guides, SEO keyword workflow, product overview, and FAQs for ContentCraft Inspector — AI content generation and deep SEO analysis.';
+  'Setup guides, SEO keyword workflow, product overview, and FAQs for BlogCreator — AI content generation and deep SEO analysis.';
 
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  keywords: [...WELCOME_SEO_KEYWORDS, 'ContentCraft help', 'AI content FAQ'],
+  keywords: [...WELCOME_SEO_KEYWORDS, 'BlogCreator help', 'AI content FAQ'],
   alternates: {
     canonical: '/help',
   },
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     type: 'website',
     url: absoluteUrl('/help'),
-    siteName: 'ContentCraft Inspector',
+    siteName: 'BlogCreator',
   },
 };
 

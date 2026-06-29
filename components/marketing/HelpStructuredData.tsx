@@ -1,4 +1,3 @@
-import { BRAND_ASSETS } from '@/lib/brand/assets';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
 import { WELCOME_FAQ_ITEMS } from '@/lib/marketing/welcomeContent';
 

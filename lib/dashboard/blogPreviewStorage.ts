@@ -1,4 +1,4 @@
-export const BLOG_PREVIEW_STORAGE_KEY = 'contentcraft:blog-preview';
+export const BLOG_PREVIEW_STORAGE_KEY = 'blogcreator:blog-preview';
 
 export type BlogPreviewPayload = {
   title: string;

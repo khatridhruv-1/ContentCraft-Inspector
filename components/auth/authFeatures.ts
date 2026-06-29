@@ -1,6 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { CONTENTCRAFT_WORKFLOWS } from '@/lib/marketing/workflows';
-import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
+import { BLOGCREATOR_WORKFLOWS } from '@/lib/marketing/workflows';
 
 export type AuthFeature = {
   icon: LucideIcon;
@@ -10,13 +9,10 @@ export type AuthFeature = {
   iconColor: string;
 };
 
-export const AUTH_FEATURES: AuthFeature[] = CONTENTCRAFT_WORKFLOWS.map(w => ({
+export const AUTH_FEATURES: AuthFeature[] = BLOGCREATOR_WORKFLOWS.map(w => ({
   icon: w.icon,
   title: w.title,
   description: w.shortDescription,
   iconSurface: w.iconSurface,
   iconColor: w.iconColor,
 }));
-
-/** @deprecated Use MARKETING_EASE from @/lib/marketing/marketingTheme */
-export const AUTH_EASE = MARKETING_EASE;

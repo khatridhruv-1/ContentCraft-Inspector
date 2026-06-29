@@ -22,15 +22,6 @@ export const marketingNavPill =
 export const marketingFocusRing =
   'focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
 
-/** @deprecated Use ContentCraftLogo from @/components/brand/ContentCraftLogo */
-export const marketingBrandIcon = 'bg-primary';
-
-/** @deprecated Use ContentCraftLogo */
-export const marketingBrandIconSm = 'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg';
-/** @deprecated Use ContentCraftLogo */
-export const marketingBrandIconMd =
-  'flex h-8 w-8 items-center justify-center rounded-lg shadow-sm shadow-slate-900/10';
-
 export const marketingLink = 'text-slate-700 hover:text-slate-900 transition-colors';
 
 export const marketingMutedLink = 'text-slate-500 hover:text-slate-800 transition-colors';
@@ -71,9 +62,6 @@ export const marketingPrimaryButtonSizes = {
   xl: 'h-14 px-8 text-base font-bold shadow-lg',
 } as const;
 
-/** @deprecated Use marketingPrimaryButtonCore */
-export const marketingPrimaryButtonBase = marketingPrimaryButtonCore;
-
 export const marketingGhostButton = cn(
   marketingButtonBase,
   'h-11 w-full border border-slate-200 bg-white px-5 text-sm font-medium text-slate-700 shadow-sm',
@@ -99,9 +87,6 @@ export const marketingDestructiveButton = cn(
 export const marketingSkipLink =
   'sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:inline-flex focus:h-9 focus:items-center focus:rounded-lg focus:bg-slate-900 focus:px-4 focus:text-sm focus:font-medium focus:text-white focus:shadow-sm';
 
-/** @deprecated Shimmer removed */
-export const marketingShimmer = 'hidden';
-
 export const marketingSectionTitle =
   'text-4xl font-black tracking-tight text-slate-900 md:text-5xl';
 
@@ -116,13 +101,15 @@ export const marketingPageContainer = 'mx-auto w-full max-w-6xl px-6 md:px-8';
 
 /** Welcome / marketing landing — hero bottom + section rhythm */
 export const marketingLandingHero =
-  'relative flex flex-col items-center overflow-visible px-6 pt-32 pb-6 text-center md:pb-8';
+  'relative flex flex-col items-center overflow-visible px-6 pt-32 pb-0 text-center';
 
-export const marketingLandingSection = 'relative scroll-mt-24 px-6 py-10 md:py-12';
+/** Sections after a divider — top spacing comes from the divider */
+export const marketingLandingSection = 'relative scroll-mt-24 px-6 pb-10 md:pb-12';
 
 export const marketingSectionHeader = 'mb-8 text-center md:mb-10';
 
-export const marketingSectionDividerWrap = 'mx-auto max-w-6xl px-6';
+/** Equal space above and below every section line */
+export const marketingSectionDividerWrap = 'mx-auto w-full max-w-6xl px-6 py-6 md:py-8';
 
 export const marketingSectionDividerLine =
   'h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent';
@@ -142,6 +129,3 @@ export const marketingGlassCard =
 
 export const marketingGlassCardDanger =
   'relative overflow-hidden rounded-xl border border-red-200 bg-red-50 shadow-sm';
-
-/** @deprecated Use marketingPageContainer */
-export const marketingSettingsContainer = marketingPageContainer;

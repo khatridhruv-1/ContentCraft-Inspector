@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  CONTENTCRAFT_WORKFLOWS,
+  BLOGCREATOR_WORKFLOWS,
   MODE_LABELS,
   type WorkflowModeId,
 } from '@/lib/marketing/workflows';
@@ -18,7 +18,7 @@ export type HomeWorkflow = {
   tag: string;
 };
 
-export const HOME_WORKFLOWS: HomeWorkflow[] = CONTENTCRAFT_WORKFLOWS.map(w => ({
+export const HOME_WORKFLOWS: HomeWorkflow[] = BLOGCREATOR_WORKFLOWS.map(w => ({
   id: w.id,
   title: w.title,
   description: w.description,

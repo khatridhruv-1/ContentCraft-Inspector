@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — ContentCraft Inspector',
+  title: 'Privacy Policy — BlogCreator',
   description:
-    'How ContentCraft Inspector collects, uses, and protects your data when you use our AI content platform.',
+    'How BlogCreator collects, uses, and protects your data when you use our AI content platform.',
 };
 
 import { InitialMountLoader } from '@/components/loading/InitialMountLoader';

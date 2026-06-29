@@ -2,6 +2,7 @@
 
 import LegalPageShell, { LegalSection } from '@/components/legal/LegalPageShell';
 import { marketingAccentSpan, marketingLink } from '@/lib/marketing/marketingTheme';
+import { SITE_EMAILS } from '@/lib/marketing/siteConfig';
 
 const LAST_UPDATED = 'May 28, 2026';
 
@@ -13,14 +14,14 @@ export default function TermsPage() {
           Terms of <span className={marketingAccentSpan}>Service</span>
         </>
       }
-      description="The rules and guidelines for using ContentCraft Inspector."
+      description="The rules and guidelines for using BlogCreator."
     >
       <p className="text-sm text-white/55">Last updated: {LAST_UPDATED}</p>
 
       <LegalSection id="agreement" title="1. Agreement to terms">
         <p>
-          These Terms of Service (&quot;Terms&quot;) govern your access to and use of ContentCraft
-          Inspector (the &quot;Service&quot;) operated by ContentCraft Inspector (&quot;we,&quot;
+          These Terms of Service (&quot;Terms&quot;) govern your access to and use of BlogCreator
+          (the &quot;Service&quot;) operated by BlogCreator (&quot;we,&quot;
           &quot;us,&quot; or &quot;our&quot;). By creating an account or using the Service, you agree
           to these Terms and our{' '}
           <a href="/privacy" className={marketingLink}>
@@ -42,8 +43,8 @@ export default function TermsPage() {
         <p>
           You are responsible for maintaining the confidentiality of your login credentials and for
           all activity under your account. Notify us promptly at{' '}
-          <a href="mailto:support@contentcraftinspector.com" className={marketingLink}>
-            support@contentcraftinspector.com
+          <a href={`mailto:${SITE_EMAILS.support}`} className={marketingLink}>
+            {SITE_EMAILS.support}
           </a>{' '}
           if you suspect unauthorized access.
         </p>
@@ -55,7 +56,7 @@ export default function TermsPage() {
 
       <LegalSection id="service" title="4. The Service">
         <p>
-          ContentCraft Inspector provides tools for AI-assisted content generation, editing, SEO and
+          BlogCreator provides tools for AI-assisted content generation, editing, SEO and
           readability analysis, and AI-detection scoring. Features may vary by plan. We may modify,
           suspend, or discontinue features with reasonable notice where practicable.
         </p>
@@ -152,7 +153,7 @@ export default function TermsPage() {
 
       <LegalSection id="governing-law" title="13. Governing law">
         <p>
-          These Terms are governed by the laws of the jurisdiction in which ContentCraft Inspector is
+          These Terms are governed by the laws of the jurisdiction in which BlogCreator is
           established, without regard to conflict-of-law principles. Disputes will be resolved in the
           courts of that jurisdiction, unless mandatory consumer protection laws in your country
           require otherwise.
@@ -169,8 +170,8 @@ export default function TermsPage() {
       <LegalSection id="contact" title="15. Contact">
         <p>
           Questions about these Terms? Email{' '}
-          <a href="mailto:legal@contentcraftinspector.com" className={marketingLink}>
-            legal@contentcraftinspector.com
+          <a href={`mailto:${SITE_EMAILS.legal}`} className={marketingLink}>
+            {SITE_EMAILS.legal}
           </a>{' '}
           or use our{' '}
           <a href="/contact" className={marketingLink}>

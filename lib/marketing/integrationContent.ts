@@ -15,7 +15,7 @@ export function isLocalIntegrationPreview(apiUrl: string) {
 
 function installCommandLines(method: 'mcp' | 'skill', apiUrl: string) {
   const origin = integrationApiUrl(apiUrl);
-  return `curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} | CONTENTCRAFT_API_URL="${origin}" bash -s -- ${method} --global`;
+  return `curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} | BLOGCREATOR_API_URL="${origin}" bash -s -- ${method} --global`;
 }
 
 export function integrationInstallCommand(method: 'mcp' | 'skill', apiUrl?: string) {
@@ -26,7 +26,7 @@ export function integrationInstallCommandDisplay(method: 'mcp' | 'skill', apiUrl
   const origin = integrationApiUrl(apiUrl ?? getSiteUrl());
   return [
     `curl -fsSL ${INTEGRATION_INSTALL_SCRIPT_URL} \\`,
-    `  | CONTENTCRAFT_API_URL="${origin}" bash -s -- ${method} --global`,
+    `  | BLOGCREATOR_API_URL="${origin}" bash -s -- ${method} --global`,
   ].join('\n');
 }
 
@@ -42,7 +42,7 @@ export const INTEGRATION_AGENT_PLATFORMS_LABEL = 'editors, terminals, and AI age
 
 export const INTEGRATION_HERO_EYEBROW = 'AI agent integrations';
 
-export const INTEGRATION_HERO_TITLE = 'Use ContentCraft in any AI agent';
+export const INTEGRATION_HERO_TITLE = 'Use BlogCreator in any AI agent';
 
 export const INTEGRATION_HERO_TITLE_ACCENT = 'any AI agent';
 
@@ -66,14 +66,14 @@ export const INTEGRATION_INSTALL_OPTIONS = [
     tagline: 'Cross-platform API docs — lighter, no MCP server',
     steps: [
       'Run the command in Terminal (bash)',
-      'Restart your agent — skill files land in ~/.contentcraft/skills and ~/.agents/skills',
-      'Ask the agent to generate SEO content with ContentCraft',
+      'Restart your agent — skill files land in ~/.blogcreator/skills and ~/.agents/skills',
+      'Ask the agent to generate SEO content with BlogCreator',
     ],
   },
 ];
 
 export const INTEGRATION_AFTER_INSTALL =
-  'Run in Terminal (not inside AI chat). Requires bash and curl (Node 18+ for MCP). Auto-configures when an MCP client folder is detected; reference config at ~/.contentcraft/mcp.json. Windows: Git Bash or WSL.';
+  'Run in Terminal (not inside AI chat). Requires bash and curl (Node 18+ for MCP). Auto-configures when an MCP client folder is detected; reference config at ~/.blogcreator/mcp.json. Windows: Git Bash or WSL.';
 
 /** Landing page — keep short for /welcome */
 export const INTEGRATION_LANDING_HIGHLIGHTS = [
@@ -87,8 +87,26 @@ export const INTEGRATION_LANDING_HIGHLIGHTS = [
   {
     id: 'skill',
     title: 'Agent Skill',
-    description: 'Teach any skills-capable agent how to call ContentCraft for SEO workflows.',
+    description: 'Teach any skills-capable agent how to call BlogCreator for SEO workflows.',
     bullets: ['All major platforms', 'No MCP server', 'Hosted API'],
     tag: 'Skill',
   },
+] as const;
+
+export const INTEGRATION_MCP_TOOLS = [
+  'generate_content',
+  'analyze_content',
+  'create_outline',
+] as const;
+
+export const INTEGRATION_API_ROUTES = [
+  { method: 'POST', path: '/api/ai-content', label: 'Generate platform-ready content' },
+  { method: 'POST', path: '/api/analyze', label: 'Run deep SEO and readability analysis' },
+  { method: 'POST', path: '/api/outline', label: 'Build structured content outlines' },
+] as const;
+
+export const INTEGRATION_LANDING_STEPS = [
+  'Copy the install command and run it in Terminal (bash) — not inside AI chat.',
+  'Restart your editor or AI agent so it picks up the MCP tool or skill.',
+  'Ask your agent to generate SEO content with BlogCreator — it calls our hosted API for you.',
 ] as const;

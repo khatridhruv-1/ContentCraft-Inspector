@@ -3,16 +3,16 @@ import { InitialMountLoader } from '@/components/loading/InitialMountLoader';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
 import { WELCOME_SEO_KEYWORDS } from '@/lib/marketing/welcomeContent';
 
-const TITLE = 'Integrations — ContentCraft Inspector';
+const TITLE = 'Integrations — BlogCreator';
 const DESCRIPTION =
-  'Add ContentCraft to your AI assistant in one CLI command. MCP tools or cross-platform agent skill — no API keys required.';
+  'Add BlogCreator to your AI assistant in one CLI command. MCP tools or cross-platform agent skill — no API keys required.';
 
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   keywords: [
     ...WELCOME_SEO_KEYWORDS,
-    'ContentCraft MCP',
+    'BlogCreator MCP',
     'agent skill',
     'AI content API',
     'CLI integration',
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     type: 'website',
     url: absoluteUrl('/integrate'),
-    siteName: 'ContentCraft Inspector',
+    siteName: 'BlogCreator',
   },
 };
 

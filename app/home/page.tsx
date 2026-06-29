@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { AUTH_EASE } from '@/components/auth/authFeatures';
+import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import HomeNav from '@/components/home/HomeNav';
 import HomeFooter from '@/components/home/HomeFooter';
@@ -67,7 +67,7 @@ export default function Home() {
         aria-label="Workspace home"
         initial={reduced ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55, ease: AUTH_EASE }}
+        transition={{ duration: 0.55, ease: MARKETING_EASE }}
         className={cn('relative z-10 flex-1 py-6 md:py-10', homeContainer)}
       >
         <HomeWorkspacePanel

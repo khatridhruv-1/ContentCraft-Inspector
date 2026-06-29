@@ -47,9 +47,12 @@ export function PageLoadingScreen({ label = 'Loading' }: PageLoadingScreenProps)
         {/* HTML text avoids SVG <text>-node font rendering artifacts */}
         <span
           aria-hidden
-          className="mt-8 block select-none text-2xl leading-none font-bold tracking-tight text-slate-900 sm:text-[1.625rem]"
+          className={cn(
+            loaderStyles.wordmarkShimmer,
+            'mt-6 block select-none text-2xl leading-none font-bold tracking-tight sm:text-[1.625rem]'
+          )}
         >
-          ContentCraft <span className="font-light">Inspector</span>
+          BlogCreator
         </span>
 
         <p className="mt-4 text-lg font-semibold tracking-tight text-slate-900 sm:text-xl">

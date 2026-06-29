@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import ContentCraftLogo from '@/components/brand/ContentCraftLogo';
+import BlogCreatorLogo from '@/components/brand/BlogCreatorLogo';
 import { MARKETING_EASE, marketingAccentSpan, marketingGlassCard } from '@/lib/marketing/marketingTheme';
 import HomeRecentSection, { type HomeRecentItem } from '@/components/home/HomeRecentSection';
 import HomeSectionHeader from '@/components/home/HomeSectionHeader';
@@ -86,7 +86,7 @@ export default function HomeWorkspacePanel({
             />
 
             <span className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
-              <ContentCraftLogo iconOnly size="xs" className="shrink-0" />
+              <BlogCreatorLogo iconOnly size="xs" className="shrink-0" />
               {todayLabel ?? '\u00a0'}
             </span>
           </div>

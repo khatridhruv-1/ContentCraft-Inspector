@@ -8,7 +8,6 @@ import { saveContent, updateContent } from '@/lib/content/appwrite'
 import { getUser } from '@/lib/user/appwrite';
 import { clearAuthSession } from '@/lib/user/session';
 import { ANALYSIS_MIN_PLAIN_CHARS, htmlToPlainText } from '@/lib/content/plainText'
-import { useCompanyId } from '@/hooks/useCompany'
 import DashboardPanelLoading from '@/components/dashboard/DashboardPanelLoading'
 import DashboardEmptyState from '@/components/dashboard/DashboardEmptyState'
 import DashboardResultCard from '@/components/dashboard/DashboardResultCard'
@@ -39,7 +38,6 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   const [readingTime, setReadingTime] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { companyId, companyloading } = useCompanyId()
   const router = useRouter()
   const lastAnalyzedRef = useRef<string | null>(null)
 
@@ -62,8 +60,6 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   }, [plainContent])
 
   useEffect(() => {
-    if (companyloading) return
-
     const analyzeContent = async () => {
       if (!triggerAnalysis || !plainContent) {
         if (!triggerAnalysis) {
@@ -131,7 +127,6 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
             improvements: result.improvements,
             wordCount: count,
             readingTime: time,
-            companyId: companyId ?? undefined,
           })
         } else {
           const sessionToken = localStorage.getItem('sessionToken')
@@ -163,9 +158,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
             undefined,
             undefined,
             undefined,
-            undefined,
-            undefined,
-            companyId ?? undefined
+            undefined
           )
         }
       } catch (err) {
@@ -182,10 +175,10 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
     }
 
     void analyzeContent()
-  }, [plainContent, sourceContent, triggerAnalysis, analysisRunId, companyId, companyloading, router])
+  }, [plainContent, sourceContent, triggerAnalysis, analysisRunId, router])
 
-  if ((companyloading && triggerAnalysis) || isLoading) {
-    return <DashboardPanelLoading label={companyloading ? 'Preparing analysis…' : 'Analyzing content…'} />
+  if (isLoading) {
+    return <DashboardPanelLoading label="Analyzing content…" />
   }
 
   if (error) {

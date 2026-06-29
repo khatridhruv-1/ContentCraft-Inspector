@@ -3,7 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 
 export type WorkflowModeId = 'ai-generate' | 'analyze';
 
-export type ContentCraftWorkflow = {
+export type BlogCreatorWorkflow = {
   id: WorkflowModeId;
   title: string;
   description: string;
@@ -15,13 +15,13 @@ export type ContentCraftWorkflow = {
   tag: string;
 };
 
-export const CONTENTCRAFT_WORKFLOWS: ContentCraftWorkflow[] = [
+export const BLOGCREATOR_WORKFLOWS: BlogCreatorWorkflow[] = [
   {
     id: 'ai-generate',
     title: 'AI Generation',
     description:
-      'Draft blog posts from a brief — auto-discover trending keywords from search trends and autocomplete, then weave them naturally into SEO-ready content.',
-    shortDescription: 'Auto keyword discovery + human-sounding drafts with tone control.',
+      'Choose a platform — website, LinkedIn, Quora, Medium, or Substack — then draft with auto-discovered keywords woven into format-specific, publish-ready content.',
+    shortDescription: 'Platform picker + keyword discovery + tone control in one flow.',
     icon: Wand2,
     iconSurface: 'bg-violet-100',
     iconColor: 'text-violet-700',
@@ -43,5 +43,5 @@ export const CONTENTCRAFT_WORKFLOWS: ContentCraftWorkflow[] = [
 ];
 
 export const MODE_LABELS: Record<WorkflowModeId, string> = Object.fromEntries(
-  CONTENTCRAFT_WORKFLOWS.map(w => [w.id, w.title])
+  BLOGCREATOR_WORKFLOWS.map(w => [w.id, w.title])
 ) as Record<WorkflowModeId, string>;

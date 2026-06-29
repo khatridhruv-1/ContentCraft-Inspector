@@ -2,7 +2,7 @@
 
 import { Children, type ReactNode } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { AUTH_EASE } from '@/components/auth/authFeatures';
+import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
 
 const container = {
   hidden: { opacity: 0 },
@@ -14,7 +14,7 @@ const container = {
 
 const item = {
   hidden: { opacity: 0, y: 14 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: AUTH_EASE } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: MARKETING_EASE } },
 };
 
 export default function AuthFormStagger({ children }: { children: ReactNode }) {

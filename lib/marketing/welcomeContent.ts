@@ -6,21 +6,21 @@ export type WelcomeFaqItem = {
 
 export const WELCOME_FAQ_ITEMS: WelcomeFaqItem[] = [
   {
-    question: 'What is ContentCraft Inspector?',
+    question: 'What is BlogCreator?',
     answer:
-      'ContentCraft Inspector is an AI content platform that combines blog post generation, automatic keyword discovery, and deep SEO analysis in one workspace — so you can draft, optimize, and publish faster.',
+      'BlogCreator is an AI content platform that combines platform-based generation, automatic keyword discovery, and deep SEO analysis in one workspace — so you can draft, optimize, and publish faster.',
     tag: 'Overview',
   },
   {
-    question: 'What types of content can I generate?',
+    question: 'Can I generate content for different platforms?',
     answer:
-      'Generate blog posts, articles, social captions, product descriptions, ad copy, and email drafts. Provide a topic or brief, set tone and keywords, and receive a ready-to-edit draft in seconds.',
+      'Yes. Choose a platform before you generate — Personal website, LinkedIn, Quora, Medium, or Substack. BlogCreator adapts structure, length, and voice to match where you publish, then discovers keywords for your topic.',
     tag: 'Generation',
   },
   {
     question: 'How does automatic keyword discovery work?',
     answer:
-      'Enter your topic and ContentCraft searches the web for related, high-intent keywords people are actively searching for. Those terms are woven naturally into your draft for better SEO without manual research.',
+      'Enter your topic and BlogCreator searches the web for related, high-intent keywords people are actively searching for. Those terms are woven naturally into your draft for better SEO without manual research.',
     tag: 'SEO',
   },
   {
@@ -30,15 +30,15 @@ export const WELCOME_FAQ_ITEMS: WelcomeFaqItem[] = [
     tag: 'Analysis',
   },
   {
-    question: 'Is ContentCraft Inspector free to use?',
+    question: 'Is BlogCreator free to use?',
     answer:
-      'Yes — you can sign up for a free plan with no credit card required. The free tier includes AI generation and core analysis features with monthly usage limits.',
+      'Yes — BlogCreator is currently free for everyone. Sign up to access AI generation, keyword discovery, and core analysis features. No paid tier is required to start.',
     tag: 'Pricing',
   },
   {
     question: 'Who owns the content I create?',
     answer:
-      'You own everything you generate or upload. ContentCraft Inspector does not claim rights over your work and does not use your content to train models.',
+      'You own everything you generate or upload. BlogCreator does not claim rights over your work and does not use your content to train models.',
     tag: 'Ownership',
   },
   {
@@ -50,19 +50,19 @@ export const WELCOME_FAQ_ITEMS: WelcomeFaqItem[] = [
   {
     question: 'How is this different from ChatGPT?',
     answer:
-      'ContentCraft Inspector is built for the full content workflow — generation, keyword discovery, SEO scoring, outlines, and content-gap analysis in one tool. General chat assistants require you to assemble those steps manually.',
+      'BlogCreator is built for the full content workflow — platform-specific generation, keyword discovery, SEO scoring, outlines, and content-gap analysis in one tool. General chat assistants require you to assemble those steps manually.',
     tag: 'Comparison',
   },
   {
-    question: 'Can I integrate ContentCraft into my AI agent or my own project?',
+    question: 'Can I use BlogCreator inside Cursor, Claude, or other AI agents?',
     answer:
-      'Yes. Install the ContentCraft MCP tool or agent skill via a single CLI command — works with any MCP- or skills-capable AI agent. You can also call our REST API (/api/ai-content, /api/analyze, /api/outline) from your own apps or pipelines. See the Integrations page for setup steps.',
+      'Yes. Install the MCP tool or agent skill with one Terminal command — it connects to our hosted API so your agent can generate content, run analysis, and build outlines without local API keys. See the Integrations section on this page or visit /integrate for the full setup guide.',
     tag: 'Integrations',
   },
   {
-    question: 'What is the ContentCraft MCP server?',
+    question: 'What is the BlogCreator MCP server?',
     answer:
-      'The MCP (Model Context Protocol) server exposes ContentCraft tools — generate_content, analyze_content, and create_outline — to any MCP-capable AI agent. Install globally with one terminal command.',
+      'The MCP (Model Context Protocol) server exposes generate_content, analyze_content, and create_outline to any MCP-capable agent. Run the install script in Terminal, restart your agent, then ask it to use BlogCreator tools.',
     tag: 'Integrations',
   },
 ];
@@ -70,17 +70,4 @@ export const WELCOME_FAQ_ITEMS: WelcomeFaqItem[] = [
 /** Memberstack-style hero doodle (SVG includes chevrons + handwritten label). */
 export const HERO_CTA_DOODLE_SRC = '/marketing/hero-cta-doodle.svg';
 
-export const WELCOME_SEO_KEYWORDS = [
-  'AI content generator',
-  'SEO content analysis',
-  'blog post generator',
-  'keyword discovery tool',
-  'content marketing AI',
-  'readability checker',
-  'content gap analysis',
-  'AI writing assistant',
-  'MCP content generation',
-  'agent skill AI writing',
-  'AI content API',
-  'integrate content generation',
-] as const;
+export { LANDING_KEYWORDS as WELCOME_SEO_KEYWORDS } from '@/lib/marketing/landingSeo';

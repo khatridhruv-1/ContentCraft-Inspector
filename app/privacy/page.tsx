@@ -2,6 +2,7 @@
 
 import LegalPageShell, { LegalSection } from '@/components/legal/LegalPageShell';
 import { marketingAccentSpan, marketingLink } from '@/lib/marketing/marketingTheme';
+import { SITE_EMAILS } from '@/lib/marketing/siteConfig';
 
 const LAST_UPDATED = 'May 28, 2026';
 
@@ -13,13 +14,13 @@ export default function PrivacyPage() {
           Privacy <span className={marketingAccentSpan}>Policy</span>
         </>
       }
-      description="How we collect, use, and protect your information when you use ContentCraft Inspector."
+      description="How we collect, use, and protect your information when you use BlogCreator."
     >
       <p className="text-sm text-white/55">Last updated: {LAST_UPDATED}</p>
 
       <LegalSection id="introduction" title="1. Introduction">
         <p>
-          ContentCraft Inspector (&quot;ContentCraft,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;)
+          BlogCreator (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;)
           provides an AI-powered content workspace for generating, editing, and analyzing written
           content. This Privacy Policy explains how we collect, use, disclose, and safeguard
           information when you use our website, applications, and related services (collectively, the
@@ -128,8 +129,8 @@ export default function PrivacyPage() {
           Depending on your location, you may have rights to access, correct, delete, or port your
           personal data, and to object to or restrict certain processing. To exercise these rights,
           contact us at{' '}
-          <a href="mailto:privacy@contentcraftinspector.com" className={marketingLink}>
-            privacy@contentcraftinspector.com
+          <a href={`mailto:${SITE_EMAILS.privacy}`} className={marketingLink}>
+            {SITE_EMAILS.privacy}
           </a>
           .
         </p>
@@ -166,8 +167,8 @@ export default function PrivacyPage() {
       <LegalSection id="contact" title="12. Contact us">
         <p>
           Questions about this Privacy Policy? Email{' '}
-          <a href="mailto:privacy@contentcraftinspector.com" className={marketingLink}>
-            privacy@contentcraftinspector.com
+          <a href={`mailto:${SITE_EMAILS.privacy}`} className={marketingLink}>
+            {SITE_EMAILS.privacy}
           </a>{' '}
           or visit our{' '}
           <a href="/contact" className={marketingLink}>

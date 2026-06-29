@@ -1,15 +1,17 @@
-'use client';
+import WelcomeStructuredData from '@/components/marketing/WelcomeStructuredData';
+import { InitialMountLoader } from '@/components/loading/InitialMountLoader';
+import WelcomeLanding from '@/app/welcome/WelcomeLanding';
+import { buildLandingMetadata } from '@/lib/marketing/landingSeo';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
+export const metadata = buildLandingMetadata();
 
-export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace('/welcome');
-  }, [router]);
-
-  return <PageLoadingScreen label="Loading" />;
+export default function HomePage() {
+  return (
+    <>
+      <WelcomeStructuredData />
+      <InitialMountLoader>
+        <WelcomeLanding />
+      </InitialMountLoader>
+    </>
+  );
 }

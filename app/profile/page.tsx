@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import { getUser, logout, updateUserName, type AppUser } from '@/lib/user/appwrite';
 import { clearAuthSession, getSessionToken } from '@/lib/user/session';
-import { AUTH_EASE } from '@/components/auth/authFeatures';
+import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import HomeNav from '@/components/home/HomeNav';
 import HomeFooter from '@/components/home/HomeFooter';
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 
 const rise = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: AUTH_EASE } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: MARKETING_EASE } },
 };
 
 function formatMemberSince(timestamp: string) {

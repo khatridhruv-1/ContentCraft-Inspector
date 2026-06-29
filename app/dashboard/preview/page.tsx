@@ -23,7 +23,7 @@ export default function BlogPreviewPage() {
     if (!payload?.title) return;
     document.title = `${payload.title} | Preview`;
     return () => {
-      document.title = 'ContentCraft Inspector';
+      document.title = 'BlogCreator';
     };
   }, [payload?.title]);
 

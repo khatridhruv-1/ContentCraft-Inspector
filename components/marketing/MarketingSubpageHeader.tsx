@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import ContentCraftNavBrand from '@/components/brand/ContentCraftNavBrand';
+import BlogCreatorNavBrand from '@/components/brand/BlogCreatorNavBrand';
 import { marketingFocusRing, marketingMutedLink } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
@@ -18,7 +18,7 @@ export default function MarketingSubpageHeader({
     <header className="border-b border-slate-200 bg-white/70 px-6 py-4 backdrop-blur-sm">
       <div className={cn('mx-auto flex items-center justify-between gap-4', container)}>
         <Link
-          href="/welcome"
+          href="/"
           className={cn(
             'inline-flex items-center gap-2 text-sm rounded-md',
             marketingMutedLink,
@@ -29,15 +29,13 @@ export default function MarketingSubpageHeader({
           Back to home
         </Link>
         <Link
-          href="/welcome"
+          href="/"
           className={cn('shrink-0 transition-opacity hover:opacity-90', marketingFocusRing)}
-          aria-label="ContentCraft Inspector home"
+          aria-label="BlogCreator home"
         >
-          <ContentCraftNavBrand />
+          <BlogCreatorNavBrand />
         </Link>
       </div>
     </header>
   );
 }
-
-export { MarketingSubpageFooter } from '@/components/marketing/MarketingFooter';

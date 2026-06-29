@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowRight, Clock } from 'lucide-react';
-import { homeFocusRing } from '@/components/home/homeLayout';
+import { marketingFocusRing } from '@/lib/marketing/marketingTheme';
 import { marketingGlassCard } from '@/lib/marketing/marketingTheme';
 import { MODE_LABELS, type HomeModeId } from '@/components/home/homeWorkflows';
 import { cn } from '@/lib/utils';
@@ -57,7 +57,7 @@ export default function HomeRecentSection({
                 className={cn(
                   marketingGlassCard,
                   'group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:border-violet-200',
-                  homeFocusRing
+                  marketingFocusRing
                 )}
               >
                 <span className="flex shrink-0 flex-col gap-0.5 text-[11px] text-slate-500 sm:flex-row sm:items-center sm:gap-1">

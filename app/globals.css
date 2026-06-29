@@ -234,7 +234,7 @@ h1, h2, h3 {
   border-color: #cbd5e1;
 }
 
-/* ContentCraft button system — in components layer so it ships with the bundle */
+/* BlogCreator button system — in components layer so it ships with the bundle */
 @layer components {
 .cc-btn {
   display: inline-flex;

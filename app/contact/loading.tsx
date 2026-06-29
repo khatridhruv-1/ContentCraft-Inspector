@@ -1,1 +1,1 @@
-export { default } from '@/components/loading/PageLoadingScreen';
+export { default } from '@/components/loading/RouteLoading';

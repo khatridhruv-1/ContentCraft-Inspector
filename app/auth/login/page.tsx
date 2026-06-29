@@ -11,7 +11,7 @@ import AuthTextField from '@/components/auth/AuthTextField';
 import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
 import AuthFormHeader from '@/components/auth/AuthFormHeader';
 import AuthFormStagger from '@/components/auth/AuthFormStagger';
-import { AUTH_EASE } from '@/components/auth/authFeatures';
+import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
 import { marketingLink } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
@@ -85,7 +85,7 @@ function LoginForm() {
       if (!shouldReduceMotion) {
         shakeControls.start({
           x: [-8, 8, -6, 6, -3, 3, 0],
-          transition: { duration: 0.5, ease: AUTH_EASE },
+          transition: { duration: 0.5, ease: MARKETING_EASE },
         });
       }
     } finally {

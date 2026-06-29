@@ -8,7 +8,7 @@ import { getSiteUrl } from '@/lib/marketing/siteUrl';
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  title: 'ContentCraft Inspector',
+  title: 'BlogCreator',
   description: 'AI content generation and deep analysis in one workspace.',
   icons: {
     icon: BRAND_ASSETS.favicon,

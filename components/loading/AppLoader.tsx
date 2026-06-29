@@ -13,7 +13,7 @@ export interface AppLoaderProps {
   label?: string;
 }
 
-/** Small violet + primary ring for buttons and inline actions */
+/** Mini ranked-draft glyph for buttons and inline actions */
 export function AppLoader({
   className,
   label = 'Loading',
@@ -29,9 +29,15 @@ export function AppLoader({
       }}
       aria-hidden
     >
-      <span className={loaderStyles.glow} />
-      <span className={loaderStyles.ring} />
-      <span className={loaderStyles.core} />
+      <span className={loaderStyles.aiPulse} />
+      <span className={loaderStyles.aiDoc} />
+      <span className={loaderStyles.aiLine} />
+      <span className={loaderStyles.aiLine} />
+      <span className={loaderStyles.aiBars}>
+        <span className={loaderStyles.aiBar} />
+        <span className={loaderStyles.aiBar} />
+        <span className={loaderStyles.aiBarAccent} />
+      </span>
     </span>
   );
 

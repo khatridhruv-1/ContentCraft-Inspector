@@ -18,7 +18,7 @@ const steps = [
     number: 1,
     icon: UserPlus,
     title: 'Create your account',
-    description: 'Sign up for free — no credit card needed. Takes less than 60 seconds.',
+    description: 'Create your free account. Takes less than 60 seconds.',
     iconSurface: 'bg-violet-100',
     iconColor: 'text-violet-700',
   },

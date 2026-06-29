@@ -1,23 +1,23 @@
 'use client';
 
-import { fetchHistory, deleteHistoryItem, fetchContent } from "@/lib/content/appwrite";
-import { getUser } from "@/lib/user/appwrite";
-import { clearAuthSession, getSessionToken } from "@/lib/user/session";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { fetchHistory, deleteHistoryItem, fetchContent } from '@/lib/content/appwrite';
+import { getUser } from '@/lib/user/appwrite';
+import { clearAuthSession, getSessionToken } from '@/lib/user/session';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 import { waitForMinDisplay } from '@/lib/loading/minDisplay';
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from '@/components/ui/pagination';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,10 +27,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
-import { deleteCompanyHistoryItem, getDataByMatchedOrganazationID } from "@/lib/companyHelper/companyHelpers";
-import { useCompanyId } from "@/hooks/useCompany";
+} from '@/components/ui/alert-dialog';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
 
 type HistoryMode = 'ai-generate' | 'analyze';
 
@@ -44,6 +42,8 @@ interface HistoryItem {
   mode: HistoryMode;
 }
 
+const ITEMS_PER_PAGE = 3;
+
 export default function HistoryPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ $id: string } | null>(null);
@@ -56,39 +56,12 @@ export default function HistoryPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
-  const ITEMS_PER_PAGE = 3;
-  const { companyId, companyloading, companyIderror } = useCompanyId();
-  const [companyData, setCompanyData] = useState<any>(null);
-  const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    const handleCheck = async () => {
-      try {
-        const result = await getDataByMatchedOrganazationID(companyId as any);
-        const totalItems = result?.length || 0;
-        const newTotalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
-        console.log('Fetched totalItems:', totalItems, 'Calculated newTotalPages:', newTotalPages);
-        setTotalPages(newTotalPages);
-
-        // If current page is out of bounds (e.g., after deletion), go to previous page
-        if (currentPage > newTotalPages) {
-          setCurrentPage(newTotalPages);
-          return; // Wait for next effect to update data
-        }
-
-        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-        const endIndex = startIndex + ITEMS_PER_PAGE;
-        const paginatedData = result?.slice(startIndex, endIndex) || [];
-        setCompanyData(paginatedData);
-        setErrorMessage('');
-      } catch (error) {
-        console.error("Error in useEffect:", error);
-        setErrorMessage('Failed to load company data Or company Id is missing. Please try again later.');
-      }
-    };
-
-    handleCheck();
-  }, [user?.$id, companyId, currentPage]);
+  const loadHistory = useCallback(async (userId: string, page: number) => {
+    const historyData = await fetchHistory(userId, page, ITEMS_PER_PAGE);
+    setHistory((historyData?.documents as HistoryItem[]) || []);
+    setTotalPages(Math.max(1, Math.ceil((historyData?.total || 0) / ITEMS_PER_PAGE)));
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -109,14 +82,12 @@ export default function HistoryPage() {
         setUser(userData);
 
         if (userData.$id) {
-          const historyData = await fetchHistory(userData.$id, currentPage, ITEMS_PER_PAGE);
-          setHistory(historyData?.documents || []);
-          setTotalPages(Math.ceil((historyData?.total || 0) / ITEMS_PER_PAGE));
+          await loadHistory(userData.$id, currentPage);
         }
-      } catch (error) {
-        console.error('Profile or history fetch failed:', error);
+      } catch (err) {
+        console.error('Profile or history fetch failed:', err);
         setError('Failed to load your profile or history. Please try again.');
-        if ((error as Error).message === 'No session found') {
+        if ((err as Error).message === 'No session found') {
           router.push('/auth/login');
         }
       } finally {
@@ -126,53 +97,52 @@ export default function HistoryPage() {
     };
 
     fetchProfile();
-  }, [router, currentPage]);
+  }, [router, currentPage, loadHistory]);
 
   const handleViewDetails = async (item: HistoryItem) => {
     try {
-      const contentData = await fetchContent(item.$id); // Fetch full content
-  
+      const contentData = await fetchContent(item.$id);
+
       const query = {
         id: item.$id,
-        mode: item.mode, // Ensure mode is passed correctly
+        mode: item.mode,
         content: contentData?.document?.content || item.content,
         documentId: item.$id,
         fromHistory: true,
         analysis: contentData?.document?.analysis || item.analysis,
       };
-  
-      localStorage.setItem('dashboardState', JSON.stringify(query)); // Store data
-      router.push('/dashboard'); // Redirect to dashboard
-    } catch (error) {
-      console.error("Error fetching content details:", error);
-    }
-  };  
 
-  const handleDelete = async (documentId: string) => {
+      localStorage.setItem('dashboardState', JSON.stringify(query));
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('Error fetching content details:', err);
+    }
+  };
+
+  const handleDelete = (documentId: string) => {
     setItemToDelete(documentId);
     setShowDeleteAlert(true);
   };
 
   const confirmDelete = async () => {
-    if (!itemToDelete) return;
+    if (!itemToDelete || !user?.$id) return;
 
     try {
-      await deleteCompanyHistoryItem(itemToDelete)
-      const result = await getDataByMatchedOrganazationID(companyId as any);
-      setCompanyData(result);
-    } catch (error) {
-      console.error('Delete failed:', error);
+      await deleteHistoryItem(itemToDelete);
+      await loadHistory(user.$id, currentPage);
+    } catch (err) {
+      console.error('Delete failed:', err);
       setError('Failed to delete item. Please try again.');
     } finally {
       setShowDeleteAlert(false);
       setItemToDelete(null);
     }
-  };  
+  };
 
   const getModeColor = (mode: HistoryMode) => {
     const colors: Record<string, string> = {
       'ai-generate': 'bg-blue-100 text-blue-800',
-      'analyze': 'bg-purple-100 text-purple-800',
+      analyze: 'bg-purple-100 text-purple-800',
     };
     return colors[mode] ?? 'bg-gray-100 text-gray-600';
   };
@@ -180,7 +150,7 @@ export default function HistoryPage() {
   const getModeLabel = (mode: HistoryMode) => {
     const labels: Record<string, string> = {
       'ai-generate': 'AI Generated',
-      'analyze': 'Analyzed',
+      analyze: 'Analyzed',
     };
     return labels[mode] ?? mode;
   };
@@ -198,12 +168,9 @@ export default function HistoryPage() {
     );
   }
 
-  if (loading || companyloading) {
+  if (loading) {
     return <PageLoadingScreen label="Loading history" />;
   }
-
-  // Add debug log before rendering pagination
-  console.log('currentPage:', currentPage, 'totalPages:', totalPages, 'companyData:', companyData);
 
   return (
     <>
@@ -227,19 +194,17 @@ export default function HistoryPage() {
           </div>
         )}
 
-        {companyData?.length > 0 ? (
+        {history.length > 0 ? (
           <>
             <ul className="space-y-4">
-              {companyData.map((item: any) => (
+              {history.map(item => (
                 <li
                   key={item.$id}
                   className="border p-4 rounded-lg shadow hover:shadow-md transition-shadow bg-white"
                 >
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2">
-                      <Badge className={getModeColor(item.mode)}>
-                        {getModeLabel(item.mode)}
-                      </Badge>
+                      <Badge className={getModeColor(item.mode)}>{getModeLabel(item.mode)}</Badge>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -255,13 +220,11 @@ export default function HistoryPage() {
                   </div>
 
                   <div className="prose max-w-none line-clamp-3 mb-3">
-                    <MarkdownRenderer content={selectedItem?.content ?? ""}  />
+                    <MarkdownRenderer content={item.content} />
                   </div>
 
                   {item.analysis && (
                     <div className="mb-3">
-                      <p className="text-sm text-gray-600 font-medium">Input:</p>
-                      <div className="text-sm text-gray-500 line-clamp-2">{item.content}</div>
                       <p className="text-sm text-gray-600 font-medium">Analysis:</p>
                       <div className="text-sm text-gray-500 line-clamp-2">{item.analysis}</div>
                     </div>
@@ -270,8 +233,7 @@ export default function HistoryPage() {
                   <div className="flex justify-between items-center mt-4">
                     <div className="text-sm text-gray-500">
                       {item.updatedAt !== item.createdAt &&
-                        `Updated: ${new Date(item.updatedAt).toLocaleString()}`
-                      }
+                        `Updated: ${new Date(item.updatedAt).toLocaleString()}`}
                     </div>
                     <button
                       className="text-sm text-blue-600 hover:text-blue-800 font-medium"

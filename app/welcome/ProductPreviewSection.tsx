@@ -53,7 +53,7 @@ export default function ProductPreviewSection() {
             <span className="h-2.5 w-2.5 rounded-full bg-rose-400/80" aria-hidden />
             <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" aria-hidden />
             <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" aria-hidden />
-            <span className="ml-2 text-xs text-slate-400">ContentCraft Inspector — Dashboard</span>
+            <span className="ml-2 text-xs text-slate-400">BlogCreator — Dashboard</span>
           </div>
 
           <div className="grid gap-2 p-2 md:grid-cols-2 md:gap-3 md:p-3">

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# ContentCraft Inspector — install MCP server or cross-platform agent skill via CLI.
+# BlogCreator — install MCP server or cross-platform agent skill via CLI.
 # Usage:
 #   bash ./scripts/install-integration.sh <mcp|skill> [--global|--project]
-#   curl -fsSL .../install-integration.sh | CONTENTCRAFT_API_URL=https://app.example.com bash -s -- mcp --global
-#   curl -fsSL .../install-integration.sh | bash -s -- mcp --global https://app.example.com
+#   curl -fsSL .../install-integration.sh | BLOGCREATOR_API_URL=https://blogcreator.dev bash -s -- mcp --global
+#   curl -fsSL .../install-integration.sh | bash -s -- mcp --global https://blogcreator.dev
 
 set -euo pipefail
 
@@ -11,14 +11,14 @@ export PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:${PATH:-}"
 
 METHOD="${1:-}"
 SCOPE="${2:---global}"
-REPO_URL="${CONTENTCRAFT_REPO:-https://github.com/khatridhruv-1/ContentCraft-Inspector.git}"
-BRANCH="${CONTENTCRAFT_BRANCH:-master}"
-INSTALL_ROOT="${CONTENTCRAFT_INSTALL_ROOT:-}"
+REPO_URL="${BLOGCREATOR_REPO:-https://github.com/khatridhruv-1/ContentCraft-Inspector.git}"
+BRANCH="${BLOGCREATOR_BRANCH:-master}"
+INSTALL_ROOT="${BLOGCREATOR_INSTALL_ROOT:-}"
 API_URL_DEFAULT="http://localhost:3000"
 if [[ "${3:-}" == http://* || "${3:-}" == https://* ]]; then
   API_URL_DEFAULT="${3%/}"
 fi
-API_URL="${CONTENTCRAFT_API_URL:-$API_URL_DEFAULT}"
+API_URL="${BLOGCREATOR_API_URL:-${CONTENTCRAFT_API_URL:-$API_URL_DEFAULT}}"
 CLONE_TMP_DIR=""
 
 cleanup_clone() {
@@ -30,36 +30,36 @@ cleanup_clone() {
 
 usage() {
   cat <<'EOF'
-ContentCraft Inspector — integration installer
+BlogCreator — integration installer
 
 Usage:
   install-integration.sh <mcp|skill> [--global|--project]
 
 Options:
-  mcp       Install the ContentCraft MCP server (any MCP-capable agent)
-  skill     Install the ContentCraft agent skill (any skills-capable agent)
+  mcp       Install the BlogCreator MCP server (any MCP-capable agent)
+  skill     Install the BlogCreator agent skill (any skills-capable agent)
   --global  User-level install — default
   --project Project-level install (current directory)
 
 Environment:
-  CONTENTCRAFT_API_URL       API origin (default: http://localhost:3000)
-  CONTENTCRAFT_REPO          Git clone URL for source files
-  CONTENTCRAFT_BRANCH        Branch to clone (default: master)
-  CONTENTCRAFT_INSTALL_ROOT  Use existing repo path instead of cloning
-  CONTENTCRAFT_MCP_CONFIG    Optional comma-separated MCP client config files to merge into
-  CONTENTCRAFT_SKILL_DIRS    Optional comma-separated extra skill directories (skill install)
+  BLOGCREATOR_API_URL       API origin (default: http://localhost:3000)
+  BLOGCREATOR_REPO          Git clone URL for source files
+  BLOGCREATOR_BRANCH        Branch to clone (default: master)
+  BLOGCREATOR_INSTALL_ROOT  Use existing repo path instead of cloning
+  BLOGCREATOR_MCP_CONFIG    Optional comma-separated MCP client config files to merge into
+  BLOGCREATOR_SKILL_DIRS    Optional comma-separated extra skill directories (skill install)
 
 Examples:
   bash ./scripts/install-integration.sh mcp --global
   bash ./scripts/install-integration.sh skill --project
-  CONTENTCRAFT_API_URL=https://app.example.com bash ./scripts/install-integration.sh mcp
-  curl -fsSL .../install-integration.sh | CONTENTCRAFT_API_URL=https://app.example.com bash -s -- mcp --global
-  curl -fsSL .../install-integration.sh | bash -s -- mcp --global https://app.example.com
+  BLOGCREATOR_API_URL=https://blogcreator.dev bash ./scripts/install-integration.sh mcp
+  curl -fsSL .../install-integration.sh | BLOGCREATOR_API_URL=https://blogcreator.dev bash -s -- mcp --global
+  curl -fsSL .../install-integration.sh | bash -s -- mcp --global https://blogcreator.dev
 
 Platform notes:
   Run with bash (not sh/dash). On Windows, use Git Bash or WSL.
   AI chat cannot run this for you — use Terminal.
-  MCP: installs server + ~/.contentcraft/mcp.json; auto-merges into detected MCP client configs.
+  MCP: installs server + ~/.blogcreator/mcp.json; auto-merges into detected MCP client configs.
 EOF
 }
 
@@ -93,11 +93,11 @@ preflight() {
   fi
 }
 
-contentcraft_root() {
+blogcreator_root() {
   if [[ "$SCOPE" == "--global" ]]; then
-    printf '%s\n' "${HOME}/.contentcraft"
+    printf '%s\n' "${HOME}/.blogcreator"
   else
-    printf '%s\n' "$(pwd)/.contentcraft"
+    printf '%s\n' "$(pwd)/.blogcreator"
   fi
 }
 
@@ -114,10 +114,10 @@ const path = require('path');
 const [file, home, apiUrl] = process.argv.slice(2);
 const data = {
   mcpServers: {
-    contentcraft: {
+    blogcreator: {
       command: 'node',
       args: [path.join(home, 'index.js')],
-      env: { CONTENTCRAFT_API_URL: apiUrl },
+      env: { BLOGCREATOR_API_URL: apiUrl },
     },
   },
 };
@@ -151,12 +151,12 @@ const needsPluginTemplate =
 const server = {
   command: 'node',
   args: [path.join(home, 'index.js')],
-  env: { CONTENTCRAFT_API_URL: apiUrl },
+  env: { BLOGCREATOR_API_URL: apiUrl },
 };
 if (needsPluginTemplate) {
   server.$typeName = 'exa.cascade_plugins_pb.CascadePluginCommandTemplate';
 }
-data.mcpServers.contentcraft = server;
+data.mcpServers.blogcreator = server;
 fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
 NODE
 }
@@ -204,7 +204,7 @@ mcp_client_config_targets() {
 }
 
 optional_mcp_client_paths() {
-  local raw="${CONTENTCRAFT_MCP_CONFIG:-}"
+  local raw="${BLOGCREATOR_MCP_CONFIG:-}"
   [[ -n "$raw" ]] || return 0
   local IFS=','
   read -r -a paths <<< "$raw"
@@ -236,7 +236,7 @@ fi
 
 preflight
 
-INSTALL_DIR="$(contentcraft_root)"
+INSTALL_DIR="$(blogcreator_root)"
 mkdir -p "$INSTALL_DIR"
 
 resolve_source() {
@@ -258,16 +258,16 @@ resolve_source() {
   fi
 
   if ! command -v git >/dev/null 2>&1; then
-    echo "error: git is required to clone integration files (or set CONTENTCRAFT_INSTALL_ROOT)" >&2
+    echo "error: git is required to clone integration files (or set BLOGCREATOR_INSTALL_ROOT)" >&2
     exit 1
   fi
 
   CLONE_TMP_DIR="$(mktemp -d)"
   trap cleanup_clone EXIT
-  echo "Cloning ContentCraft Inspector (${BRANCH})..." >&2
+  echo "Cloning BlogCreator (${BRANCH})..." >&2
   if ! git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$CLONE_TMP_DIR/repo" >/dev/null 2>&1; then
     echo "error: failed to clone ${REPO_URL} (branch: ${BRANCH})" >&2
-    echo "  Clone the repo locally and run: CONTENTCRAFT_INSTALL_ROOT=/path/to/repo bash $0 $METHOD $SCOPE" >&2
+    echo "  Clone the repo locally and run: BLOGCREATOR_INSTALL_ROOT=/path/to/repo bash $0 $METHOD $SCOPE" >&2
     exit 1
   fi
   SOURCE_ROOT="$CLONE_TMP_DIR/repo"
@@ -276,7 +276,7 @@ resolve_source() {
 SOURCE_ROOT=""
 resolve_source
 MCP_SRC="$SOURCE_ROOT/integrations/mcp"
-SKILL_SRC="$SOURCE_ROOT/integrations/skill/contentcraft-content-generation"
+SKILL_SRC="$SOURCE_ROOT/integrations/skill/blogcreator-content-generation"
 
 install_mcp() {
   if [[ ! -d "$MCP_SRC" ]]; then
@@ -285,12 +285,13 @@ install_mcp() {
     exit 1
   fi
 
-  # Legacy global install path (older installer versions).
-  if [[ "$SCOPE" == "--global" && -d "${HOME}/.cursor/contentcraft-mcp" ]]; then
-    rm -rf "${HOME}/.cursor/contentcraft-mcp"
+  # Legacy global install paths (older installer versions).
+  if [[ "$SCOPE" == "--global" ]]; then
+    [[ -d "${HOME}/.cursor/contentcraft-mcp" ]] && rm -rf "${HOME}/.cursor/contentcraft-mcp"
+    [[ -d "${HOME}/.cursor/blogcreator-mcp" ]] && rm -rf "${HOME}/.cursor/blogcreator-mcp"
   fi
 
-  local mcp_home="$INSTALL_DIR/contentcraft-mcp"
+  local mcp_home="$INSTALL_DIR/blogcreator-mcp"
   local snippet_file="$INSTALL_DIR/mcp.json"
   rm -rf "$mcp_home"
   mkdir -p "$mcp_home"
@@ -304,7 +305,7 @@ install_mcp() {
 
   write_mcp_snippet "$snippet_file" "$mcp_home" "$API_URL"
 
-  echo "✓ ContentCraft MCP server installed"
+  echo "✓ BlogCreator MCP server installed"
   echo "  Server path: $mcp_home"
   echo "  API URL: $API_URL"
   echo "  Reference config: $snippet_file"
@@ -320,14 +321,14 @@ install_mcp() {
   if [[ "$merged" -eq 0 ]]; then
     echo ""
     echo "No MCP client config detected on this machine."
-    echo "Add the \"contentcraft\" entry from $snippet_file to your agent's MCP settings."
+    echo "Add the \"blogcreator\" entry from $snippet_file to your agent's MCP settings."
   else
     echo ""
     echo "Restart your agent to load the MCP server."
   fi
 
-  if [[ -n "${CONTENTCRAFT_MCP_CONFIG:-}" ]] && [[ "$merged" -eq 0 ]]; then
-    echo "warning: CONTENTCRAFT_MCP_CONFIG was set but no valid paths were found" >&2
+  if [[ -n "${BLOGCREATOR_MCP_CONFIG:-}" ]] && [[ "$merged" -eq 0 ]]; then
+    echo "warning: BLOGCREATOR_MCP_CONFIG was set but no valid paths were found" >&2
   fi
 }
 
@@ -340,7 +341,7 @@ skill_dest_roots() {
     printf '%s\n' "${HOME}/.agents/skills"
   fi
 
-  local raw="${CONTENTCRAFT_SKILL_DIRS:-}"
+  local raw="${BLOGCREATOR_SKILL_DIRS:-}"
   [[ -n "$raw" ]] || return 0
   local IFS=','
   read -r -a extra <<< "$raw"
@@ -355,7 +356,7 @@ skill_dest_roots() {
 
 install_skill_copy() {
   local skills_root="$1"
-  local dest="$skills_root/contentcraft-content-generation"
+  local dest="$skills_root/blogcreator-content-generation"
 
   mkdir -p "$skills_root"
   rm -rf "$dest"
@@ -367,8 +368,8 @@ const fs = require('fs');
 const [file, apiUrl] = process.argv.slice(2);
 let text = fs.readFileSync(file, 'utf8');
 text = text.replace(
-  /export CONTENTCRAFT_API_URL="[^"]*"/,
-  `export CONTENTCRAFT_API_URL="${apiUrl}"`
+  /export BLOGCREATOR_API_URL="[^"]*"/,
+  `export BLOGCREATOR_API_URL="${apiUrl}"`
 );
 fs.writeFileSync(file, text);
 NODE
@@ -384,15 +385,15 @@ install_skill() {
     exit 1
   fi
 
-  echo "✓ ContentCraft agent skill installed:"
+  echo "✓ BlogCreator agent skill installed:"
   while IFS= read -r skills_root; do
     [[ -n "$skills_root" ]] || continue
     install_skill_copy "$skills_root"
   done < <(skill_dest_roots)
 
   echo "  API URL baked into SKILL.md: $API_URL"
-  echo "  Canonical path: $INSTALL_DIR/skills/contentcraft-content-generation/"
-  echo "  Restart your agent. If it uses another skills folder, set CONTENTCRAFT_SKILL_DIRS or copy from the canonical path."
+  echo "  Canonical path: $INSTALL_DIR/skills/blogcreator-content-generation/"
+  echo "  Restart your agent. If it uses another skills folder, set BLOGCREATOR_SKILL_DIRS or copy from the canonical path."
 }
 
 case "$METHOD" in

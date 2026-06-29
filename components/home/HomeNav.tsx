@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
 import { History, LayoutDashboard, User } from 'lucide-react';
-import ContentCraftNavBrand from '@/components/brand/ContentCraftNavBrand';
-import { AUTH_EASE } from '@/components/auth/authFeatures';
-import { homeContainer } from '@/components/home/homeLayout';
+import BlogCreatorNavBrand from '@/components/brand/BlogCreatorNavBrand';
 import {
+  MARKETING_EASE,
   marketingFocusRing,
   marketingGhostNav,
   marketingNavPill,
 } from '@/lib/marketing/marketingTheme';
+import { homeContainer } from '@/components/home/homeLayout';
 import { cn } from '@/lib/utils';
 
 export default function HomeNav() {
@@ -32,7 +32,7 @@ export default function HomeNav() {
     <motion.nav
       initial={reduced ? false : { y: -12, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: AUTH_EASE }}
+      transition={{ duration: 0.5, ease: MARKETING_EASE }}
       className="sticky top-0 z-50 px-4 py-2.5 md:px-6"
       aria-label="Workspace navigation"
     >
@@ -49,9 +49,9 @@ export default function HomeNav() {
         <Link
           href="/home"
           className={cn('flex min-w-0 max-w-[58%] items-center sm:max-w-none', marketingFocusRing)}
-          aria-label="ContentCraft Inspector home"
+          aria-label="BlogCreator home"
         >
-          <ContentCraftNavBrand priority />
+          <BlogCreatorNavBrand priority />
         </Link>
 
         <div className="flex shrink-0 items-center gap-0.5">

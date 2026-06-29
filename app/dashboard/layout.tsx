@@ -4,7 +4,7 @@ import { AuthSessionGate } from '@/components/loading/SessionLoadingGate';
 import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 
 export const metadata: Metadata = {
-  title: 'Dashboard — ContentCraft Inspector',
+  title: 'Dashboard — BlogCreator',
   description: 'Generate AI content and run deep analysis in your workspace.',
 };
 

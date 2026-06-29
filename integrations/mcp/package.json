@@ -1,12 +1,12 @@
 {
-  "name": "@contentcraft/mcp-server",
+  "name": "@blogcreator/mcp-server",
   "version": "1.0.0",
   "private": true,
-  "description": "MCP server for ContentCraft Inspector — generate and analyze SEO content",
+  "description": "MCP server for BlogCreator — generate and analyze SEO content",
   "type": "module",
   "main": "index.js",
   "bin": {
-    "contentcraft-mcp": "index.js"
+    "blogcreator-mcp": "index.js"
   },
   "engines": {
     "node": ">=18"

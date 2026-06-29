@@ -13,7 +13,6 @@ export type SessionStatus = 'checking' | 'ready' | 'redirecting';
 export type AuthGuardState = {
   status: SessionStatus;
   user: AppUser | null;
-  companyId: string | null;
   recentHistory: BootstrapHistoryItem[];
 };
 
@@ -26,7 +25,6 @@ export function useAuthGuard(): AuthGuardState {
   const pathname = usePathname();
   const [status, setStatus] = useState<SessionStatus>('checking');
   const [user, setUser] = useState<AppUser | null>(null);
-  const [companyId, setCompanyId] = useState<string | null>(null);
   const [recentHistory, setRecentHistory] = useState<BootstrapHistoryItem[]>([]);
 
   useEffect(() => {
@@ -40,7 +38,6 @@ export function useAuthGuard(): AuthGuardState {
         await waitForMinDisplay(startedAt);
         if (!cancelled) {
           setUser(null);
-          setCompanyId(null);
           setRecentHistory([]);
           setStatus('redirecting');
         }
@@ -57,7 +54,6 @@ export function useAuthGuard(): AuthGuardState {
           await waitForMinDisplay(startedAt);
           if (!cancelled) {
             setUser(null);
-            setCompanyId(null);
             setRecentHistory([]);
             setStatus('redirecting');
           }
@@ -68,7 +64,6 @@ export function useAuthGuard(): AuthGuardState {
         await waitForMinDisplay(startedAt);
         if (!cancelled) {
           setUser(session.user);
-          setCompanyId(session.companyId);
           setRecentHistory(session.recentHistory);
           setStatus('ready');
         }
@@ -78,7 +73,6 @@ export function useAuthGuard(): AuthGuardState {
         await waitForMinDisplay(startedAt);
         if (!cancelled) {
           setUser(null);
-          setCompanyId(null);
           setRecentHistory([]);
           setStatus('redirecting');
         }
@@ -92,7 +86,7 @@ export function useAuthGuard(): AuthGuardState {
     };
   }, [router, pathname]);
 
-  return { status, user, companyId, recentHistory };
+  return { status, user, recentHistory };
 }
 
 /**

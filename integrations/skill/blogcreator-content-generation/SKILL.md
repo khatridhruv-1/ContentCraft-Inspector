@@ -1,21 +1,21 @@
 ---
-name: contentcraft-content-generation
-description: Generate SEO-ready content for website, LinkedIn, Quora, Medium, or Substack, analyze copy, and build outlines using ContentCraft Inspector APIs. Use when the user asks to generate blog posts, platform-specific posts, draft SEO content, analyze readability, discover keywords, or integrate ContentCraft into a workflow.
+name: blogcreator-content-generation
+description: Generate SEO-ready content for website, LinkedIn, Quora, Medium, or Substack, analyze copy, and build outlines using BlogCreator APIs. Use when the user asks to generate blog posts, platform-specific posts, draft SEO content, analyze readability, discover keywords, or integrate BlogCreator into a workflow.
 ---
 
-# ContentCraft Content Generation
+# BlogCreator Content Generation
 
-Use ContentCraft Inspector HTTP APIs to generate and optimize content from any AI agent workflow — editors, terminals, or custom agents that read skill files.
+Use BlogCreator HTTP APIs to generate and optimize content from any AI agent workflow — editors, terminals, or custom agents that read skill files.
 
 ## Configuration
 
 Set the API base URL before calling endpoints:
 
 ```bash
-export CONTENTCRAFT_API_URL="http://localhost:3000"   # replaced by installer with your hosted URL
+export BLOGCREATOR_API_URL="http://localhost:3000"   # replaced by installer with your hosted URL
 ```
 
-All requests use `POST` with `Content-Type: application/json`. No auth header is required on your machine — keys live on the hosted ContentCraft server.
+All requests use `POST` with `Content-Type: application/json`. No auth header is required on your machine — keys live on the hosted BlogCreator server.
 
 ## Generate content
 
@@ -63,7 +63,7 @@ When the user names a channel, **always pass `platform`** (or include the platfo
 { "title": "Write a Substack essay on creator burnout", "platform": "substack" }
 ```
 
-If using the **ContentCraft MCP** `generate_content` tool, pass the same `platform` field (or put the platform name in `title` — it is detected automatically). Restart your agent after updating MCP.
+If using the **BlogCreator MCP** `generate_content` tool, pass the same `platform` field (or put the platform name in `title` — it is detected automatically). Restart your agent after updating MCP.
 
 ## Editorial style (built-in)
 
@@ -73,7 +73,7 @@ Generated drafts follow a **practitioner editorial voice** — aligned with long
 - **Tone:** smart peer explaining a real change; no guru hype, emoji listicles, or "Golden Rules" templates.
 - **Structure:** short paragraphs; prose over bullets; define terms plainly; contrast pairs (SEO finds your site, GEO helps AI cite you).
 - **Comparison topics:** each term defined → how they differ → how they work together → one practical takeaway.
-- **No self-marketing:** never mention ContentCraft, FlowCreator, install links, or author/service CTAs unless the user's topic explicitly requires reviewing that product.
+- **No self-marketing:** never mention BlogCreator, FlowCreator, install links, or author/service CTAs unless the user's topic explicitly requires reviewing that product.
 - **Platform norms:**
   - **LinkedIn** — narrative essay, 0–1 emoji, hashtags only on the last line.
   - **Medium / website / Substack** — `##` sections, year-aware titles when relevant.
@@ -84,7 +84,7 @@ Override with `tone` only when the user asks for a different voice.
 **curl example:**
 
 ```bash
-curl -s -X POST "$CONTENTCRAFT_API_URL/api/ai-content" \
+curl -s -X POST "$BLOGCREATOR_API_URL/api/ai-content" \
   -H "Content-Type: application/json" \
   -d '{"title":"Benefits of serverless edge computing","tone":"professional","platform":"medium"}'
 ```
@@ -117,7 +117,7 @@ Minimum ~100 characters of plain text after stripping markup.
 
 ## Agent workflow
 
-1. Confirm `CONTENTCRAFT_API_URL` is set (the installer writes it into this file).
+1. Confirm `BLOGCREATOR_API_URL` is set (the installer writes it into this file).
 2. **Detect platform** from the user request (LinkedIn, Quora, Medium, Substack, personal website) and pass `platform` on every generate call.
 3. For new content: call `/api/ai-content` (or MCP `generate_content`) with `title`, optional `tone`, and `platform`.
 4. For optimization: call `/api/analyze` on the draft.
@@ -129,9 +129,9 @@ Minimum ~100 characters of plain text after stripping markup.
 One command installs this skill for **all supported agent skill directories** (including shared `.agents` paths):
 
 ```bash
-CONTENTCRAFT_API_URL="https://your-hosted-app.com" \
+BLOGCREATOR_API_URL="https://blogcreator.dev" \
   curl -fsSL https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master/scripts/install-integration.sh \
-  | CONTENTCRAFT_API_URL="https://your-hosted-app.com" bash -s -- skill --global
+  | BLOGCREATOR_API_URL="https://blogcreator.dev" bash -s -- skill --global
 ```
 
 For a single project only, use `--project` instead of `--global`.
@@ -139,28 +139,28 @@ For a single project only, use `--project` instead of `--global`.
 **MCP alternative** (native tools in chat — also cross-platform):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master/scripts/install-integration.sh | CONTENTCRAFT_API_URL="https://your-hosted-app.com" bash -s -- mcp --global
+curl -fsSL https://raw.githubusercontent.com/khatridhruv-1/ContentCraft-Inspector/master/scripts/install-integration.sh | BLOGCREATOR_API_URL="https://blogcreator.dev" bash -s -- mcp --global
 ```
 
-Run with **bash** (Git Bash or WSL on Windows). Full setup: `/integrate` on your ContentCraft deployment.
+Run with **bash** (Git Bash or WSL on Windows). Full setup: `/integrate` on your BlogCreator deployment.
 
 ## Install paths
 
 | Artifact | Global install path |
 |----------|---------------------|
-| MCP server | `~/.contentcraft/contentcraft-mcp/` |
-| MCP client snippet | `~/.contentcraft/mcp.json` |
-| Agent skill | `~/.contentcraft/skills/contentcraft-content-generation/` |
-| Shared skill mirror | `~/.agents/skills/contentcraft-content-generation/` |
+| MCP server | `~/.blogcreator/blogcreator-mcp/` |
+| MCP client snippet | `~/.blogcreator/mcp.json` |
+| Agent skill | `~/.blogcreator/skills/blogcreator-content-generation/` |
+| Shared skill mirror | `~/.agents/skills/blogcreator-content-generation/` |
 
-Project installs use `./.contentcraft/` (and `./.agents/skills/` for the skill).
+Project installs use `./.blogcreator/` (and `./.agents/skills/` for the skill).
 
 **Optional env vars**
 
-- `CONTENTCRAFT_MCP_CONFIG` — comma-separated extra MCP client config files to register in
-- `CONTENTCRAFT_SKILL_DIRS` — comma-separated extra skill directories to copy into
+- `BLOGCREATOR_MCP_CONFIG` — comma-separated extra MCP client config files to register in
+- `BLOGCREATOR_SKILL_DIRS` — comma-separated extra skill directories to copy into
 
-If no MCP client folder is detected, copy the `contentcraft` entry from `~/.contentcraft/mcp.json` manually.
+If no MCP client folder is detected, copy the `blogcreator` entry from `~/.blogcreator/mcp.json` manually.
 
 ## Errors
 

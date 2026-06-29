@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * ContentCraft Inspector MCP Server
+ * BlogCreator MCP Server
  * Exposes generate_content, analyze_content, and create_outline tools.
  *
- * Env: CONTENTCRAFT_API_URL (default http://localhost:3000)
+ * Env: BLOGCREATOR_API_URL (default http://localhost:3000)
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -14,7 +14,11 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { resolveGenerationPlatform } from './platform.js';
 
-const API_BASE = (process.env.CONTENTCRAFT_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+const API_BASE = (
+  process.env.BLOGCREATOR_API_URL ||
+  process.env.CONTENTCRAFT_API_URL ||
+  'http://localhost:3000'
+).replace(/\/$/, '');
 
 const TOOLS = [
   {
@@ -84,7 +88,7 @@ async function postJson(path, body) {
 }
 
 const server = new Server(
-  { name: 'contentcraft', version: '1.0.0' },
+  { name: 'blogcreator', version: '1.0.0' },
   { capabilities: { tools: {} } }
 );
 

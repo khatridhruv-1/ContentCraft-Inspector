@@ -1,39 +1,165 @@
-/* ── Full-page marketing loader (light UI) ── */
+/* ── Brand tokens (BlogCreator light UI) ── */
+/* ink #16242F · accent #D33F49 · AI violet #7c3aed · slate lines #e2e8f0 */
+
+/* ── Full-page marketing loader ── */
 
 .pageLoader {
   position: relative;
-  width: 9rem;
-  height: 9rem;
+  width: 10.5rem;
+  height: 10.5rem;
 }
 
-.pageGlow {
+.pageRipple {
   position: absolute;
-  inset: -1.25rem;
+  inset: 0.35rem;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, transparent 68%);
-  animation: loaderGlow 2.4s ease-in-out infinite;
+  border: 2px solid rgba(124, 58, 237, 0.28);
+  animation: loaderRipple 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  opacity: 0;
 }
 
-.pageRingOuter {
+.pageRipple:nth-child(2) {
+  animation-delay: 0.85s;
+}
+
+.pageRipple:nth-child(3) {
+  animation-delay: 1.7s;
+}
+
+.pageOrbit {
   position: absolute;
   inset: 0;
-  box-sizing: border-box;
-  border-radius: 50%;
-  border: 3px solid rgba(226, 232, 240, 0.95);
-  border-top-color: #7c3aed;
-  border-right-color: rgba(124, 58, 237, 0.45);
-  animation: loaderSpin 1.15s linear infinite;
+  animation: loaderSpin 9s linear infinite;
 }
 
-.pageRingInner {
+.pageOrbitReverse {
   position: absolute;
-  inset: 1.1rem;
-  box-sizing: border-box;
+  inset: 0.65rem;
+  animation: loaderSpin 6.5s linear infinite reverse;
+}
+
+.pageOrbitDot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin: -0.2rem 0 0 -0.2rem;
   border-radius: 50%;
-  border: 3px solid rgba(226, 232, 240, 0.7);
-  border-bottom-color: #0f172a;
-  border-left-color: rgba(15, 23, 42, 0.25);
-  animation: loaderSpin 1.65s linear infinite reverse;
+  box-shadow: 0 0 0 2px rgba(248, 250, 252, 0.9);
+}
+
+.pageOrbitDotSeo {
+  background: #7c3aed;
+  transform: rotate(0deg) translateX(4.85rem) rotate(0deg);
+}
+
+.pageOrbitDotDraft {
+  background: #16242f;
+  transform: rotate(120deg) translateX(4.85rem) rotate(-120deg);
+}
+
+.pageOrbitDotRank {
+  background: #d33f49;
+  transform: rotate(240deg) translateX(4.85rem) rotate(-240deg);
+}
+
+.pageOrbitSpark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.3rem;
+  height: 0.3rem;
+  margin: -0.15rem 0 0 -0.15rem;
+  border-radius: 50%;
+  background: #7c3aed;
+  opacity: 0.85;
+  transform: rotate(60deg) translateX(3.65rem) rotate(-60deg);
+}
+
+.pageStage {
+  position: absolute;
+  inset: 1.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pageLogoWrap {
+  position: relative;
+  z-index: 2;
+  animation: loaderLogoBreathe 2.4s ease-in-out infinite;
+}
+
+.pageDraft {
+  position: absolute;
+  right: -0.15rem;
+  bottom: 0.55rem;
+  z-index: 1;
+  display: flex;
+  width: 2.75rem;
+  flex-direction: column;
+  gap: 0.3rem;
+  pointer-events: none;
+}
+
+.pageDraftLine {
+  display: block;
+  height: 0.28rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #cbd5e1 0%, #e2e8f0 100%);
+  transform-origin: left center;
+  animation: loaderDraftLine 2s ease-in-out infinite;
+}
+
+.pageDraftLine:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.pageDraftLine:nth-child(2) {
+  animation-delay: 0.22s;
+}
+
+.pageDraftLine:nth-child(3) {
+  animation-delay: 0.44s;
+}
+
+.pageBars {
+  position: absolute;
+  right: 0.1rem;
+  bottom: -0.05rem;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.2rem;
+  height: 1.35rem;
+}
+
+.pageBar {
+  width: 0.32rem;
+  border-radius: 9999px;
+  background: rgba(22, 36, 47, 0.22);
+  transform-origin: bottom center;
+  animation: loaderBarGrow 1.6s ease-in-out infinite;
+}
+
+.pageBar:nth-child(1) {
+  height: 0.55rem;
+  animation-delay: 0s;
+}
+
+.pageBar:nth-child(2) {
+  height: 0.85rem;
+  animation-delay: 0.18s;
+}
+
+.pageBarAccent {
+  width: 0.32rem;
+  border-radius: 9999px;
+  background: #d33f49;
+  transform-origin: bottom center;
+  animation: loaderBarGrow 1.6s ease-in-out infinite;
+  animation-delay: 0.36s;
 }
 
 .pageIcon {
@@ -54,11 +180,184 @@
 
 .pageProgressBar {
   height: 100%;
-  width: 40%;
+  width: 42%;
   border-radius: 9999px;
-  background: linear-gradient(90deg, #8b5cf6, #6366f1, #8b5cf6);
-  background-size: 200% 100%;
-  animation: loaderProgress 1.4s ease-in-out infinite;
+  background: linear-gradient(90deg, #16242f, #d33f49, #7c3aed, #16242f);
+  background-size: 220% 100%;
+  animation: loaderProgress 1.5s ease-in-out infinite;
+}
+
+.wordmarkShimmer {
+  background: linear-gradient(
+    102deg,
+    #0f172a 0%,
+    #0f172a 38%,
+    rgba(139, 92, 246, 0.55) 50%,
+    #0f172a 62%,
+    #0f172a 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: wordmarkShimmer 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes wordmarkShimmer {
+  0% {
+    background-position: 120% 50%;
+  }
+  100% {
+    background-position: -20% 50%;
+  }
+}
+
+/* ── Inline button loader (mini ranked draft) ── */
+
+.ai {
+  --app-loader-size: 20px;
+  position: relative;
+  display: inline-block;
+  width: var(--app-loader-size);
+  height: var(--app-loader-size);
+  flex-shrink: 0;
+}
+
+.aiDoc {
+  position: absolute;
+  inset: 10% 18% 10% 10%;
+  border-radius: 3px;
+  background: #16242f;
+  box-shadow: inset 0 0 0 1px rgba(248, 250, 252, 0.08);
+}
+
+.aiLine {
+  position: absolute;
+  left: 22%;
+  right: 28%;
+  height: 2px;
+  border-radius: 9999px;
+  background: rgba(248, 250, 252, 0.72);
+  transform-origin: left center;
+  animation: loaderInlineLine 1.4s ease-in-out infinite;
+}
+
+.aiDoc + .aiLine {
+  top: 34%;
+  animation-delay: 0s;
+}
+
+.aiLine + .aiLine {
+  top: 52%;
+  right: 40%;
+  animation-delay: 0.2s;
+}
+
+.aiBars {
+  position: absolute;
+  right: 12%;
+  bottom: 14%;
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5px;
+  height: 38%;
+}
+
+.aiBar {
+  width: 2px;
+  border-radius: 9999px;
+  background: rgba(248, 250, 252, 0.35);
+  transform-origin: bottom center;
+  animation: loaderInlineBar 1.2s ease-in-out infinite;
+}
+
+.aiBar:nth-child(1) {
+  height: 45%;
+  animation-delay: 0s;
+}
+
+.aiBar:nth-child(2) {
+  height: 68%;
+  animation-delay: 0.12s;
+}
+
+.aiBarAccent {
+  width: 2px;
+  border-radius: 9999px;
+  background: #d33f49;
+  transform-origin: bottom center;
+  animation: loaderInlineBar 1.2s ease-in-out infinite;
+  animation-delay: 0.24s;
+  height: 100%;
+}
+
+.aiPulse {
+  position: absolute;
+  inset: -15%;
+  border-radius: 50%;
+  border: 1px solid rgba(124, 58, 237, 0.22);
+  animation: loaderRipple 2.2s ease-out infinite;
+  opacity: 0;
+}
+
+/* ── Keyframes ── */
+
+@keyframes loaderRipple {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.55;
+  }
+  70% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes loaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loaderLogoBreathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.045);
+  }
+}
+
+@keyframes loaderDraftLine {
+  0%,
+  100% {
+    width: 18%;
+    opacity: 0.35;
+  }
+  45% {
+    width: 100%;
+    opacity: 1;
+  }
+  70% {
+    width: 72%;
+    opacity: 0.75;
+  }
+}
+
+@keyframes loaderBarGrow {
+  0%,
+  100% {
+    transform: scaleY(0.55);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
 }
 
 @keyframes loaderProgress {
@@ -72,122 +371,34 @@
   }
 }
 
-/* ── Legacy video loader (Dribbble #6298759) ── */
-
-.productFrame {
-  overflow: hidden;
-  border-radius: 0.75rem;
-  background: #0f172a;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-.productMedia {
-  display: block;
-  width: min(360px, 82vw);
-  height: auto;
-  max-height: min(50vh, 360px);
-  object-fit: contain;
-  background: transparent;
-  transform: scale(1.05);
-  transform-origin: center center;
-}
-
-/* Fallback when video cannot play — light UI violet glow */
-.productFallback {
-  width: min(280px, 72vw);
-  aspect-ratio: 4 / 3;
-  border-radius: 0.75rem;
-  background: radial-gradient(
-    circle at 42% 38%,
-    rgba(139, 92, 246, 0.55) 0%,
-    rgba(99, 102, 241, 0.28) 38%,
-    rgba(15, 23, 42, 0.92) 100%
-  );
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
-    0 16px 40px -12px rgba(15, 23, 42, 0.35);
-  animation: loaderGlow 2.4s ease-in-out infinite;
-}
-
-/* ── Inline button loader ── */
-
-.ai {
-  --app-loader-size: 20px;
-  position: relative;
-  display: inline-block;
-  width: var(--app-loader-size);
-  height: var(--app-loader-size);
-  flex-shrink: 0;
-}
-
-.glow {
-  position: absolute;
-  inset: 8%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.28) 0%, transparent 72%);
-  animation: loaderGlow 2.4s ease-in-out infinite;
-}
-
-.ring {
-  position: absolute;
-  inset: 0;
-  box-sizing: border-box;
-  border-radius: 50%;
-  border: 2px solid rgba(148, 163, 184, 0.22);
-  border-top-color: #7c3aed;
-  border-right-color: #0f172a;
-  background: transparent;
-  animation: loaderSpin 0.75s linear infinite;
-}
-
-.core {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 28%;
-  height: 28%;
-  margin: -14% 0 0 -14%;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #a78bfa 0%, #7c3aed 42%, #0f172a 100%);
-  box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
-  animation: loaderCorePulse 1.5s ease-in-out infinite;
-  z-index: 2;
-}
-
-@keyframes loaderSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes loaderCorePulse {
+@keyframes loaderInlineLine {
   0%,
   100% {
-    transform: scale(0.9);
-    opacity: 0.88;
+    transform: scaleX(0.25);
+    opacity: 0.45;
   }
   50% {
-    transform: scale(1);
+    transform: scaleX(1);
     opacity: 1;
   }
 }
 
-@keyframes loaderGlow {
+@keyframes loaderInlineBar {
   0%,
   100% {
-    opacity: 0.55;
-    transform: scale(0.96);
+    transform: scaleY(0.4);
+    opacity: 0.5;
   }
   50% {
+    transform: scaleY(1);
     opacity: 1;
-    transform: scale(1.04);
   }
 }
 
 @keyframes loaderPulse {
   0%,
   100% {
-    opacity: 0.5;
+    opacity: 0.45;
   }
   50% {
     opacity: 1;
@@ -195,19 +406,33 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ring,
-  .core,
-  .glow,
-  .pageRingOuter,
-  .pageRingInner,
-  .pageGlow,
-  .productFallback {
+  .pageRipple,
+  .pageOrbit,
+  .pageOrbitReverse,
+  .pageLogoWrap,
+  .pageDraftLine,
+  .pageBar,
+  .pageBarAccent,
+  .aiLine,
+  .aiBar,
+  .aiBarAccent,
+  .aiPulse {
     animation: loaderPulse 1.6s ease-in-out infinite;
   }
 
-  .pageProgressBar,
-  .productMedia {
+  .pageProgressBar {
     animation: loaderPulse 1.6s ease-in-out infinite;
     transform: none;
+  }
+
+  .pageOrbit,
+  .pageOrbitReverse {
+    animation: none;
+  }
+
+  .wordmarkShimmer {
+    animation: none;
+    background: none;
+    color: #64748b;
   }
 }

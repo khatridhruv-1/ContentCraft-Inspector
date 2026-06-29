@@ -34,12 +34,6 @@ export const studioHistoryColumn =
 export const studioWorkspaceColumn =
   'flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden max-sm:h-[60%]';
 
-/** @deprecated Use studioHistoryColumn */
-export const studioChatColumn = studioHistoryColumn;
-
-/** @deprecated Use studioWorkspaceColumn */
-export const studioOutputColumn = studioWorkspaceColumn;
-
 export const dashboardResultCard =
   'rounded-xl border border-slate-200 bg-white shadow-sm';
 

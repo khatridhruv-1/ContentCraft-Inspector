@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="ContentCraft Inspector icon">
-  <path d="M 152 144 A 60 60 0 1 0 148.4 148.4 L 185 185"
-        fill="none" stroke="#16242F" stroke-width="14"
-        stroke-linecap="round" stroke-linejoin="round"/>
-  <line x1="78" y1="92"  x2="134" y2="92"  stroke="#16242F" stroke-width="11" stroke-linecap="round"/>
-  <line x1="78" y1="116" x2="118" y2="116" stroke="#16242F" stroke-width="11" stroke-linecap="round"/>
-  <circle cx="185" cy="185" r="12" fill="#D33F49"/>
-</svg>

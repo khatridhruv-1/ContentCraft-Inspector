@@ -4,7 +4,6 @@ import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveContent, updateContent } from '@/lib/content/appwrite';
 import { clearAuthSession } from '@/lib/user/session';
-import { useCompanyId } from '@/hooks/useCompany';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { DiscoveredKeyword } from '@/types/seo';
 import type { ContentPlatformId } from '@/types/contentPlatform';
@@ -22,7 +21,6 @@ type GenerateResult = {
 export function useAiContentGenerate() {
   const router = useRouter();
   const { user } = useCurrentUser();
-  const { companyId }: { companyId?: string | null } = useCompanyId();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,7 +81,6 @@ export function useAiContentGenerate() {
           await updateContent(documentId, {
             input: title,
             analysis: safeContent,
-            companyId: companyId ?? undefined,
           });
         } else {
           const sessionToken = localStorage.getItem('sessionToken');
@@ -97,31 +94,8 @@ export function useAiContentGenerate() {
             throw new Error('Session expired');
           }
 
-          if (companyId) {
-            const res = await saveContent(
-              title,
-              user.$id,
-              safeContent,
-              'ai-generate',
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              undefined,
-              companyId
-            );
-            localStorage.setItem('documentId', res.$id);
-          }
+          const res = await saveContent(title, user.$id, safeContent, 'ai-generate');
+          localStorage.setItem('documentId', res.$id);
         }
 
         return { content: safeContent, keywords: discoveredKeywords };
@@ -133,7 +107,7 @@ export function useAiContentGenerate() {
         setLoading(false);
       }
     },
-    [companyId, router, user]
+    [router, user]
   );
 
   const clearError = useCallback(() => setError(null), []);
