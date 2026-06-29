@@ -69,6 +69,9 @@ export function buildLandingMetadata(): Metadata {
       title: LANDING_TITLE,
       description: LANDING_DESCRIPTION,
     },
+    verification: {
+      google: 'My38ZtvxrHM9e9S9bO58PbVeREwT6asGCoeWZziYE_U',
+    },
   };
 }
 
