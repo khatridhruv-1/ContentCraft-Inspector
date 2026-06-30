@@ -9,6 +9,7 @@ export const FOOTER_NAV_LINKS = [
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },
   { label: 'Contact', href: '/contact' },
+  { label: 'Sitemap', href: '/sitemap.xml' },
 ] as const;
 
 export type FooterNavLink = { label: string; href: string };
