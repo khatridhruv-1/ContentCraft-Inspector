@@ -1,17 +1,10 @@
 import { resolveBriefIntent, type ResolvedBrief } from '@/lib/ai/briefIntent';
-import { groqChat, parseGroqJson } from '@/lib/ai/groq';
 import {
-  collectKeywordSignals,
-  formatSignalsForPrompt,
-  hasAnySignals,
-  type CollectKeywordSignalsOptions,
-  type KeywordSignals,
-} from '@/lib/seo/keywordSources';
+  fetchTrendingByTopic,
+  fetchTrendingWords,
+  isScrapingHubConfigured,
+} from '@/lib/seo/scrapingHub';
 import type { DiscoveredKeyword } from '@/types/seo';
-
-type ExtractedKeywords = {
-  keywords?: string[];
-};
 
 const TOPIC_STOP_WORDS = new Set([
   'write',
@@ -48,19 +41,17 @@ function isRelevantToTopic(keyword: string, searchTopic: string): boolean {
   return tokens.some(token => lower.includes(token));
 }
 
-function filterSignalList(terms: string[], searchTopic: string): string[] {
-  return terms.filter(
-    term => !META_BLOG_KEYWORD.test(term) && isRelevantToTopic(term, searchTopic)
-  );
-}
+const META_LIST_QUERY_PATTERN =
+  /\b(latest|trending|top|best|most|newest|new|popular|recent)\b/i;
 
-function filterKeywordSignals(signals: KeywordSignals, searchTopic: string): KeywordSignals {
-  return {
-    googleAutocomplete: filterSignalList(signals.googleAutocomplete, searchTopic),
-    duckDuckGo: filterSignalList(signals.duckDuckGo, searchTopic),
-    googleTrends: filterSignalList(signals.googleTrends, searchTopic),
-    risingTrendScores: signals.risingTrendScores,
-  };
+function isMetaListQueryPhrase(keyword: string): boolean {
+  const lower = keyword.toLowerCase();
+  const wordCount = lower.split(/\s+/).filter(Boolean).length;
+  if (wordCount < 4) return false;
+  return (
+    META_LIST_QUERY_PATTERN.test(lower) &&
+    /\b(movies?|films?|songs?|shows?|bollywood|hindi)\b/i.test(lower)
+  );
 }
 
 function filterKeywords(keywords: string[], resolved: ResolvedBrief): string[] {
@@ -78,75 +69,54 @@ function filterKeywords(keywords: string[], resolved: ResolvedBrief): string[] {
   return keywords.slice(0, 12);
 }
 
-const META_LIST_QUERY_PATTERN =
-  /\b(latest|trending|top|best|most|newest|new|popular|recent)\b/i;
-
-function isMetaListQueryPhrase(keyword: string): boolean {
-  const lower = keyword.toLowerCase();
-  const wordCount = lower.split(/\s+/).filter(Boolean).length;
-  if (wordCount < 4) return false;
-  return META_LIST_QUERY_PATTERN.test(lower) && /\b(movies?|films?|songs?|shows?|bollywood|hindi)\b/i.test(lower);
+function normalizeTrendScore(score: number | null, index: number): number {
+  if (score === null) {
+    return Math.max(0, 1 - index * 0.08);
+  }
+  if (score > 1) {
+    return Math.min(1, score / 100);
+  }
+  return Math.max(0, Math.min(1, score));
 }
 
-async function extractKeywordsFromSignals(
-  resolved: ResolvedBrief,
-  signalText: string
-): Promise<string[]> {
-  const entityFocus =
-    resolved.articleType === 'trending_list' || resolved.articleType === 'canonical_list'
-      ? ' For list-style topics: prefer specific entity NAMES (movie titles, show names, albums, products) from the signals. Do NOT return generic SEO query strings like "latest trending hindi movies" or "best hindi movie in bollywood history".'
-      : '';
+export async function discoverKeywordsForTopic(rawInput: string): Promise<DiscoveredKeyword[]> {
+  if (!isScrapingHubConfigured()) {
+    throw new Error('SCRAPING_HUB_API_KEY is not set');
+  }
 
-  const text = await groqChat({
-    messages: [
-      {
-        role: 'system',
-        content:
-          `You extract SEO keywords from search suggestion data. Return JSON only: { "keywords": ["keyword one", "keyword two"] }. Return 8-12 terms people search for about the SUBJECT TOPIC. Mix short-head and long-tail phrases. Prefer rising terms when present. No duplicates. NEVER return keywords about blog generators, AI writing tools, content automation, or generic "write a blog" phrases unless the subject topic itself is about those tools.${entityFocus}`,
-      },
-      {
-        role: 'user',
-        content: [
-          `Subject topic (extract keywords about THIS): ${resolved.topic}`,
-          `Search focus: ${resolved.searchTopic}`,
-          resolved.rawBrief !== resolved.topic
-            ? `Original user input (ignore the writing instruction — only the subject matters): ${resolved.rawBrief}`
-            : '',
-          resolved.topicNote ?? '',
-          signalText
-            ? `\nSearch signals:\n${signalText}`
-            : '\nNo live search signals were returned. Infer 8-12 realistic keywords about the subject topic only.',
-        ]
-          .filter(Boolean)
-          .join('\n'),
-      },
-    ],
-    temperature: 0.25,
-    maxTokens: 512,
-  });
-
-  const parsed = parseGroqJson<ExtractedKeywords>(text);
-  return filterKeywords(
-    (parsed.keywords ?? []).map(keyword => keyword.trim()).filter(Boolean),
-    resolved
-  );
-}
-
-export async function discoverKeywordsForTopic(
-  rawInput: string,
-  options: CollectKeywordSignalsOptions = {}
-): Promise<DiscoveredKeyword[]> {
   const resolved = resolveBriefIntent(rawInput.trim());
   if (!resolved.rawBrief) {
     throw new Error('Topic is required for keyword discovery.');
   }
 
-  const rawSignals = await collectKeywordSignals(resolved.searchTopic, options);
-  const signals = filterKeywordSignals(rawSignals, resolved.searchTopic);
-  const signalText = hasAnySignals(signals) ? formatSignalsForPrompt(signals) : '';
-  const keywords = await extractKeywordsFromSignals(resolved, signalText);
+  const topicTrends = await fetchTrendingByTopic(resolved.searchTopic);
 
-  if (!keywords.length) {
+  let trendingWords: Array<{ keyword: string; score: number | null }> = [];
+  if (topicTrends.length < 8) {
+    try {
+      trendingWords = await fetchTrendingWords(resolved.searchTopic);
+    } catch (error) {
+      console.warn('Scraping Hub trending words fallback failed:', error);
+    }
+  }
+
+  const merged = [...topicTrends, ...trendingWords];
+  const seen = new Set<string>();
+  const keywords: Array<{ keyword: string; score: number | null }> = [];
+
+  for (const item of merged) {
+    const key = item.keyword.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    keywords.push(item);
+  }
+
+  const filtered = filterKeywords(
+    keywords.map(item => item.keyword),
+    resolved
+  );
+
+  if (!filtered.length) {
     return [
       {
         keyword: resolved.topic.slice(0, 80),
@@ -157,24 +127,16 @@ export async function discoverKeywordsForTopic(
     ];
   }
 
-  return keywords.map((keyword, index) => ({
+  const scoreByKeyword = new Map(
+    keywords.map(item => [item.keyword.toLowerCase(), item.score] as const)
+  );
+
+  return filtered.map((keyword, index) => ({
     keyword,
     searchVolume: null,
     competition: null,
-    trendScore: trendScoreForKeyword(keyword, index, signals.risingTrendScores),
+    trendScore: normalizeTrendScore(scoreByKeyword.get(keyword.toLowerCase()) ?? null, index),
   }));
-}
-
-function trendScoreForKeyword(
-  keyword: string,
-  index: number,
-  risingTrendScores: Record<string, number>
-): number {
-  const rising = risingTrendScores[keyword.toLowerCase()];
-  if (rising && rising > 0) {
-    return Math.min(1, rising / 5_000);
-  }
-  return Math.max(0, 1 - index * 0.08);
 }
 
 export function formatKeywordsForPrompt(keywords: DiscoveredKeyword[]): string {

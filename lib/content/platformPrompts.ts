@@ -1,15 +1,23 @@
 import {
-  PLATFORM_READING_TARGET,
-  type ContentPlatformId,
-} from '@/types/contentPlatform';
+  type ReadingTarget,
+  DEFAULT_READING_TARGET,
+} from '@/lib/content/readingTarget';
+import type { ContentPlatformId } from '@/types/contentPlatform';
 
-const READING_LENGTH_RULE = `
-━━━ LENGTH (strict) ━━━
-- Target ${PLATFORM_READING_TARGET.label}: ${PLATFORM_READING_TARGET.minWords}–${PLATFORM_READING_TARGET.maxWords} words total.
-- Do not exceed ${PLATFORM_READING_TARGET.maxWords} words.
+function readingLengthRule(target: ReadingTarget = DEFAULT_READING_TARGET): string {
+  return `
+━━━ LENGTH (strict — hard limit) ━━━
+- Target ${target.label}: ${target.minWords}–${target.maxWords} words total (~${target.minMinutes}–${target.maxMinutes} minutes at 200 wpm).
+- HARD MAX: ${target.maxWords} words. Stop writing once you reach it — do not add extra sections.
+- Prefer ${target.minWords}–${target.maxWords} words; shorter and tighter beats longer.
+- Count includes every word in the article body.
 `.trim();
+}
 
-const PLATFORM_RULES: Record<ContentPlatformId, string> = {
+function buildPlatformRules(target: ReadingTarget): Record<ContentPlatformId, string> {
+  const READING_LENGTH_RULE = readingLengthRule(target);
+
+  return {
   website: `
 ━━━ PLATFORM: PERSONAL WEBSITE / BLOG ━━━
 - Publish-ready blog post: clear title, strong hook, scannable ## sections.
@@ -69,10 +77,14 @@ ${READING_LENGTH_RULE}
 - Soft close — reflection or one question for replies (no hard sell, no "visit my site").
 ${READING_LENGTH_RULE}
 `.trim(),
-};
+  };
+}
 
-export function getPlatformPromptSection(platform: ContentPlatformId): string {
-  return PLATFORM_RULES[platform];
+export function getPlatformPromptSection(
+  platform: ContentPlatformId,
+  readingTarget: ReadingTarget = DEFAULT_READING_TARGET
+): string {
+  return buildPlatformRules(readingTarget)[platform];
 }
 
 export function getPlatformLabel(platform: ContentPlatformId): string {

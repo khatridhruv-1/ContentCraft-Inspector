@@ -1,8 +1,8 @@
 import type { ResolvedBrief } from '@/lib/ai/briefIntent';
 import { getBrandVoiceSection, BRAND_BANNED_PHRASES } from '@/lib/content/brandVoice';
 import { getPlatformPromptSection } from '@/lib/content/platformPrompts';
+import type { ReadingTarget } from '@/lib/content/readingTarget';
 import type { ContentPlatformId } from '@/types/contentPlatform';
-import { PLATFORM_READING_TARGET } from '@/types/contentPlatform';
 
 const KEYWORD_RULES = `
 ━━━ KEYWORDS (themes only — never copy-paste) ━━━
@@ -34,22 +34,22 @@ const TRENDING_LIST_RULES = `
 - If CURRENT WEB SEARCH RESULTS is empty, say live rankings could not be verified — no fabricated title list.
 `.trim();
 
-const CANONICAL_LIST_STRUCTURE = `
+const CANONICAL_LIST_STRUCTURE = (target: ReadingTarget) => `
 ━━━ STRUCTURE (all-time roundup) ━━━
 - # Title — historical framing (e.g. "Hindi Films That Define Bollywood's Canon"). Never "trending now" or "right now".
 - Opening paragraph — acknowledges debate, previews the films named in search results.
 - ## Films on every shortlist — 4–6 items with ### per title.
 - ## What makes a film endure — brief editorial context (no keyword stuffing).
-- Short close. 700–900 words.
+- Short close. ${target.minWords}–${target.maxWords} words total.
 `.trim();
 
-const TRENDING_LIST_STRUCTURE = `
+const TRENDING_LIST_STRUCTURE = (target: ReadingTarget) => `
 ━━━ STRUCTURE (trending roundup) ━━━
 - # Title — names the roundup (e.g. "Bollywood Hindi Films Trending Now"), not a single old title.
 - Opening paragraph — directly answers what is trending now.
 - ## What's trending now — 3–5 items with ### per title/name.
 - ## Why these picks matter — brief editorial context (no keyword stuffing).
-- Short close. 700–900 words.
+- Short close. ${target.minWords}–${target.maxWords} words total.
 `.trim();
 
 /**
@@ -62,17 +62,24 @@ function buildGenerationSystemPrompt(
 ): string {
   const isTrendingList = brief.articleType === 'trending_list';
   const isCanonicalList = brief.articleType === 'canonical_list';
+  const target = brief.readingTarget;
 
   return `
 You are an experienced human editor. Write one publish-ready piece in markdown (adapt formatting to the target platform rules below).
 
 TARGET PLATFORM:
-${getPlatformPromptSection(platform)}
+${getPlatformPromptSection(platform, target)}
 
 ${getBrandVoiceSection({ topic: brief.topic, rawBrief: brief.rawBrief })}
 
 ARTICLE GOAL:
 ${brief.articleGoal}
+
+━━━ LENGTH (highest priority after factual accuracy) ━━━
+- Write a ${target.label}: ${target.minWords}–${target.maxWords} words total.
+- HARD STOP at ${target.maxWords} words — do not exceed this limit.
+- Tight prose beats exhaustive coverage. Cut filler, repetition, and extra sections if needed.
+${target.userSpecified ? '- The user explicitly requested this reading length — honor it exactly.' : '- Default target for every platform is a 3–4 minute read.'}
 
 ━━━ 1. TOPIC (highest priority) ━━━
 - Write only about the TOPIC in the user message.
@@ -98,8 +105,8 @@ Title templates: "Understanding [Topic]: How It Works…", "[Topic] Explained: H
 ${isTrendingList ? TRENDING_LIST_RULES : ''}
 ${isCanonicalList ? CANONICAL_LIST_RULES : ''}
 
-${isTrendingList ? TRENDING_LIST_STRUCTURE : ''}
-${isCanonicalList ? CANONICAL_LIST_STRUCTURE : ''}
+${isTrendingList ? TRENDING_LIST_STRUCTURE(target) : ''}
+${isCanonicalList ? CANONICAL_LIST_STRUCTURE(target) : ''}
 
 ━━━ PLACEHOLDER BAN (hard rule) ━━━
 NEVER output $1, $2, $3, or any $N on its own line — not in bullets, not in numbered steps, not anywhere.
@@ -115,7 +122,7 @@ Do NOT output [INSERT], TBD, TODO, or empty list items.
 ✓ No banned phrases. No $ placeholders or LaTeX.
 ✓ SCAN every line: if any line contains only $1 or similar, rewrite it before outputting.
 ✓ Names in the article match CURRENT WEB SEARCH RESULTS when provided.
-✓ Title is not a formula template. Body is ${PLATFORM_READING_TARGET.minWords}–${PLATFORM_READING_TARGET.maxWords} words (${PLATFORM_READING_TARGET.label}). No unverified precise stats.
+✓ Title is not a formula template. Body is ${target.minWords}–${target.maxWords} words (${target.label}). No unverified precise stats.
 
 Output the final markdown article only. No commentary.
 `.trim();
@@ -139,6 +146,7 @@ export function buildContentGenerationPrompt({
     `USER INPUT: ${brief.rawBrief}`,
     `ARTICLE TYPE: ${brief.articleType}`,
     `TARGET PLATFORM: ${platform}`,
+    `READING LENGTH: ${brief.readingTarget.label} (${brief.readingTarget.minWords}–${brief.readingTarget.maxWords} words — do not exceed ${brief.readingTarget.maxWords})`,
   ];
 
   if (brief.topicNote) {

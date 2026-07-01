@@ -2,6 +2,11 @@ import {
   isComparisonTopic,
   isMarketingTechTopic,
 } from '@/lib/content/brandVoice';
+import {
+  resolveReadingTarget,
+  stripReadingTimeInstructions,
+  type ReadingTarget,
+} from '@/lib/content/readingTarget';
 
 export type ArticleType = 'explainer' | 'trending_list' | 'canonical_list';
 
@@ -15,6 +20,7 @@ export type ResolvedBrief = {
   articleType: ArticleType;
   topicNote?: string;
   articleGoal: string;
+  readingTarget: ReadingTarget;
 };
 
 const META_BRIEF_PATTERNS = [
@@ -261,7 +267,9 @@ function buildArticleGoal(
 
 export function resolveBriefIntent(rawBrief: string): ResolvedBrief {
   const trimmed = rawBrief.trim();
-  const topic = extractTopic(trimmed);
+  const readingTarget = resolveReadingTarget(trimmed);
+  const briefForTopic = stripReadingTimeInstructions(trimmed);
+  const topic = extractTopic(briefForTopic || trimmed);
   const articleType = detectArticleType(topic, trimmed);
   const topicCategory = detectTopicCategory(topic);
   const { searchTopic, topicNote } = resolveTopicHints(topic, topicCategory, articleType);
@@ -275,5 +283,6 @@ export function resolveBriefIntent(rawBrief: string): ResolvedBrief {
     articleType,
     topicNote,
     articleGoal,
+    readingTarget,
   };
 }

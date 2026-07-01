@@ -31,8 +31,9 @@ All requests use `POST` with `Content-Type: application/json`. No auth header is
 
 - `title` is required — topic, headline, or brief.
 - `tone` is optional — e.g. `professional`, `casual`, `authoritative`.
-- `platform` is optional — `website`, `linkedin`, `quora`, `medium`, or `substack` (default `website`). ~3–4 min read per platform.
-- Content includes keyword discovery from Google Trends and autocomplete.
+- `platform` is optional — `website`, `linkedin`, `quora`, `medium`, or `substack` (default `website`). Defaults to a **3–4 minute read** (~650–900 words).
+- Mention a reading time in `title` to override length, e.g. `"5 minute read about cold email"` or `"SEO trends, 3-4 min read"`.
+- Content includes keyword discovery from the Scraping Hub API (trending topics and words).
 
 **Response:** `{ "content": "...", "keywords": [...], "topic": "...", "platform": "linkedin" }`
 

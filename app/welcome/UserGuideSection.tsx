@@ -34,7 +34,7 @@ const steps = [
     number: 3,
     icon: Wand2,
     title: 'Generate content',
-    description: 'Enter a topic — we pull related searches from Google Trends and autocomplete, then draft SEO-ready content in seconds.',
+    description: 'Enter a topic — we pull trending keywords and related search terms from the web, then draft SEO-ready content in seconds.',
     iconSurface: 'bg-violet-100',
     iconColor: 'text-violet-700',
   },

@@ -20,9 +20,12 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!process.env.GROQ_API_KEY?.trim()) {
+  if (!process.env.SCRAPING_HUB_API_KEY?.trim()) {
     return NextResponse.json(
-      { error: 'Server configuration error: GROQ_API_KEY is not set (required for keyword discovery)' },
+      {
+        error:
+          'Server configuration error: SCRAPING_HUB_API_KEY is not set (required for keyword discovery)',
+      },
       { status: 500 }
     );
   }

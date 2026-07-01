@@ -3,14 +3,15 @@ import { buildContentGenerationPrompt } from '@/lib/ai/contentPrompts';
 import { ollamaChat, type OllamaMessage } from '@/lib/ai/ollama';
 import { countPlaceholderLines, stripPlaceholderLines } from '@/lib/ai/sanitizeContent';
 import {
+  countWords,
+  maxTokensForReadingTarget,
+  type ReadingTarget,
+} from '@/lib/content/readingTarget';
+import {
   discoverKeywordsForTopic,
   formatKeywordsForPrompt,
 } from '@/lib/seo/keywords';
-import {
-  fetchTrendingSearchContext,
-  formatTrendingSearchContext,
-  keywordsFromSearchResults,
-} from '@/lib/seo/trendingContext';
+import { fetchTrendingSearchContext, formatTrendingSearchContext } from '@/lib/seo/trendingContext';
 import type { DiscoveredKeyword } from '@/types/seo';
 import { resolveGenerationPlatform } from '@/lib/content/platformFromText';
 import type { ContentPlatformId } from '@/types/contentPlatform';
@@ -35,13 +36,38 @@ function normalizeHtmlEntities(text: string): string {
     .replace(/&amp;/g, '&');
 }
 
-const OLLAMA_CALL_OPTS = { temperature: 0.35, topP: 0.85, maxTokens: 4096 } as const;
+const OLLAMA_BASE_OPTS = { temperature: 0.35, topP: 0.85 } as const;
 
 const PLACEHOLDER_RETRY_MESSAGE =
   'Your draft contained $1 placeholder lines. Rewrite the full article with complete sentences in every bullet and numbered step — no $1, $2, or any other $N placeholders.';
 
-async function generateWithPlaceholderGuard(messages: OllamaMessage[]): Promise<string> {
-  const first = await ollamaChat({ messages, ...OLLAMA_CALL_OPTS });
+function ollamaOptsForTarget(target: ReadingTarget) {
+  return {
+    ...OLLAMA_BASE_OPTS,
+    maxTokens: maxTokensForReadingTarget(target),
+  };
+}
+
+function lengthRetryMessage(wordCount: number, target: ReadingTarget): string {
+  return [
+    `Your draft is ${wordCount} words but must be ${target.minWords}–${target.maxWords} words (${target.label}).`,
+    `Shorten it now: remove repetition, tighten paragraphs, and keep only the strongest points.`,
+    `Do not exceed ${target.maxWords} words. Keep the same structure, platform formatting, and key facts.`,
+  ].join(' ');
+}
+
+async function ollamaChatForTarget(
+  messages: OllamaMessage[],
+  target: ReadingTarget
+): Promise<string> {
+  return ollamaChat({ messages, ...ollamaOptsForTarget(target) });
+}
+
+async function generateWithPlaceholderGuard(
+  messages: OllamaMessage[],
+  target: ReadingTarget
+): Promise<string> {
+  const first = await ollamaChatForTarget(messages, target);
 
   if (countPlaceholderLines(first) === 0) return first;
 
@@ -51,8 +77,38 @@ async function generateWithPlaceholderGuard(messages: OllamaMessage[]): Promise<
     { role: 'user', content: PLACEHOLDER_RETRY_MESSAGE },
   ];
 
-  const second = await ollamaChat({ messages: retryMessages, ...OLLAMA_CALL_OPTS });
+  const second = await ollamaChatForTarget(retryMessages, target);
   return stripPlaceholderLines(second);
+}
+
+async function generateWithLengthGuard(
+  messages: OllamaMessage[],
+  target: ReadingTarget
+): Promise<string> {
+  let content = await generateWithPlaceholderGuard(messages, target);
+  let wordCount = countWords(content);
+
+  if (wordCount <= target.maxWords) {
+    return content;
+  }
+
+  const retryMessages: OllamaMessage[] = [
+    ...messages,
+    { role: 'assistant', content },
+    { role: 'user', content: lengthRetryMessage(wordCount, target) },
+  ];
+
+  content = await generateWithPlaceholderGuard(retryMessages, target);
+  wordCount = countWords(content);
+
+  if (wordCount <= target.maxWords) {
+    return content;
+  }
+
+  console.warn(
+    `Generated content still exceeds target after retry (${wordCount}/${target.maxWords} words).`
+  );
+  return content;
 }
 
 /** List-style articles ground titles in live organic search. */
@@ -69,11 +125,10 @@ export async function generateContentFromTopic({
   const platform = resolveGenerationPlatform({ platform: platformInput, rawBrief });
 
   if (usesSearchGrounding(brief.articleType)) {
-    const searchResults = await fetchTrendingSearchContext(brief.searchTopic);
-    const discovered =
-      searchResults && searchResults.length > 0
-        ? keywordsFromSearchResults(searchResults)
-        : await discoverKeywordsForTopic(rawBrief);
+    const [searchResults, discovered] = await Promise.all([
+      fetchTrendingSearchContext(brief.searchTopic),
+      discoverKeywordsForTopic(rawBrief),
+    ]);
 
     const keywordLine = formatKeywordsForPrompt(discovered);
     const searchContext = searchResults ? formatTrendingSearchContext(searchResults) : null;
@@ -86,10 +141,13 @@ export async function generateContentFromTopic({
       searchContext,
     });
 
-    const content = await generateWithPlaceholderGuard([
-      { role: 'system', content: system },
-      { role: 'user', content: user },
-    ]);
+    const content = await generateWithLengthGuard(
+      [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+      brief.readingTarget
+    );
 
     return {
       content: normalizeHtmlEntities(content),
@@ -110,10 +168,13 @@ export async function generateContentFromTopic({
     searchContext: null,
   });
 
-  const content = await generateWithPlaceholderGuard([
-    { role: 'system', content: system },
-    { role: 'user', content: user },
-  ]);
+  const content = await generateWithLengthGuard(
+    [
+      { role: 'system', content: system },
+      { role: 'user', content: user },
+    ],
+    brief.readingTarget
+  );
 
   return {
     content: normalizeHtmlEntities(content),
