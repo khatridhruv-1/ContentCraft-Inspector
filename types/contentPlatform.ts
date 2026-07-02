@@ -24,10 +24,10 @@ export const CONTENT_PLATFORM_OPTIONS: ContentPlatformOption[] = [
   { id: 'substack', label: 'Substack', shortLabel: 'Substack' },
 ];
 
-/** ~200 wpm → 3–4 minute read */
+/** ~200 wpm → 3–4 minute read (tight cap so drafts stay short) */
 export const PLATFORM_READING_TARGET = {
-  minWords: 650,
-  maxWords: 900,
+  minWords: 550,
+  maxWords: 720,
   label: '3–4 minute read',
 } as const;
 

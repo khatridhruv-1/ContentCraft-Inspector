@@ -17,16 +17,24 @@ export const ANTI_MARKETING_RULES = `
 export const BRAND_VOICE_RULES = `
 ━━━ EDITORIAL STANDARD ━━━
 - Write like a practitioner explaining a real shift to a smart peer — not a guru, template, or SEO bot.
-- Open with tension or context: what used to be true → what changed → why it matters now (e.g. "For years… But today…").
-- Short paragraphs only (1–3 sentences). Generous white space. Never dense walls of text.
+- Short paragraphs only (1–2 sentences). Generous white space. Never dense walls of text.
+- Keep sentences short and direct. Split long thoughts into two sentences instead of one long clause.
 - Define terms on first use in plain English. For comparisons (SEO vs GEO vs AEO), give one crisp line per term.
-- Use contrast pairs: "SEO helps people find your site. GEO helps AI understand and cite your expertise."
 - Prefer connected prose over bullet lists. Use bullets only when comparing 3+ parallel items side by side.
-- One brief anecdote or "I recently spoke with…" hook per piece is fine — not required on every post.
 - Ground claims in how things work. No unverified stats, ranking guarantees, or invented case studies.
 - 2026-aware framing for marketing, AI, and search topics — forward-looking without hype or fear-mongering.
 - Close with one resonant insight or practical reflection — not "follow for more", "contact us", product pitches, or hard sales CTAs.
 - Avoid emoji-heavy listicles, "Golden Rules" templates, and generic engagement bait.
+`.trim();
+
+export const ANTI_AI_PROSE_RULES = `
+━━━ SOUND HUMAN (not AI) ━━━
+- NEVER use em-dashes (—) or en-dashes (–) in the body. Use a comma, period, or parentheses instead.
+- Do NOT write: "Topic — a growing field — is changing." Write: "Topic is changing, and teams are noticing."
+- Avoid stacked abstractions and triple-adjective phrases ("robust, scalable, innovative").
+- Skip throat-clearing openers: "In today's fast-paced world", "It's no secret that", "When it comes to".
+- No rhetorical question chains. No "Let's dive in", "Here's the thing", "The bottom line is".
+- Vary rhythm with plain verbs. Say "use" not "leverage", "help" not "empower", "start" not "kick off".
 `.trim();
 
 export const BRAND_BANNED_PHRASES = `
@@ -34,7 +42,9 @@ export const BRAND_BANNED_PHRASES = `
 "In conclusion", "Moreover", "Furthermore", "it will be interesting to see",
 "whether you're a … or simply a curious reader", "contact agencies", "reach out to us",
 "check out my", "link in bio", "book a call", "sign up for", "try our", "our platform",
-"Ultimate Guide", "Everything You Need to Know", "Golden Rules", "stop scrolling".
+"Ultimate Guide", "Everything You Need to Know", "Golden Rules", "stop scrolling",
+"it's worth noting", "in today's", "at the end of the day", "let's dive in", "here's the thing",
+"navigate the landscape", "ever-evolving", "in an era of", "holistic approach".
 `.trim();
 
 /** Structure for GEO/SEO/AEO-style comparison explainers. */
@@ -69,7 +79,7 @@ export function getBrandVoiceSection(options?: {
   topic?: string;
   rawBrief?: string;
 }): string {
-  const parts = [ANTI_MARKETING_RULES, BRAND_VOICE_RULES];
+  const parts = [ANTI_MARKETING_RULES, BRAND_VOICE_RULES, ANTI_AI_PROSE_RULES];
 
   if (options?.topic && options?.rawBrief) {
     if (isComparisonTopic(options.topic, options.rawBrief)) {

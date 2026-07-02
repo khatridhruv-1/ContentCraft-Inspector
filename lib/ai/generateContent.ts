@@ -1,10 +1,11 @@
 import { resolveBriefIntent, type ResolvedBrief } from '@/lib/ai/briefIntent';
 import { buildContentGenerationPrompt } from '@/lib/ai/contentPrompts';
 import { ollamaChat, type OllamaMessage } from '@/lib/ai/ollama';
-import { countPlaceholderLines, stripPlaceholderLines } from '@/lib/ai/sanitizeContent';
+import { countPlaceholderLines, humanizePunctuation, stripPlaceholderLines } from '@/lib/ai/sanitizeContent';
 import {
   countWords,
   maxTokensForReadingTarget,
+  truncateToWordLimit,
   type ReadingTarget,
 } from '@/lib/content/readingTarget';
 import {
@@ -36,7 +37,7 @@ function normalizeHtmlEntities(text: string): string {
     .replace(/&amp;/g, '&');
 }
 
-const OLLAMA_BASE_OPTS = { temperature: 0.35, topP: 0.85 } as const;
+const OLLAMA_BASE_OPTS = { temperature: 0.28, topP: 0.8 } as const;
 
 const PLACEHOLDER_RETRY_MESSAGE =
   'Your draft contained $1 placeholder lines. Rewrite the full article with complete sentences in every bullet and numbered step — no $1, $2, or any other $N placeholders.';
@@ -51,9 +52,14 @@ function ollamaOptsForTarget(target: ReadingTarget) {
 function lengthRetryMessage(wordCount: number, target: ReadingTarget): string {
   return [
     `Your draft is ${wordCount} words but must be ${target.minWords}–${target.maxWords} words (${target.label}).`,
-    `Shorten it now: remove repetition, tighten paragraphs, and keep only the strongest points.`,
-    `Do not exceed ${target.maxWords} words. Keep the same structure, platform formatting, and key facts.`,
+    `Rewrite shorter: fewer sections, shorter paragraphs, 1–2 sentences per point.`,
+    `Hard max ${target.maxWords} words. Remove filler and repetition. No em-dashes (—).`,
   ].join(' ');
+}
+
+function finalizeGeneratedContent(content: string, target: ReadingTarget): string {
+  const humanized = humanizePunctuation(content);
+  return truncateToWordLimit(humanized, target.maxWords);
 }
 
 async function ollamaChatForTarget(
@@ -88,27 +94,24 @@ async function generateWithLengthGuard(
   let content = await generateWithPlaceholderGuard(messages, target);
   let wordCount = countWords(content);
 
-  if (wordCount <= target.maxWords) {
-    return content;
+  for (let attempt = 0; attempt < 2 && wordCount > target.maxWords; attempt += 1) {
+    const retryMessages: OllamaMessage[] = [
+      ...messages,
+      { role: 'assistant', content },
+      { role: 'user', content: lengthRetryMessage(wordCount, target) },
+    ];
+
+    content = await generateWithPlaceholderGuard(retryMessages, target);
+    wordCount = countWords(content);
   }
 
-  const retryMessages: OllamaMessage[] = [
-    ...messages,
-    { role: 'assistant', content },
-    { role: 'user', content: lengthRetryMessage(wordCount, target) },
-  ];
-
-  content = await generateWithPlaceholderGuard(retryMessages, target);
-  wordCount = countWords(content);
-
-  if (wordCount <= target.maxWords) {
-    return content;
+  if (wordCount > target.maxWords) {
+    console.warn(
+      `Generated content exceeded target after retries (${wordCount}/${target.maxWords} words); truncating.`
+    );
   }
 
-  console.warn(
-    `Generated content still exceeds target after retry (${wordCount}/${target.maxWords} words).`
-  );
-  return content;
+  return finalizeGeneratedContent(content, target);
 }
 
 /** List-style articles ground titles in live organic search. */

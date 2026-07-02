@@ -91,7 +91,36 @@ export function stripReadingTimeInstructions(text: string): string {
 }
 
 export function maxTokensForReadingTarget(target: ReadingTarget): number {
-  return Math.min(4096, Math.max(800, Math.ceil(target.maxWords * 1.6)));
+  return Math.min(2048, Math.max(600, Math.ceil(target.maxWords * 1.2)));
+}
+
+export function isCompactReadingTarget(target: ReadingTarget): boolean {
+  return target.maxWords <= 800;
+}
+
+/** Trim at paragraph boundaries when the model overshoots the word cap. */
+export function truncateToWordLimit(text: string, maxWords: number): string {
+  if (countWords(text) <= maxWords) return text;
+
+  const paragraphs = text.split(/\n\n+/);
+  let result = '';
+
+  for (const paragraph of paragraphs) {
+    const candidate = result ? `${result}\n\n${paragraph}` : paragraph;
+    if (countWords(candidate) > maxWords) break;
+    result = candidate;
+  }
+
+  if (result.trim() && countWords(result) >= Math.floor(maxWords * 0.55)) {
+    return result.trim();
+  }
+
+  return text
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, maxWords)
+    .join(' ')
+    .trim();
 }
 
 export function countWords(text: string): number {
