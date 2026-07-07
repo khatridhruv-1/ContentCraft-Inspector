@@ -3,12 +3,15 @@ const PLACEHOLDER_LINE_RE = /^\$\d+$/;
 
 const META_LINE_PATTERNS = [
   /^we need to (?:write|produce|create|draft)/i,
-  /^let'?s aim\b/i,
+  /^let'?s (?:aim|craft|write|count)\b/i,
+  /^we'?ll count\b/i,
   /^the spec says/i,
   /^need to cover\b/i,
   /^first \d+ lines must\b/i,
   /^title line not counted/i,
+  /^title line:/i,
   /^word count estimate/i,
+  /^word count approx/i,
   /^structure:\s/i,
   /^so we need\b/i,
   /^we should\b/i,
@@ -17,16 +20,27 @@ const META_LINE_PATTERNS = [
   /^no em-dashes\b/i,
   /^use short paragraphs\b/i,
   /^paragraph_count:/i,
+  /^hook line \d+/i,
+  /^paragraph \d+:/i,
+  /^section heading\b/i,
+  /^then blank line\.?$/i,
+  /^blank line\.?$/i,
+  /^then sections\.?$/i,
 ];
 
 const META_BODY_PATTERNS = [
   /\bwe need to (?:write|produce|create)\b/i,
   /\bword count estimate\b/i,
+  /\bword count approx\b/i,
   /\blet'?s aim ~?\d+/i,
+  /\blet'?s craft\b/i,
   /\bthe spec says\b/i,
   /\bmust be \d+[-–]\d+ words total\b/i,
   /\btitle line not counted\b/i,
   /\bfirst \d+ lines must hook\b/i,
+  /\bhook line \d+/i,
+  /\bparagraph \d+:/i,
+  /\bthen blank line\b/i,
 ];
 
 export function countPlaceholderLines(text: string): number {
@@ -63,7 +77,18 @@ export function isMetaLeak(text: string): boolean {
 
   const sample = trimmed.slice(0, 900);
   const hits = META_BODY_PATTERNS.filter(pattern => pattern.test(sample)).length;
-  return hits >= 2;
+  return hits >= 1 && isMetaLine(trimmed.split('\n')[0]?.trim() ?? '');
+}
+
+function unwrapScriptLine(line: string): string | null {
+  const trimmed = line.trim();
+  const quoted = trimmed.match(/^(?:title line|hook line \d+|paragraph \d+|section heading(?:\s+\w+)?):\s*["“](.+?)["”]\s*$/i);
+  if (quoted?.[1]) return quoted[1].trim();
+
+  const boldHeading = trimmed.match(/^section heading[^:]*:\s*\*\*(.+?)\*\*\s*$/i);
+  if (boldHeading?.[1]) return `**${boldHeading[1].trim()}**`;
+
+  return null;
 }
 
 /** Drop leading planning paragraphs and start at the first publishable block. */
@@ -80,21 +105,37 @@ export function extractPublishableContent(text: string): string {
     }
   }
 
+  const rebuilt: string[] = [];
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) {
+      if (rebuilt.length > 0 && rebuilt[rebuilt.length - 1] !== '') {
+        rebuilt.push('');
+      }
+      continue;
+    }
+    if (isMetaLine(trimmedLine)) continue;
+
+    const unwrapped = unwrapScriptLine(trimmedLine);
+    if (unwrapped) {
+      rebuilt.push(unwrapped);
+      continue;
+    }
+
+    if (/^---+$/.test(trimmedLine)) continue;
+    rebuilt.push(trimmedLine);
+  }
+
+  const cleaned = rebuilt.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  if (cleaned) return cleaned;
+
   const paragraphs = trimmed.split(/\n\n+/);
   const startIndex = paragraphs.findIndex(paragraph => !isMetaParagraph(paragraph));
   if (startIndex > 0) {
     return paragraphs.slice(startIndex).join('\n\n').trim();
   }
 
-  const cleanedLines: string[] = [];
-  let started = false;
-  for (const line of lines) {
-    if (!started && isMetaLine(line)) continue;
-    started = true;
-    cleanedLines.push(line);
-  }
-
-  return cleanedLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return trimmed;
 }
 
 export function stripPlaceholderLines(text: string): string {
