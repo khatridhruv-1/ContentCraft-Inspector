@@ -130,17 +130,13 @@ export async function ollamaChat({
     throw new Error(message);
   }
 
-  const text =
-    (payload as { message?: { content?: string; thinking?: string } })?.message
-      ?.content?.trim() ||
-    (payload as { message?: { content?: string; thinking?: string } })?.message
-      ?.thinking?.trim();
+  const content = (payload as { message?: { content?: string } })?.message?.content?.trim();
 
-  if (!text) {
+  if (!content) {
     throw new Error('Ollama returned an empty response.');
   }
 
-  return stripMarkdownFences(text);
+  return stripMarkdownFences(content);
 }
 
 /** Strip optional ```json fences before parsing model JSON output */

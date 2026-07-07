@@ -93,6 +93,13 @@ function buildGenerationSystemPrompt(
   return `
 You are an experienced human editor. Write one publish-ready piece in markdown (adapt formatting to the target platform rules below).
 
+━━━ OUTPUT (read this first) ━━━
+- Your entire response must be ONLY the finished article a reader would publish.
+- Start immediately with the title or opening line. No preamble.
+- NEVER output planning notes, checklists, word-count math, or instructions to yourself.
+- NEVER write phrases like "We need to produce...", "Let's aim...", "Word count estimate...", or "The spec says...".
+- Do not explain how you followed the rules. Just write the article.
+
 TARGET PLATFORM:
 ${getPlatformPromptSection(platform, target)}
 
@@ -152,9 +159,10 @@ Do NOT output [INSERT], TBD, TODO, or empty list items.
 ✓ SCAN every line: if any line contains only $1 or similar, rewrite it before outputting.
 ✓ Names in the article match CURRENT WEB SEARCH RESULTS when provided.
 ✓ No em-dashes (—) or en-dashes (–) anywhere in the body.
+✓ Response is publish-ready copy only — zero planning or meta commentary.
 ✓ Title is not a formula template. Body is ${target.minWords}–${target.maxWords} words (${target.label}). No unverified precise stats.
 
-Output the final markdown article only. No commentary.
+Output the final markdown article only. No commentary, notes, or planning.
 `.trim();
 }
 
@@ -197,6 +205,11 @@ export function buildContentGenerationPrompt({
   if (tone?.trim()) {
     lines.push(`TONE: ${tone.trim()}`);
   }
+
+  lines.push(
+    '',
+    'Write the finished article now. Output only publish-ready copy for the reader — no planning notes, no word-count commentary, no meta explanation.'
+  );
 
   return {
     system: buildGenerationSystemPrompt(brief, platform),

@@ -1,7 +1,7 @@
 import { resolveBriefIntent, type ResolvedBrief } from '@/lib/ai/briefIntent';
 import { buildContentGenerationPrompt } from '@/lib/ai/contentPrompts';
 import { ollamaChat, type OllamaMessage } from '@/lib/ai/ollama';
-import { countPlaceholderLines, humanizePunctuation, stripPlaceholderLines } from '@/lib/ai/sanitizeContent';
+import { countPlaceholderLines, extractPublishableContent, humanizePunctuation, isMetaLeak, stripPlaceholderLines } from '@/lib/ai/sanitizeContent';
 import {
   countWords,
   maxTokensForReadingTarget,
@@ -42,6 +42,9 @@ const OLLAMA_BASE_OPTS = { temperature: 0.28, topP: 0.8 } as const;
 const PLACEHOLDER_RETRY_MESSAGE =
   'Your draft contained $1 placeholder lines. Rewrite the full article with complete sentences in every bullet and numbered step — no $1, $2, or any other $N placeholders.';
 
+const META_RETRY_MESSAGE =
+  'You returned planning notes instead of the article. Rewrite now and output ONLY the finished publish-ready piece. Start with the title or opening line. No "We need to...", no word-count math, no meta commentary.';
+
 function ollamaOptsForTarget(target: ReadingTarget) {
   return {
     ...OLLAMA_BASE_OPTS,
@@ -58,8 +61,34 @@ function lengthRetryMessage(wordCount: number, target: ReadingTarget): string {
 }
 
 function finalizeGeneratedContent(content: string, target: ReadingTarget): string {
-  const humanized = humanizePunctuation(content);
+  const publishable = extractPublishableContent(content);
+  const humanized = humanizePunctuation(publishable);
   return truncateToWordLimit(humanized, target.maxWords);
+}
+
+async function generateWithMetaLeakGuard(
+  messages: OllamaMessage[],
+  target: ReadingTarget
+): Promise<string> {
+  let content = await generateWithPlaceholderGuard(messages, target);
+
+  if (!isMetaLeak(content)) {
+    return content;
+  }
+
+  const retryMessages: OllamaMessage[] = [
+    ...messages,
+    { role: 'assistant', content },
+    { role: 'user', content: META_RETRY_MESSAGE },
+  ];
+
+  const retry = await generateWithPlaceholderGuard(retryMessages, target);
+  if (!isMetaLeak(retry)) {
+    return retry;
+  }
+
+  console.warn('Generated content still contains planning/meta text after retry; extracting publishable block.');
+  return extractPublishableContent(retry);
 }
 
 async function ollamaChatForTarget(
@@ -91,7 +120,7 @@ async function generateWithLengthGuard(
   messages: OllamaMessage[],
   target: ReadingTarget
 ): Promise<string> {
-  let content = await generateWithPlaceholderGuard(messages, target);
+  let content = await generateWithMetaLeakGuard(messages, target);
   let wordCount = countWords(content);
 
   for (let attempt = 0; attempt < 2 && wordCount > target.maxWords; attempt += 1) {
@@ -101,7 +130,7 @@ async function generateWithLengthGuard(
       { role: 'user', content: lengthRetryMessage(wordCount, target) },
     ];
 
-    content = await generateWithPlaceholderGuard(retryMessages, target);
+    content = await generateWithMetaLeakGuard(retryMessages, target);
     wordCount = countWords(content);
   }
 
