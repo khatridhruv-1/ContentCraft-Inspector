@@ -78,7 +78,12 @@ async function generateWithMetaLeakGuard(
   messages: OllamaMessage[],
   target: ReadingTarget
 ): Promise<string> {
-  let content = await generateWithPlaceholderGuard(messages, target);
+  let content: string;
+  try {
+    content = await generateWithPlaceholderGuard(messages, target);
+  } catch (error) {
+    throw error;
+  }
 
   if (!isMetaLeak(content)) {
     return content;
@@ -90,13 +95,23 @@ async function generateWithMetaLeakGuard(
     { role: 'user', content: META_RETRY_MESSAGE },
   ];
 
-  const retry = await generateWithPlaceholderGuard(retryMessages, target);
-  if (!isMetaLeak(retry)) {
-    return retry;
+  try {
+    const retry = await generateWithPlaceholderGuard(retryMessages, target);
+    if (!isMetaLeak(retry)) {
+      return retry;
+    }
+
+    console.warn('Generated content still contains planning/meta text after retry; extracting publishable block.');
+    const extracted = extractPublishableContent(retry);
+    if (extracted.trim()) return extracted;
+  } catch (retryError) {
+    console.warn('Meta-leak retry failed; extracting publishable block from first draft.', retryError);
   }
 
-  console.warn('Generated content still contains planning/meta text after retry; extracting publishable block.');
-  return extractPublishableContent(retry);
+  const fallback = extractPublishableContent(content);
+  if (fallback.trim()) return fallback;
+
+  return content;
 }
 
 async function ollamaChatForTarget(
@@ -157,8 +172,15 @@ async function generateWithLengthGuard(
       { role: 'assistant', content },
       { role: 'user', content: tooShortRetryMessage(wordCount, target) },
     ];
-    const retry = await generateWithMetaLeakGuard(retryMessages, target);
-    content = finalizeGeneratedContent(retry, target);
+    try {
+      const retry = await generateWithMetaLeakGuard(retryMessages, target);
+      const finalized = finalizeGeneratedContent(retry, target);
+      if (countWords(finalized) > wordCount) {
+        content = finalized;
+      }
+    } catch (retryError) {
+      console.warn('Too-short retry failed; returning best available draft.', retryError);
+    }
   }
 
   return content;
