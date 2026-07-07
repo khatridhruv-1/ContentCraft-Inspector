@@ -7,7 +7,7 @@ const META_LINE =
   /^(?:we need|let'?s |i'?ll |we'?ll |we must|the spec|word count|count words|structure:|hook line|paragraph|line\d+:|title line|thus we have|now (?:section|count|next|body|write|produce)|must be \d|could be "|ensure no|ensure short|write:$|count:|second:|title or opening|paragraph\(s\)|so we need|we should|no em-dashes|current draft|we have title|section heading|subtitle line|next:|need sections|avoid banned|not counted as|maybe "|body\.?$|draft:|title:|sections:|make sure)/i;
 
 const META_SNIPPET =
-  /\b(we need to (?:write|produce|output)|we must (?:avoid|not)|word count|count words|let'?s (?:craft|write|count)|thus we have|planning notes|we must not use markdown|i'?ll write full|current draft|we have title|subtitle line|need sections|ensure short paragraphs|make sure each|we can mention generic)\b/i;
+  /\b(we need to (?:write|produce|output)|we must (?:avoid|not)|word count|count words|let'?s (?:craft|write|count)|thus we have|planning notes|we must not use markdown|i'?ll write full|current draft|current article|we have title|subtitle line|need sections|ensure short paragraphs|make sure each|we can mention generic|need personal)\b/i;
 
 const WORD_COUNT_TAIL = /=>\s*\d+\s*words?\b/i;
 
@@ -82,7 +82,7 @@ function findContentStart(lines: string[]): number {
 
 /** Strip planning lines and fix punctuation in one pass. */
 export function cleanGeneratedContent(text: string): string {
-  const normalized = text.trim().replace(/^(?:current\s+)?draft:\s*/i, '');
+  const normalized = text.trim().replace(/^(?:current\s+)?(?:draft|article):\s*/i, '');
   const lines = normalized.split('\n');
   const start = findContentStart(lines);
 

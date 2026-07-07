@@ -68,7 +68,7 @@ async function generateArticle(
       });
       const retryWords = countWords(cleanGeneratedContent(retry));
       const draftWords = countWords(cleanGeneratedContent(draft));
-      if (retryWords >= draftWords * 0.7) {
+      if (retryWords >= draftWords * 0.7 || (reason.includes('words') && retryWords > draftWords)) {
         draft = retry;
       }
     } catch (error) {
