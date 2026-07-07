@@ -4,10 +4,10 @@ import type { ContentPlatformId } from '@/types/contentPlatform';
 const PLACEHOLDER_LINE_RE = /^\$\d+$/;
 
 const META_LINE =
-  /^(?:we need|let'?s |i'?ll |we'?ll |the spec|word count|count words|structure:|hook line|paragraph|line\d+:|title line|thus we have|now (?:section|count|next|body|write|produce)|must be \d|could be "|ensure no|ensure short|write:$|count:|second:|title or opening|paragraph\(s\)|so we need|we should|no em-dashes|current draft|we have title|section heading|subtitle line|next:|need sections|avoid banned|not counted as|maybe "|body\.?$|draft:|title:|sections:|make sure)/i;
+  /^(?:we need|let'?s |i'?ll |we'?ll |we must|the spec|word count|count words|structure:|hook line|paragraph|line\d+:|title line|thus we have|now (?:section|count|next|body|write|produce)|must be \d|could be "|ensure no|ensure short|write:$|count:|second:|title or opening|paragraph\(s\)|so we need|we should|no em-dashes|current draft|we have title|section heading|subtitle line|next:|need sections|avoid banned|not counted as|maybe "|body\.?$|draft:|title:|sections:|make sure)/i;
 
 const META_SNIPPET =
-  /\b(we need to (?:write|produce|output)|word count|count words|let'?s (?:craft|write|count)|thus we have|planning notes|we must not use markdown|i'?ll write full|current draft|we have title|subtitle line|need sections|ensure short paragraphs)\b/i;
+  /\b(we need to (?:write|produce|output)|we must (?:avoid|not)|word count|count words|let'?s (?:craft|write|count)|thus we have|planning notes|we must not use markdown|i'?ll write full|current draft|we have title|subtitle line|need sections|ensure short paragraphs|make sure each|we can mention generic)\b/i;
 
 const WORD_COUNT_TAIL = /=>\s*\d+\s*words?\b/i;
 
