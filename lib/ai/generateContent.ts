@@ -1,7 +1,7 @@
 import { resolveBriefIntent, type ResolvedBrief } from '@/lib/ai/briefIntent';
 import { buildContentGenerationPrompt } from '@/lib/ai/contentPrompts';
 import { ollamaChat, type OllamaMessage } from '@/lib/ai/ollama';
-import { cleanGeneratedContent, getRegenerationReason } from '@/lib/ai/sanitizeContent';
+import { cleanGeneratedContent, getRegenerationReason, normalizePlatformFormat } from '@/lib/ai/sanitizeContent';
 import {
   countWords,
   maxTokensForReadingTarget,
@@ -39,13 +39,15 @@ function normalizeHtmlEntities(text: string): string {
     .replace(/&amp;/g, '&');
 }
 
-function finalizeContent(content: string, target: ReadingTarget): string {
-  return truncateToWordLimit(cleanGeneratedContent(content), target.maxWords);
+function finalizeContent(content: string, target: ReadingTarget, platform: ContentPlatformId): string {
+  const cleaned = normalizePlatformFormat(cleanGeneratedContent(content), platform);
+  return truncateToWordLimit(cleaned, target.maxWords);
 }
 
 async function generateArticle(
   messages: OllamaMessage[],
-  target: ReadingTarget
+  target: ReadingTarget,
+  platform: ContentPlatformId
 ): Promise<string> {
   const opts = { ...OLLAMA_OPTS, maxTokens: maxTokensForReadingTarget(target) };
 
@@ -75,7 +77,7 @@ async function generateArticle(
     }
   }
 
-  return finalizeContent(draft, target);
+  return finalizeContent(draft, target, platform);
 }
 
 function usesSearchGrounding(articleType: ResolvedBrief['articleType']): boolean {
@@ -109,7 +111,8 @@ export async function generateContentFromTopic({
       { role: 'system', content: system },
       { role: 'user', content: user },
     ],
-    brief.readingTarget
+    brief.readingTarget,
+    platform
   );
 
   return {
