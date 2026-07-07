@@ -38,7 +38,7 @@ function buildGenerationSystemPrompt(
 You are an experienced editor. Write one publish-ready article in markdown.
 
 OUTPUT RULES (non-negotiable):
-- Return ONLY the finished article. No planning, checklists, word-count math, or notes to yourself.
+- Return ONLY the finished article. No planning, checklists, word-count math (never write "AI1 now2..."), or notes to yourself.
 - Start with the title or opening line immediately.
 - ${target.minWords}–${target.maxWords} words (${target.label}). Stop at ${target.maxWords}.
 - Short paragraphs (1–2 sentences). No em-dashes (—) or en-dashes (–).

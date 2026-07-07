@@ -50,9 +50,11 @@ async function generateArticle(
   const opts = { ...OLLAMA_OPTS, maxTokens: maxTokensForReadingTarget(target) };
 
   let draft = await ollamaChat({ messages, ...opts });
-  let reason = getRegenerationReason(draft, target);
 
-  if (reason) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const reason = getRegenerationReason(draft, target);
+    if (!reason) break;
+
     try {
       const retry = await ollamaChat({
         messages: [
@@ -62,11 +64,14 @@ async function generateArticle(
         ],
         ...opts,
       });
-      if (countWords(retry) >= countWords(draft) * 0.75) {
+      const retryWords = countWords(cleanGeneratedContent(retry));
+      const draftWords = countWords(cleanGeneratedContent(draft));
+      if (retryWords >= draftWords * 0.7) {
         draft = retry;
       }
     } catch (error) {
-      console.warn('Content regeneration retry failed; using first draft.', error);
+      console.warn('Content regeneration retry failed; using best draft.', error);
+      break;
     }
   }
 
