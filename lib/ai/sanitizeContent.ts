@@ -4,7 +4,7 @@ import type { ContentPlatformId } from '@/types/contentPlatform';
 const PLACEHOLDER_LINE_RE = /^\$\d+$/;
 
 const META_LINE =
-  /^(?:we need|let'?s |i'?ll |we'?ll |the spec|word count|count words|structure:|hook line|paragraph|line\d+:|title line|thus we have|now (?:section|count|next|body)|must be \d|could be "|ensure no|ensure short|write:$|count:|second:|title or opening|paragraph\(s\)|so we need|we should|no em-dashes|current draft|we have title|section heading|subtitle line|next:|need sections|avoid banned|not counted as|maybe "|body\.?$)/i;
+  /^(?:we need|let'?s |i'?ll |we'?ll |the spec|word count|count words|structure:|hook line|paragraph|line\d+:|title line|thus we have|now (?:section|count|next|body|write|produce)|must be \d|could be "|ensure no|ensure short|write:$|count:|second:|title or opening|paragraph\(s\)|so we need|we should|no em-dashes|current draft|we have title|section heading|subtitle line|next:|need sections|avoid banned|not counted as|maybe "|body\.?$|draft:|title:|sections:|make sure)/i;
 
 const META_SNIPPET =
   /\b(we need to (?:write|produce|output)|word count|count words|let'?s (?:craft|write|count)|thus we have|planning notes|we must not use markdown|i'?ll write full|current draft|we have title|subtitle line|need sections|ensure short paragraphs)\b/i;
@@ -28,8 +28,14 @@ function unwrapLine(line: string): string {
   const numbered = line.match(/^line\d+:\s*(.+)$/i);
   if (numbered?.[1]) return numbered[1].trim();
 
+  const titleAssign = line.match(/^title:\s*["#]?\s*(.+?)["']?\s*$/i);
+  if (titleAssign?.[1]) return titleAssign[1].startsWith('#') ? titleAssign[1].trim() : `# ${titleAssign[1].trim()}`;
+
   const quoted = line.match(/^["“](.+?)["”](?:\s*\(sentence \d+\))?\s*$/);
   if (quoted?.[1] && quoted[1].length >= 12) return quoted[1].trim();
+
+  const inlineHeading = line.match(/^##\s+(.+)$/);
+  if (inlineHeading?.[1] && !META_SNIPPET.test(line)) return `## ${inlineHeading[1].trim()}`;
 
   return humanizeLine(line);
 }
@@ -76,7 +82,8 @@ function findContentStart(lines: string[]): number {
 
 /** Strip planning lines and fix punctuation in one pass. */
 export function cleanGeneratedContent(text: string): string {
-  const lines = text.trim().replace(/^current draft:\s*/i, '').split('\n');
+  const normalized = text.trim().replace(/^(?:current\s+)?draft:\s*/i, '');
+  const lines = normalized.split('\n');
   const start = findContentStart(lines);
 
   const body: string[] = [];
@@ -93,7 +100,18 @@ export function cleanGeneratedContent(text: string): string {
     body.push(unwrapped);
   }
 
-  return body.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  const cleaned = body.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  if (cleaned) return cleaned;
+
+  // If aggressive filtering removed everything, keep non-meta lines from the raw draft.
+  const fallback: string[] = [];
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || isWordCountMath(trimmed)) continue;
+    if (META_SNIPPET.test(trimmed) && trimmed.length < 120) continue;
+    fallback.push(humanizeLine(trimmed));
+  }
+  return fallback.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 export function normalizePlatformFormat(content: string, platform: ContentPlatformId): string {
@@ -106,6 +124,9 @@ export function normalizePlatformFormat(content: string, platform: ContentPlatfo
   if (usesMarkdownTitle) {
     const boldTitle = first.match(/^\*\*(.+)\*\*$/);
     if (boldTitle) lines[0] = `# ${boldTitle[1].trim()}`;
+
+    const quotedTitle = first.match(/^["“](#?\s*.+?)["”]$/);
+    if (quotedTitle?.[1]) lines[0] = quotedTitle[1].startsWith('#') ? quotedTitle[1].trim() : `# ${quotedTitle[1].trim()}`;
   }
 
   if (platform === 'linkedin' || platform === 'quora') {
@@ -135,6 +156,9 @@ export function getRegenerationReason(text: string, target: ReadingTarget): stri
 
   if (countPlaceholderLines(text) > 0) {
     return 'Replace every $N placeholder with real sentences. Output only the finished article.';
+  }
+  if (!cleaned.trim()) {
+    return 'Your output was empty. Write the full publish-ready article now.';
   }
   if (hasPlanningLeak(text)) {
     return 'Output ONLY the finished publish-ready article. No planning notes, word-count math, or "Current draft:" labels. Start with the title or opening line.';
