@@ -109,7 +109,9 @@ export async function ollamaChat({
     body: JSON.stringify(body),
   });
 
-  const payload = await response.json().catch(() => ({}));
+  let payload = (await response.json().catch(() => ({}))) as {
+    message?: { content?: string; thinking?: string };
+  };
 
   if (!response.ok) {
     const message = parseApiError(payload, response.status);
@@ -130,13 +132,47 @@ export async function ollamaChat({
     throw new Error(message);
   }
 
-  const content = (payload as { message?: { content?: string } })?.message?.content?.trim();
+  let text = resolveOllamaMessageText(payload);
 
-  if (!content) {
+  if (!text) {
+    const retryResponse = await fetch(`${resolveHost()}/api/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getApiKey()}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    payload = (await retryResponse.json().catch(() => ({}))) as {
+      message?: { content?: string; thinking?: string };
+    };
+
+    if (!retryResponse.ok) {
+      const message = parseApiError(payload, retryResponse.status);
+      throw new Error(message);
+    }
+
+    text = resolveOllamaMessageText(payload);
+  }
+
+  if (!text) {
     throw new Error('Ollama returned an empty response.');
   }
 
-  return stripMarkdownFences(content);
+  return stripMarkdownFences(text);
+}
+
+function resolveOllamaMessageText(payload: {
+  message?: { content?: string; thinking?: string };
+}): string | null {
+  const content = payload.message?.content?.trim();
+  if (content) return content;
+
+  const thinking = payload.message?.thinking?.trim();
+  if (thinking) return thinking;
+
+  return null;
 }
 
 /** Strip optional ```json fences before parsing model JSON output */
