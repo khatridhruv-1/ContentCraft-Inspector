@@ -71,7 +71,18 @@ function lengthRetryMessage(wordCount: number, target: ReadingTarget): string {
 function finalizeGeneratedContent(content: string, target: ReadingTarget): string {
   const publishable = extractPublishableContent(content);
   const humanized = humanizePunctuation(publishable);
-  return truncateToWordLimit(humanized, target.maxWords);
+  const trimmed = truncateToWordLimit(humanized, target.maxWords);
+  if (isMetaLeak(trimmed)) {
+    const salvaged = extractPublishableContent(trimmed);
+    return truncateToWordLimit(humanizePunctuation(salvaged), target.maxWords);
+  }
+  return trimmed;
+}
+
+function looksTruncated(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed) return true;
+  return !/[.!?]["']?$/.test(trimmed) && !/^#\w+/.test(trimmed.split('\n').pop()?.trim() ?? '');
 }
 
 async function generateWithMetaLeakGuard(
@@ -86,7 +97,7 @@ async function generateWithMetaLeakGuard(
   }
 
   if (!isMetaLeak(content)) {
-    return content;
+    return finalizeGeneratedContent(content, target);
   }
 
   const retryMessages: OllamaMessage[] = [
@@ -98,17 +109,17 @@ async function generateWithMetaLeakGuard(
   try {
     const retry = await generateWithPlaceholderGuard(retryMessages, target);
     if (!isMetaLeak(retry)) {
-      return retry;
+      return finalizeGeneratedContent(retry, target);
     }
 
     console.warn('Generated content still contains planning/meta text after retry; extracting publishable block.');
-    const extracted = extractPublishableContent(retry);
+    const extracted = finalizeGeneratedContent(retry, target);
     if (extracted.trim()) return extracted;
   } catch (retryError) {
     console.warn('Meta-leak retry failed; extracting publishable block from first draft.', retryError);
   }
 
-  const fallback = extractPublishableContent(content);
+  const fallback = finalizeGeneratedContent(content, target);
   if (fallback.trim()) return fallback;
 
   return content;
@@ -166,7 +177,10 @@ async function generateWithLengthGuard(
   content = finalizeGeneratedContent(content, target);
   wordCount = countWords(content);
 
-  if (wordCount < target.minWords) {
+  for (let attempt = 0; attempt < 2 && wordCount < target.minWords; attempt += 1) {
+    const truncated = looksTruncated(content);
+    if (!truncated && wordCount >= Math.floor(target.minWords * 0.85)) break;
+
     const retryMessages: OllamaMessage[] = [
       ...messages,
       { role: 'assistant', content },
@@ -175,11 +189,14 @@ async function generateWithLengthGuard(
     try {
       const retry = await generateWithMetaLeakGuard(retryMessages, target);
       const finalized = finalizeGeneratedContent(retry, target);
-      if (countWords(finalized) > wordCount) {
+      const retryWords = countWords(finalized);
+      if (retryWords > wordCount) {
         content = finalized;
+        wordCount = retryWords;
       }
     } catch (retryError) {
       console.warn('Too-short retry failed; returning best available draft.', retryError);
+      break;
     }
   }
 

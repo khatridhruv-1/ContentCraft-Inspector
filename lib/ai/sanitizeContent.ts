@@ -40,6 +40,19 @@ const META_LINE_PATTERNS = [
   /^ensure no markdown\b/i,
   /^title or opening line/i,
   /^we'?ll write\b/i,
+  /^thus we have\b/i,
+  /^we must not use markdown\b/i,
+  /^line\d+:\s*$/i,
+  /^paragraph\(s\)/i,
+  /^now count words/i,
+  /^i'?ll write full article\b/i,
+  /^write:$/i,
+  /^so we can use plain headings\b/i,
+  /^we can use plain headings\b/i,
+  /^must not use markdown\b/i,
+  /^paragraph\(s\)\.\.\./i,
+  /^i'?ll write\b/i,
+  /^then count\b/i,
 ];
 
 const META_BODY_PATTERNS = [
@@ -61,6 +74,11 @@ const META_BODY_PATTERNS = [
   /\b\(sentence \d+\)/i,
   /\bnow section heading\b/i,
   /\bhashtags line:/i,
+  /\bthus we have\b/i,
+  /\bline\d+:/i,
+  /\bnow count words\b/i,
+  /\bi'?ll write full article\b/i,
+  /\bwe must not use markdown\b/i,
 ];
 
 export function countPlaceholderLines(text: string): number {
@@ -101,6 +119,11 @@ export function isMetaLeak(text: string): boolean {
   const firstLine = lines[0] ?? '';
   if (isMetaLine(firstLine)) return true;
 
+  const openingLines = lines.slice(0, 4).join(' ');
+  if (META_BODY_PATTERNS.filter(pattern => pattern.test(openingLines)).length >= 1) {
+    return true;
+  }
+
   const sample = trimmed.slice(0, 1200);
   const bodyHits = META_BODY_PATTERNS.filter(pattern => pattern.test(sample)).length;
   if (bodyHits >= 2) return true;
@@ -126,6 +149,9 @@ function unwrapScriptLine(line: string): string | null {
   const inlineQuote = trimmed.match(/^["“](.+?)["”](?:\s*\(sentence \d+\))?\s*$/);
   if (inlineQuote?.[1] && inlineQuote[1].length >= 20) return inlineQuote[1].trim();
 
+  const lineNumbered = trimmed.match(/^line\d+:\s*(.+)$/i);
+  if (lineNumbered?.[1]) return lineNumbered[1].trim();
+
   const boldHeading = trimmed.match(/^section heading[^:]*:\s*\*\*(.+?)\*\*\s*$/i);
   if (boldHeading?.[1]) return `**${boldHeading[1].trim()}**`;
 
@@ -133,6 +159,35 @@ function unwrapScriptLine(line: string): string | null {
   if (bareBold?.[1] && bareBold[1].length >= 8) return `**${bareBold[1].trim()}**`;
 
   return null;
+}
+
+function looksLikePublishableLine(line: string): boolean {
+  const trimmed = line.trim();
+  if (!trimmed || isMetaLine(trimmed)) return false;
+  if (/^line\d+:\s*$/i.test(trimmed)) return false;
+  if (/^paragraph\(s\)/i.test(trimmed)) return false;
+  if (/^write:$/i.test(trimmed)) return false;
+  if (META_BODY_PATTERNS.some(pattern => pattern.test(trimmed))) return false;
+  if (trimmed.length < 12) return false;
+  return true;
+}
+
+function findPublishableStartIndex(lines: string[]): number {
+  for (let i = 0; i < lines.length; i += 1) {
+    const current = lines[i]?.trim() ?? '';
+    const next = lines[i + 1]?.trim() ?? '';
+    if (looksLikePublishableLine(current) && looksLikePublishableLine(next)) {
+      return i;
+    }
+    if (
+      looksLikePublishableLine(current) &&
+      (current.startsWith('# ') || /^[A-Z]/.test(current)) &&
+      current.split(/\s+/).length >= 4
+    ) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 function extractEmbeddedPublishableContent(text: string): string | null {
@@ -178,6 +233,16 @@ export function extractPublishableContent(text: string): string {
   if (!trimmed) return trimmed;
 
   const lines = trimmed.split('\n');
+  const startAt = findPublishableStartIndex(lines);
+  if (startAt > 0) {
+    const sliced = lines.slice(startAt).join('\n').trim();
+    if (sliced && !isMetaLeak(sliced)) return sliced;
+    if (sliced) {
+      const reprocessed = extractPublishableContent(sliced);
+      if (reprocessed.trim()) return reprocessed;
+    }
+  }
+
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i]?.trim() ?? '';
     if (!line || isMetaLine(line)) continue;
@@ -195,13 +260,13 @@ export function extractPublishableContent(text: string): string {
       }
       continue;
     }
-    if (isMetaLine(trimmedLine)) continue;
-
     const unwrapped = unwrapScriptLine(trimmedLine);
     if (unwrapped) {
       rebuilt.push(unwrapped);
       continue;
     }
+
+    if (isMetaLine(trimmedLine)) continue;
 
     if (/^---+$/.test(trimmedLine)) continue;
     if (/\(sentence \d+\)/.test(trimmedLine)) continue;

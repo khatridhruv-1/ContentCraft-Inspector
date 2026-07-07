@@ -91,7 +91,7 @@ export function stripReadingTimeInstructions(text: string): string {
 }
 
 export function maxTokensForReadingTarget(target: ReadingTarget): number {
-  return Math.min(2048, Math.max(600, Math.ceil(target.maxWords * 1.2)));
+  return Math.min(3072, Math.max(900, Math.ceil(target.maxWords * 1.6)));
 }
 
 export function isCompactReadingTarget(target: ReadingTarget): boolean {
