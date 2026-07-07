@@ -43,7 +43,15 @@ const PLACEHOLDER_RETRY_MESSAGE =
   'Your draft contained $1 placeholder lines. Rewrite the full article with complete sentences in every bullet and numbered step — no $1, $2, or any other $N placeholders.';
 
 const META_RETRY_MESSAGE =
-  'You returned planning notes instead of the article. Rewrite now and output ONLY the finished publish-ready piece. Start with the title or opening line. No "We need to...", no word-count math, no meta commentary.';
+  'You returned planning notes instead of the article. Rewrite now and output ONLY the finished publish-ready piece. Start with the title or opening line. No "We need to...", no word-count math, no meta commentary, no quoted script lines, no "(sentence 1)" labels.';
+
+function tooShortRetryMessage(wordCount: number, target: ReadingTarget): string {
+  return [
+    `Your draft is only ${wordCount} words but must be ${target.minWords}–${target.maxWords} words (${target.label}).`,
+    'Write the full finished article now. Start with the title or hook. No planning notes.',
+    `Target ${target.minWords}–${target.maxWords} words. Short paragraphs. No em-dashes (—).`,
+  ].join(' ');
+}
 
 function ollamaOptsForTarget(target: ReadingTarget) {
   return {
@@ -140,7 +148,20 @@ async function generateWithLengthGuard(
     );
   }
 
-  return finalizeGeneratedContent(content, target);
+  content = finalizeGeneratedContent(content, target);
+  wordCount = countWords(content);
+
+  if (wordCount < target.minWords) {
+    const retryMessages: OllamaMessage[] = [
+      ...messages,
+      { role: 'assistant', content },
+      { role: 'user', content: tooShortRetryMessage(wordCount, target) },
+    ];
+    const retry = await generateWithMetaLeakGuard(retryMessages, target);
+    content = finalizeGeneratedContent(retry, target);
+  }
+
+  return content;
 }
 
 /** List-style articles ground titles in live organic search. */

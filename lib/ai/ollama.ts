@@ -1,3 +1,5 @@
+import { isMetaLeak } from '@/lib/ai/sanitizeContent';
+
 const DEFAULT_OLLAMA_HOST = 'https://ollama.com';
 
 /** Default cloud model for direct ollama.com API (override via OLLAMA_MODEL). */
@@ -170,7 +172,7 @@ function resolveOllamaMessageText(payload: {
   if (content) return content;
 
   const thinking = payload.message?.thinking?.trim();
-  if (thinking) return thinking;
+  if (thinking && !isMetaLeak(thinking)) return thinking;
 
   return null;
 }
