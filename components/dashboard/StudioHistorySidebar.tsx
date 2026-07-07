@@ -127,7 +127,7 @@ export default function StudioHistorySidebar({
                 <li
                   key={item.$id}
                   className={cn(
-                    'relative border-b border-slate-200/60',
+                    'group/chat relative border-b border-slate-200/60',
                     active && 'bg-white shadow-sm'
                   )}
                   onMouseEnter={() => setHoveredId(item.$id)}
@@ -200,12 +200,10 @@ export default function StudioHistorySidebar({
                       onDelete(item);
                     }}
                     disabled={isDeleting}
-                    tabIndex={showDelete ? 0 : -1}
-                    aria-hidden={!showDelete}
                     aria-label={`Delete ${title}`}
                     className={cn(
-                      'absolute right-2 top-1/2 z-10 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#fca5a5] shadow-sm transition-opacity',
-                      showDelete ? 'opacity-100' : 'pointer-events-none opacity-0',
+                      'absolute right-2 top-1/2 z-10 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#fca5a5] shadow-sm transition-opacity max-sm:opacity-90',
+                      showDelete ? 'opacity-100' : 'opacity-0 pointer-events-none max-sm:opacity-90 max-sm:pointer-events-auto sm:group-hover/chat:opacity-100 sm:group-hover/chat:pointer-events-auto',
                       marketingFocusRing
                     )}
                     style={{

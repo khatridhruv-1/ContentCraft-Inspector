@@ -243,7 +243,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
         </div>
       </DashboardResultCard>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <MetricCard icon={<Type className="h-4 w-4 text-violet-400" />} label="Word count" value={wordCount} />
         <MetricCard icon={<Clock className="h-4 w-4 text-violet-400" />} label="Reading time" value={`${readingTime} min`} />
         <MetricCard icon={<Type className="h-4 w-4 text-violet-400" />} label="Readability" value={`${Math.round(analysis.readability)}%`} />

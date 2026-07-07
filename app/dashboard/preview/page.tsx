@@ -33,7 +33,7 @@ export default function BlogPreviewPage() {
 
   if (!payload?.content.trim()) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-white px-6 text-center">
         <Eye className="mb-4 h-10 w-10 text-slate-300" aria-hidden />
         <h1 className="font-sans text-xl font-semibold text-slate-900">No draft to preview</h1>
         <p className="mt-2 max-w-sm font-sans text-sm leading-relaxed text-slate-600">
@@ -55,7 +55,7 @@ export default function BlogPreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-dvh bg-white">
       <header className="sticky top-0 z-20 border-b border-slate-200/90 bg-white/95 backdrop-blur-sm print:hidden">
         <div className="mx-auto flex max-w-[920px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <button

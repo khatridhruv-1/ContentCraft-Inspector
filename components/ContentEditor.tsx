@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { FileSearch } from 'lucide-react';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ContentEditorProps {
   initialContent: string;
@@ -26,6 +27,7 @@ export function ContentEditor({
   const [wordCount, setWordCount] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const editorRef = useRef<unknown>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setIsMounted(true);
@@ -54,9 +56,10 @@ export function ContentEditor({
   }
 
   return (
-    <div className="flex h-full min-h-[360px] flex-col gap-4">
-      <div className="relative min-h-[300px] flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white">
+    <div className="flex h-full min-h-[240px] flex-col gap-3 sm:min-h-[360px] sm:gap-4">
+      <div className="relative min-h-[220px] flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white sm:min-h-[300px]">
         <Editor
+          key={isMobile ? 'mobile' : 'desktop'}
           tinymceScriptSrc="/tinymce/tinymce.min.js"
           licenseKey="gpl"
           onInit={(_evt, editor) => {
@@ -70,35 +73,40 @@ export function ContentEditor({
           onEditorChange={handleEditorChange}
           init={{
             height: '100%',
-            menubar: true,
+            menubar: !isMobile,
             branding: false,
             statusbar: false,
             skin_url: '/tinymce/skins/ui/oxide',
             content_css: '/tinymce/skins/content/default/content.min.css',
-            plugins: [
-              'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-              'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
-              'fullscreen', 'insertdatetime', 'media', 'table', 'wordcount',
-            ],
-            toolbar: [
-              { name: 'history', items: ['undo', 'redo'] },
-              { name: 'styles', items: ['styleselect'] },
-              { name: 'formatting', items: ['bold', 'italic', 'underline', 'strikethrough'] },
-              { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
-              { name: 'lists', items: ['numlist', 'bullist'] },
-              { name: 'indentation', items: ['outdent', 'indent'] },
-              { name: 'insert', items: ['link', 'image', 'table'] },
-              { name: 'view', items: ['preview', 'fullscreen'] },
-            ],
+            plugins: isMobile
+              ? ['lists', 'link', 'autolink', 'wordcount']
+              : [
+                  'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                  'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
+                  'fullscreen', 'insertdatetime', 'media', 'table', 'wordcount',
+                ],
+            toolbar: isMobile
+              ? 'undo redo | bold italic | bullist numlist | link | removeformat'
+              : [
+                  { name: 'history', items: ['undo', 'redo'] },
+                  { name: 'styles', items: ['styleselect'] },
+                  { name: 'formatting', items: ['bold', 'italic', 'underline', 'strikethrough'] },
+                  { name: 'alignment', items: ['alignleft', 'aligncenter', 'alignright', 'alignjustify'] },
+                  { name: 'lists', items: ['numlist', 'bullist'] },
+                  { name: 'indentation', items: ['outdent', 'indent'] },
+                  { name: 'insert', items: ['link', 'image', 'table'] },
+                  { name: 'view', items: ['preview', 'fullscreen'] },
+                ],
+            toolbar_mode: isMobile ? 'scrolling' : 'wrap',
             content_style: `
               body {
                 font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
-                font-size: 16px;
+                font-size: ${isMobile ? '15px' : '16px'};
                 line-height: 1.6;
-                padding: 1rem;
+                padding: 0.75rem;
                 background-color: #ffffff !important;
                 color: #0f172a !important;
-                min-height: calc(100vh - 200px);
+                min-height: ${isMobile ? '220px' : '320px'};
               }
               p { margin: 0; min-height: 1.5em; }
             `,
@@ -121,7 +129,7 @@ export function ContentEditor({
             fullWidth={false}
             disabled={!hasContent}
             onClick={onAnalyze}
-            className="!w-auto sm:min-w-[140px]"
+            className="!w-full sm:!w-auto sm:min-w-[140px]"
           >
             <FileSearch className="h-4 w-4" aria-hidden />
             Run analysis

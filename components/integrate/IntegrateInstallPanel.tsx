@@ -52,7 +52,7 @@ export default function IntegrateInstallPanel() {
             </h2>
 
             <div
-              className="mt-4 grid grid-cols-2 gap-2 rounded-xl border border-slate-200 bg-white p-1"
+              className="mt-4 grid grid-cols-1 gap-2 rounded-xl border border-slate-200 bg-white p-1 sm:grid-cols-2"
               role="tablist"
               aria-label="Install type"
             >

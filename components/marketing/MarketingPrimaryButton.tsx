@@ -20,6 +20,7 @@ interface MarketingPrimaryButtonProps {
   onClick?: () => void;
   className?: string;
   fullWidth?: boolean;
+  'aria-label'?: string;
 }
 
 export default function MarketingPrimaryButton({
@@ -32,6 +33,7 @@ export default function MarketingPrimaryButton({
   onClick,
   className,
   fullWidth,
+  'aria-label': ariaLabel,
 }: MarketingPrimaryButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -40,6 +42,7 @@ export default function MarketingPrimaryButton({
       type={type}
       onClick={onClick}
       disabled={isDisabled}
+      aria-label={ariaLabel}
       className={cn(
         marketingPrimaryButtonCore,
         marketingPrimaryButtonSizes[size],

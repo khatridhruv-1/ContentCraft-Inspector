@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MessageSquare } from 'lucide-react';
 import {
   studioHistoryColumn,
   studioSplitShell,
@@ -9,6 +9,12 @@ import {
 } from '@/components/dashboard/dashboardLayout';
 import StudioHistorySidebar from '@/components/dashboard/StudioHistorySidebar';
 import StudioWorkspacePanel from '@/components/dashboard/StudioWorkspacePanel';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -19,6 +25,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { buttonVariants } from '@/components/ui/button';
+import { useIsStudioMobile } from '@/hooks/use-mobile';
 import { useAiContentGenerate } from '@/hooks/useAiContentGenerate';
 import { deleteHistoryItem } from '@/lib/content/appwrite';
 import { fetchHistoryCached } from '@/lib/content/fetchHistoryCached';
@@ -29,6 +36,7 @@ import {
   type StudioHistoryItem,
 } from '@/lib/dashboard/studioHistory';
 import { htmlToMarkdown, cn } from '@/lib/utils';
+import { marketingFocusRing } from '@/lib/marketing/marketingTheme';
 import {
   DEFAULT_CONTENT_PLATFORM,
   type ContentPlatformId,
@@ -64,6 +72,8 @@ export default function AIGenerateView({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<StudioHistoryItem | null>(null);
   const { generate, loading, error: generateError } = useAiContentGenerate();
+  const isStudioMobile = useIsStudioMobile();
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const loadHistory = useCallback(async () => {
     try {
@@ -90,6 +100,7 @@ export default function AIGenerateView({
     (item: StudioHistoryItem) => {
       if (item.mode === 'analyze') {
         onOpenAnalyzeChat?.(item);
+        setHistoryOpen(false);
         return;
       }
 
@@ -103,6 +114,7 @@ export default function AIGenerateView({
       } else {
         onContentGenerated('');
       }
+      setHistoryOpen(false);
     },
     [onContentGenerated, onOpenAnalyzeChat]
   );
@@ -188,21 +200,52 @@ export default function AIGenerateView({
 
   const deleteTargetTitle = deleteTarget ? studioItemTitle(deleteTarget) : '';
 
+  const historySidebar = (
+    <StudioHistorySidebar
+      items={historyItems}
+      activeId={activeChatId}
+      loading={historyLoading}
+      deletingId={deletingId}
+      onSelect={handleSelectChat}
+      onDelete={handleDeleteRequest}
+      onNewChat={() => {
+        handleNewChat();
+        setHistoryOpen(false);
+      }}
+    />
+  );
+
   return (
     <>
       <div className={studioSplitShell}>
-        <div className={studioHistoryColumn}>
-          <StudioHistorySidebar
-            items={historyItems}
-            activeId={activeChatId}
-            loading={historyLoading}
-            deletingId={deletingId}
-            onSelect={handleSelectChat}
-            onDelete={handleDeleteRequest}
-            onNewChat={handleNewChat}
-          />
-        </div>
+        <div className={studioHistoryColumn}>{historySidebar}</div>
+
+        <Sheet open={historyOpen} onOpenChange={setHistoryOpen}>
+          <SheetContent side="left" className="w-[min(100vw-1rem,22rem)] p-0 sm:max-w-sm">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Chat history</SheetTitle>
+            </SheetHeader>
+            {historySidebar}
+          </SheetContent>
+        </Sheet>
+
         <div className={studioWorkspaceColumn}>
+          {isStudioMobile ? (
+            <div className="flex shrink-0 items-center gap-2 border-b border-slate-200/80 bg-slate-50 px-3 py-2 lg:hidden">
+              <button
+                type="button"
+                onClick={() => setHistoryOpen(true)}
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'sm' }),
+                  'gap-1.5',
+                  marketingFocusRing
+                )}
+              >
+                <MessageSquare className="h-4 w-4" aria-hidden />
+                Chats
+              </button>
+            </div>
+          ) : null}
           <StudioWorkspacePanel
             generatedContent={generatedContent}
             activeTitle={activeTitle}

@@ -107,30 +107,34 @@ export default function StudioWorkspacePanel({
                 type="button"
                 onClick={onRefine}
                 disabled={loading || !canRefine}
+                aria-label={loading ? 'Regenerating draft' : 'Refine draft'}
                 className={cn(studioActionGhost, 'gap-1.5 !h-9 text-xs', marketingFocusRing)}
               >
                 <Wand2 className="h-3.5 w-3.5" aria-hidden />
-                {loading ? 'Regenerating…' : 'Refine'}
+                <span className="hidden sm:inline">{loading ? 'Regenerating…' : 'Refine'}</span>
               </button>
               <button
                 type="button"
                 onClick={onAnalyze}
+                aria-label="Analyze draft"
                 className={cn(studioActionGhost, 'gap-1.5 !h-9 text-xs', marketingFocusRing)}
               >
                 <FileSearch className="h-3.5 w-3.5" aria-hidden />
-                Analyze
+                <span className="hidden sm:inline">Analyze</span>
               </button>
               <button
                 type="button"
                 onClick={handlePreview}
+                aria-label="Preview draft"
                 className={cn(studioActionGhost, 'gap-1.5 !h-9 text-xs', marketingFocusRing)}
               >
                 <Eye className="h-3.5 w-3.5" aria-hidden />
-                Preview
+                <span className="hidden sm:inline">Preview</span>
               </button>
               <button
                 type="button"
                 onClick={handleCopy}
+                aria-label={copied ? 'Copied to clipboard' : 'Copy draft'}
                 className={cn(studioActionGhost, 'gap-1.5 !h-9 text-xs', marketingFocusRing)}
               >
                 {copied ? (
@@ -138,17 +142,18 @@ export default function StudioWorkspacePanel({
                 ) : (
                   <Copy className="h-3.5 w-3.5" aria-hidden />
                 )}
-                {copied ? 'Copied' : 'Copy'}
+                <span className="hidden sm:inline">{copied ? 'Copied' : 'Copy'}</span>
               </button>
               <MarketingPrimaryButton
                 type="button"
                 size="sm"
                 fullWidth={false}
                 onClick={onDownloadAsWord}
+                aria-label="Export draft"
                 className="!h-9 !w-auto px-3 text-xs"
               >
                 <FileDown className="h-3.5 w-3.5" aria-hidden />
-                Export
+                <span className="hidden sm:inline">Export</span>
               </MarketingPrimaryButton>
             </>
           ) : (

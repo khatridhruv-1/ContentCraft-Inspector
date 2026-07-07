@@ -7,32 +7,32 @@ export const dashboardGlassPanel = cn(
 );
 
 export const dashboardPanelHeader =
-  'flex shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-5 py-4 md:px-6';
+  'flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 sm:px-5 md:px-6';
 
 export const dashboardPanelHeaderCompact =
-  'flex shrink-0 items-center justify-between gap-2 border-b border-slate-200 px-4 py-2.5';
+  'flex shrink-0 items-center justify-between gap-2 border-b border-slate-200 px-3 py-2.5 sm:px-4';
 
-export const dashboardPanelBody = 'flex-1 min-h-0 overflow-auto p-5 md:p-6 custom-scrollbar';
+export const dashboardPanelBody = 'flex-1 min-h-0 overflow-auto p-4 sm:p-5 md:p-6 custom-scrollbar';
 
-export const dashboardPanelBodyCompact = 'flex-1 min-h-0 overflow-auto p-4 custom-scrollbar';
+export const dashboardPanelBodyCompact = 'flex-1 min-h-0 overflow-auto p-3 sm:p-4 custom-scrollbar';
 
 export const dashboardToolbar =
-  'flex shrink-0 flex-wrap items-center gap-3 border-b border-slate-200 bg-slate-50 px-3 py-2 md:px-4';
+  'flex shrink-0 flex-wrap items-center gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2 sm:gap-3 md:px-4';
 
 export const dashboardWorkspace = 'flex min-h-0 flex-1 flex-col overflow-hidden';
 
 export const dashboardSplitGrid =
-  'grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 md:gap-4 md:p-4 lg:grid-cols-2';
+  'grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-3 sm:p-4 md:gap-4 lg:grid-cols-2';
 
-/** Studio: history sidebar left, workspace right */
+/** Studio: history sidebar left (lg+), workspace right; mobile uses sheet drawer */
 export const studioSplitShell =
-  'flex h-full min-h-0 flex-1 flex-row overflow-hidden max-sm:flex-col';
+  'flex h-full min-h-0 flex-1 flex-col overflow-hidden lg:flex-row';
 
 export const studioHistoryColumn =
-  'relative flex h-full min-h-0 w-85 max-w-[35%] shrink-0 flex-col overflow-hidden border-r border-slate-200/80 max-sm:h-[40%] max-sm:w-full max-sm:max-w-none max-sm:border-r-0 max-sm:border-b';
+  'relative hidden h-full min-h-0 w-80 max-w-[35%] shrink-0 flex-col overflow-hidden border-r border-slate-200/80 lg:flex';
 
 export const studioWorkspaceColumn =
-  'flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden max-sm:h-[60%]';
+  'flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden';
 
 export const dashboardResultCard =
   'rounded-xl border border-slate-200 bg-white shadow-sm';

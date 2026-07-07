@@ -164,7 +164,7 @@ export default function StudioComposer({
             loading={loading}
             loadingText="Generating…"
             onClick={onGenerate}
-            className="!h-10 min-w-[140px] !w-auto shrink-0"
+            className="!h-10 w-full shrink-0 sm:min-w-[140px] sm:!w-auto"
           >
             <Wand2 className="h-4 w-4" aria-hidden />
             Generate

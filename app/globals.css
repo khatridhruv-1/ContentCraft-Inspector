@@ -253,6 +253,13 @@ h1, h2, h3 {
     box-shadow 150ms ease;
 }
 
+@media (max-width: 639px) {
+  .cc-btn {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
 .cc-btn:disabled {
   cursor: not-allowed;
   opacity: 0.5;
