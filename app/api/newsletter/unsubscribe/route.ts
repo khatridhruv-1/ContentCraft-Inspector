@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { sendUnsubscribeConfirmationEmail } from '@/lib/email/sendNewsletterEmail';
 import { unsubscribeByToken } from '@/lib/newsletter/subscribers';
 import { PRODUCTION_SITE_URL } from '@/lib/marketing/siteConfig';
 
@@ -16,10 +17,18 @@ export async function GET(req: Request) {
   }
 
   try {
-    const subscriber = await unsubscribeByToken(token);
+    const { subscriber, didUnsubscribe } = await unsubscribeByToken(token);
 
     if (!subscriber) {
       return NextResponse.redirect(`${redirectUrl}?status=invalid`);
+    }
+
+    if (didUnsubscribe) {
+      try {
+        await sendUnsubscribeConfirmationEmail(subscriber);
+      } catch (error) {
+        console.error('Unsubscribe confirmation email failed:', error);
+      }
     }
 
     return NextResponse.redirect(`${redirectUrl}?status=success`);

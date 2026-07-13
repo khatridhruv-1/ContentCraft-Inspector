@@ -141,3 +141,33 @@ export function buildDailyNewsletterEmail(input: {
 
   return { subject, html, text };
 }
+
+export function buildUnsubscribeConfirmationEmail(resubscribeUrl: string): {
+  subject: string;
+  html: string;
+  text: string;
+} {
+  const subject = 'You have been unsubscribed from BlogCreator Daily';
+  const text = [
+    'You have been unsubscribed from BlogCreator Daily.',
+    '',
+    'You will no longer receive daily trending content emails from us.',
+    '',
+    'Changed your mind? Resubscribe anytime:',
+    resubscribeUrl,
+  ].join('\n');
+
+  const html = emailShell(
+    `<h1 style="margin:0 0 16px;font-size:24px;color:#0f172a;">You are unsubscribed</h1>
+     <p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#334155;">
+       You will no longer receive <strong>BlogCreator Daily</strong> emails.
+     </p>
+     <p style="margin:0;font-size:16px;line-height:1.65;color:#334155;">
+       Changed your mind?
+       <a href="${resubscribeUrl}" style="color:#7c3aed;text-decoration:none;font-weight:600;">Resubscribe on blogcreator.dev</a>
+     </p>`,
+    'This confirms your unsubscribe request. No further action is needed.'
+  );
+
+  return { subject, html, text };
+}

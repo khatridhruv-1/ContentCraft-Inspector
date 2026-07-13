@@ -73,9 +73,15 @@ export async function subscribeEmail(
   return { subscriber: data as NewsletterSubscriber, isNew: true };
 }
 
-export async function unsubscribeByToken(token: string): Promise<NewsletterSubscriber | null> {
+export async function unsubscribeByToken(token: string): Promise<{
+  subscriber: NewsletterSubscriber | null;
+  didUnsubscribe: boolean;
+}> {
   const subscriber = await findSubscriberByToken(token);
-  if (!subscriber || subscriber.status === 'unsubscribed') return subscriber;
+  if (!subscriber) return { subscriber: null, didUnsubscribe: false };
+  if (subscriber.status === 'unsubscribed') {
+    return { subscriber, didUnsubscribe: false };
+  }
 
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
@@ -89,7 +95,7 @@ export async function unsubscribeByToken(token: string): Promise<NewsletterSubsc
     .single();
 
   if (error) throw new Error(error.message);
-  return data as NewsletterSubscriber;
+  return { subscriber: data as NewsletterSubscriber, didUnsubscribe: true };
 }
 
 export async function listActiveSubscribers(): Promise<NewsletterSubscriber[]> {
