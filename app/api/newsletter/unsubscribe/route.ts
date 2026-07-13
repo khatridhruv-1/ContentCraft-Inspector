@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { unsubscribeByToken } from '@/lib/newsletter/subscribers';
 import { PRODUCTION_SITE_URL } from '@/lib/marketing/siteConfig';
 
+export const runtime = 'edge';
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const token = searchParams.get('token')?.trim();

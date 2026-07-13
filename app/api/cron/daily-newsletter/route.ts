@@ -4,8 +4,7 @@ import { isEmailConfigured } from '@/lib/email/resend';
 import { generateDailyNewsletterIssue } from '@/lib/newsletter/generateDailyIssue';
 import { listActiveSubscribers, logNewsletterIssue } from '@/lib/newsletter/subscribers';
 
-export const runtime = 'nodejs';
-export const maxDuration = 300;
+export const runtime = 'edge';
 
 function authorizeCron(req: Request): boolean {
   const secret = process.env.CRON_SECRET?.trim();

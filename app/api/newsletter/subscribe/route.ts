@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { sendWelcomeNewsletterEmail } from '@/lib/email/sendNewsletterEmail';
 import { subscribeEmail } from '@/lib/newsletter/subscribers';
 
+export const runtime = 'edge';
+
 interface SubscribeRequest {
   email?: string;
   source?: string;
