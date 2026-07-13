@@ -10,7 +10,11 @@ import { marketingAccentSpan } from '@/lib/marketing/marketingTheme';
 const STATUS_COPY: Record<string, { title: string; body: string }> = {
   success: {
     title: 'You have been unsubscribed',
-    body: 'You will no longer receive BlogCreator Daily emails. Changed your mind? You can resubscribe anytime from our homepage.',
+    body: 'You will no longer receive BlogCreator Daily emails. A confirmation email has been sent to your inbox.',
+  },
+  already: {
+    title: 'You are already unsubscribed',
+    body: 'This email address is not on our active subscriber list, so no new confirmation email was sent. Resubscribe first if you want to test the flow again.',
   },
   invalid: {
     title: 'Invalid unsubscribe link',
@@ -25,7 +29,13 @@ const STATUS_COPY: Record<string, { title: string; body: string }> = {
 function UnsubscribedContent() {
   const searchParams = useSearchParams();
   const status = searchParams.get('status') || 'success';
+  const emailSent = searchParams.get('emailSent');
   const copy = STATUS_COPY[status] ?? STATUS_COPY.success;
+
+  const body =
+    status === 'success' && emailSent === '0'
+      ? 'You have been unsubscribed, but we could not send the confirmation email. Please check spam or try again later.'
+      : copy.body;
 
   return (
     <LegalPageShell
@@ -36,7 +46,7 @@ function UnsubscribedContent() {
       }
       description={copy.title}
     >
-      <p>{copy.body}</p>
+      <p>{body}</p>
       <p>
         <Link href="/#newsletter" className="underline underline-offset-2">
           Resubscribe on the homepage

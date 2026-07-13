@@ -24,14 +24,19 @@ export async function GET(req: Request) {
     }
 
     if (didUnsubscribe) {
+      let emailSent = false;
       try {
         await sendUnsubscribeConfirmationEmail(subscriber);
+        emailSent = true;
       } catch (error) {
         console.error('Unsubscribe confirmation email failed:', error);
       }
+
+      const emailParam = emailSent ? '1' : '0';
+      return NextResponse.redirect(`${redirectUrl}?status=success&emailSent=${emailParam}`);
     }
 
-    return NextResponse.redirect(`${redirectUrl}?status=success`);
+    return NextResponse.redirect(`${redirectUrl}?status=already`);
   } catch (error) {
     console.error('Newsletter unsubscribe error:', error);
     return NextResponse.redirect(`${redirectUrl}?status=error`);
