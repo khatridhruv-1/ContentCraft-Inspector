@@ -22,7 +22,7 @@ interface MarketingFooterProps {
 
 export default function MarketingFooter({
   className,
-  containerClassName = 'mx-auto w-full max-w-6xl px-6',
+  containerClassName = 'mx-auto w-full max-w-6xl px-4 sm:px-6',
   extraLinks = [],
 }: MarketingFooterProps) {
   const links: FooterNavLink[] = [...extraLinks, ...FOOTER_NAV_LINKS];
@@ -33,12 +33,12 @@ export default function MarketingFooter({
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href="/"
-            className="transition-opacity hover:opacity-90"
+            className="max-w-[11rem] self-center transition-opacity hover:opacity-90 sm:max-w-none sm:self-auto"
             aria-label="BlogCreator home"
           >
             <BlogCreatorLogo
               size="lg"
-              className="h-11 w-auto sm:h-12 md:h-14"
+              className="h-11 sm:h-12 md:h-14"
             />
           </Link>
 

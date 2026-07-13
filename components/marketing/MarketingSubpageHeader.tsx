@@ -15,18 +15,18 @@ export default function MarketingSubpageHeader({
     maxWidth === '6xl' ? 'max-w-6xl' : maxWidth === '2xl' ? 'max-w-2xl' : 'max-w-3xl';
 
   return (
-    <header className="border-b border-slate-200 bg-white/70 px-6 py-4 backdrop-blur-sm">
-      <div className={cn('mx-auto flex items-center justify-between gap-4', container)}>
+    <header className="border-b border-slate-200 bg-white/70 px-4 py-4 backdrop-blur-sm sm:px-6">
+      <div className={cn('mx-auto flex min-w-0 items-center justify-between gap-2 sm:gap-4', container)}>
         <Link
           href="/"
           className={cn(
-            'inline-flex items-center gap-2 text-sm rounded-md',
+            'inline-flex min-w-0 shrink items-center gap-2 text-sm rounded-md',
             marketingMutedLink,
             marketingFocusRing
           )}
         >
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          Back to home
+          <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+          <span className="truncate max-[359px]:sr-only">Back to home</span>
         </Link>
         <Link
           href="/"

@@ -28,7 +28,7 @@ export default function BlogCreatorNavBrand({
         height={72}
         decoding="async"
         fetchPriority={priority ? 'high' : undefined}
-        className="block h-8 w-auto shrink-0 sm:h-9 md:h-10"
+        className="hidden h-8 w-auto max-w-[9rem] shrink min-w-0 object-contain sm:block sm:max-w-none sm:h-9 md:h-10"
         draggable={false}
       />
     </span>

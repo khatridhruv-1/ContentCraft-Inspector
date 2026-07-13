@@ -45,8 +45,8 @@ export default function BlogCreatorLogo({
       decoding="async"
       fetchPriority={priority ? 'high' : undefined}
       className={cn(
-        'block shrink-0 select-none',
-        iconOnly ? ICON_SIZE[size] : cn('h-auto w-auto', HEADER_HEIGHT[size]),
+        'block shrink-0 select-none object-contain',
+        iconOnly ? ICON_SIZE[size] : cn(HEADER_HEIGHT[size], 'w-auto max-w-[11rem] sm:max-w-[13rem] lg:max-w-none'),
         className
       )}
       draggable={false}
