@@ -1,0 +1,23 @@
+name: Daily Newsletter
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger daily newsletter
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://blogcreator.dev' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET is not configured in GitHub repository secrets."
+            exit 1
+          fi
+
+          curl -fsS -X GET "${SITE_URL}/api/cron/daily-newsletter" \
+            -H "Authorization: Bearer ${CRON_SECRET}"

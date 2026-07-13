@@ -17,6 +17,7 @@ import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import MarketingSectionDivider from '@/components/marketing/MarketingSectionDivider';
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import FaqSection from '@/app/welcome/FaqSection';
+import NewsletterSignup from '@/components/marketing/NewsletterSignup';
 import LandingIntegrationsSection from '@/app/welcome/LandingIntegrationsSection';
 import LandingPlatformSection from '@/app/welcome/LandingPlatformSection';
 import { BLOGCREATOR_WORKFLOWS } from '@/lib/marketing/workflows';
@@ -293,6 +294,10 @@ export default function WelcomeLanding() {
         <MarketingSectionDivider />
 
         <LandingIntegrationsSection />
+
+        <MarketingSectionDivider />
+
+        <NewsletterSignup />
 
         <MarketingSectionDivider />
 
