@@ -17,12 +17,11 @@ import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import MarketingSectionDivider from '@/components/marketing/MarketingSectionDivider';
 import DashboardPreviewMock from '@/components/marketing/DashboardPreviewMock';
 import LandingMobileNav from '@/components/marketing/LandingMobileNav';
-import SocialProofStrip from '@/components/marketing/SocialProofStrip';
-import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
+import BetaTestimonialsSection from '@/components/marketing/BetaTestimonialsSection';
+import LandingIntegrationsTeaser from '@/app/welcome/LandingIntegrationsTeaser';
 import FaqSection from '@/app/welcome/FaqSection';
 import ChatGptComparisonSection from '@/app/welcome/ChatGptComparisonSection';
 import NewsletterSignup from '@/components/marketing/NewsletterSignup';
-import LandingIntegrationsSection from '@/app/welcome/LandingIntegrationsSection';
 import LandingPlatformSection from '@/app/welcome/LandingPlatformSection';
 import { BLOGCREATOR_WORKFLOWS } from '@/lib/marketing/workflows';
 import {
@@ -171,7 +170,7 @@ export default function WelcomeLanding() {
             with keyword discovery, SEO analysis, and one-command MCP, skill, and API hooks.
           </EnterReveal>
 
-          <div className="flex w-full justify-center">
+          <div className="flex w-full flex-col items-center justify-center gap-3 sm:flex-row">
             <div className="relative w-fit">
               <EnterReveal direction="left" delay={0.45} ready={heroReady}>
                 <MarketingPrimaryButton
@@ -192,6 +191,17 @@ export default function WelcomeLanding() {
               </EnterReveal>
               <HeroHandwrittenCallout ready={heroReady} />
             </div>
+            <EnterReveal direction="right" delay={0.5} ready={heroReady}>
+              <Link
+                href="/samples"
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition-colors hover:border-slate-300 hover:bg-slate-50',
+                  marketingFocusRing
+                )}
+              >
+                See sample output
+              </Link>
+            </EnterReveal>
           </div>
 
           <div
@@ -213,7 +223,7 @@ export default function WelcomeLanding() {
           <MarketingSectionDivider />
         </section>
 
-        <SocialProofStrip />
+        <BetaTestimonialsSection />
 
         <MarketingSectionDivider />
 
@@ -311,7 +321,7 @@ export default function WelcomeLanding() {
 
         <MarketingSectionDivider />
 
-        <LandingIntegrationsSection />
+        <LandingIntegrationsTeaser />
 
         <MarketingSectionDivider />
 
@@ -323,7 +333,7 @@ export default function WelcomeLanding() {
 
         <MarketingSectionDivider />
 
-        <FaqSection />
+        <FaqSection compact />
       </main>
 
       <MarketingFooter />

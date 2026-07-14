@@ -93,6 +93,8 @@ export const PUBLIC_MARKETING_PATHS = [
   '/help',
   '/integrate',
   '/contact',
+  '/samples',
+  '/pricing',
   '/newsletter/sample',
   '/privacy',
   '/terms',

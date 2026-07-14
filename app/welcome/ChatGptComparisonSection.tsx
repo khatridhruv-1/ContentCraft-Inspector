@@ -44,7 +44,7 @@ function CellValue({ value }: { value: boolean | 'partial' }) {
 }
 
 export default function ChatGptComparisonSection() {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   return (
     <section

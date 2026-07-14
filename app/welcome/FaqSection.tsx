@@ -15,11 +15,13 @@ import {
   Plug,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 import { WELCOME_FAQ_ITEMS } from '@/lib/marketing/welcomeContent';
 import {
   MARKETING_EASE,
   marketingAccentSpan,
   marketingEyebrow,
+  marketingFocusRing,
   marketingLandingSection,
   marketingSectionHeader,
   marketingSectionTitle,
@@ -38,6 +40,8 @@ const FAQ_ICONS: Record<string, LucideIcon> = {
   Integrations: Plug,
 };
 
+const COMPACT_FAQ_ITEMS = WELCOME_FAQ_ITEMS.slice(0, 6);
+
 const FAQ_COLUMNS = [
   {
     id: 'product',
@@ -54,6 +58,14 @@ const FAQ_COLUMNS = [
     startIndex: 5,
   },
 ] as const;
+
+type FaqColumnDef = {
+  id: string;
+  label: string;
+  description: string;
+  items: typeof WELCOME_FAQ_ITEMS;
+  startIndex: number;
+};
 
 const columnVariants: Variants = {
   hidden: { opacity: 0, y: 16 },
@@ -178,7 +190,7 @@ function FaqColumn({
   onToggle,
   reducedMotion,
 }: {
-  column: (typeof FAQ_COLUMNS)[number];
+  column: FaqColumnDef;
   openIndex: number | null;
   onToggle: (index: number) => void;
   reducedMotion: boolean | null;
@@ -215,13 +227,25 @@ function FaqColumn({
   );
 }
 
-export default function FaqSection() {
+export default function FaqSection({ compact = false }: { compact?: boolean }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const reducedMotion = useReducedMotion();
 
   const toggle = (index: number) => {
     setOpenIndex(prev => (prev === index ? null : index));
   };
+
+  const columns: FaqColumnDef[] = compact
+    ? [
+        {
+          id: 'top',
+          label: 'Top questions',
+          description: 'Pricing, platforms, SEO, and getting started',
+          items: COMPACT_FAQ_ITEMS,
+          startIndex: 0,
+        },
+      ]
+    : [...FAQ_COLUMNS];
 
   return (
     <section
@@ -255,7 +279,7 @@ export default function FaqSection() {
           transition={{ duration: 0.5, staggerChildren: 0.1 }}
           className="flex w-full flex-col gap-4 sm:flex-row sm:items-start sm:gap-5"
         >
-          {FAQ_COLUMNS.map(column => (
+          {columns.map(column => (
             <FaqColumn
               key={column.id}
               column={column}
@@ -265,6 +289,24 @@ export default function FaqSection() {
             />
           ))}
         </motion.div>
+
+        {compact && (
+          <p className="mt-6 text-center text-sm text-slate-600">
+            More on{' '}
+            <Link href="/pricing" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
+              pricing
+            </Link>
+            ,{' '}
+            <Link href="/help#troubleshooting" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
+              troubleshooting
+            </Link>
+            , and{' '}
+            <Link href="/integrate" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
+              integrations
+            </Link>
+            .
+          </p>
+        )}
       </div>
     </section>
   );

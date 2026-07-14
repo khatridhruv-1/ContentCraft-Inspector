@@ -1,256 +1,239 @@
-# BlogCreator.dev — AI Virtual Expert Visitor Audit
+# BlogCreator.dev — AI Virtual Expert Visitor Audit (Re-run)
 
 **Site:** https://blogcreator.dev  
-**Date:** 2026-07-13  
-**Method:** 35 parallel AI expert personas reviewed live pages, codebase, SEO config, and prior responsive testing  
-**Pages reviewed:** `/`, `/#newsletter`, `/help`, `/integrate`, `/contact`, `/auth/signup`, `/auth/login`, `/privacy`, `/terms`
+**Date:** 2026-07-14  
+**Prior audit:** 2026-07-13 (avg **7.1 / 10**)  
+**Method:** 35 parallel AI expert personas reviewed live production pages + post-deploy codebase  
+**Deploy reviewed:** `e584660` — visitor audit fixes (2026-07-14)  
+**Pages reviewed:** `/`, `/#newsletter`, `/help`, `/integrate`, `/contact`, `/auth/signup`, `/auth/login`, `/newsletter/sample`, `/privacy`, `/terms`
 
 ---
 
 ## Executive summary
 
-| Metric | Value |
-|--------|-------|
-| **Average expert score** | **7.1 / 10** |
-| **Strongest areas** | Value prop, platform positioning, MCP/API differentiation, free tier clarity, legal/trust pages |
-| **Weakest areas** | Social proof, product demo, production auth reliability, performance perception, proof of output quality |
-| **Critical blocker** | Sign-up/login on production returns errors — breaks the entire conversion funnel |
+| Metric | Prior (Jul 13) | Now (Jul 14) | Change |
+|--------|----------------|--------------|--------|
+| **Average expert score** | **7.1 / 10** | **7.8 / 10** | **+0.7** |
+| **Strongest areas** | MCP/API, SEO metadata, platform positioning | Same + dashboard preview, help dedup, newsletter sample |
+| **Weakest areas** | Social proof, auth, performance perception | Social proof (still), production auth env, page length |
+| **Critical blocker** | Production auth broken | **Partially improved** — better errors & signup code, but Supabase env on Cloudflare may still block funnel |
 
-**One-line verdict:** BlogCreator sells a *credible, differentiated* AI content workflow on paper, but visitors cannot *see* or *try* the product before committing — and production auth currently fails, which undermines everything else.
+**One-line verdict:** The July 14 deploy materially improved *perceived product quality* (preview, mobile nav, loaders, comparison table, help IA) — but **real social proof and verified working signup** remain the ceiling on conversion.
 
 ---
 
 ## Scorecard — all 35 virtual experts
 
-| ID | Expert persona | Score | Top concern |
-|----|----------------|-------|-------------|
-| 01 | First-time visitor (Google cold traffic) | 7 | No demo video or live preview before signup |
-| 02 | SEO specialist | 8 | Strong metadata; missing OG image & JSON-LD on landing |
-| 03 | Conversion rate optimizer | 6 | Single CTA repeated; no secondary low-friction path |
-| 04 | WCAG accessibility auditor | 7 | Good skip links; nav links hidden without mobile menu |
-| 05 | Mobile-first user (320px) | 8 | Responsive after fixes; no hamburger for section nav |
-| 06 | Professional copywriter | 8 | Clear, practitioner tone; hero subhead is long |
-| 07 | Trust & security-conscious user | 7 | Privacy/terms solid; no security badges or uptime |
-| 08 | Skeptical “just ChatGPT?” researcher | 6 | Differentiation explained but not *proven* with examples |
-| 09 | Solo blogger | 8 | Website platform story resonates |
-| 10 | LinkedIn creator | 7 | Platform section good; no LinkedIn output sample |
-| 11 | Marketing agency owner | 6 | No team seats, client workspaces, or white-label |
-| 12 | Developer (MCP/API) | 9 | Best-in-class integration story; curl one-liner is gold |
-| 13 | Newsletter subscriber prospect | 8 | Daily briefing value clear; needs sample issue link |
-| 14 | Help center user | 7 | Good 4-step guide; duplicates landing FAQ |
-| 15 | Support contact visitor | 7 | Form + email; no expected response time |
-| 16 | Navigation / IA specialist | 6 | Long single-page scroll; anchor nav hidden on mobile |
-| 17 | Visual hierarchy designer | 8 | Strong hero typography; many equal-weight sections |
-| 18 | Brand consistency reviewer | 8 | Cohesive slate/violet system; loading flashes hurt polish |
-| 19 | Performance engineer | 5 | “Loading page” on every route; Suspense fallback visible |
-| 20 | FAQ effectiveness analyst | 7 | Answers real objections; duplicated on / and /help |
-| 21 | Social proof hunter | 4 | **No testimonials, logos, user counts, or case studies** |
-| 22 | Pricing / value shopper | 7 | “Free for everyone” clear; no future pricing transparency |
-| 23 | Competitor comparison shopper | 6 | FAQ compares to ChatGPT; no vs Jasper/Surfer table |
-| 24 | International / non-native reader | 7 | Plain English; no i18n, long compound sentences in hero |
-| 25 | Feature overload analyst | 6 | Landing packs MCP + SEO + 5 platforms + newsletter + FAQ |
-| 26 | Content depth strategist | 7 | Good keyword targeting; no blog/resources hub |
-| 27 | Emotional appeal / delight seeker | 7 | Handwritten CTA doodle charming; needs more human faces |
-| 28 | Legal / EU privacy visitor | 8 | Privacy policy thorough; no cookie banner if analytics added |
-| 29 | Return visitor / retention | 5 | No changelog, status page, or “what’s new” |
-| 30 | Signup friction analyst | 4 | **Production auth broken**; password rules minimal |
-| 31 | CTA / above-the-fold analyst | 8 | “Get started free” strong; no “see example output” |
-| 32 | MCP discoverability (Cursor/Claude) | 9 | Integration section is a competitive moat |
-| 33 | Dashboard expectation visitor | 5 | Cannot preview app UI without working login |
-| 34 | Keyboard-only user | 6 | Focus rings present; mobile nav not keyboard-reachable |
-| 35 | Executive (60-second decision) | 7 | Would sign up *if* auth worked and one screenshot existed |
+| ID | Expert persona | Prior | Now | Δ | Top concern (post-fix) |
+|----|----------------|-------|-----|---|------------------------|
+| 01 | First-time visitor (Google cold traffic) | 7 | **8** | +1 | Still no real draft output before signup |
+| 02 | SEO specialist | 8 | **9** | +1 | Needs content hub; landing still heavy single URL |
+| 03 | Conversion rate optimizer | 6 | **7** | +1 | Auth env + no real testimonials still cap CVR |
+| 04 | WCAG accessibility auditor | 7 | **8** | +1 | Long page + motion; comparison hidden behind expand |
+| 05 | Mobile-first user (320px) | 8 | **9** | +1 | Hamburger fixed; scroll depth still punishing |
+| 06 | Professional copywriter | 8 | **8.5** | +0.5 | Hero subhead still dense for scanners |
+| 07 | Trust & security-conscious user | 7 | **7.5** | +0.5 | Auth still broken if env wrong; no third-party proof |
+| 08 | Skeptical “just ChatGPT?” researcher | 6 | **7** | +1 | Comparison table helps; no side-by-side output |
+| 09 | Solo blogger | 8 | **8.5** | +0.5 | Workflow story strong; cannot try first post |
+| 10 | LinkedIn creator | 7 | **7.5** | +0.5 | No LinkedIn output sample |
+| 11 | Marketing agency owner | 6 | **7** | +1 | No team seats or real case studies |
+| 12 | Developer (MCP/API) | 9 | **9.5** | +0.5 | Troubleshooting on /help not /integrate |
+| 13 | Newsletter subscriber prospect | 8 | **9** | +1 | Sample issue landed; wants archive + count |
+| 14 | Help center user | 7 | **8** | +1 | Task tabs + search still missing |
+| 15 | Support contact visitor | 7 | **8** | +1 | SLA added; auth issues still top ticket risk |
+| 16 | Navigation / IA specialist | 6 | **8** | +2 | Mobile nav fixed; landing scroll still very long |
+| 17 | Visual hierarchy designer | 8 | **9** | +1 | Hero → preview ladder works; mid-page sections equal weight |
+| 18 | Brand consistency reviewer | 8 | **9** | +1 | No more universal loader flash; route loaders remain |
+| 19 | Performance engineer | 5 | **7** | +2 | First paint improved; JS weight + CWV unmeasured |
+| 20 | FAQ effectiveness analyst | 7 | **9** | +2 | Help dedup clean; landing FAQ still long |
+| 21 | Social proof hunter | 4 | **5** | +1 | Illustrative strip ≠ testimonials — still no logos |
+| 22 | Pricing / value shopper | 7 | **7** | 0 | `/pricing` still missing |
+| 23 | Competitor comparison shopper | 6 | **7** | +1 | ChatGPT table added; Jasper/Surfer absent |
+| 24 | International / non-native reader | 7 | **8** | +1 | Shorter hero; MCP jargon unexplained |
+| 25 | Feature overload analyst | 6 | **6** | 0 | Fixes added sections without removing any |
+| 26 | Content depth strategist | 7 | **8** | +1 | Sample + JSON-LD; no blog hub |
+| 27 | Emotional appeal / delight seeker | 7 | **8** | +1 | Preview + sample delight; no human faces |
+| 28 | Legal / EU privacy visitor | 8 | **8** | 0 | No cookie banner / GDPR section |
+| 29 | Return visitor / retention | 5 | **6** | +1 | No changelog or status page |
+| 30 | Signup friction analyst | 4 | **6** | +2 | Better errors; production env may still block |
+| 31 | CTA / above-the-fold analyst | 8 | **9** | +1 | Preview helps; no secondary demo CTA |
+| 32 | MCP discoverability (Cursor/Claude) | 9 | **9** | 0 | Still best-in-class; logos/repo link missing |
+| 33 | Dashboard expectation visitor | 5 | **8** | **+3** | Biggest lift — hero mock satisfies screenshot ask |
+| 34 | Keyboard-only user | 6 | **8** | +2 | Mobile menu keyboard-reachable |
+| 35 | Executive (60-second decision) | 7 | **8** | +1 | Would pilot if auth works + one real customer |
 
-**Score distribution:** 4 experts ≤5 · 12 experts at 6–7 · 14 experts at 8 · 5 experts at 9
-
----
-
-## What attracts visitors (keep & amplify)
-
-1. **Clear positioning** — “AI Blog Generator That Ranks and Converts” + platform picker (website, LinkedIn, Quora, Medium, Substack) immediately answers *“who is this for?”*
-2. **Free tier honesty** — “Free for everyone” badge and FAQ pricing answer reduce signup anxiety.
-3. **MCP / skill / API story** — One-command install for Cursor/Claude users is rare and memorable; developers will share this.
-4. **Keyword discovery + SEO analysis** — Bundled workflow beats “just generate text” tools; messaging is consistent across `/`, `/help`, FAQ.
-5. **Newsletter (BlogCreator Daily)** — Trending + humanized angle is differentiated from generic AI newsletters.
-6. **Trust pages** — Privacy and terms are substantive (AI processing, no training on content, data rights).
-7. **Help center depth** — SEO workflow preview, product mock, and install steps build confidence for technical users.
-8. **Visual craft** — Hero motion, glass cards, handwritten CTA callout feel premium vs typical AI landing pages.
-9. **Integration page focus** — `/integrate` doesn’t bury the lede; terminal-first instructions match the audience.
-10. **SEO foundation** — Title, description, 18 keywords, canonical URLs, sitemap, robots.txt, Google verification.
+**Score distribution (Jul 14):** 0 experts ≤4 · 3 at 6 · 7 at 7 · 15 at 8 · 9 at 9 (+1 at 9.5)  
+**Prior (Jul 13):** 4 experts ≤5 · 12 at 6–7 · 14 at 8 · 5 at 9
 
 ---
 
-## What repels or loses visitors (fix first)
+## What improved since Jul 13 deploy
 
-1. **Production auth failure** — Login/signup show “Invalid email or password” / “unexpected response from server.” **This kills 100% of conversions.**
-2. **No product screenshots or video** — Visitors never see the dashboard, editor, or analysis panel.
-3. **Zero social proof** — No testimonials, customer logos, tweet embeds, or “X drafts generated.”
-4. **“Loading page” flash** — Root `Suspense` fallback appears on every navigation; feels broken/slow.
-5. **Repeated FAQ** — Identical FAQ blocks on `/` and `/help` waste scroll and hurt SEO (duplicate content).
-6. **No try-before-signup** — No public demo, sample export, or interactive widget.
-7. **Long hero subhead** — 40+ word sentence loses scanners on mobile.
-8. **Mobile nav gap** — Section links (Features, Platforms, Integrations, FAQ) hidden below `md` with no hamburger alternative.
-9. **Newsletter lacks sample** — No link to “read yesterday’s issue” or preview email.
-10. **Contact page** — No SLA (“we reply within 24h”) or chat alternative.
-
----
-
-## What’s missing (A → Z)
-
-| Area | Missing element | Impact |
-|------|-----------------|--------|
-| **A**uth | Working production Supabase env on Cloudflare | Critical — funnel broken |
-| **B**log | Company blog / content marketing hub | SEO long-tail, authority |
-| **C**ase studies | 2–3 “before/after” user stories | Trust |
-| **D**emo | 60s screen recording or interactive tour | Conversion |
-| **E**xamples | Downloadable sample LinkedIn post / blog draft | Proof of quality |
-| **F**avicon/OG | `og:image` on landing (Twitter card is summary_large_image) | Social shares look empty |
-| **G**oogle | JSON-LD `SoftwareApplication` on `/` (only help has structured data) | Rich results |
-| **H**amburger | Mobile menu for in-page anchors | Mobile UX |
-| **I**ntegrations logos | Cursor, Claude, Windsurf logos near MCP section | Instant recognition |
-| **J**ourney map | “You are here” for signup → first draft | Onboarding clarity |
-| **K**PIs | “Trusted by X creators” counter | Social proof |
-| **L**ive chat | Or Crisp/Intercom for pre-sale questions | Support |
-| **M**etrics | Public performance (Core Web Vitals) | Performance trust |
-| **N**ewsletter archive | `/newsletter` sample issues page | Newsletter conversions |
-| **O**pen Graph image | Branded 1200×630 share image | Link previews |
-| **P**ricing page | Even if free, show future tiers / limits | Expectation setting |
-| **Q**uick start | “Generate your first post in 2 min” checklist on signup success | Activation |
-| **R**eviews | G2/Capterra or embedded testimonials | B2B trust |
-| **S**tatus page | status.blogcreator.dev | Uptime trust |
-| **T**utorials | YouTube walkthrough | Developer + blogger audiences |
-| **U**pdate log | Changelog for return visitors | Retention |
-| **V**ideo hero | Optional muted autoplay demo | Engagement |
-| **W**all of love | Twitter/LinkedIn mentions | Social proof |
-| **X**-compare table | vs ChatGPT / Jasper / SurferSEO | Decision support |
-| **Y**early plan | Mention of future paid tier benefits | Monetization path |
-| **Z**ero-state preview | Show empty dashboard mock on landing | Product visualization |
+| Fix | Experts who noticed | Impact |
+|-----|---------------------|--------|
+| Dashboard preview below hero | #01, #09, #17, #31, #33, #35 | **+3** for dashboard expectation visitor |
+| Mobile hamburger nav | #04, #05, #16, #34 | Closes prior mobile nav gap |
+| Removed loader flash | #18, #19, #30 | Performance perception **+2** |
+| OG image + JSON-LD on `/` | #02, #07 | SEO specialist **+1** |
+| Help FAQ dedup + troubleshooting | #14, #20 | FAQ analyst **+2** |
+| Newsletter sample + link | #13, #26 | Newsletter prospect **+1** |
+| ChatGPT comparison table | #08, #23, #31 | Skeptic & comparison shopper **+1** |
+| Contact SLA | #15, #30 | Support visitor **+1** |
+| Auth error improvements | #30 | Signup friction **+2** (still blocking if env wrong) |
+| Illustrative workflow strip | #21 (+1 only) | Honest labeling praised; not real social proof |
 
 ---
 
-## What’s overloaded (simplify)
+## What still repels visitors (fix next)
 
-| Location | Overload | Recommendation |
-|----------|----------|----------------|
-| **Landing `/`** | 8 major sections on one page (~scroll depth 6+ screens) | Split “Integrations” to `/integrate` only; shorten landing |
-| **Hero subhead** | Lists platforms + keywords + MCP + API in one sentence | Split: one line benefit + one line “works with Cursor” |
-| **FAQ** | 10+ questions × 2 pages | Keep 6 on `/`, link “More FAQ → /help” |
-| **Help `/help`** | Repeats landing content + install + SEO + FAQ + preview | Make help *task-based* (tabs: Install / Write / Analyze / Publish) |
-| **Integrations block** | MCP + Skill + API + curl + 3 steps on landing AND /integrate | Landing: teaser + CTA; full detail only on `/integrate` |
-| **Eyebrow badges** | “Free AI Blog Generator · Platform-Based Drafts · Free for everyone” | Pick two badges max |
-| **Keyword list in SEO section** | Live preview shows 4 keywords + excerpt — good, but buried low | Move one interactive preview higher (above fold #2) |
-| **Footer on every page** | 6 links repeated | Fine — not overloaded |
+1. **Production auth reliability** — Help troubleshooting documents Supabase env issue; signup analyst still cannot verify end-to-end conversion (#30: 6/10).
+2. **No real social proof** — Testimonials, logos, user counts, case studies (#21: 5/10, worst cohort).
+3. **No try-before-signup** — Mock preview helps but no real generated draft, demo video, or watermarked widget.
+4. **Landing page length** — Fixes added content without removing sections (#25: still 6/10).
+5. **No `/pricing` page** — Value shopper unchanged at 7/10.
+6. **Comparison table collapsed** — Many shoppers never expand it (#23).
+7. **No per-platform output samples** — LinkedIn creator wants feed post example (#10).
+8. **Route-level loaders** — `app/loading.tsx` may still flash on client navigations (#19, #30).
 
 ---
 
-## Page-by-page expert consensus
+## What attracts visitors (unchanged strengths)
+
+1. Clear positioning — platform picker + “ranks and converts” headline  
+2. Free tier honesty — “Free for everyone” throughout  
+3. MCP / skill / API — developer moat (#12: 9.5/10)  
+4. Keyword discovery + SEO workflow — consistent messaging  
+5. Premium visual craft — glass cards, doodle CTA, motion  
+6. Privacy/terms depth — trust for security-conscious users  
+7. **New:** Newsletter sample proves editorial quality without email  
+8. **New:** Dashboard mock gives first-screen product visualization  
+
+---
+
+## Page-by-page expert consensus (post-deploy)
 
 ### `/` (Landing)
-- **Scores:** 6.5–8.5 across experts
-- **Wins:** Hero headline, platform section, newsletter, MCP block
-- **Gaps:** No demo, no social proof, mobile section nav, OG image
-- **Top fix:** Add 30-second product video or animated dashboard GIF below hero CTA
+- **Scores:** 7.5–9 (up from 6.5–8.5)
+- **Wins:** Hero preview, comparison table, mobile nav, illustrative workflows
+- **Gaps:** Still long scroll, no real social proof, integrations block duplicates `/integrate`
+- **Top fix:** Add secondary “See sample output” CTA; trim 2 sections or move integrations teaser-only
 
-### `/#newsletter`
-- **Scores:** 7–8
-- **Wins:** Value prop (“trending + humanized”), low-friction email-only form
-- **Gaps:** No sample issue, no subscriber count
-- **Top fix:** Link “Read a sample issue” to archived email or blog post
+### `/newsletter/sample`
+- **Scores:** 8–9.5 (**new page**)
+- **Wins:** Full practitioner-style issue; proves newsletter value
+- **Gaps:** Single issue only; no subscribe CTA on sample page; no subscriber count
+- **Top fix:** Add inline subscribe + 2–3 archived samples
 
 ### `/help`
-- **Scores:** 7–8
-- **Wins:** Structured data, 4-step onboarding, SEO workflow preview
-- **Gaps:** Duplicates landing FAQ and integration steps
-- **Top fix:** Reframe as task library; deduplicate FAQ
+- **Scores:** 8–8.5 (up from 7–8)
+- **Wins:** Troubleshooting accordion, integrate CTA, no duplicate marketing FAQ
+- **Gaps:** Still one long scroll; no search/tabs
+- **Top fix:** Task-based tabs (Install / Write / Analyze / Publish)
 
 ### `/integrate`
-- **Scores:** 8–9 (developers love it)
-- **Wins:** Focused, terminal-first, API endpoint list
-- **Gaps:** No troubleshooting for common MCP errors
-- **Top fix:** Add “Verify install” section (test `generate_content` call)
+- **Scores:** 8–9 (developers still love it)
+- **Wins:** Terminal-first, clear install flow
+- **Gaps:** No on-page “verify install” or MCP error fixes (those live on /help)
+- **Top fix:** Add verify section + common error fixes on same page
 
 ### `/contact`
-- **Scores:** 7
-- **Wins:** Simple form, support email visible
-- **Gaps:** No response time, no Calendly for demos
-- **Top fix:** Add “We typically reply within 1 business day”
+- **Scores:** 8–8.5 (up from 7)
+- **Wins:** “Reply within one business day” SLA; Help Center cross-link
+- **Gaps:** No live chat; no form category dropdown
+- **Top fix:** Add billing/auth/integration topic selector
 
 ### `/auth/signup` & `/auth/login`
-- **Scores:** 4–5 (**critical**)
-- **Wins:** Clean split layout, password strength UI on signup
-- **Gaps:** **Production server actions fail** — Supabase env on Cloudflare
-- **Top fix:** Fix `NEXT_PUBLIC_SUPABASE_*` + `SUPABASE_SERVICE_ROLE_KEY` on Cloudflare Pages
+- **Scores:** 4–6 (up from 4–5)
+- **Wins:** Better error messages, password strength UI, branded loading states
+- **Gaps:** Production Supabase env may still fail; GuestSessionGate still shows loader
+- **Top fix:** Confirm Cloudflare env vars; test signup → `/home` on production
 
 ### `/privacy` & `/terms`
-- **Scores:** 8
-- **Wins:** Comprehensive, AI-specific clauses, contact links
-- **Gaps:** None major for early-stage SaaS
+- **Scores:** 8 (unchanged)
+- **Wins:** Substantive AI-specific clauses
+- **Gaps:** No GDPR/cookie section for EU visitors
 
 ---
 
-## Priority roadmap
+## Priority roadmap (updated)
 
-### P0 — Do this week (conversion survival)
-1. **Fix Cloudflare Supabase env vars** — auth must work on production
-2. **Add `og:image`** to landing metadata (branded 1200×630)
-3. **Add one dashboard screenshot** below hero (blur sensitive data if needed)
-4. **Reduce Suspense “Loading page”** — use route-level loading or faster static shell
+### P0 — Still blocking conversion
+1. **Verify production Supabase env on Cloudflare** — test signup/login end-to-end on blogcreator.dev
+2. **Add 2–3 real testimonials or beta user quotes** — social proof hunter stuck at 5/10
+3. **One real output sample** — downloadable blog draft or LinkedIn post (not wireframe mock)
 
-### P1 — Next 2 weeks (trust & clarity)
-5. Add 3 testimonials or tweet embeds (even beta user quotes)
-6. Deduplicate FAQ between `/` and `/help`
-7. Add mobile hamburger menu for section anchors
-8. Create `/newsletter/sample` or link to first BlogCreator Daily issue
-9. Add JSON-LD `SoftwareApplication` schema on landing
-10. Add “Compare vs ChatGPT” expandable table (not just FAQ text)
+### P1 — Next improvements (partially done)
+4. ~~OG image~~ ✅  
+5. ~~Dashboard preview~~ ✅  
+6. ~~Loader flash~~ ✅ (root); slim `app/loading.tsx`  
+7. ~~FAQ dedup~~ ✅  
+8. ~~Mobile hamburger~~ ✅  
+9. ~~Newsletter sample~~ ✅  
+10. ~~ChatGPT comparison table~~ ✅  
+11. **Expand comparison by default** or add hero link “Compare vs ChatGPT”  
+12. **Trim landing** — remove or teaser-only integrations block  
+13. **`/pricing` skeleton** — “Free now” + future limits  
 
-### P2 — Next month (growth)
-11. Launch BlogCreator blog (3–5 SEO articles)
-12. 60-second YouTube product tour embedded on `/help`
-13. Public changelog / “What’s new”
-14. Integration logos (Cursor, Claude, VS Code)
-15. Pricing page skeleton (“Free now — Pro coming” with feature limits)
-
-### P3 — Later (scale)
-16. Case studies with metrics (“ranked #1 for …”)
-17. Agency/team workspace story
-18. Status page + uptime monitoring
-19. Interactive “try a topic” widget (no signup, watermarked output)
-20. i18n / localization assessment
+### P2 — Growth (unchanged)
+14. Company blog (3–5 SEO articles)  
+15. 60s product video on `/help`  
+16. Changelog / status page  
+17. Integration logos (Cursor, Claude)  
+18. Interactive try-a-topic widget (watermarked)  
 
 ---
 
-## Sample visitor quotes (35 personas)
+## Before vs after — key metrics
 
-> **#01 First-timer:** “I get what it does in five seconds — but I want to *see* a draft before I create an account.”
-
-> **#08 Skeptic:** “You say you’re not ChatGPT, but show me the same prompt side-by-side and I’ll believe you.”
-
-> **#12 Developer:** “The MCP one-liner is chef’s kiss. I’d star this on GitHub if there was a repo link.”
-
-> **#21 Social proof hunter:** “Who else uses this? Anyone? Bueller?”
-
-> **#30 Signup analyst:** “I clicked Get started free and got an error. I’m done.”
-
-> **#35 Executive:** “Strong pitch, clear market — fix login and add one screenshot; I’d approve a team trial.”
+| Expert area | Jul 13 | Jul 14 | Δ |
+|-------------|--------|--------|---|
+| Dashboard expectation (#33) | 5 | **8** | **+3** |
+| Performance perception (#19) | 5 | **7** | **+2** |
+| Navigation / IA (#16) | 6 | **8** | **+2** |
+| FAQ effectiveness (#20) | 7 | **9** | **+2** |
+| Signup friction (#30) | 4 | **6** | **+2** |
+| Social proof (#21) | 4 | **5** | +1 |
+| Feature overload (#25) | 6 | **6** | 0 |
+| Pricing clarity (#22) | 7 | **7** | 0 |
 
 ---
 
-## Technical notes from codebase review
+## Sample visitor quotes (Jul 14 re-run)
 
-- **SEO:** `lib/marketing/landingSeo.ts` — strong keyword array, canonical, robots, Google verification ✅
-- **Sitemap:** 8 public paths; newsletter/unsubscribed not indexed (correct)
-- **Robots:** Blocks `/dashboard`, `/home`, `/history`, `/profile`, `/api` ✅
-- **Loading:** `app/layout.tsx` wraps all pages in `Suspense` → universal “Loading page” fallback ⚠️
-- **Auth:** Client stores `sessionToken` in localStorage; server actions use Supabase — production env mismatch likely cause of auth failure
-- **Newsletter:** API + Resend wired; needs Cloudflare env vars (`RESEND_API_KEY`, etc.)
-- **Responsive:** Full matrix audit (165 tests) — public pages pass all viewports ✅
+> **#01 First-timer:** “The dashboard preview helps — show me one real generated paragraph and I would sign up today.”
+
+> **#08 Skeptic:** “Nice table. Now run 'B2B SaaS content strategy' through both tools and paste the drafts — then I'll believe you.”
+
+> **#13 Newsletter prospect:** “I read the sample issue and it's actually good — one archived week and a subscriber count and I'm in.”
+
+> **#19 Performance:** “First load feels snappy now — I'd still want to see lab Web Vitals before calling it production-grade.”
+
+> **#21 Social proof hunter:** “You labeled it 'not customer testimonials.' Good. But I still don't know who else uses this.”
+
+> **#30 Signup analyst:** “The error messages are finally human — but I still couldn't finish signup.”
+
+> **#33 Dashboard visitor:** “Huge upgrade — I finally see the workspace. Now let me click in and know login actually works.”
+
+> **#35 Executive:** “You fixed my screenshot ask — now show me one real user and working login and I'll approve the pilot.”
+
+---
+
+## Technical notes (post-deploy verification)
+
+- **OG image:** `/opengraph-image` live; `landingSeo.ts` wires Open Graph + Twitter ✅  
+- **JSON-LD:** `WelcomeStructuredData.tsx` — Organization, WebSite, WebPage, SoftwareApplication, FAQPage on `/` ✅  
+- **Loaders:** Root `Suspense fallback={null}`; `InitialMountLoader` deleted ✅  
+- **Help:** `HelpTroubleshootingSection` replaces duplicate `FaqSection` ✅  
+- **Sitemap:** `/newsletter/sample` added to `PUBLIC_MARKETING_PATHS` ✅  
+- **Auth code:** Anon client no longer requires service-role for login; signup metadata simplified ✅  
+- **Still open:** `app/loading.tsx` route loaders; Cloudflare Supabase env verification; Resend newsletter cron env  
 
 ---
 
 ## How to re-run this audit
 
-This report was generated from 35 expert personas across 7 parallel analysis batches, combined with live fetches of blogcreator.dev and repository inspection. To refresh after major site changes, re-review the scorecard sections and verify P0 items first.
+35 expert personas across 7 parallel batches, combined with live fetches of https://blogcreator.dev and repository inspection. Compare scorecard Δ column to prior audit date. Verify P0 (auth + social proof) on production before next marketing push.
 
 ---
 
-*Generated for ContentCraft-Inspector / BlogCreator.dev — visitor expert audit 2026*
+*Generated for ContentCraft-Inspector / BlogCreator.dev — visitor expert re-audit 2026-07-14 (post-deploy `e584660`)*

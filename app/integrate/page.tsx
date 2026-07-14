@@ -3,6 +3,7 @@
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
+import IntegrateVerifySection from '@/app/integrate/IntegrateVerifySection';
 import IntegrationSection from '@/app/integrate/IntegrationSection';
 import {
   INTEGRATION_HERO_EYEBROW,
@@ -47,6 +48,7 @@ export default function IntegratePage() {
         </motion.div>
 
         <IntegrationSection />
+        <IntegrateVerifySection />
 
         <MarketingFooter className="relative mt-12" />
       </main>

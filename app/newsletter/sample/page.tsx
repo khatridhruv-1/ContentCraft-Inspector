@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import BlogCreatorNavBrand from '@/components/brand/BlogCreatorNavBrand';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
+import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
 import { NEWSLETTER_SAMPLE_ISSUE } from '@/lib/newsletter/sampleIssue';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
 import {
@@ -87,13 +88,19 @@ export default function NewsletterSamplePage() {
           </p>
         </article>
 
-        <p className="mt-8 text-center text-sm text-slate-600">
-          Like this format?{' '}
-          <Link href="/#newsletter" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
-            Subscribe free on the homepage
+        <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Link href="/#newsletter" className={marketingFocusRing}>
+            <MarketingPrimaryButton type="button" fullWidth={false}>
+              Subscribe free
+            </MarketingPrimaryButton>
           </Link>
-          .
-        </p>
+          <Link
+            href="/samples"
+            className={cn('text-sm font-semibold text-violet-700 underline-offset-2 hover:underline', marketingFocusRing)}
+          >
+            See sample outputs
+          </Link>
+        </div>
       </main>
 
       <MarketingFooter />

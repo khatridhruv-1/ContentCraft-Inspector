@@ -6,7 +6,7 @@ import type { AppUser } from '@/lib/user/appwrite';
 import type { BootstrapHistoryItem } from '@/lib/user/sessionBootstrap';
 import { bootstrapSessionCached } from '@/lib/user/sessionBootstrapCached';
 import { clearAuthSession, getSessionToken } from '@/lib/user/session';
-import { waitForMinDisplay } from '@/lib/loading/minDisplay';
+import { waitForMinDisplay, GUEST_GUARD_MIN_MS } from '@/lib/loading/minDisplay';
 
 export type SessionStatus = 'checking' | 'ready' | 'redirecting';
 
@@ -95,7 +95,9 @@ export function useAuthGuard(): AuthGuardState {
  */
 export function useGuestGuard(redirectTo = '/home'): SessionStatus {
   const router = useRouter();
-  const [status, setStatus] = useState<SessionStatus>('checking');
+  const [status, setStatus] = useState<SessionStatus>(() =>
+    typeof window !== 'undefined' && getSessionToken() ? 'checking' : 'ready'
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -105,7 +107,6 @@ export function useGuestGuard(redirectTo = '/home'): SessionStatus {
       setStatus('checking');
       const sessionToken = getSessionToken();
       if (!sessionToken) {
-        await waitForMinDisplay(startedAt);
         if (!cancelled) setStatus('ready');
         return;
       }
@@ -115,18 +116,18 @@ export function useGuestGuard(redirectTo = '/home'): SessionStatus {
         if (cancelled) return;
 
         if (session) {
-          await waitForMinDisplay(startedAt);
+          await waitForMinDisplay(startedAt, GUEST_GUARD_MIN_MS);
           if (!cancelled) setStatus('redirecting');
           router.replace(redirectTo);
         } else {
           clearAuthSession();
-          await waitForMinDisplay(startedAt);
+          await waitForMinDisplay(startedAt, GUEST_GUARD_MIN_MS);
           if (!cancelled) setStatus('ready');
         }
       } catch {
         if (cancelled) return;
         clearAuthSession();
-        await waitForMinDisplay(startedAt);
+        await waitForMinDisplay(startedAt, GUEST_GUARD_MIN_MS);
         if (!cancelled) setStatus('ready');
       }
     }

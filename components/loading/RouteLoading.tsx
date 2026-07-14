@@ -1,8 +1,4 @@
-'use client';
-
-import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
-
-/** App Router `loading.tsx` default — explicit client boundary for webpack. */
+/** App Router loading UI — no fullscreen flash during client navigations. */
 export default function RouteLoading() {
-  return <PageLoadingScreen label="Loading page" />;
+  return null;
 }

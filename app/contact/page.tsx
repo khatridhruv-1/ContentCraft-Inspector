@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Mail, MessageSquare } from 'lucide-react';
 import LegalPageShell from '@/components/legal/LegalPageShell';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
@@ -21,19 +22,39 @@ const SUPPORT_EMAIL = SITE_EMAILS.support;
 type FormState = {
   name: string;
   email: string;
+  topic: string;
   subject: string;
   message: string;
 };
 
+const CONTACT_TOPICS = [
+  { value: 'general', label: 'General question' },
+  { value: 'account', label: 'Account or login' },
+  { value: 'billing', label: 'Billing or pricing' },
+  { value: 'integrations', label: 'MCP / API / integrations' },
+  { value: 'pro-waitlist', label: 'Pro plan waitlist' },
+  { value: 'privacy', label: 'Privacy or data request' },
+] as const;
+
 const initialForm: FormState = {
   name: '',
   email: '',
+  topic: 'general',
   subject: '',
   message: '',
 };
 
 export default function ContactPage() {
-  const [form, setForm] = useState<FormState>(initialForm);
+  const searchParams = useSearchParams();
+  const topicParam = searchParams.get('topic');
+  const [form, setForm] = useState<FormState>(() => ({
+    ...initialForm,
+    topic:
+      CONTACT_TOPICS.some(t => t.value === topicParam) && topicParam
+        ? topicParam
+        : 'general',
+    subject: topicParam === 'pro-waitlist' ? 'Pro plan waitlist' : '',
+  }));
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -64,6 +85,7 @@ export default function ContactPage() {
     const body = [
       `Name: ${form.name.trim()}`,
       `Email: ${form.email.trim()}`,
+      `Topic: ${CONTACT_TOPICS.find(t => t.value === form.topic)?.label ?? form.topic}`,
       '',
       form.message.trim(),
     ].join('\n');
@@ -193,6 +215,28 @@ export default function ContactPage() {
                 </p>
               )}
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="contact-topic" className="text-white/85">
+              Topic
+            </Label>
+            <select
+              id="contact-topic"
+              name="topic"
+              value={form.topic}
+              onChange={e => setForm(prev => ({ ...prev, topic: e.target.value }))}
+              className={cn(
+                'flex h-10 w-full rounded-md border px-3 py-2 text-sm text-white',
+                fieldClassName
+              )}
+            >
+              {CONTACT_TOPICS.map(topic => (
+                <option key={topic.value} value={topic.value} className="text-slate-900">
+                  {topic.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="space-y-1.5">

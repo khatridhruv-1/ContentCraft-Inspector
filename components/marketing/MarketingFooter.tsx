@@ -4,6 +4,8 @@ import { marketingMutedLink } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 export const FOOTER_NAV_LINKS = [
+  { label: 'Samples', href: '/samples' },
+  { label: 'Pricing', href: '/pricing' },
   { label: 'Newsletter', href: '/#newsletter' },
   { label: 'Help Center', href: '/help' },
   { label: 'Integrations', href: '/integrate' },
