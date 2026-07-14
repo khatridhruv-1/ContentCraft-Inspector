@@ -88,51 +88,53 @@ export default function WelcomeLanding({ heroSlot }: WelcomeLandingProps) {
           <BlogCreatorNavBrand priority />
         </Link>
 
-        <div className="flex items-center gap-1 sm:gap-4">
+        <div className="flex min-w-0 shrink-0 items-center gap-1 md:gap-2 lg:gap-4">
           <LandingMobileNav />
-          <a
-            href="#features"
-            className={cn('hidden px-3 py-2 sm:inline', marketingGhostNav, marketingFocusRing)}
-          >
-            Features
-          </a>
-          <a
-            href="#platforms"
-            className={cn('hidden px-3 py-2 lg:inline', marketingGhostNav, marketingFocusRing)}
-          >
-            Platforms
-          </a>
-          <a
-            href="#integrations"
-            className={cn('hidden px-3 py-2 lg:inline', marketingGhostNav, marketingFocusRing)}
-          >
-            Integrations
-          </a>
-          <a
-            href="#faq"
-            className={cn('hidden px-3 py-2 md:inline', marketingGhostNav, marketingFocusRing)}
-          >
-            FAQ
-          </a>
-          <Link
-            href="/samples"
-            className={cn('hidden px-3 py-2 md:inline', marketingGhostNav, marketingFocusRing)}
-          >
-            Samples
-          </Link>
-          <Link
-            href="/pricing"
-            className={cn('hidden px-3 py-2 md:inline', marketingGhostNav, marketingFocusRing)}
-          >
-            Pricing
-          </Link>
-          <button
-            type="button"
-            onClick={() => router.push('/auth/login')}
-            className={cn('px-4 py-2.5', marketingGhostNav, marketingFocusRing)}
-          >
-            Sign in
-          </button>
+          <div className="max-md:hidden flex min-w-0 items-center gap-1 md:gap-2 lg:gap-4">
+            <a
+              href="#features"
+              className={cn('px-3 py-2', marketingGhostNav, marketingFocusRing)}
+            >
+              Features
+            </a>
+            <a
+              href="#platforms"
+              className={cn('hidden px-3 py-2 lg:inline', marketingGhostNav, marketingFocusRing)}
+            >
+              Platforms
+            </a>
+            <a
+              href="#integrations"
+              className={cn('hidden px-3 py-2 lg:inline', marketingGhostNav, marketingFocusRing)}
+            >
+              Integrations
+            </a>
+            <a
+              href="#faq"
+              className={cn('px-3 py-2', marketingGhostNav, marketingFocusRing)}
+            >
+              FAQ
+            </a>
+            <Link
+              href="/samples"
+              className={cn('px-3 py-2', marketingGhostNav, marketingFocusRing)}
+            >
+              Samples
+            </Link>
+            <Link
+              href="/pricing"
+              className={cn('px-3 py-2', marketingGhostNav, marketingFocusRing)}
+            >
+              Pricing
+            </Link>
+            <button
+              type="button"
+              onClick={() => router.push('/auth/login')}
+              className={cn('px-4 py-2.5', marketingGhostNav, marketingFocusRing)}
+            >
+              Sign in
+            </button>
+          </div>
           <MarketingPrimaryButton
             type="button"
             size="sm"

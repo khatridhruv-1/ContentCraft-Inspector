@@ -3,6 +3,8 @@ import type { Config } from 'tailwindcss';
 const config: Config = {
   darkMode: ['class'],
   safelist: [
+    'md:hidden',
+    'max-md:flex',
     {
       pattern:
         /^(bg|text|border|hover:bg|hover:text|hover:border|active:bg|focus:bg|focus-visible:bg|data-\[state=active\]:bg)-slate-(50|100|200|300|400|500|600|700|800|900|950)$/,

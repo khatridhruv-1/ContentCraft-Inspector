@@ -105,6 +105,7 @@
     "@types/html-docx-js": "^0.3.4",
     "@types/quill": "^2.0.14",
     "fs-extra": "^11.3.5",
+    "playwright": "^1.61.1",
     "supabase": "^2.101.0"
   }
 }
