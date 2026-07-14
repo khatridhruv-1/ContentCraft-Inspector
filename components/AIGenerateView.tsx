@@ -45,6 +45,7 @@ import {
 interface AIGenerateViewProps {
   generatedContent: string;
   initialBrief?: string;
+  initialPlatform?: ContentPlatformId;
   onContentGenerated: (content: string) => void;
   onAnalyze: () => void;
   onOpenAnalyzeChat?: (item: StudioHistoryItem) => void;
@@ -56,6 +57,7 @@ const HISTORY_LIMIT = 40;
 export default function AIGenerateView({
   generatedContent,
   initialBrief,
+  initialPlatform,
   onContentGenerated,
   onAnalyze,
   onOpenAnalyzeChat,
@@ -67,7 +69,9 @@ export default function AIGenerateView({
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [brief, setBrief] = useState(initialBrief ?? '');
   const [tone, setTone] = useState('');
-  const [platform, setPlatform] = useState<ContentPlatformId>(DEFAULT_CONTENT_PLATFORM);
+  const [platform, setPlatform] = useState<ContentPlatformId>(
+    initialPlatform ?? DEFAULT_CONTENT_PLATFORM
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<StudioHistoryItem | null>(null);
@@ -95,6 +99,10 @@ export default function AIGenerateView({
   useEffect(() => {
     if (initialBrief) setBrief(initialBrief);
   }, [initialBrief]);
+
+  useEffect(() => {
+    if (initialPlatform) setPlatform(initialPlatform);
+  }, [initialPlatform]);
 
   const handleSelectChat = useCallback(
     (item: StudioHistoryItem) => {

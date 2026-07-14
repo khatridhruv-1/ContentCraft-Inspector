@@ -7,6 +7,7 @@ export const PRICING_TIERS = [
     description: 'Everything you need to draft, analyze, and publish — no credit card.',
     features: [
       'AI generation for 5 platforms',
+      'Unlimited generations during beta',
       'Automatic keyword discovery',
       'Deep SEO & readability analysis',
       'Export to Word and Markdown',
@@ -39,7 +40,7 @@ export const PRICING_FAQ = [
   {
     question: 'Is BlogCreator really free?',
     answer:
-      'Yes. The Free plan includes generation, keyword discovery, core analysis, and integrations. No credit card required.',
+      'Yes. The Free plan includes generation, keyword discovery, core analysis, and integrations. Unlimited during beta — no credit card required.',
   },
   {
     question: 'Will the free plan change?',

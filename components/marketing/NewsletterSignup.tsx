@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Mail, Sparkles, TrendingUp } from 'lucide-react';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
@@ -24,9 +24,19 @@ interface NewsletterSignupProps {
 
 export default function NewsletterSignup({ className }: NewsletterSignupProps) {
   const [email, setEmail] = useState('');
+  const [subscriberCount, setSubscriberCount] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    fetch('/api/newsletter/stats')
+      .then(res => res.json())
+      .then((data: { count?: number | null }) => {
+        if (typeof data.count === 'number') setSubscriberCount(data.count);
+      })
+      .catch(() => undefined);
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -88,6 +98,11 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
             <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
               Subscribe to BlogCreator Daily — fresh editorial content on what people are searching
               for right now, written in a clear practitioner voice.
+              {subscriberCount !== null && subscriberCount > 0 && (
+                <span className="mt-1 block text-sm font-medium text-violet-700">
+                  Join {subscriberCount.toLocaleString()}+ subscribers
+                </span>
+              )}
             </p>
           </div>
         </ScrollReveal>

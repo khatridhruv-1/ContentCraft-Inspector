@@ -9,6 +9,7 @@ import {
   marketingLandingSection,
   marketingFocusRing,
 } from '@/lib/marketing/marketingTheme';
+import { INTEGRATION_GITHUB_REPO_URL } from '@/lib/marketing/integrationContent';
 import { cn } from '@/lib/utils';
 
 const VERIFY_STEPS = [
@@ -87,6 +88,15 @@ export default function IntegrateVerifySection() {
             <Link href="/contact" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
               contact support
             </Link>
+            {' · '}
+            <a
+              href={INTEGRATION_GITHUB_REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn('font-semibold text-violet-700', marketingFocusRing)}
+            >
+              GitHub repo
+            </a>
             .
           </p>
         </motion.div>

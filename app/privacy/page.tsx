@@ -164,6 +164,15 @@ export default function PrivacyPage() {
         </p>
       </LegalSection>
 
+      <LegalSection id="cookies" title="13. Cookies and similar technologies">
+        <p>
+          We use essential cookies and local storage for sign-in sessions and UI preferences (for
+          example, dismissing the cookie notice). We may use analytics cookies to understand product
+          usage. You can control non-essential cookies through the banner on first visit or your
+          browser settings.
+        </p>
+      </LegalSection>
+
       <LegalSection id="contact" title="12. Contact us">
         <p>
           Questions about this Privacy Policy? Email{' '}

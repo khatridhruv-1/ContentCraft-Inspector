@@ -5,6 +5,8 @@ import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
 import HelpIntegrateCta from '@/app/help/HelpIntegrateCta';
 import HelpTroubleshootingSection from '@/app/help/HelpTroubleshootingSection';
+import HelpPageNav from '@/components/help/HelpPageNav';
+import HelpSearch from '@/components/help/HelpSearch';
 import ProductPreviewSection from '@/app/welcome/ProductPreviewSection';
 import SeoKeywordsSection from '@/app/welcome/SeoKeywordsSection';
 import UserGuideSection from '@/app/welcome/UserGuideSection';
@@ -43,6 +45,9 @@ export default function HelpPage() {
             technical issues.
           </p>
         </motion.div>
+
+        <HelpSearch />
+        <HelpPageNav />
 
         <UserGuideSection />
         <MarketingSectionDivider />

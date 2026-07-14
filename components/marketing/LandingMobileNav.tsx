@@ -23,6 +23,12 @@ const SECTION_LINKS = [
   { href: '#faq', label: 'FAQ' },
 ] as const;
 
+const PAGE_LINKS = [
+  { href: '/samples', label: 'Samples' },
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/help', label: 'Help Center' },
+] as const;
+
 export default function LandingMobileNav() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -72,16 +78,19 @@ export default function LandingMobileNav() {
               {link.label}
             </a>
           ))}
-          <Link
-            href="/help"
-            onClick={() => setOpen(false)}
-            className={cn(
-              'rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100',
-              marketingFocusRing
-            )}
-          >
-            Help Center
-          </Link>
+          {PAGE_LINKS.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className={cn(
+                'rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100',
+                marketingFocusRing
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="mt-8 flex flex-col gap-2 border-t border-slate-200 pt-6">

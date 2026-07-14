@@ -6,9 +6,12 @@ import { cn } from '@/lib/utils';
 export const FOOTER_NAV_LINKS = [
   { label: 'Samples', href: '/samples' },
   { label: 'Pricing', href: '/pricing' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Newsletter', href: '/#newsletter' },
   { label: 'Help Center', href: '/help' },
   { label: 'Integrations', href: '/integrate' },
+  { label: 'Status', href: '/status' },
+  { label: 'Changelog', href: '/changelog' },
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },
   { label: 'Contact', href: '/contact' },

@@ -1,17 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
-import { getUser, logout, updateUserName, type AppUser } from '@/lib/user/appwrite';
+import { logout, updateUserName } from '@/lib/user/appwrite';
 import { clearAuthSession, getSessionToken } from '@/lib/user/session';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import HomeNav from '@/components/home/HomeNav';
 import HomeFooter from '@/components/home/HomeFooter';
 import { homeContainer } from '@/components/home/homeLayout';
-import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
-import { waitForMinDisplay } from '@/lib/loading/minDisplay';
 import ProfileWorkspacePanel from '@/components/profile/ProfileWorkspacePanel';
 import ProfileDisplayNameRow from '@/components/profile/ProfileDisplayNameRow';
 import ProfileAccountSection from '@/components/profile/ProfileAccountSection';
@@ -33,58 +32,15 @@ function formatMemberSince(timestamp: string) {
 export default function ProfilePage() {
   const router = useRouter();
   const reduced = useReducedMotion();
+  const { user, updateUser } = useCurrentUser();
 
-  const [user, setUser] = useState<AppUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [newName, setNewName] = useState('');
+  const [newName, setNewName] = useState(user.name);
   const [editing, setEditing] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const [memberSince, setMemberSince] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchProfile() {
-      const startedAt = Date.now();
-      try {
-        const sessionToken = getSessionToken();
-        if (!sessionToken) {
-          router.push('/auth/login?returnUrl=/profile');
-          return;
-        }
-
-        const userData = await getUser(sessionToken);
-        if (cancelled) return;
-
-        if (!userData) {
-          clearAuthSession();
-          router.push('/auth/login?returnUrl=/profile');
-          return;
-        }
-
-        setUser(userData);
-        setNewName(userData.name);
-        setMemberSince(formatMemberSince(userData.$createdAt));
-      } catch (err) {
-        console.error('Profile fetch failed:', err);
-        if (!cancelled) {
-          clearAuthSession();
-          router.push('/auth/login?returnUrl=/profile');
-        }
-      } finally {
-        await waitForMinDisplay(startedAt);
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    fetchProfile();
-    return () => {
-      cancelled = true;
-    };
-  }, [router]);
+  const memberSince = formatMemberSince(user.$createdAt);
 
   const handleLogout = async () => {
     if (editing) {
@@ -113,7 +69,7 @@ export default function ProfilePage() {
       setError('Name must be at least 2 characters long');
       return;
     }
-    if (trimmed === user?.name.trim()) {
+  if (trimmed === user.name.trim()) {
       setEditing(false);
       return;
     }
@@ -130,7 +86,7 @@ export default function ProfilePage() {
       }
 
       const updatedUser = await updateUserName(sessionToken, trimmed);
-      setUser(updatedUser);
+      updateUser({ name: updatedUser.name });
       setNewName(updatedUser.name);
       setEditing(false);
       setSaved(true);
@@ -146,15 +102,9 @@ export default function ProfilePage() {
 
   const cancelEditing = () => {
     setEditing(false);
-    setNewName(user?.name || '');
+    setNewName(user.name || '');
     setError(null);
   };
-
-  if (loading) {
-    return <PageLoadingScreen label="Loading profile" />;
-  }
-
-  if (!user) return null;
 
   return (
     <div className="relative flex flex-col">

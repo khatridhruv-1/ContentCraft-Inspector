@@ -1,8 +1,7 @@
 'use client';
 
 import { fetchHistory, deleteHistoryItem, fetchContent } from '@/lib/content/appwrite';
-import { getUser } from '@/lib/user/appwrite';
-import { clearAuthSession, getSessionToken } from '@/lib/user/session';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -56,12 +55,12 @@ interface HistoryItem {
   mode: HistoryMode;
 }
 
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 10;
 
 export default function HistoryPage() {
   const router = useRouter();
+  const { user } = useCurrentUser();
   useMarketingPageBackground({ includeHtml: true });
-  const [user, setUser] = useState<{ $id: string } | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,40 +78,22 @@ export default function HistoryPage() {
   }, []);
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const load = async () => {
       const startedAt = Date.now();
       try {
-        const sessionToken = getSessionToken();
-        if (!sessionToken) {
-          router.push('/auth/login');
-          return;
-        }
-
-        const userData = await getUser(sessionToken);
-        if (!userData) {
-          clearAuthSession();
-          router.push('/auth/login');
-          return;
-        }
-        setUser(userData);
-
-        if (userData.$id) {
-          await loadHistory(userData.$id, currentPage);
-        }
+        if (!user.$id) return;
+        await loadHistory(user.$id, currentPage);
       } catch (err) {
-        console.error('Profile or history fetch failed:', err);
-        setError('Failed to load your profile or history. Please try again.');
-        if ((err as Error).message === 'No session found') {
-          router.push('/auth/login');
-        }
+        console.error('History fetch failed:', err);
+        setError('Failed to load your history. Please try again.');
       } finally {
         await waitForMinDisplay(startedAt);
         setLoading(false);
       }
     };
 
-    fetchProfile();
-  }, [router, currentPage, loadHistory]);
+    load();
+  }, [user.$id, currentPage, loadHistory]);
 
   const handleViewDetails = async (item: HistoryItem) => {
     try {

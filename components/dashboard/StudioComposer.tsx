@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { AlertCircle, Wand2 } from 'lucide-react';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
 import StudioPlatformPicker from '@/components/dashboard/StudioPlatformPicker';
-import { STUDIO_FORMATS, STUDIO_TONES } from '@/lib/dashboard/studioOptions';
+import { STUDIO_FORMATS, STARTER_BRIEFS, STUDIO_TONES } from '@/lib/dashboard/studioOptions';
 import {
   studioChip,
   studioChipActive,
@@ -94,6 +94,28 @@ export default function StudioComposer({
                 className={cn(studioFormatChip, marketingFocusRing)}
               >
                 {format.label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Example briefs
+          </p>
+          <div className="mt-2 flex flex-col gap-1.5">
+            {STARTER_BRIEFS.map(example => (
+              <button
+                key={example.label}
+                type="button"
+                onClick={() => {
+                  onPlatformChange(example.platform);
+                  onBriefChange(example.brief);
+                }}
+                className={cn(
+                  'rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-xs text-slate-700 hover:border-violet-200 hover:bg-violet-50',
+                  marketingFocusRing
+                )}
+              >
+                <span className="font-semibold text-slate-900">{example.label}</span>
+                <span className="mt-0.5 block line-clamp-2 text-slate-500">{example.brief}</span>
               </button>
             ))}
           </div>

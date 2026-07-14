@@ -15,6 +15,13 @@ import {
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
+function getInitials(name: string): string {
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
 export default function BetaTestimonialsSection() {
   return (
     <section
@@ -41,11 +48,19 @@ export default function BetaTestimonialsSection() {
                 <blockquote className="flex-1 text-sm leading-relaxed text-slate-700">
                   &ldquo;{item.quote}&rdquo;
                 </blockquote>
-                <footer className="mt-4 border-t border-slate-200 pt-4">
-                  <p className="text-sm font-bold text-slate-900">{item.name}</p>
-                  <p className="text-xs text-slate-500">
-                    {item.role} · {item.context}
-                  </p>
+                <footer className="mt-4 flex items-center gap-3 border-t border-slate-200 pt-4">
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800"
+                    aria-hidden
+                  >
+                    {getInitials(item.name)}
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">{item.name}</p>
+                    <p className="text-xs text-slate-500">
+                      {item.role} · {item.context}
+                    </p>
+                  </div>
                 </footer>
               </article>
             </ScrollReveal>

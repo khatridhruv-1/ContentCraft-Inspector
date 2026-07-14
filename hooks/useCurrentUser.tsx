@@ -1,18 +1,19 @@
 'use client';
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { AppUser } from '@/lib/user/appwrite';
 import type { BootstrapHistoryItem } from '@/lib/user/sessionBootstrap';
 
 type SessionContextValue = {
   user: AppUser;
   recentHistory: BootstrapHistoryItem[];
+  updateUser: (patch: Partial<Pick<AppUser, 'name' | 'email'>>) => void;
 };
 
 const SessionContext = createContext<SessionContextValue | null>(null);
 
 export function SessionProvider({
-  user,
+  user: initialUser,
   recentHistory,
   children,
 }: {
@@ -20,7 +21,16 @@ export function SessionProvider({
   recentHistory: BootstrapHistoryItem[];
   children: ReactNode;
 }) {
-  const value = useMemo(() => ({ user, recentHistory }), [user, recentHistory]);
+  const [user, setUser] = useState(initialUser);
+
+  const updateUser = useCallback((patch: Partial<Pick<AppUser, 'name' | 'email'>>) => {
+    setUser(prev => ({ ...prev, ...patch }));
+  }, []);
+
+  const value = useMemo(
+    () => ({ user, recentHistory, updateUser }),
+    [user, recentHistory, updateUser]
+  );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

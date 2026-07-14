@@ -18,6 +18,7 @@ import {
   type HomeModeId,
 } from '@/components/home/homeWorkflows';
 import { marketingAccentSpan, marketingSkipLink } from '@/lib/marketing/marketingTheme';
+import HomeOnboarding from '@/components/home/HomeOnboarding';
 import { cn } from '@/lib/utils';
 
 function previewText(raw: string, max = 72) {
@@ -77,6 +78,8 @@ export default function Home() {
           previewText={raw => previewText(raw)}
           onOpenRecent={openRecent}
         />
+
+        <HomeOnboarding recentCount={recentItems.length} />
 
         <div className="mb-8 md:mb-10" aria-hidden>
           <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />

@@ -29,6 +29,7 @@ import {
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import { cn } from '@/lib/utils';
 import { extractDraftTitle, type StudioHistoryItem } from '@/lib/dashboard/studioHistory';
+import type { ContentPlatformId } from '@/types/contentPlatform';
 
 type AppMode = HomeModeId;
 
@@ -52,6 +53,7 @@ export default function Dashboard() {
   const [dataFromChild, setDataFromChild] = useState('');
   const [analysisRunId, setAnalysisRunId] = useState(0);
   const [initialBrief, setInitialBrief] = useState<string | undefined>();
+  const [initialPlatform, setInitialPlatform] = useState<ContentPlatformId | undefined>();
 
   const router = useRouter();
   useMarketingPageBackground({ includeHtml: true });
@@ -215,7 +217,11 @@ export default function Dashboard() {
 
       <div className="relative z-10 flex h-full min-h-0 flex-1 flex-col">
         <HomeNav />
-        <DashboardParams setMode={setMode} />
+        <DashboardParams
+          setMode={setMode}
+          setInitialBrief={setInitialBrief}
+          setInitialPlatform={setInitialPlatform}
+        />
 
         <div
           className={cn(
@@ -249,6 +255,7 @@ export default function Dashboard() {
             <AIGenerateView
               generatedContent={generatedContent}
               initialBrief={initialBrief}
+              initialPlatform={initialPlatform}
               onContentGenerated={handleGeneratedContent}
               onAnalyze={handleAnalyze}
               onOpenAnalyzeChat={handleOpenAnalyzeChat}

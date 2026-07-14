@@ -18,6 +18,8 @@ import MarketingSectionDivider from '@/components/marketing/MarketingSectionDivi
 import DashboardPreviewMock from '@/components/marketing/DashboardPreviewMock';
 import LandingMobileNav from '@/components/marketing/LandingMobileNav';
 import BetaTestimonialsSection from '@/components/marketing/BetaTestimonialsSection';
+import TryTopicWidget from '@/components/marketing/TryTopicWidget';
+import TrustedBySection from '@/components/marketing/TrustedBySection';
 import LandingIntegrationsTeaser from '@/app/welcome/LandingIntegrationsTeaser';
 import FaqSection from '@/app/welcome/FaqSection';
 import ChatGptComparisonSection from '@/app/welcome/ChatGptComparisonSection';
@@ -105,6 +107,18 @@ export default function WelcomeLanding() {
           >
             FAQ
           </a>
+          <Link
+            href="/samples"
+            className={cn('hidden px-3 py-2 md:inline', marketingGhostNav, marketingFocusRing)}
+          >
+            Samples
+          </Link>
+          <Link
+            href="/pricing"
+            className={cn('hidden px-3 py-2 md:inline', marketingGhostNav, marketingFocusRing)}
+          >
+            Pricing
+          </Link>
           <button
             type="button"
             onClick={() => router.push('/auth/login')}
@@ -223,6 +237,10 @@ export default function WelcomeLanding() {
 
           <MarketingSectionDivider />
         </section>
+
+        <TryTopicWidget />
+
+        <TrustedBySection />
 
         <BetaTestimonialsSection />
 

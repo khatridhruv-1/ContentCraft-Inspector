@@ -1,6 +1,7 @@
 'use server';
 
 import { getSupabaseAdmin, getSupabaseAnon } from "@/lib/supabase/server";
+import { absoluteUrl } from "@/lib/marketing/siteUrl";
 
 export type AppUser = {
   $id: string;
@@ -154,5 +155,41 @@ export async function updateUserName(sessionToken: string, newName: string) {
   }
 
   return mapUser(updated.user);
+}
+
+export async function requestPasswordReset(email: string) {
+  const normalizedEmail = normalizeEmail(email);
+  assertValidEmail(normalizedEmail);
+
+  const supabase = getSupabaseAnon();
+  const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+    redirectTo: absoluteUrl('/auth/reset'),
+  });
+
+  if (error) throwAuthError(error, 'Could not send reset email.');
+  return { ok: true as const };
+}
+
+export async function updatePassword(sessionToken: string, newPassword: string) {
+  if (newPassword.length < 6) {
+    throw new Error('Password must be at least 6 characters.');
+  }
+
+  const supabase = getSupabaseAnon();
+  const { data: current, error: currentError } = await supabase.auth.getUser(sessionToken);
+  if (currentError || !current.user) {
+    throw new Error('Your reset link has expired. Please request a new one.');
+  }
+
+  const admin = getSupabaseAdmin();
+  const { error: updateError } = await admin.auth.admin.updateUserById(current.user.id, {
+    password: newPassword,
+  });
+
+  if (updateError) {
+    throw new Error(updateError.message || 'Failed to update password.');
+  }
+
+  return { ok: true as const };
 }
 

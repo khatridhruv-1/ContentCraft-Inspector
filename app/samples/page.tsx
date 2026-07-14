@@ -5,7 +5,7 @@ import { absoluteUrl } from '@/lib/marketing/siteUrl';
 export const metadata: Metadata = {
   title: 'Sample Outputs — BlogCreator',
   description:
-    'Read real sample blog and LinkedIn drafts generated with BlogCreator — see output quality before you sign up.',
+    'Read real sample drafts for website, LinkedIn, Quora, Medium, and Substack — see output quality before you sign up.',
   alternates: { canonical: absoluteUrl('/samples') },
   robots: { index: true, follow: true },
 };

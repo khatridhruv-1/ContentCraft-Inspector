@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import './globals.css';
 import { BRAND_ASSETS } from '@/lib/brand/assets';
 import { getSiteUrl } from '@/lib/marketing/siteUrl';
+import RootCookieConsent from '@/components/marketing/RootCookieConsent';
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="bg-gray-100" suppressHydrationWarning={true}>
         <Suspense fallback={null}>{children}</Suspense>
+        <RootCookieConsent />
       </body>
     </html>
   );

@@ -66,4 +66,94 @@ What is your biggest bottleneck — keywords, drafting, or formatting for the ch
 
 #contentmarketing #B2B #AIwriting`,
   },
+  {
+    id: 'quora-answer',
+    platform: 'Quora',
+    topic: 'What is the best way to repurpose blog content for Quora without sounding promotional?',
+    keywords: ['content repurposing', 'Quora marketing', 'B2B thought leadership'],
+    excerpt:
+      'A direct Quora-style answer with practical steps — credibility-first, not a disguised sales pitch.',
+    body: `The best repurposing is not copy-paste. Quora readers punish anything that reads like a landing page in answer clothing.
+
+Here is a workflow that works:
+
+Start with one strong insight from your blog post — not the whole article. Quora rewards a single clear takeaway backed by experience.
+
+Rewrite in first person. "We tried X and saw Y" beats "Companies should consider X."
+
+Answer the exact question in the first two sentences. Context can come after.
+
+Add one specific example — a number, a timeframe, a mistake you made.
+
+Only mention your product if it is directly relevant to the question. One neutral line max.
+
+I have been using platform-specific generation so the tone stays conversational and the structure matches Q&A — not a chopped blog intro.
+
+If your answer could appear unchanged on your company blog, it is not ready for Quora yet.`,
+  },
+  {
+    id: 'medium-article',
+    platform: 'Medium',
+    topic: 'The hidden cost of generic AI content workflows',
+    keywords: ['AI writing workflow', 'content quality', 'editorial process'],
+    excerpt:
+      'A Medium-length essay with narrative hook — opinionated, readable, and publication-ready.',
+    body: `## You are not slow. Your stack is.
+
+Every week I talk to creators who blame themselves for how long content takes. They are not slow. They are running five tools that were never designed to work together.
+
+ChatGPT for drafting. A keyword spreadsheet. Hemingway for readability. Google Docs for collaboration. Canva for social crops. Each handoff adds friction — and each tool optimizes for its own output, not for where the piece will actually live.
+
+## Generic output has a format problem
+
+General-purpose AI writes "content." It does not write a LinkedIn post, a Quora answer, or a Medium essay. The structure is wrong, the hook is wrong, and you spend the next hour reformatting instead of improving ideas.
+
+Destination-first generation changes the economics. When the platform is chosen before the first token, you edit for quality — not for layout.
+
+## What a sane weekly rhythm looks like
+
+Monday: pick one pillar topic from search intent, not brainstorm roulette.
+
+Tuesday: generate the long-form draft with keywords woven in.
+
+Wednesday: repurpose two platform-native versions from the same brief.
+
+Thursday: run analysis — readability, gaps, thin sections.
+
+Friday: publish one, queue one, learn from metrics.
+
+That is four outputs from one strategic input. Most teams still treat each channel as a separate project.
+
+## The real bottleneck is assembly, not intelligence
+
+Models are good enough. The gap is workflow — one workspace where generation, keywords, analysis, and export share the same draft history.
+
+If you are still copying between tabs, you are paying a tax every week that no prompt engineering will fix.`,
+  },
+  {
+    id: 'substack-newsletter',
+    platform: 'Substack',
+    topic: 'Three editorial checks before you hit publish on AI-assisted drafts',
+    keywords: ['newsletter writing', 'AI editing', 'Substack growth'],
+    excerpt:
+      'A newsletter intro with personal voice — short paragraphs, one clear promise, subscriber-friendly tone.',
+    body: `Most AI-assisted newsletters fail for boring reasons. Not because the model is bad — because nobody edited for *your* voice before send.
+
+Here are three checks I run on every draft:
+
+**1. The first line test**
+If the opening could belong to any newsletter in your niche, rewrite it. One specific detail — a client story, a number, a contrarian take — is worth more than a polished generic hook.
+
+**2. The "so what" scan**
+Read only the subheads. Do they promise a outcome the reader cares about this week? If not, the body will not save you.
+
+**3. The platform skim**
+Substack readers scan on mobile. Short paragraphs. One idea per block. No blog-style section walls.
+
+I generate platform-native drafts first, then layer keyword discovery, then edit for voice last. That order matters — editing tone into a badly structured draft is twice the work.
+
+If you are publishing AI-assisted work without a human pass, your subscribers can tell. They might not unsubscribe. They will just stop opening.
+
+What is your non-negotiable edit before publish?`,
+  },
 ];

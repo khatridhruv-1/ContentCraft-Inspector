@@ -95,9 +95,13 @@ export const PUBLIC_MARKETING_PATHS = [
   '/contact',
   '/samples',
   '/pricing',
+  '/blog',
+  '/status',
+  '/changelog',
   '/newsletter/sample',
   '/privacy',
   '/terms',
   '/auth/login',
   '/auth/signup',
+  '/auth/forgot',
 ] as const;
