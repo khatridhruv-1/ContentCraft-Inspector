@@ -14,6 +14,7 @@ import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
 import { marketingLink } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
+import OAuthButtons from '@/components/auth/OAuthButtons';
 
 interface ValidationError {
   field: string;
@@ -156,6 +157,8 @@ export default function LoginFormClient() {
           <AuthSubmitButton loading={loading} loadingText="Signing in...">
             Sign in
           </AuthSubmitButton>
+
+          <OAuthButtons mode="login" />
 
           <p className="!mt-6 text-center text-sm text-slate-600">
             New here?{' '}

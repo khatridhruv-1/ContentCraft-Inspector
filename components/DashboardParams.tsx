@@ -10,24 +10,37 @@ const VALID_MODES: AppMode[] = ["ai-generate", "analyze"];
 
 type DashboardParamsProps = {
   setMode: (mode: AppMode) => void;
+  setDocumentId?: (id: string | null) => void;
   setInitialBrief?: (brief: string) => void;
   setInitialPlatform?: (platform: ReturnType<typeof parseContentPlatform>) => void;
+  onDocumentIdFromUrl?: (documentId: string) => void;
 };
 
 const DashboardParams = ({
   setMode,
+  setDocumentId,
   setInitialBrief,
   setInitialPlatform,
+  onDocumentIdFromUrl,
 }: DashboardParamsProps) => {
   const searchParams = useSearchParams();
   const raw = searchParams.get("mode");
   const modeFromURL: AppMode = VALID_MODES.includes(raw as AppMode)
     ? (raw as AppMode)
     : "ai-generate";
+  const documentIdFromUrl = searchParams.get("documentId");
 
   useEffect(() => {
     setMode(modeFromURL);
   }, [modeFromURL, setMode]);
+
+  useEffect(() => {
+    if (documentIdFromUrl) {
+      setDocumentId?.(documentIdFromUrl);
+      localStorage.setItem("documentId", documentIdFromUrl);
+      onDocumentIdFromUrl?.(documentIdFromUrl);
+    }
+  }, [documentIdFromUrl, setDocumentId, onDocumentIdFromUrl]);
 
   useEffect(() => {
     const brief = searchParams.get("brief");

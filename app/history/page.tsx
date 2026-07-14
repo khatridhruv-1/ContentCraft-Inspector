@@ -1,8 +1,13 @@
 'use client';
 
 import { fetchHistory, deleteHistoryItem, fetchContent } from '@/lib/content/appwrite';
+import {
+  buildDashboardUrl,
+  persistDashboardState,
+  type DashboardMode,
+} from '@/lib/dashboard/dashboardState';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -68,51 +73,70 @@ export default function HistoryPage() {
   const [showDetails, setShowDetails] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [pageLoading, setPageLoading] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const initialLoadDone = useRef(false);
 
   const loadHistory = useCallback(async (userId: string, page: number) => {
     const historyData = await fetchHistory(userId, page, ITEMS_PER_PAGE);
     setHistory((historyData?.documents as HistoryItem[]) || []);
-    setTotalPages(Math.max(1, Math.ceil((historyData?.total || 0) / ITEMS_PER_PAGE)));
+    const total = historyData?.total || 0;
+    setTotalItems(total);
+    setTotalPages(Math.max(1, Math.ceil(total / ITEMS_PER_PAGE)));
   }, []);
 
   useEffect(() => {
+    if (!user.$id) return;
+
     const load = async () => {
       const startedAt = Date.now();
+      const isInitial = !initialLoadDone.current;
+      if (!isInitial) setPageLoading(true);
+
       try {
-        if (!user.$id) return;
+        setError(null);
         await loadHistory(user.$id, currentPage);
       } catch (err) {
         console.error('History fetch failed:', err);
         setError('Failed to load your history. Please try again.');
       } finally {
-        await waitForMinDisplay(startedAt);
-        setLoading(false);
+        if (isInitial) {
+          await waitForMinDisplay(startedAt);
+          setLoading(false);
+          initialLoadDone.current = true;
+        }
+        setPageLoading(false);
       }
     };
 
-    load();
+    void load();
   }, [user.$id, currentPage, loadHistory]);
 
-  const handleViewDetails = async (item: HistoryItem) => {
+  const openInStudio = async (item: HistoryItem) => {
     try {
       const contentData = await fetchContent(item.$id);
+      const mode: DashboardMode = item.mode === 'analyze' ? 'analyze' : 'ai-generate';
 
-      const query = {
+      persistDashboardState({
         id: item.$id,
-        mode: item.mode,
+        mode,
         content: contentData?.document?.content || item.content,
         documentId: item.$id,
         fromHistory: true,
         analysis: contentData?.document?.analysis || item.analysis,
-      };
-
-      localStorage.setItem('dashboardState', JSON.stringify(query));
-      router.push('/dashboard');
+      });
+      router.push(buildDashboardUrl(mode, item.$id));
     } catch (err) {
       console.error('Error fetching content details:', err);
+      setError('Could not open this draft. Please try again.');
     }
+  };
+
+  const openPreview = (item: HistoryItem) => {
+    setSelectedItem(item);
+    setShowDetails(true);
   };
 
   const handleDelete = (documentId: string) => {
@@ -152,8 +176,12 @@ export default function HistoryPage() {
   };
 
   const handleBack = () => {
-    localStorage.setItem('skipWelcome', 'true');
-    router.push('/dashboard');
+    router.push('/home');
+  };
+
+  const goToPage = (page: number) => {
+    if (page < 1 || page > totalPages || page === currentPage) return;
+    setCurrentPage(page);
   };
 
   if (!user && !loading) {
@@ -168,7 +196,22 @@ export default function HistoryPage() {
   }
 
   if (loading) {
-    return <PageLoadingScreen label="Loading history" />;
+    return (
+      <div
+        className={cn('relative flex min-h-dvh flex-col', marketingBgClass, marketingPageClass)}
+        style={{ background: MARKETING_PAGE_GRADIENT }}
+      >
+        <HomeNav />
+        <main className={cn('relative z-10 flex-1 py-6 md:py-10', homeContainer)}>
+          <div className="mb-6 h-8 w-32 animate-pulse rounded-lg bg-slate-200" />
+          <ul className="space-y-3">
+            {[1, 2, 3].map(i => (
+              <li key={i} className="h-28 animate-pulse rounded-xl border border-slate-200 bg-white" />
+            ))}
+          </ul>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -197,7 +240,7 @@ export default function HistoryPage() {
               )}
             >
               <ArrowLeft className="h-4 w-4" aria-hidden />
-              <span className="hidden sm:inline">Back to Dashboard</span>
+              <span className="hidden sm:inline">Back to Home</span>
               <span className="sm:hidden">Back</span>
             </button>
             <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">History</h1>
@@ -211,6 +254,12 @@ export default function HistoryPage() {
           >
             {error}
           </div>
+        )}
+
+        {pageLoading && (
+          <p className="mb-4 text-sm text-slate-500" role="status">
+            Loading page…
+          </p>
         )}
 
         {history.length > 0 ? (
@@ -261,31 +310,46 @@ export default function HistoryPage() {
                     ) : (
                       <span />
                     )}
-                    <button
-                      type="button"
-                      className="text-left text-sm font-medium text-blue-600 hover:text-blue-800 sm:text-right"
-                      onClick={() => handleViewDetails(item)}
-                    >
-                      View details
-                    </button>
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        className="text-left text-sm font-medium text-slate-600 hover:text-slate-900"
+                        onClick={() => openPreview(item)}
+                      >
+                        Quick preview
+                      </button>
+                      <button
+                        type="button"
+                        className="text-left text-sm font-medium text-blue-600 hover:text-blue-800"
+                        onClick={() => openInStudio(item)}
+                      >
+                        Open in studio
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <p className="text-sm text-slate-600">
+                Page {currentPage} of {totalPages}
+                {totalItems > 0 ? ` · ${totalItems} drafts` : ''}
+              </p>
               <Pagination>
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      onClick={() => goToPage(currentPage - 1)}
                       className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      aria-disabled={currentPage === 1}
                     />
                   </PaginationItem>
                   <PaginationItem>
                     <PaginationNext
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      onClick={() => goToPage(currentPage + 1)}
                       className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                      aria-disabled={currentPage === totalPages}
                     />
                   </PaginationItem>
                 </PaginationContent>
@@ -293,7 +357,16 @@ export default function HistoryPage() {
             </div>
           </>
         ) : (
-          <p className="text-slate-500">No history found.</p>
+          <div className="rounded-xl border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center">
+            <p className="text-slate-600">No history found.</p>
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard?mode=ai-generate')}
+              className="mt-4 text-sm font-semibold text-violet-700 underline-offset-2 hover:underline"
+            >
+              Create your first draft
+            </button>
+          </div>
         )}
       </main>
 
@@ -311,12 +384,10 @@ export default function HistoryPage() {
           </DialogHeader>
 
           <div className="flex-1 overflow-auto mt-4">
-            {!selectedItem ? (
-              <PageLoadingScreen label="Loading document" />
-            ) : (
+            {selectedItem ? (
               <div className="space-y-6">
                 <div className="prose max-w-none">
-                  <h3 className="text-lg font-semibold mb-2">Input</h3>
+                  <h3 className="text-lg font-semibold mb-2">Content</h3>
                   <MarkdownRenderer content={selectedItem.content} />
                 </div>
 
@@ -326,8 +397,19 @@ export default function HistoryPage() {
                     <div className="rounded-lg bg-gray-50 p-4">{selectedItem.analysis}</div>
                   </div>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDetails(false);
+                    void openInStudio(selectedItem);
+                  }}
+                  className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+                >
+                  Open in studio
+                </button>
               </div>
-            )}
+            ) : null}
           </div>
         </DialogContent>
       </Dialog>

@@ -45,6 +45,16 @@ export default function IntegratePage() {
           <p className="mx-auto mt-4 max-w-xl text-base font-medium leading-relaxed text-slate-700">
             {INTEGRATION_HERO_SUBTITLE}
           </p>
+          <ul className="mx-auto mt-6 flex max-w-lg flex-wrap items-center justify-center gap-3">
+            {['Cursor', 'Claude', 'Windsurf', 'VS Code'].map(name => (
+              <li
+                key={name}
+                className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-700"
+              >
+                {name}
+              </li>
+            ))}
+          </ul>
         </motion.div>
 
         <IntegrationSection />

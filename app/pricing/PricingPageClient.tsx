@@ -47,8 +47,9 @@ export default function PricingPageClient() {
             <span className={marketingAccentSpan}>Pro coming soon</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-slate-600">
-            Start free today. No credit card. We will announce Pro limits and team features before
-            anything changes for existing users.
+            Start free today. No credit card.{' '}
+            <strong className="font-semibold text-slate-800">Unlimited generations during beta</strong>
+            {' '}— we will announce Pro limits and team features before anything changes for existing users.
           </p>
         </motion.div>
 

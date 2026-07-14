@@ -30,6 +30,8 @@ import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import { cn } from '@/lib/utils';
 import { extractDraftTitle, type StudioHistoryItem } from '@/lib/dashboard/studioHistory';
 import type { ContentPlatformId } from '@/types/contentPlatform';
+import { fetchContent } from '@/lib/content/appwrite';
+import type { DashboardMode } from '@/lib/dashboard/dashboardState';
 
 type AppMode = HomeModeId;
 
@@ -58,9 +60,60 @@ export default function Dashboard() {
   const router = useRouter();
   useMarketingPageBackground({ includeHtml: true });
 
-  useEffect(() => {
-    localStorage.removeItem('documentId');
-  }, []);
+  const applyDashboardState = (parsed: {
+    mode?: string;
+    content?: string;
+    documentId?: string;
+    fromHistory?: boolean;
+    analysis?: string;
+  }) => {
+    const safeMode: AppMode = parsed.mode === 'analyze' ? 'analyze' : 'ai-generate';
+    const savedContent = parsed.content ?? '';
+    const savedDocId = parsed.documentId ?? null;
+    const savedAnalysis = parsed.analysis ?? '';
+
+    setMode(safeMode);
+    setContent(savedContent);
+    setAnalysis(savedAnalysis);
+    setDocumentId(savedDocId);
+    setFromHistory(Boolean(parsed.fromHistory));
+
+    if (savedDocId) {
+      localStorage.setItem('documentId', savedDocId);
+    }
+
+    if (safeMode === 'analyze') {
+      setTriggerAnalysis(true);
+      setAnalysis(savedAnalysis);
+    } else {
+      setGeneratedContent(savedAnalysis || savedContent);
+      setAnalysis(savedAnalysis);
+      if (typeof savedContent === 'string' && savedContent.trim()) {
+        setInitialBrief(savedContent);
+      }
+    }
+  };
+
+  const loadDocumentFromUrl = async (docId: string) => {
+    if (localStorage.getItem('dashboardState')) return;
+
+    try {
+      const contentData = await fetchContent(docId);
+      const doc = contentData?.document;
+      if (!doc) return;
+
+      const mode: DashboardMode = doc.mode === 'analyze' ? 'analyze' : 'ai-generate';
+      applyDashboardState({
+        mode,
+        content: doc.content,
+        documentId: docId,
+        fromHistory: true,
+        analysis: doc.analysis ?? undefined,
+      });
+    } catch (err) {
+      console.error('Failed to load document from URL:', err);
+    }
+  };
 
   useEffect(() => {
     const loadHistoryState = () => {
@@ -83,29 +136,22 @@ export default function Dashboard() {
         fromHistory: wasHistory,
         analysis: savedAnalysis,
       } = parsed;
-      const safeMode: AppMode = savedMode === 'analyze' ? 'analyze' : 'ai-generate';
-
-      setMode(safeMode);
-      setContent(savedContent);
-      setAnalysis(savedAnalysis);
-      setDocumentId(savedDocId);
-      setFromHistory(wasHistory);
-
-      if (safeMode === 'analyze') {
-        setTriggerAnalysis(true);
-        setAnalysis(savedAnalysis);
-      } else {
-        setGeneratedContent(savedAnalysis);
-        setAnalysis(savedAnalysis);
-        if (typeof savedContent === 'string' && savedContent.trim()) {
-          setInitialBrief(savedContent);
-        }
-      }
+      applyDashboardState({
+        mode: savedMode,
+        content: savedContent,
+        documentId: savedDocId,
+        fromHistory: wasHistory,
+        analysis: savedAnalysis,
+      });
       localStorage.removeItem('dashboardState');
     };
 
     loadHistoryState();
   }, []);
+
+  const handleDocumentIdFromUrl = (docId: string) => {
+    void loadDocumentFromUrl(docId);
+  };
 
   const handleModeChange = (newMode: AppMode) => {
     setMode(newMode);
@@ -219,8 +265,10 @@ export default function Dashboard() {
         <HomeNav />
         <DashboardParams
           setMode={setMode}
+          setDocumentId={setDocumentId}
           setInitialBrief={setInitialBrief}
           setInitialPlatform={setInitialPlatform}
+          onDocumentIdFromUrl={handleDocumentIdFromUrl}
         />
 
         <div

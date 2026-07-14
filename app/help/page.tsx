@@ -5,6 +5,7 @@ import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
 import HelpIntegrateCta from '@/app/help/HelpIntegrateCta';
 import HelpTroubleshootingSection from '@/app/help/HelpTroubleshootingSection';
+import HelpProductVideoSection from '@/components/help/HelpProductVideoSection';
 import HelpPageNav from '@/components/help/HelpPageNav';
 import HelpSearch from '@/components/help/HelpSearch';
 import ProductPreviewSection from '@/app/welcome/ProductPreviewSection';
@@ -48,6 +49,8 @@ export default function HelpPage() {
 
         <HelpSearch />
         <HelpPageNav />
+        <HelpProductVideoSection />
+        <MarketingSectionDivider />
 
         <UserGuideSection />
         <MarketingSectionDivider />

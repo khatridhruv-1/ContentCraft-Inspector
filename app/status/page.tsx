@@ -4,8 +4,8 @@ import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeade
 import {
   MARKETING_PAGE_GRADIENT,
   marketingAccentSpan,
-  marketingPageClass,
   marketingGlassCard,
+  marketingPageClass,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
@@ -17,15 +17,55 @@ export const metadata: Metadata = {
   alternates: { canonical: absoluteUrl('/status') },
 };
 
+type HealthResponse = {
+  ok: boolean;
+  configured?: string[];
+  missing?: string[];
+  hint?: string;
+};
+
+type ServiceStatus = 'operational' | 'degraded' | 'down';
+
 const SERVICES = [
-  { name: 'Website & marketing pages', status: 'operational' },
-  { name: 'Authentication', status: 'operational' },
-  { name: 'AI generation API', status: 'operational' },
-  { name: 'Newsletter delivery', status: 'operational' },
-  { name: 'MCP / integrations', status: 'operational' },
+  { id: 'website', name: 'Website & marketing pages' },
+  { id: 'auth', name: 'Authentication' },
+  { id: 'api', name: 'AI generation API' },
+  { id: 'newsletter', name: 'Newsletter delivery' },
+  { id: 'mcp', name: 'MCP / integrations' },
 ] as const;
 
-export default function StatusPage() {
+async function fetchAuthHealth(): Promise<HealthResponse | null> {
+  try {
+    const res = await fetch(absoluteUrl('/api/health/auth'), {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as HealthResponse;
+  } catch {
+    return null;
+  }
+}
+
+function statusForService(id: string, health: HealthResponse | null): ServiceStatus {
+  if (!health) return 'degraded';
+  if (id === 'auth') return health.ok ? 'operational' : 'down';
+  return health.ok ? 'operational' : 'degraded';
+}
+
+const STATUS_STYLES: Record<ServiceStatus, string> = {
+  operational: 'bg-emerald-100 text-emerald-800',
+  degraded: 'bg-amber-100 text-amber-800',
+  down: 'bg-red-100 text-red-800',
+};
+
+export default async function StatusPage() {
+  const health = await fetchAuthHealth();
+  const allOperational = SERVICES.every(s => statusForService(s.id, health) === 'operational');
+  const checkedAt = new Date().toLocaleString('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+
   return (
     <div
       className={cn('marketing-page min-h-screen', marketingPageClass)}
@@ -37,18 +77,39 @@ export default function StatusPage() {
         <h1 className={marketingSectionTitle}>
           System <span className={marketingAccentSpan}>status</span>
         </h1>
-        <p className="mt-3 text-emerald-700 font-semibold">All systems operational</p>
-        <p className="mt-1 text-sm text-slate-500">Last checked: July 14, 2026</p>
+        <p
+          className={cn(
+            'mt-3 font-semibold',
+            allOperational ? 'text-emerald-700' : 'text-amber-700'
+          )}
+        >
+          {allOperational ? 'All systems operational' : 'Some systems need attention'}
+        </p>
+        <p className="mt-1 text-sm text-slate-500">Last checked: {checkedAt}</p>
+        {health?.hint ? (
+          <p className="mt-2 text-xs text-slate-500">{health.hint}</p>
+        ) : null}
 
         <ul className="mt-8 space-y-3">
-          {SERVICES.map(s => (
-            <li key={s.name} className={cn(marketingGlassCard, 'flex items-center justify-between px-4 py-3')}>
-              <span className="text-sm font-medium text-slate-800">{s.name}</span>
-              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold capitalize text-emerald-800">
-                {s.status}
-              </span>
-            </li>
-          ))}
+          {SERVICES.map(s => {
+            const status = statusForService(s.id, health);
+            return (
+              <li
+                key={s.id}
+                className={cn(marketingGlassCard, 'flex items-center justify-between px-4 py-3')}
+              >
+                <span className="text-sm font-medium text-slate-800">{s.name}</span>
+                <span
+                  className={cn(
+                    'rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize',
+                    STATUS_STYLES[status]
+                  )}
+                >
+                  {status}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </main>
 

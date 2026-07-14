@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useReducedMotion } from 'framer-motion';
-import { History, LayoutDashboard, User } from 'lucide-react';
+import { History, Home, LayoutDashboard, User } from 'lucide-react';
 import BlogCreatorNavBrand from '@/components/brand/BlogCreatorNavBrand';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 import {
   MARKETING_EASE,
   marketingFocusRing,
@@ -19,6 +20,9 @@ export default function HomeNav() {
   const pathname = usePathname();
   const reduced = useReducedMotion();
   const isProfile = pathname === '/profile';
+  const isHome = pathname === '/home';
+  const isDashboard = pathname?.startsWith('/dashboard');
+  const isHistory = pathname === '/history';
 
   const navBtn = (active = false) =>
     cn(
@@ -55,11 +59,21 @@ export default function HomeNav() {
         </Link>
 
         <div className="flex shrink-0 items-center gap-0.5">
+          <Link
+            href="/home"
+            className={navBtn(isHome)}
+            aria-label="Home"
+            aria-current={isHome ? 'page' : undefined}
+          >
+            <Home className="h-4 w-4 shrink-0" aria-hidden />
+            <span className="hidden lg:inline">Home</span>
+          </Link>
           <button
             type="button"
             onClick={() => router.push('/dashboard')}
-            className={navBtn()}
+            className={navBtn(isDashboard)}
             aria-label="Dashboard"
+            aria-current={isDashboard ? 'page' : undefined}
           >
             <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden />
             <span className="hidden lg:inline">Dashboard</span>
@@ -67,8 +81,9 @@ export default function HomeNav() {
           <button
             type="button"
             onClick={() => router.push('/history')}
-            className={navBtn()}
+            className={navBtn(isHistory)}
             aria-label="History"
+            aria-current={isHistory ? 'page' : undefined}
           >
             <History className="h-4 w-4 shrink-0" aria-hidden />
             <span className="hidden lg:inline">History</span>
@@ -82,6 +97,7 @@ export default function HomeNav() {
             <User className="h-4 w-4 shrink-0" aria-hidden />
             <span className="hidden lg:inline">Profile</span>
           </Link>
+          <ThemeToggle className="ml-1" />
         </div>
       </div>
     </motion.nav>

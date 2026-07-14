@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
@@ -7,6 +8,11 @@ import {
   marketingPageClass,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
+
+export const metadata: Metadata = {
+  title: 'Page not found — BlogCreator',
+  description: 'The page you are looking for does not exist on BlogCreator.',
+};
 
 export default function NotFound() {
   return (
@@ -30,6 +36,15 @@ export default function NotFound() {
           </Link>
           <Link href="/samples" className="text-violet-700 underline-offset-4 hover:underline">
             Samples
+          </Link>
+          <Link href="/pricing" className="text-violet-700 underline-offset-4 hover:underline">
+            Pricing
+          </Link>
+          <Link href="/blog" className="text-violet-700 underline-offset-4 hover:underline">
+            Blog
+          </Link>
+          <Link href="/integrate" className="text-violet-700 underline-offset-4 hover:underline">
+            Integrations
           </Link>
           <Link href="/help" className="text-violet-700 underline-offset-4 hover:underline">
             Help Center

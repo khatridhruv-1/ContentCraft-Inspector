@@ -98,6 +98,7 @@ export const PUBLIC_MARKETING_PATHS = [
   '/blog',
   '/status',
   '/changelog',
+  '/about',
   '/newsletter/sample',
   '/privacy',
   '/terms',

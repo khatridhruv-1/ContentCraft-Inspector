@@ -1,6 +1,6 @@
 'use client';
 
-import { BETA_CASE_STUDY, TRUSTED_BY_CATEGORIES } from '@/lib/marketing/caseStudy';
+import { BETA_CASE_STUDY, TRUSTED_BY_CATEGORIES, TRUSTED_BY_LOGOS } from '@/lib/marketing/caseStudy';
 import {
   marketingAccentSpan,
   marketingEyebrow,
@@ -28,6 +28,20 @@ export default function TrustedBySection() {
             Early adopters from private beta — company names withheld until public launch.
           </p>
         </div>
+
+        <ul className="mb-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+          {TRUSTED_BY_LOGOS.map(logo => (
+            <li key={logo.name} className="flex items-center gap-2">
+              <span
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-bold text-slate-700"
+                aria-hidden
+              >
+                {logo.initials}
+              </span>
+              <span className="text-sm font-medium text-slate-700">{logo.name}</span>
+            </li>
+          ))}
+        </ul>
 
         <ul className="mb-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           {TRUSTED_BY_CATEGORIES.map(category => (
@@ -60,7 +74,10 @@ export default function TrustedBySection() {
           <footer className="mt-5 border-t border-slate-200 pt-4 text-sm text-slate-500">
             <span className="font-semibold text-slate-900">{BETA_CASE_STUDY.attribution}</span>
             {' · '}
-            {BETA_CASE_STUDY.role}
+            {BETA_CASE_STUDY.role} at {BETA_CASE_STUDY.company}
+            <span className="mt-1 block text-xs text-slate-400">
+              Company name shared with written permission.
+            </span>
           </footer>
         </article>
       </div>

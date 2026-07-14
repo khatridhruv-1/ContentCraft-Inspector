@@ -95,10 +95,12 @@ export default function ProfileAccountSection({
           title="Sign-in method"
           description="Email and password"
         >
-          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
-            Verified
-          </span>
+          <Link
+            href="/auth/forgot"
+            className={cn(profileCompactButton, 'whitespace-nowrap')}
+          >
+            Change password
+          </Link>
         </SettingRow>
 
         <SettingRow

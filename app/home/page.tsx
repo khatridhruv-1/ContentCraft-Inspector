@@ -1,6 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { fetchContent } from '@/lib/content/appwrite';
+import type { DashboardMode } from '@/lib/dashboard/dashboardState';
+import {
+  buildDashboardUrl,
+  persistDashboardState,
+} from '@/lib/dashboard/dashboardState';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
@@ -14,7 +20,6 @@ import { type HomeRecentItem } from '@/components/home/HomeRecentSection';
 import { homeContainer } from '@/components/home/homeLayout';
 import {
   HOME_WORKFLOWS,
-  MODE_LABELS,
   type HomeModeId,
 } from '@/components/home/homeWorkflows';
 import { marketingAccentSpan, marketingSkipLink } from '@/lib/marketing/marketingTheme';
@@ -48,10 +53,35 @@ export default function Home() {
 
   const goToMode = (mode: HomeModeId) => router.push(`/dashboard?mode=${mode}`);
 
-  const openRecent = (item: HomeRecentItem) => {
-    const mode =
-      item.mode && item.mode in MODE_LABELS ? (item.mode as HomeModeId) : 'ai-generate';
-    router.push(`/dashboard?mode=${mode}`);
+  const openRecent = async (item: HomeRecentItem) => {
+    const mode: DashboardMode =
+      item.mode === 'analyze' ? 'analyze' : 'ai-generate';
+
+    try {
+      const contentData = await fetchContent(item.$id);
+      const content = contentData?.document?.content || item.content;
+      const analysis = contentData?.document?.analysis;
+
+      persistDashboardState({
+        id: item.$id,
+        mode,
+        content,
+        documentId: item.$id,
+        fromHistory: true,
+        analysis: analysis ?? undefined,
+      });
+      router.push(buildDashboardUrl(mode, item.$id));
+    } catch (err) {
+      console.error('Failed to open recent draft:', err);
+      persistDashboardState({
+        id: item.$id,
+        mode,
+        content: item.content,
+        documentId: item.$id,
+        fromHistory: true,
+      });
+      router.push(buildDashboardUrl(mode, item.$id));
+    }
   };
 
   return (

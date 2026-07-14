@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -23,6 +24,7 @@ import TrustedBySection from '@/components/marketing/TrustedBySection';
 import LandingIntegrationsTeaser from '@/app/welcome/LandingIntegrationsTeaser';
 import FaqSection from '@/app/welcome/FaqSection';
 import ChatGptComparisonSection from '@/app/welcome/ChatGptComparisonSection';
+import ChatGptSideBySideWidget from '@/components/marketing/ChatGptSideBySideWidget';
 import NewsletterSignup from '@/components/marketing/NewsletterSignup';
 import LandingPlatformSection from '@/app/welcome/LandingPlatformSection';
 import { BLOGCREATOR_WORKFLOWS } from '@/lib/marketing/workflows';
@@ -47,7 +49,12 @@ import { scrollRevealProps } from '@/lib/marketing/scrollReveal';
 import { useMountReveal } from '@/hooks/useMountReveal';
 import { cn } from '@/lib/utils';
 
-export default function WelcomeLanding() {
+type WelcomeLandingProps = {
+  /** SSR hero with H1 in initial HTML — pass from `app/page.tsx`. */
+  heroSlot?: ReactNode;
+};
+
+export default function WelcomeLanding({ heroSlot }: WelcomeLandingProps) {
   const router = useRouter();
   const reduced = useReducedMotion();
   const heroReady = useMountReveal();
@@ -139,91 +146,104 @@ export default function WelcomeLanding() {
       </motion.nav>
 
       <main id="main-content">
-        <section className={marketingLandingHero} aria-labelledby="hero-heading">
-          <EnterReveal direction="up" delay={0.05} ready={heroReady} className="mb-7">
-            <span className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-sm font-medium text-slate-700">
-              <BlogCreatorLogo iconOnly size="xs" className="shrink-0" />
-              <span>Free AI Blog Generator · Platform-Based Drafts</span>
-              <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
-                Free for everyone
-              </span>
-            </span>
-          </EnterReveal>
-
-          <h1
-            id="hero-heading"
-            className="mb-5 text-balance text-5xl font-black tracking-tight leading-[1.05] md:text-7xl lg:text-[5.5rem]"
-          >
-            <EnterReveal
-              as="span"
-              direction="left"
-              delay={0.15}
-              ready={heroReady}
-              className="block text-slate-900"
-            >
-              The AI Blog Generator
-            </EnterReveal>
-            <EnterReveal
-              as="span"
-              direction="right"
-              delay={0.25}
-              ready={heroReady}
-              className="mt-1 block text-slate-900"
-            >
-              That Ranks and Converts
-            </EnterReveal>
-          </h1>
-
-          <EnterReveal
-            as="p"
-            direction="left"
-            delay={0.35}
-            ready={heroReady}
-            className="mb-8 max-w-2xl text-balance text-lg leading-relaxed text-slate-600 md:text-xl"
-          >
-            Generate platform-ready drafts for your website, LinkedIn, Quora, Medium, or Substack —
-            with keyword discovery, SEO analysis, and one-command MCP, skill, and API hooks.
-          </EnterReveal>
-
-          <div className="flex w-full flex-col items-center justify-center gap-3 sm:flex-row">
-            <div className="relative w-fit">
-              <EnterReveal direction="left" delay={0.45} ready={heroReady}>
-                <MarketingPrimaryButton
-                  type="button"
-                  size="xl"
-                  onClick={() => router.push('/auth/signup')}
-                  className="shrink-0"
-                  fullWidth={false}
-                >
-                  <span className="flex items-center gap-2">
-                    Get started free
-                    <ArrowRight
-                      className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                      aria-hidden
-                    />
+        <section className={marketingLandingHero} aria-labelledby={heroSlot ? 'hero-heading-ssr' : 'hero-heading'}>
+          {heroSlot ? (
+            <>
+              {heroSlot}
+              <div
+                className="max-md:hidden w-full shrink-0"
+                style={{ height: heroCtaDoodleSpacerHeightPx }}
+                aria-hidden
+              />
+            </>
+          ) : (
+            <>
+              <EnterReveal direction="up" delay={0.05} ready={heroReady} className="mb-7">
+                <span className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-sm font-medium text-slate-700">
+                  <BlogCreatorLogo iconOnly size="xs" className="shrink-0" />
+                  <span>Free AI Blog Generator · Platform-Based Drafts</span>
+                  <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
+                    Free for everyone
                   </span>
-                </MarketingPrimaryButton>
+                </span>
               </EnterReveal>
-              <HeroHandwrittenCallout ready={heroReady} />
-            </div>
-            <EnterReveal direction="right" delay={0.5} ready={heroReady}>
-              <Link
-                href="/samples"
-                className={cn(
-                  'inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition-colors hover:border-slate-300 hover:bg-slate-50',
-                  marketingFocusRing
-                )}
-              >
-                See sample output
-              </Link>
-            </EnterReveal>
-          </div>
 
-          <div
-            className="max-md:hidden w-full shrink-0"
-            style={{ height: heroCtaDoodleSpacerHeightPx }}
-            aria-hidden
-          />
+              <h1
+                id="hero-heading"
+                className="mb-5 text-balance text-5xl font-black tracking-tight leading-[1.05] md:text-7xl lg:text-[5.5rem]"
+              >
+                <EnterReveal
+                  as="span"
+                  direction="left"
+                  delay={0.15}
+                  ready={heroReady}
+                  className="block text-slate-900"
+                >
+                  The AI Blog Generator
+                </EnterReveal>
+                <EnterReveal
+                  as="span"
+                  direction="right"
+                  delay={0.25}
+                  ready={heroReady}
+                  className="mt-1 block text-slate-900"
+                >
+                  That Ranks and Converts
+                </EnterReveal>
+              </h1>
+
+              <EnterReveal
+                as="p"
+                direction="left"
+                delay={0.35}
+                ready={heroReady}
+                className="mb-8 max-w-2xl text-balance text-lg leading-relaxed text-slate-600 md:text-xl"
+              >
+                Generate platform-ready drafts for your website, LinkedIn, Quora, Medium, or Substack —
+                with keyword discovery, SEO analysis, and one-command MCP, skill, and API hooks.
+              </EnterReveal>
+
+              <div className="flex w-full flex-col items-center justify-center gap-3 sm:flex-row">
+                <div className="relative w-fit">
+                  <EnterReveal direction="left" delay={0.45} ready={heroReady}>
+                    <MarketingPrimaryButton
+                      type="button"
+                      size="xl"
+                      onClick={() => router.push('/auth/signup')}
+                      className="shrink-0"
+                      fullWidth={false}
+                    >
+                      <span className="flex items-center gap-2">
+                        Get started free
+                        <ArrowRight
+                          className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+                          aria-hidden
+                        />
+                      </span>
+                    </MarketingPrimaryButton>
+                  </EnterReveal>
+                  <HeroHandwrittenCallout ready={heroReady} />
+                </div>
+                <EnterReveal direction="right" delay={0.5} ready={heroReady}>
+                  <Link
+                    href="/samples"
+                    className={cn(
+                      'inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition-colors hover:border-slate-300 hover:bg-slate-50',
+                      marketingFocusRing
+                    )}
+                  >
+                    See sample output
+                  </Link>
+                </EnterReveal>
+              </div>
+
+              <div
+                className="max-md:hidden w-full shrink-0"
+                style={{ height: heroCtaDoodleSpacerHeightPx }}
+                aria-hidden
+              />
+            </>
+          )}
 
           <EnterReveal direction="up" delay={0.55} ready={heroReady} className="mx-auto mt-10 w-full max-w-4xl px-2">
             <DashboardPreviewMock />
@@ -240,7 +260,9 @@ export default function WelcomeLanding() {
 
         <TryTopicWidget />
 
-        <TrustedBySection />
+        <div className="hidden md:block">
+          <TrustedBySection />
+        </div>
 
         <BetaTestimonialsSection />
 
@@ -347,6 +369,8 @@ export default function WelcomeLanding() {
         <NewsletterSignup />
 
         <MarketingSectionDivider />
+
+        <ChatGptSideBySideWidget />
 
         <ChatGptComparisonSection />
 

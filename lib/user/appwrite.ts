@@ -106,7 +106,12 @@ export async function login(email: string, password: string) {
   };
 }
 
-export async function logout(_sessionToken: string) {
+export async function logout(sessionToken: string) {
+  const user = await getUser(sessionToken);
+  if (user) {
+    const admin = getSupabaseAdmin();
+    await admin.auth.admin.signOut(user.$id, 'global');
+  }
   return { message: "Logged out successfully" };
 }
 

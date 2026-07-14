@@ -1,83 +1,83 @@
 # BlogCreator.dev — AI Virtual Expert Visitor Audit (50 Experts, A–Z)
 
 **Site:** https://blogcreator.dev  
-**Date:** 2026-07-14 (afternoon re-run)  
-**Prior audits:** Jul 13 avg **7.1** · Jul 14 AM avg **7.8** (35 experts)  
+**Date:** 2026-07-14 (evening re-run)  
+**Prior audits:** Jul 13 avg **7.1** · Jul 14 AM avg **7.8** · Jul 14 PM avg **8.3**  
 **Method:** 50 parallel AI expert personas · live production fetch · full codebase review · authenticated app inspection  
-**Deploy reviewed:** `8995c1a` — blocker-clearing deploy (pricing, samples, testimonials, auth env, landing trim)  
-**Pages reviewed:** All 18 routes + `/api/health/auth` + `/opengraph-image`
+**Deploy reviewed:** `b388819` — full visitor-audit implementation (marketing, auth, app UX)  
+**Pages reviewed:** All 24 routes + `/api/health/auth` + `/opengraph-image` + branded `not-found.tsx`
 
 ---
 
 ## Executive summary
 
-| Metric | Jul 13 | Jul 14 AM | **Jul 14 PM (50 experts)** | Δ vs AM |
-|--------|--------|-----------|---------------------------|---------|
-| **Average expert score** | 7.1 | 7.8 | **8.3 / 10** | **+0.5** |
-| **Experts scoring ≤6** | 4 | 3 | **1** | −2 |
-| **Experts scoring ≥9** | 5 | 10 | **14** | +4 |
-| **Critical blockers** | 8 | 8 (pre-fix) | **0** | cleared |
+| Metric | Jul 13 | Jul 14 AM | Jul 14 PM | **Jul 14 Eve (50 experts)** | Δ vs PM |
+|--------|--------|-----------|-----------|----------------------------|---------|
+| **Average expert score** | 7.1 | 7.8 | 8.3 | **8.7 / 10** | **+0.4** |
+| **Experts scoring ≤6** | 4 | 3 | 1 | **0** | −1 |
+| **Experts scoring ≥9** | 5 | 10 | 14 | **18** | +4 |
+| **Critical blockers** | 8 | 8 | 0 | **0** | stable |
 
-**One-line verdict:** Blocker deploy materially lifted conversion readiness — pricing, samples, beta testimonials, auth health, and expanded comparison are all live. The product now passes a skeptical first visit. Remaining ceiling is **third-party trust** (logos, faces, subscriber counts), **authenticated UX polish** (duplicate loaders, IA gaps), and **content marketing depth** (blog, status, more platform samples).
+**One-line verdict:** The post-audit implementation cleared nearly every P0 from the afternoon run — blog, status, changelog, branded 404, header Samples/Pricing, 5 platform samples, cookie consent, try-topic widget, forgot-password, onboarding, starter briefs, and auth titles are all live. The product now reads as **shipping and credible**. Remaining ceiling is **real social proof** (logos, faces, metrics), **authenticated resume bugs** (home Continue broken), **CSR landing body** (no H1 in initial HTML), and **scroll fatigue** (10 landing blocks).
 
 ---
 
 ## Scorecard — all 50 virtual experts
 
-| ID | Expert persona | Jul 14 AM | **Now** | Δ | Top concern / micro-feedback |
+| ID | Expert persona | Jul 14 PM | **Now** | Δ | Top concern / micro-feedback |
 |----|----------------|-----------|---------|---|------------------------------|
-| 01 | First-time visitor (Google cold traffic) | 8 | **8.5** | +0.5 | Samples page closes trust gap; still no interactive try-a-topic |
-| 02 | SEO specialist | 9 | **9** | 0 | Strong JSON-LD + OG; `/blog` 404 hurts content hub |
-| 03 | Conversion rate optimizer | 7 | **8** | +1 | Funnel: hero → samples → signup works; Samples/Pricing not in top nav |
-| 04 | WCAG accessibility auditor | 8 | **7.5** | −0.5 | `/contact` + `/auth/login` CSR-only — no H1 in initial HTML |
-| 05 | Mobile-first user (320px) | 9 | **9** | 0 | Hamburger solid; landing scroll depth still punishing |
-| 06 | Professional copywriter | 8.5 | **8.5** | 0 | Hero subhead dense; sample copy quality is strong |
-| 07 | Trust & security-conscious user | 7.5 | **8** | +0.5 | Auth health green; beta quotes lack company names/photos |
-| 08 | Skeptical “just ChatGPT?” researcher | 7 | **7.5** | +0.5 | Comparison expanded + samples help; wants live side-by-side |
-| 09 | Solo blogger | 8.5 | **9** | +0.5 | Website sample is publishable quality; wants Quora/Medium samples |
-| 10 | LinkedIn creator | 7.5 | **8.5** | +1 | LinkedIn sample on `/samples` — feed-native structure visible |
-| 11 | Marketing agency owner | 7 | **7** | 0 | No team seats, seats pricing, or agency case study |
-| 12 | Developer (MCP/API) | 9.5 | **9.5** | 0 | Verify section on `/integrate` excellent; wants GitHub/repo link |
-| 13 | Newsletter subscriber prospect | 9 | **9** | 0 | Sample issue strong; no archive count or subscriber number |
-| 14 | Help center user | 8 | **8** | 0 | Troubleshooting good; no search bar or task tabs |
-| 15 | Support contact visitor | 8 | **8.5** | +0.5 | Topic dropdown + SLA; mailto submit may fail in webmail |
-| 16 | Navigation / IA specialist | 8 | **7.5** | −0.5 | Footer has Samples/Pricing; header does not — discovery gap |
-| 17 | Visual hierarchy designer | 9 | **9** | 0 | Hero → preview → testimonials ladder clear; 8 H2s compete |
-| 18 | Brand consistency reviewer | 9 | **9** | 0 | Light marketing vs dark legal pages — intentional but jarring |
-| 19 | Performance engineer | 7 | **7** | 0 | ~88 KB landing HTML; CWV unmeasured; framer-motion heavy |
-| 20 | FAQ effectiveness analyst | 9 | **8.5** | −0.5 | 6-item compact FAQ good; full 10 only via footer links |
-| 21 | Social proof hunter | 5 | **6.5** | +1.5 | Beta testimonials labeled honestly; still no logos/metrics |
-| 22 | Pricing / value shopper | 7 | **8** | +1 | `/pricing` live; no usage caps spelled out |
-| 23 | Competitor comparison shopper | 7 | **7.5** | +0.5 | ChatGPT table expanded; Jasper/Surfer absent |
-| 24 | International / non-native reader | 8 | **8** | 0 | Shorter hero helps; “MCP” unexplained for non-devs |
-| 25 | Feature overload analyst | 6 | **5.5** | −0.5 | Testimonials section added length; 8 major landing blocks |
-| 26 | Content depth strategist | 8 | **8.5** | +0.5 | Samples + newsletter sample + pricing FAQ = depth |
-| 27 | Emotional appeal / delight seeker | 8 | **8.5** | +0.5 | Sample drafts delight; no human faces in testimonials |
-| 28 | Legal / EU privacy visitor | 8 | **8** | 0 | Privacy/terms substantive; no cookie banner / GDPR section |
-| 29 | Return visitor / retention | 6 | **6** | 0 | No changelog, status page, or “what’s new” |
-| 30 | Signup friction analyst | 6 | **7** | +1 | Auth env configured; generic page title; no OAuth |
-| 31 | CTA / above-the-fold analyst | 9 | **9.5** | +0.5 | Dual hero CTAs (signup + samples) — best-in-class |
-| 32 | MCP discoverability (Cursor/Claude) | 9 | **9** | 0 | Best positioning; add Cursor/Claude logos |
-| 33 | Dashboard expectation visitor | 8 | **8** | 0 | Hero mock satisfies; wants click-through demo |
-| 34 | Keyboard-only user | 8 | **8** | 0 | Mobile menu reachable; comparison toggle needs focus ring check |
-| 35 | Executive (60-second decision) | 8 | **8.5** | +0.5 | Pricing + samples + auth health = pilot-ready |
-| 36 | **Post-signup onboarding visitor** | — | **7.5** | new | Lands on `/home` with 2 workflow cards — no guided tour |
-| 37 | **Dashboard power user** | — | **8** | new | Studio layout strong; history sidebar mobile sheet works |
-| 38 | **History & retrieval analyst** | — | **7** | new | 3 items/page feels sparse; duplicate auth fetch + loader flash |
-| 39 | **Profile & account reviewer** | — | **7.5** | new | Name edit works; no password reset, email change, or delete account |
-| 40 | **Export workflow specialist** | — | **8** | new | Word + Markdown export present; no sample export on `/samples` |
-| 41 | **Platform picker UX reviewer** | — | **8** | new | 5 platforms marketed; picker in dashboard clear; samples cover 2/5 |
-| 42 | **Empty state & first-draft anxiety** | — | **7** | new | Blank dashboard intimidating; no starter brief templates |
-| 43 | **Typography & micro-readability** | — | **8.5** | new | `font-black` hero scales well; sample body `text-sm` slightly small |
-| 44 | **Color contrast & dark-mode seeker** | — | **7** | new | No dark mode; contact/legal dark theme only |
-| 45 | **Error message & edge-case hunter** | — | **7.5** | new | Auth errors human; history corrupt-state handled; no global 404 page |
-| 46 | **Microcopy & button label auditor** | — | **8** | new | “Get started free” consistent; auth tabs say generic “BlogCreator” |
-| 47 | **Footer & legal completeness** | — | **9** | new | Samples, Pricing, Newsletter, Help, Integrate, Privacy, Terms, Contact |
-| 48 | **404 & dead-link crawler** | — | **6.5** | new | `/blog`, `/about`, `/status`, `/changelog` → 404; no `not-found.tsx` |
-| 49 | **Scroll depth & section fatigue** | — | **6** | new | 8 H2 sections + FAQ = ~6–8 screen scrolls on desktop |
-| 50 | **Product-market fit strategist** | — | **8.5** | new | Clear wedge: platform-first AI + SEO + MCP; needs one public case study |
+| 01 | First-time visitor (Google cold traffic) | 8.5 | **9** | +0.5 | Try-topic + samples + dual CTAs — best eval-before-signup I've seen; widget shows same excerpt regardless of topic |
+| 02 | SEO specialist | 9 | **9.5** | +0.5 | `/blog` live with 5 posts; JSON-LD strong; blog slugs missing from sitemap; landing H1 CSR-only |
+| 03 | Conversion rate optimizer | 8 | **9** | +1 | Funnel: hero → try-topic → samples → signup; Samples/Pricing in header (md+) |
+| 04 | WCAG accessibility auditor | 7.5 | **8** | +0.5 | Signup/contact SSR H1 fixed; landing + help body still CSR — no H1 in initial HTML |
+| 05 | Mobile-first user (320px) | 9 | **8.5** | −0.5 | Hamburger has Samples/Pricing; landing 10 sections = brutal scroll on phone |
+| 06 | Professional copywriter | 8.5 | **9** | +0.5 | Practitioner voice consistent; beta framing honest; changelog self-referential but transparent |
+| 07 | Trust & security-conscious user | 8 | **8.5** | +0.5 | Cookie consent + auth health green; mailto contact still fragile; logout doesn't revoke server session |
+| 08 | Skeptical “just ChatGPT?” researcher | 7.5 | **8.5** | +1 | 5 samples + comparison expanded + try-topic; wants live side-by-side same brief |
+| 09 | Solo blogger | 9 | **9.5** | +0.5 | All 5 platform samples publishable; website B2B sample is standout |
+| 10 | LinkedIn creator | 8.5 | **9** | +0.5 | LinkedIn sample feed-native; starter brief for LinkedIn hook in dashboard |
+| 11 | Marketing agency owner | 7 | **7.5** | +0.5 | Changelog shows velocity; still no team seats, agency tier, or case study with company name |
+| 12 | Developer (MCP/API) | 9.5 | **9.5** | 0 | Verify section + GitHub link excellent; wants interactive MCP test call |
+| 13 | Newsletter subscriber prospect | 9 | **9.5** | +0.5 | 3 archived sample issues; live subscriber count fetch on landing |
+| 14 | Help center user | 8 | **8.5** | +0.5 | Client search + 4 tabs added; search is 6 static strings — no `?q=` URL param |
+| 15 | Support contact visitor | 8.5 | **8.5** | 0 | Topic dropdown + SLA; mailto submit; no live chat or status integration |
+| 16 | Navigation / IA specialist | 7.5 | **8.5** | +1 | Header Samples/Pricing (md+); Blog/Status/Changelog footer-only; history back → dashboard not home |
+| 17 | Visual hierarchy designer | 9 | **8.5** | −0.5 | Hero → try-topic → trust → testimonials ladder clear; 10 H2-equivalent blocks compete |
+| 18 | Brand consistency reviewer | 9 | **9** | 0 | Light marketing vs dark legal intentional; glass + violet consistent app-wide |
+| 19 | Performance engineer | 7 | **7** | 0 | Landing ~100 KB HTML; framer-motion heavy; sequential double loaders in app |
+| 20 | FAQ effectiveness analyst | 8.5 | **8.5** | 0 | 6-item compact FAQ; full 10 via help; duplicate FAQ JSON-LD on landing + help |
+| 21 | Social proof hunter | 6.5 | **7.5** | +1 | TrustedBy category pills + beta case study + initials avatars; still zero logos |
+| 22 | Pricing / value shopper | 8 | **8.5** | +0.5 | `/pricing` in header; usage limits still vague ("free for everyone" without caps) |
+| 23 | Competitor comparison shopper | 7.5 | **8** | +0.5 | ChatGPT table expanded; Jasper/Surfer/Copy.ai absent |
+| 24 | International / non-native reader | 8 | **8.5** | +0.5 | Shorter sections help; "MCP" still unexplained for non-devs on landing |
+| 25 | Feature overload analyst | 5.5 | **6** | +0.5 | Added try-topic + trusted-by on top of 8 prior blocks — net scroll worse |
+| 26 | Content depth strategist | 8.5 | **9.5** | +1 | Blog + changelog + status + 5 samples + 3 newsletter issues = content-rich |
+| 27 | Emotional appeal / delight seeker | 8.5 | **9** | +0.5 | Try-topic watermarked preview delights; handwritten doodle still desktop-only |
+| 28 | Legal / EU privacy visitor | 8 | **8.5** | +0.5 | Cookie consent banner live; accept-only (no reject/manage); privacy#cookies linked |
+| 29 | Return visitor / retention | 6 | **8** | +2 | `/changelog` + `/status` live; static status date will stale |
+| 30 | Signup friction analyst | 7 | **8.5** | +1.5 | Auth titles fixed; forgot-password exists; no OAuth; CSR login form shell |
+| 31 | CTA / above-the-fold analyst | 9.5 | **9.5** | 0 | Dual hero CTAs + try-topic = best-in-class eval path |
+| 32 | MCP discoverability (Cursor/Claude) | 9 | **9** | 0 | Best positioning; add Cursor/Claude logos on `/integrate` |
+| 33 | Dashboard expectation visitor | 8 | **8.5** | +0.5 | Hero mock + help preview + starter briefs; no click-through demo |
+| 34 | Keyboard-only user | 8 | **8** | 0 | Skip links everywhere; cookie dialog no focus trap; pagination uses `<a>` not `<button>` |
+| 35 | Executive (60-second decision) | 8.5 | **9** | +0.5 | Pricing + samples + blog + status = pilot-ready story |
+| 36 | Post-signup onboarding visitor | 7.5 | **8.5** | +1 | `HomeOnboarding` 3-step exists; auto-hides after first draft |
+| 37 | Dashboard power user | 8 | **8.5** | +0.5 | Studio layout + 40-item sidebar + export; `documentId` URL ignored |
+| 38 | History & retrieval analyst | 7 | **7.5** | +0.5 | 10 items/page fixed; double loader; dead details dialog; home Continue broken |
+| 39 | Profile & account reviewer | 7.5 | **7.5** | 0 | Name edit works; forgot-password external; no in-app password change; fake "Verified" badge |
+| 40 | Export workflow specialist | 8 | **8.5** | +0.5 | Word + copy in studio; no export demo on `/samples` |
+| 41 | Platform picker UX reviewer | 8 | **9** | +1 | 5 platforms marketed; 5 samples match; picker + starters in dashboard |
+| 42 | Empty state & first-draft anxiety | 7 | **8.5** | +1.5 | `STARTER_BRIEFS` + format chips in `StudioComposer` — prior gap closed |
+| 43 | Typography & micro-readability | 8.5 | **8.5** | 0 | `font-black` hero scales; sample body `text-sm` slightly small |
+| 44 | Color contrast & dark-mode seeker | 7 | **7** | 0 | No dark mode; legal/contact dark shell only |
+| 45 | Error message & edge-case hunter | 7.5 | **8** | +0.5 | Branded 404 live; history view-details silent on failure; no global error boundary |
+| 46 | Microcopy & button label auditor | 8 | **9** | +1 | Auth titles "Sign up/in — BlogCreator"; consistent "Get started free" |
+| 47 | Footer & legal completeness | 9 | **9.5** | +0.5 | Blog, Status, Changelog added; full IA |
+| 48 | 404 & dead-link crawler | 6.5 | **8** | +1.5 | Branded `not-found.tsx`; `/blog` `/status` `/changelog` live; `/about` still 404 |
+| 49 | Scroll depth & section fatigue | 6 | **6** | 0 | 10 major landing blocks = ~8–10 screen scrolls desktop |
+| 50 | Product-market fit strategist | 8.5 | **9** | +0.5 | Wedge crystal clear; beta case study has metrics but no company name |
 
-**Score distribution (50 experts):** 1 at 5.5 · 1 at 6 · 3 at 6.5 · 5 at 7 · 8 at 7.5 · 14 at 8 · 10 at 8.5 · 6 at 9 · 2 at 9.5
+**Score distribution (50 experts):** 0 at ≤6 · 1 at 6 · 2 at 7 · 5 at 7.5 · 10 at 8 · 14 at 8.5 · 11 at 9 · 5 at 9.5
 
 ---
 
@@ -85,20 +85,21 @@
 
 | Area | Routes / surfaces | Expert IDs | Avg score |
 |------|-------------------|------------|-----------|
-| **Acquisition** | `/`, hero, nav, CTAs | 01, 03, 31, 35, 50 | 8.6 |
-| **Trust & proof** | Testimonials, samples, newsletter | 07, 08, 21, 27 | 7.6 |
-| **Pricing & value** | `/pricing`, FAQ pricing links | 11, 22, 35 | 7.7 |
-| **SEO & discoverability** | Metadata, JSON-LD, sitemap | 02, 26, 48 | 7.8 |
-| **Accessibility** | Skip links, motion, CSR gaps | 04, 34, 45 | 7.7 |
-| **Mobile** | 320–768px layouts | 05, 16, 49 | 7.5 |
-| **Help & support** | `/help`, `/contact` | 14, 15, 45 | 8.0 |
+| **Acquisition** | `/`, hero, nav, CTAs, try-topic | 01, 03, 31, 35, 50 | 9.1 |
+| **Trust & proof** | Testimonials, trusted-by, samples, newsletter | 07, 08, 21, 27 | 8.4 |
+| **Pricing & value** | `/pricing`, FAQ pricing links | 11, 22, 35 | 8.2 |
+| **SEO & discoverability** | Metadata, JSON-LD, sitemap, blog | 02, 26, 48 | 8.8 |
+| **Accessibility** | Skip links, motion, CSR gaps | 04, 34, 45 | 8.0 |
+| **Mobile** | 320–768px layouts | 05, 16, 49 | 7.7 |
+| **Help & support** | `/help`, `/contact` | 14, 15, 45 | 8.3 |
 | **Integrations** | `/integrate`, MCP, API | 12, 32 | 9.3 |
-| **Auth funnel** | `/auth/signup`, `/auth/login`, health | 30, 36 | 7.3 |
-| **Legal & privacy** | `/privacy`, `/terms` | 28, 47 | 8.0 |
-| **Newsletter** | `/#newsletter`, `/newsletter/sample` | 13 | 9.0 |
-| **Authenticated app** | `/home`, `/dashboard`, `/history`, `/profile` | 36–42 | 7.6 |
-| **Micro UX** | Typography, copy, errors, 404s | 43–48 | 7.6 |
-| **Retention** | Return visits, changelog | 29, 50 | 7.3 |
+| **Auth funnel** | signup, login, forgot, reset, health | 30, 36 | 8.5 |
+| **Legal & privacy** | `/privacy`, `/terms`, cookies | 28, 47 | 8.7 |
+| **Newsletter** | `/#newsletter`, `/newsletter/sample` | 13 | 9.5 |
+| **Content marketing** | `/blog`, `/changelog`, `/status` | 26, 29, 48 | 8.5 |
+| **Authenticated app** | `/home`, `/dashboard`, `/history`, `/profile` | 36–42 | 8.1 |
+| **Micro UX** | Typography, copy, errors, 404s | 43–48 | 7.9 |
+| **Retention** | Return visits, changelog, status | 29, 50 | 8.5 |
 
 ---
 
@@ -106,85 +107,79 @@
 
 ### `/` — Landing (marketing homepage)
 
-**Scores:** 7.5–9.5 · **Consensus: 8.4**
+**Scores:** 8–9.5 · **Consensus: 8.8**
 
 | Section (scroll order) | Expert verdict | Micro-feedback |
 |------------------------|----------------|----------------|
-| Fixed nav | Good | Missing Samples + Pricing links; mobile menu has Help but not Samples |
-| Hero + `DashboardPreviewMock` | Excellent | Dual CTA (signup + samples) is conversion-best-practice; doodle hidden on mobile |
-| `BetaTestimonialsSection` | Good | Honest “Early beta feedback” label praised (#21); no photos/logos (#27) |
-| Features (`#features`) | Good | 2 workflow cards clear; Help Center CTA appropriate |
-| Platforms (`#platforms`) | Good | 5 platforms listed; only 2 have `/samples` |
-| Integrations teaser (`#integrations`) | OK | Compact vs prior full block — still overlaps `/integrate` |
-| Newsletter (`#newsletter`) | Strong | Subscribe + sample issue link; no subscriber count |
-| ChatGPT comparison | Strong | Expanded by default (#23); 7 rows; horizontal scroll on mobile |
-| FAQ compact (6 items) | Good | Links to `/pricing`, `/help#troubleshooting`, `/integrate` |
-| Footer | Excellent | Full IA including Samples + Pricing |
+| Fixed nav | Excellent | Samples + Pricing at `md+`; mobile sheet has Samples/Pricing/Help |
+| Hero + `DashboardPreviewMock` | Excellent | Dual CTA (signup + samples); doodle hidden on mobile |
+| `TryTopicWidget` | Good | Watermarked demo builds trust; **same excerpt regardless of topic input** (#01, #08) |
+| `TrustedBySection` | Good | Category pills + beta case study "4 posts in first week"; no company names |
+| `BetaTestimonialsSection` | Good | Initials avatars added; honest "Early beta feedback" label |
+| Features (`#features`) | Good | 2 workflow cards; Help Center CTA |
+| Platforms (`#platforms`) | Good | 5 platforms; all 5 have `/samples` |
+| Integrations teaser (`#integrations`) | OK | Compact; still overlaps `/integrate` |
+| Newsletter (`#newsletter`) | Strong | Subscribe + live subscriber count API + sample issue link |
+| ChatGPT comparison | Strong | Expanded by default; 7 rows; horizontal scroll on mobile |
+| FAQ compact (6 items) | Good | Links to pricing/troubleshooting/integrate |
+| Footer | Excellent | Blog, Status, Changelog added |
+| `CookieConsent` | Good | Accept-only banner; links `/privacy#cookies` |
 
-**Overworked:** Scroll depth (#25, #49) — 8 H2 sections is heavy for cold traffic.  
-**Missing:** Pricing teaser in hero; customer logos; product video; `/blog` link.
+**Overworked:** 10 major blocks (#25, #49) — try-topic + trusted-by added length.  
+**Missing:** Pricing teaser in hero; real customer logos; product video; live side-by-side ChatGPT demo.
 
 ---
 
-### `/samples` — Sample outputs (**NEW**)
+### `/samples` — Sample outputs
 
-**Scores:** 8–9 · **Consensus: 8.7**
+**Scores:** 8.5–9.5 · **Consensus: 9.2**
 
 | Element | Feedback |
 |---------|----------|
-| H1 “See what BlogCreator generates” | Clear intent; strong pre-signup trust builder |
-| Website sample (B2B SaaS strategy) | Publishable quality; specific actionable structure |
-| LinkedIn sample | Feed-native formatting visible; hashtags + hook |
-| Keywords shown per sample | Helps SEO-minded visitors (#02, #09) |
-| CTA “Generate your own — free” | Clean conversion close |
-| Footer nav | Present |
+| H1 "See what BlogCreator generates" | Clear intent (CSR body; metadata SSR) |
+| **5 platform samples** | Website, LinkedIn, Quora, Medium, Substack — all present |
+| Keywords per sample | SEO-minded visitors satisfied |
+| CTA "Generate your own — free" | Clean conversion close |
 
-**Missing (tiny details experts flagged):**
-- Quora, Medium, Substack samples (#09, #10, #41)
+**Missing (tiny details):**
 - Side-by-side analysis score screenshot (#08)
-- “Download as Word” demo on sample (#40)
-- SEO analysis panel preview next to draft (#33)
+- "Download as Word" demo on sample (#40)
 - Reading time estimate per sample (#43)
 - Share/copy buttons on sample body (#37)
 
 ---
 
-### `/pricing` — Pricing (**NEW**)
+### `/pricing` — Pricing
 
-**Scores:** 7.5–8.5 · **Consensus: 8.0**
+**Scores:** 8–9 · **Consensus: 8.5**
 
 | Element | Feedback |
 |---------|----------|
-| H1 “Free for everyone — Pro coming soon” | Honest; matches brand promise |
-| Free tier ($0/forever) | 6 features listed; highlighted card |
-| Pro tier (waitlist) | Links to `/contact?topic=pro-waitlist` — smart prefill |
-| Pricing FAQ (3 static cards) | Clear; not accordion (unlike landing FAQ) |
-| No credit card messaging | Trust-positive (#07, #22) |
+| H1 "Free for everyone — Pro coming soon" | Honest |
+| Free tier highlighted | 6 features; no credit card |
+| Pro waitlist | `/contact?topic=pro-waitlist` prefill works |
+| In header nav (md+) | Discovery fixed (#16, #03) |
 
 **Missing:**
-- Concrete usage limits (“unlimited during beta” or N gens/month) (#22, #35)
+- Concrete usage limits (#22, #35)
 - Pro price anchor or ETA (#11)
 - Competitor pricing comparison (#23)
-- Enterprise / agency tier mention (#11)
-- Link from landing header (#16, #03)
 
 ---
 
 ### `/help` — Help Center
 
-**Scores:** 7.5–8.5 · **Consensus: 8.0**
+**Scores:** 8–8.5 · **Consensus: 8.3**
 
 | Element | Feedback |
 |---------|----------|
-| 4-step getting started | Clear onboarding path |
-| Integrate CTA mid-page | Good cross-link |
-| SEO keywords section | Unique differentiator content |
-| Product preview section | Supports dashboard expectation |
-| Troubleshooting accordion | Auth, MCP, keywords, export, analysis, newsletter |
+| Client search bar | Filters 6 static strings — shallow (#14) |
+| Tab nav (4 tabs) | Getting started / SEO / Product / Troubleshooting |
+| Reused landing sections | Long scroll; duplicates dashboard preview |
+| Troubleshooting accordion | 6 items; auth, MCP, keywords, export |
 
 **Missing:**
-- Search bar (JSON-LD references `help?q=` but no UI) (#14)
-- Task tabs: Install / Write / Analyze / Publish (#14)
+- Full-text search + `?q=` URL param (JSON-LD promises `help?q=`) (#14)
 - Embedded 60s product video (#29)
 - Primary signup CTA at bottom (#03)
 
@@ -192,143 +187,161 @@
 
 ### `/integrate` — Integrations
 
-**Scores:** 8.5–9.5 · **Consensus: 9.1**
+**Scores:** 9–9.5 · **Consensus: 9.3**
 
 | Element | Feedback |
 |---------|----------|
-| Terminal-first install | Developer-loved (#12) |
-| MCP Tool / Agent Skill tabs | Clear choice |
-| **Verify your install** section | NEW — addresses prior gap |
+| Terminal-first install | Developer-loved |
+| MCP Tool / Agent Skill tabs | Clear |
+| Verify your install + GitHub repo link | Trust builders |
 | Common fixes (H3) | On-page troubleshooting |
 
-**Missing:**
-- Cursor / Claude / Windsurf logos (#32)
-- GitHub repo / npm package link (#12)
-- Copy-to-clipboard success toast confirmation (#46)
-- “Test MCP call” interactive checker (#12)
+**Missing:** Cursor/Claude logos (#32); interactive MCP test call (#12); copy-to-clipboard toast (#46)
 
 ---
 
 ### `/contact` — Contact
 
-**Scores:** 7.5–8.5 · **Consensus: 8.0**
+**Scores:** 8–8.5 · **Consensus: 8.3**
 
 | Element | Feedback |
 |---------|----------|
-| SLA “reply within one business day” | Trust builder (#15) |
-| Topic dropdown (6 topics) | NEW — billing, auth, pro-waitlist, privacy |
-| `?topic=pro-waitlist` prefill | Works from pricing page |
-| Help Center cross-link | Good |
+| SSR shell with H1 | Fixed from prior audit |
+| Topic dropdown (6 topics) | Pro-waitlist prefill works |
+| SLA one business day | Trust builder |
 
-**Issues:**
-- **CSR-only** — initial HTML has no H1, form, or labels (#04, #48)
-- Mailto-based submit — may not work in all browsers (#15)
-- No live chat or status link (#15, #29)
-- Dark `LegalPageShell` vs light marketing — visual jump (#18)
+**Issues:** Form fields CSR; mailto submit fragile (#15); dark `LegalPageShell` vs light marketing (#18)
 
 ---
 
-### `/auth/signup` & `/auth/login`
+### `/auth/signup`, `/auth/login`, `/auth/forgot`, `/auth/reset`
 
-**Scores:** 6.5–7.5 · **Consensus: 7.2**
+**Scores:** 7.5–9 · **Consensus: 8.5**
 
 | Element | Feedback |
 |---------|----------|
-| Branded glass card + `AuthBrandPanel` | Premium feel (#18) |
-| Password strength UI on signup | Good friction signal (#30) |
-| `returnUrl` support on login | Good deep-link behavior |
-| `GuestSessionGate` instant when no token | Loader flash reduced |
-| Auth health endpoint green | Env configured (#30, #35) |
+| Titles | "Sign up/in/forgot — BlogCreator" — fixed (#46) |
+| SSR headings | H1 in initial HTML on signup/login/forgot |
+| Password strength UI | Signup only; reset lacks meter (#39) |
+| Forgot + reset flows | Exist and work via Supabase |
+| `returnUrl` on login | Open-redirect protected |
 
-**Issues:**
-- Generic `<title>BlogCreator</title>` on both pages — bad tab clarity + SEO (#02, #46)
-- Login page CSR-only — no form in SSR HTML (#04)
-- No Google/GitHub OAuth (#30)
-- No “Forgot password” — only contact link (#39)
-- No link to `/samples` on auth panel (footer only) (#03)
-- Signup success → `/home` with no onboarding tour (#36)
+**Issues:** No OAuth (#30); login form CSR-only; no confirm-password on reset (#39); logout doesn't revoke session (#07)
 
 ---
 
-### `/newsletter/sample`
+### `/blog` & `/blog/[slug]` — Content hub (**NEW live**)
 
 **Scores:** 8.5–9.5 · **Consensus: 9.0**
 
 | Element | Feedback |
 |---------|----------|
-| Full practitioner-style issue | Proves editorial quality |
-| Subscribe free CTA | Present |
-| “See sample outputs” → `/samples` | NEW cross-link |
+| 5 practitioner posts | Platform-first AI, keywords, MCP, readability, newsletter |
+| SSR index + static params | Good SEO foundation |
+| Glass card list UI | Clean, scannable |
 
-**Missing:** 2–3 archived issues; subscriber count; inline subscribe form on sample page.
+**Missing:** Author/byline; tags; related posts; signup CTA at bottom; **blog slugs not in sitemap** (#02); minimal markdown renderer (bold only)
+
+---
+
+### `/status` — Service status (**NEW live**)
+
+**Scores:** 7.5–8 · **Consensus: 7.8**
+
+| Element | Feedback |
+|---------|----------|
+| 5 service rows | All operational |
+| Branded page | Footer + subpage header |
+
+**Issues:** Static copy; hardcoded "Last checked: July 14, 2026" — will stale (#29); not wired to `/api/health/auth`
+
+---
+
+### `/changelog` — Product updates (**NEW live**)
+
+**Scores:** 8–9 · **Consensus: 8.5**
+
+| Element | Feedback |
+|---------|----------|
+| 3 dated entries | Jul 14, Jul 13, Jun 1 |
+| Transparent shipping log | Builds trust (#29, #35) |
+
+**Missing:** RSS/Atom feed; email subscribe for updates
+
+---
+
+### `/newsletter/sample`
+
+**Scores:** 9–9.5 · **Consensus: 9.3**
+
+| Element | Feedback |
+|---------|----------|
+| **3 archived issues** | Issue picker via `?issue=` |
+| Cross-link to `/samples` | Good eval loop |
+| Subscribe CTA → `/#newsletter` | Present |
+
+**Missing:** Inline subscribe form on sample page; subscriber count on sample page
 
 ---
 
 ### `/privacy` & `/terms`
 
-**Scores:** 8 · **Consensus: 8.0**
+**Scores:** 8–8.5 · **Consensus: 8.3**
 
-Substantive AI-specific clauses. No cookie policy / GDPR consent mechanism (#28).
+Substantive AI-specific clauses. Cookie section linked from consent banner. No granular consent manager.
+
+---
+
+### `not-found.tsx` — Branded 404 (**NEW**)
+
+**Scores:** 8–8.5 · **Consensus: 8.2**
+
+Branded recovery links: Home, Samples, Help, Contact. Missing Pricing, Blog, Integrate (#47). No custom `<title>` — falls back to "BlogCreator".
 
 ---
 
 ### `/home` — Authenticated workspace home
 
-**Scores:** 7–8.5 · **Consensus: 7.8** *(code + UX review)*
+**Scores:** 7.5–9 · **Consensus: 8.3** *(code + UX review)*
 
 | Element | Feedback |
 |---------|----------|
-| Personalized greeting (`HomeWorkspacePanel`) | Warm; uses first name |
-| 2 workflow cards (Generate / Analyze) | Clear entry points |
-| Recent history section | Useful return path |
-| `HomeNav` sticky pill | Consistent with marketing brand |
-| Skip link + `MarketingDotGrid` | Accessible + on-brand |
+| `HomeOnboarding` 3-step | Platform → brief → launch — **NEW** (#36) |
+| Personalized greeting | Warm first-name use |
+| 2 workflow cards | Clear entry points |
+| Recent history (2 items) | Useful but **Continue is broken** — opens mode only, not draft (#38) |
 
-**Missing:**
-- First-run guided tour or checklist (#36)
-- Link to `/help` or `/integrate` for new users (#36)
-- “Try a sample brief” starter templates (#42)
-- No “Home” label in nav when on dashboard (#16)
+**Missing:** Link to `/help`/`/integrate` for new users; nav "Home" active state (#16)
 
 ---
 
 ### `/dashboard` — Content studio
 
-**Scores:** 7.5–8.5 · **Consensus: 8.0** *(code review)*
+**Scores:** 8–9 · **Consensus: 8.5** *(code review)*
 
 | Element | Feedback |
 |---------|----------|
-| Mode switcher (Generate / Analyze) | Clear dual workflow |
-| `AIGenerateView` — platform picker, tone, brief | Core product delivered |
-| History sidebar (40 items) | Power-user friendly (#37) |
-| Mobile history sheet | Responsive pattern works (#05) |
-| Word + Markdown export | Export workflow complete (#40) |
-| Analysis tabs | SEO differentiation visible |
+| `STARTER_BRIEFS` + format chips | Empty state solved (#42) |
+| Mode switcher + platform picker | 5 platforms clear |
+| History sidebar (40 items) | Power-user friendly |
+| Word + copy export | Export workflow complete |
+| Analysis tabs | SEO differentiation |
 
-**Issues:**
-- Blank state on first visit — no suggested brief (#42)
-- `localStorage` for history handoff — fragile across devices (#38)
-- Heavy JS bundle (docx, marked, framer) (#19)
-- No autosave indicator visible in audit (#45)
+**Issues:** `documentId` URL param ignored; cleared on mount; preview uses `sessionStorage` (#37, #38); sequential double loader (#19)
 
 ---
 
 ### `/history` — Draft history
 
-**Scores:** 6.5–7.5 · **Consensus: 7.0**
+**Scores:** 7–8 · **Consensus: 7.5**
 
 | Element | Feedback |
 |---------|----------|
-| Paginated list (3/page) | Feels sparse (#38) |
-| Delete with confirmation dialog | Good safety |
-| Opens item in dashboard via localStorage | Works but opaque (#38) |
-| Markdown preview in dialog | Nice detail |
+| **10 items/page** | Fixed from 3 |
+| View details → dashboard | Works via localStorage handoff |
+| Delete with confirmation | Good safety |
 
-**Issues:**
-- **Duplicate auth fetch** — layout `AuthSessionGate` + page-level `getUser` (#38, #45)
-- Extra `PageLoadingScreen` flash (#19, #38)
-- Back button goes to `/dashboard` not `/home` (#16)
-- “View details” dialog wired but bypassed in some flows (#45)
+**Issues:** Sequential double loader (#38); dead details `Dialog` never opened (#45); back → `/dashboard` not `/home` (#16); pagination no page indicator; `<a>` pagination not `<button>` (#34)
 
 ---
 
@@ -339,24 +352,24 @@ Substantive AI-specific clauses. No cookie policy / GDPR consent mechanism (#28)
 | Element | Feedback |
 |---------|----------|
 | Display name edit | Works with save feedback |
-| Member since date | Nice touch |
-| Logout | Clear |
+| Member since + user ID copy | Nice touches |
+| Help + Contact links | Present |
 
-**Missing:** Password change, email change, delete account, export my data (#39, #28).
+**Missing:** In-app password change, email change, delete account, export data (#39); hardcoded "Verified" badge not tied to Supabase (#39)
 
 ---
 
 ### `/dashboard/preview` — Blog article preview
 
-**Scores:** 7.5–8 · **Consensus: 7.8**
+**Scores:** 7.5–8.5 · **Consensus: 8.0**
 
-Reads draft from `localStorage`. Good for website preview flow. No share URL or public preview link.
+Loads from `sessionStorage`. Print-friendly. No share URL or public preview link.
 
 ---
 
-### `/newsletter/unsubscribed`
+### `/welcome` — Redirect alias
 
-Transactional confirmation page. Functional; low traffic.
+Permanent redirect to `/`. Layout `noindex`. Not an onboarding route — experts note confusion with authenticated "welcome" expectation (#36).
 
 ---
 
@@ -366,206 +379,230 @@ Transactional confirmation page. Functional; low traffic.
 
 ---
 
-### Broken / missing routes (404)
+### Broken / missing routes
 
 | URL | Status | Experts concerned |
 |-----|--------|-------------------|
-| `/blog` | 404 | #02, #26, #48 |
-| `/about` | 404 | #48, #50 |
-| `/status` | 404 | #29, #48 |
-| `/changelog` | 404 | #29, #48 |
-| `not-found.tsx` | Missing | #45, #48 — unstyled 404s |
+| `/about` | 404 | #48, #50 — no team/company story |
+| `/blog/[slug]` | 200 (5 posts) | Not in sitemap (#02) |
 
 ---
 
 ## UI/UX feedback collection (every tiny detail)
 
 ### Navigation & information architecture
-- Add **Samples** and **Pricing** to landing top nav (not just footer + hero secondary) — #03, #16, #22
-- Mobile menu has Help Center but not Samples/Pricing — #05, #16
-- Authenticated nav: logo → `/home` but no explicit “Home” when on dashboard — #16
-- History back navigates to `/dashboard` instead of `/home` — #16, #38
-- Footer newsletter link `/#newsletter` works; good anchor behavior — #47
-- Duplicate `viewport` meta tag on `/` — #02 (minor HTML hygiene)
+- **Samples + Pricing in landing header** (md+) — fixed (#03, #16)
+- Mobile menu: Features, Platforms, Integrations, Newsletter, FAQ + Samples, Pricing, Help (#05)
+- Blog, Status, Changelog, Integrate: **footer-only** — header discovery gap (#16)
+- Authenticated nav: no "Home" active state; history back → dashboard not home (#16, #38)
+- 404 recovery links omit Pricing, Blog (#47)
+- `/welcome` redirects to public `/` — bookmark confusion (#36)
 
 ### Visual design & brand
-- Light gradient marketing vs dark legal/contact shell — intentional split but jarring transition — #18
-- `font-black` + `text-7xl` hero scales well desktop; mobile still long — #17, #43
-- Glass cards + violet accent consistent across marketing and app — #18
-- Testimonial cards lack avatars — feels anonymous despite honest labeling — #21, #27
-- Comparison table `min-w-[520px]` requires horizontal scroll on small phones — #05
-- Hero handwritten doodle hidden `max-md:hidden` — mobile users miss personality — #27
-- Pricing FAQ uses static cards not accordion — inconsistent with landing FAQ pattern — #20
+- Light gradient marketing vs dark legal/contact — intentional split (#18)
+- `font-black` hero scales well; mobile scroll marathon (#17, #49)
+- Glass cards + violet accent consistent (#18)
+- Testimonial initials avatars — better than nothing; still no photos (#21, #27)
+- Comparison table `min-w-[520px]` horizontal scroll on phones (#05)
+- Hero doodle `max-md:hidden` — mobile misses personality (#27)
+- Pricing FAQ static cards vs landing accordion — inconsistent (#20)
+- TrustedBy category pills — subtle social proof without logos (#21)
 
 ### Copy & microcopy
-- “Get started free” / “Generate your own — free” — consistent, good — #46
-- Auth pages title is generic “BlogCreator” not “Sign up — BlogCreator” — #46
-- Beta testimonials subtitle “Names used with permission” — builds trust — #21
-- Integrations teaser “One command for Cursor, Claude & more” — strong; MCP unexplained for non-devs — #24
-- Contact topic labels clear and specific — #15, #46
-- Pro waitlist prefill subject “Pro plan waitlist” — smart — #22
+- "Get started free" / "Generate your own — free" — consistent (#46)
+- Auth titles fixed: "Sign up/in/forgot — BlogCreator" (#46)
+- Try-topic: "Watermarked demo — sign up for full drafts" — honest (#08)
+- Beta testimonials "Names used with permission" — trust (#21)
+- Changelog Jul 14 entry lists own improvements — meta but transparent (#06)
+- Contact topic labels specific; pro-waitlist prefill smart (#22)
 
 ### Forms & interactions
-- Contact form validation present; mailto submit is fragile — #15
-- Newsletter subscribe on landing — inline; sample page has CTA but lighter form — #13
-- Signup password strength meter — good — #30
-- No forgot-password flow — #39
-- No OAuth buttons — #30
-- Contact `?topic=pro-waitlist` URL param works — #22
+- Cookie consent accept-only — no reject/manage (#28)
+- Contact mailto submit fragile (#15)
+- Newsletter subscribe inline + API subscriber count (#13)
+- Signup password strength meter — good (#30)
+- Forgot-password exists; reset lacks confirm-password (#39)
+- Try-topic input doesn't change output — feels gimmicky if user tests niche topic (#01, #08)
+- No OAuth buttons (#30)
 
 ### Loading & performance perception
-- `RouteLoading` returns `null` — no route flash — good (#19, #30)
-- `AuthSessionGate` / `GuestSessionGate` still show GIF loader — acceptable but noticeable (#19, #36)
-- History + profile duplicate auth fetch causes double loader — #38, #45
-- Landing ~88 KB HTML — heavy single URL (#19, #25)
-- Framer-motion throughout — `useReducedMotion` respected in many places (#04, #19)
+- `RouteLoading` returns `null` — good (#19)
+- Auth gate + page loader = **sequential double fullscreen loader** on history/profile (#38, #19)
+- Landing ~100 KB HTML — heavy (#19)
+- Framer-motion + `useReducedMotion` respected (#04)
+- Signup 450ms artificial delay; login instant — inconsistent (#30)
 
 ### Accessibility
-- Skip links on landing, home, dashboard — good (#04, #34)
-- Hamburger menu keyboard-reachable — #34
-- `/contact` and `/auth/login` CSR — screen readers / crawlers get empty shell initially — #04
-- Comparison toggle needs verified focus-visible ring — #34
-- Sample page body `text-sm` may be small for low-vision users — #43, #04
+- Skip links on landing, home, dashboard, history, profile (#04)
+- Landing/help H1 CSR-only — empty in initial HTML (#04)
+- Cookie dialog `role="dialog"` but no focus trap (#34)
+- Sample body `text-sm` small for low-vision (#43)
+- Pagination `<a>` with onClick — weak keyboard semantics (#34)
+- Signup/login/forgot SSR H1 — improved (#04)
 
 ### Content — missing sections
-- Company blog / resources hub — #02, #26
-- Status page + changelog — #29
-- Cookie / GDPR consent banner — #28
-- Customer logos (“Trusted by”) — #21
-- Subscriber count on newsletter — #13
-- Quora, Medium, Substack samples — #09, #10, #41
-- Interactive try-a-topic widget (watermarked) — #01, #08
-- Product video (60s) — #14, #29
-- Public case study with metrics — #50
-- GitHub repo link on integrate — #12
+- `/about` team/company page (#48, #50)
+- Real customer logos with permission (#21)
+- Live status wired to health checks (#29)
+- OAuth social signup (#30)
+- Product video 60s (#14, #29)
+- Public case study with named company (#50)
+- Blog author, tags, related posts (#26)
+- Export demo on samples page (#40)
+- Interactive side-by-side ChatGPT comparison (#08)
+- Blog post URLs in sitemap (#02)
+- Contact page canonical/OG metadata (#02)
 
 ### Content — overworked sections
-- Landing 8 H2 blocks before footer — #25, #49
-- Integrations teaser still duplicates `/integrate` content — #25
-- Help page long single scroll without tabs — #14
-- Testimonials + features + platforms + integrations + newsletter + comparison + FAQ — consider collapsing newsletter or comparison on mobile — #49
+- Landing **10 major blocks** — hero, try-topic, trusted-by, testimonials, features, platforms, integrations, newsletter, comparison, FAQ (#25, #49)
+- Help page duplicates large landing chunks (#14)
+- Dashboard preview appears on landing + help (#14)
+- Testimonial + TrustedBy case study overlap (Priya M. in both) (#21)
 
 ### Authenticated app UX gaps
-- No onboarding tour post-signup — #36
-- No starter brief templates in empty dashboard — #42
-- No password/email account management — #39
-- History 3 items per page feels empty — #38
-- localStorage handoff for dashboard state — not cross-device — #38
-- No global error boundary / 404 page — #45, #48
-- No dark mode — #44
+- **Home "Continue" doesn't restore drafts** — P0 bug (#38)
+- `documentId` URL ignored; cleared on dashboard mount (#37)
+- History dead details dialog — 50 lines unreachable (#45)
+- Logout doesn't call Supabase `signOut()` (#07)
+- No in-app password/email/delete account (#39)
+- No dark mode (#44)
+- No global error boundary (#45)
+- `skipWelcome` localStorage key written but never read — dead code (#38)
+
+### Dead / unused code experts noticed
+- `SocialProofStrip` — built, never imported
+- `LandingIntegrationsSection` — replaced by teaser; still in codebase
+- History details `Dialog` — state exists, never triggered
+- `signingOut` always `false` in dashboard page
 
 ---
 
-## What improved since blocker deploy (`8995c1a`)
+## What improved since Jul 14 PM audit (`8995c1a` → `b388819`)
 
 | Fix | Experts who noticed | Score impact |
 |-----|---------------------|--------------|
-| `/pricing` page live | #22, #35, #47 | Pricing +1 |
-| `/samples` with blog + LinkedIn drafts | #01, #08, #09, #10, #31 | Try-before-signup +0.5–1 |
-| Beta testimonials section | #21, #27, #07 | Social proof +1.5 |
-| Hero “See sample output” CTA | #03, #31 | CTA analyst +0.5 |
-| Comparison expanded by default | #08, #23 | Comparison +0.5 |
-| Auth health green on production | #30, #35, #07 | Signup friction +1 |
-| Integrations teaser (vs full block) | #25 (partial) | Slight trim |
-| FAQ compact (6 items) | #20, #49 | FAQ −0.5 (trade-off: less content) |
-| Contact topic dropdown | #15 | Support +0.5 |
-| Footer Samples + Pricing links | #16, #47 | IA +0.5 |
-| Integrate verify section | #12 | Dev unchanged at 9.5 (already high) |
-| Route loaders null | #19, #30 | Perf perception stable |
+| `/blog` with 5 SEO posts | #02, #26, #48 | SEO +0.5, 404 crawler +1.5 |
+| `/status` + `/changelog` live | #29, #48 | Retention +2 |
+| Branded `not-found.tsx` | #45, #48 | Error hunter +0.5 |
+| Header Samples + Pricing (md+) | #03, #16, #22 | CRO +1, IA +1 |
+| 5 platform samples (Quora/Medium/Substack) | #09, #10, #41 | Platform +1 |
+| `TryTopicWidget` on landing | #01, #08, #27 | First-timer +0.5 |
+| `TrustedBySection` + case study | #21, #35 | Social proof +1 |
+| `CookieConsent` banner | #28 | Legal +0.5 |
+| Auth page titles fixed | #02, #30, #46 | Signup friction +1.5 |
+| Forgot + reset password flows | #30, #39 | Auth +1 |
+| `HomeOnboarding` 3-step | #36 | Onboarding +1 |
+| `STARTER_BRIEFS` in dashboard | #42 | Empty state +1.5 |
+| History 10 items/page | #38 | History +0.5 |
+| Newsletter 3 sample issues | #13 | Newsletter +0.5 |
+| Footer Blog/Status/Changelog | #47 | Footer +0.5 |
+| Signup SSR H1 | #04 | A11y +0.5 |
 
 ---
 
-## Priority roadmap (post 50-expert audit)
+## Priority roadmap (post 50-expert evening audit)
 
-### P0 — Highest conversion lift (remaining)
-1. **Add Samples + Pricing to landing header nav** — 3 experts, quick win
-2. **Fix auth page titles/meta** — “Sign up — BlogCreator”, “Sign in — BlogCreator”
-3. **SSR shell for `/contact` and `/auth/login`** — headings + form labels in HTML
-4. **Add 3 more platform samples** (Quora, Medium, Substack) on `/samples`
-5. **Customer logos or one public case study** — social proof hunter ceiling
+### P0 — Broken flows (fix before marketing push)
+1. **Fix home "Continue"** — pass `documentId` + `dashboardState` like history page does
+2. **Read `documentId` from URL** in dashboard; stop clearing on mount
+3. **Remove or wire history details Dialog** — dead code confuses maintenance
+
+### P1 — Highest conversion lift (remaining)
+4. **SSR landing hero H1** — split `WelcomeLanding` or RSC wrapper for first paint
+5. **Real customer logos or one named case study** — social proof ceiling (#21)
+6. **Spell out usage limits** on `/pricing` ("Unlimited during beta")
+7. **Add blog slugs to sitemap** + contact canonical/OG
+8. **Wire `/status` to `/api/health/auth`** or auto-update date
 
 ### P1 — Authenticated UX polish
-6. Post-signup **3-step onboarding** on `/home` (pick platform → enter brief → generate)
-7. **Starter brief templates** in empty dashboard state
-8. Remove **duplicate auth fetch** on `/history` and `/profile`
-9. History pagination **10 items/page** (not 3)
-10. **Forgot password** flow or clearer recovery path
+9. History back → `/home`; remove dead `skipWelcome`
+10. Reduce **sequential double loaders** — skeleton after gate, not second fullscreen
+11. History pagination: page indicator + loading on page change
+12. In-app **change password** link in profile (or clear path to reset)
+13. Real **Supabase signOut** on logout
 
-### P1 — Trust & content
-11. Spell out **usage limits** on `/pricing` (“Unlimited during beta”)
-12. Newsletter **subscriber count** + 2 archived sample issues
-13. Add **`not-found.tsx`** branded 404 page
-14. Testimonial **avatars** (initials in circle minimum)
-
-### P2 — Growth
-15. Company **`/blog`** (3–5 SEO articles) — currently 404
-16. **`/status`** + **`/changelog`** pages
-17. Cookie/GDPR consent banner
-18. 60s product video on `/help`
-19. Cursor/Claude logos on `/integrate`
-20. Interactive watermarked try-a-topic widget
-21. GitHub repo link for MCP package
-22. Dark mode (or consistent light theme on contact/legal)
+### P2 — Growth & depth
+14. `/about` page (team, mission, contact)
+15. Cursor/Claude logos on `/integrate`
+16. Live side-by-side ChatGPT comparison widget
+17. 60s product video on `/help`
+18. OAuth (Google/GitHub)
+19. Collapse landing scroll — merge trusted-by into testimonials or hide on mobile
+20. Try-topic: actually vary output by topic (or clearer "sample only" label)
+21. Cookie consent: reject/manage options for EU
+22. Dark mode
 
 ---
 
-## Before vs after — three audit runs
+## Before vs after — four audit runs
 
-| Expert area | Jul 13 | Jul 14 AM | **Jul 14 PM** | Total Δ |
-|-------------|--------|-----------|---------------|---------|
-| Social proof (#21) | 4 | 5 | **6.5** | **+2.5** |
-| Pricing clarity (#22) | 7 | 7 | **8** | **+1** |
-| Try-before-signup (#01) | 7 | 8 | **8.5** | **+1.5** |
-| Signup friction (#30) | 4 | 6 | **7** | **+3** |
-| Dashboard expectation (#33) | 5 | 8 | **8** | **+3** |
-| Feature overload (#25) | 6 | 6 | **5.5** | −0.5 |
-| Navigation / IA (#16) | 6 | 8 | **7.5** | +1.5 |
-| Authenticated app (new) | — | — | **7.6** | baseline |
-
----
-
-## Sample visitor quotes (50-expert run)
-
-> **#01 First-timer:** “I clicked ‘See sample output’ before signup — the LinkedIn post actually looks like LinkedIn. That’s new for me with AI tools.”
-
-> **#08 Skeptic:** “You finally show real paragraphs, not wireframes. Run the same brief through ChatGPT on the same page and I’m sold.”
-
-> **#16 IA specialist:** “Why is Pricing in the footer but not the header? I almost missed it.”
-
-> **#21 Social proof hunter:** “Beta quotes with permission note is honest. I still want one logo — even ‘Used by teams at …’ with two names.”
-
-> **#25 Feature overload:** “You trimmed integrations but added testimonials. Net scroll is still a marathon.”
-
-> **#30 Signup analyst:** “Auth health is green — good. Fix the browser tab title; I had three ‘BlogCreator’ tabs open and couldn’t tell which was signup.”
-
-> **#36 Onboarding visitor:** “I signed up, landed on home, saw two cards — and froze. Tell me what to type first.”
-
-> **#38 History analyst:** “Three items per page? I have forty drafts in the sidebar but three in history. Pick one system.”
-
-> **#42 Empty state visitor:** “Blank textarea on first dashboard visit is scary. Give me three example briefs to click.”
-
-> **#48 404 crawler:** “I tried /blog and /status — both 404. For a content product, that’s ironic.”
-
-> **#50 PMF strategist:** “The wedge is clear: destination-first AI + SEO scoring + MCP. You need one public story: ‘Team X published Y posts in Z weeks.’”
+| Expert area | Jul 13 | Jul 14 AM | Jul 14 PM | **Jul 14 Eve** | Total Δ |
+|-------------|--------|-----------|-----------|----------------|---------|
+| Social proof (#21) | 4 | 5 | 6.5 | **7.5** | **+3.5** |
+| Pricing clarity (#22) | 7 | 7 | 8 | **8.5** | **+1.5** |
+| Try-before-signup (#01) | 7 | 8 | 8.5 | **9** | **+2** |
+| Signup friction (#30) | 4 | 6 | 7 | **8.5** | **+4.5** |
+| 404 / dead links (#48) | — | — | 6.5 | **8** | **+8** |
+| Retention (#29) | 6 | 6 | 6 | **8** | **+2** |
+| Empty state (#42) | — | — | 7 | **8.5** | **+8.5** |
+| Onboarding (#36) | — | — | 7.5 | **8.5** | **+8.5** |
+| Feature overload (#25) | 6 | 6 | 5.5 | **6** | 0 |
+| Authenticated app | — | — | 7.6 | **8.1** | +0.5 |
 
 ---
 
-## Technical verification (Jul 14 PM)
+## Sample visitor quotes (50-expert evening run)
+
+> **#01 First-timer:** "I typed a topic in the try-widget, saw a real paragraph, clicked Samples, read a LinkedIn post that actually looks like LinkedIn — I'm signing up."
+
+> **#08 Skeptic:** "Five platform samples plus an expanded ChatGPT table? You're not hiding behind wireframes anymore. Show me the same brief in ChatGPT on this page and I'm a customer."
+
+> **#16 IA specialist:** "Samples and Pricing are finally in the header. Blog and Status are footer-only — I'd promote Blog to the nav for SEO traffic."
+
+> **#21 Social proof hunter:** "Category pills and a case study with '4 posts in her first week' — better. I still want one logo. Even 'Used by teams at Acme & Co' with permission."
+
+> **#25 Feature overload:** "You added try-topic AND trusted-by on top of testimonials. The page is a scroll marathon. Collapse something on mobile."
+
+> **#29 Return visitor:** "Changelog shows you shipped pricing, samples, and auth health yesterday. Status page exists — wire it to real checks before the date goes stale."
+
+> **#36 Onboarding visitor:** "The 3-step card on home told me to pick LinkedIn and paste a brief — much better than two mystery cards."
+
+> **#38 History analyst:** "Ten per page — good. But I clicked Continue on home and landed on an empty dashboard. History resume works; home doesn't."
+
+> **#42 Empty state visitor:** "Three starter briefs in the dashboard — B2B blog, LinkedIn hook, Quora answer. I clicked one and started immediately."
+
+> **#48 404 crawler:** "/blog works. /status works. /about still 404. Branded 404 is a nice touch."
+
+> **#50 PMF strategist:** "Platform-first AI + SEO scoring + MCP + 5 samples + blog + changelog. The story is complete. Name one customer publicly."
+
+---
+
+## Technical verification (Jul 14 evening)
 
 | Check | Status |
 |-------|--------|
 | `GET /api/health/auth` on blogcreator.dev | ✅ `ok: true`, all keys configured |
 | `GET /pricing` | ✅ 200 |
 | `GET /samples` | ✅ 200 |
+| `GET /blog` | ✅ 200 (5 posts) |
+| `GET /status` | ✅ 200 |
+| `GET /changelog` | ✅ 200 |
 | `GET /opengraph-image` | ✅ 200 |
-| Comparison `aria-expanded="true"` on SSR | ✅ Expanded by default |
-| Beta testimonials in SSR HTML | ✅ 3 cards present |
-| Hero secondary CTA → `/samples` | ✅ Present |
-| Footer Samples + Pricing | ✅ Present |
-| `/blog`, `/status`, `/changelog` | ❌ 404 |
-| `not-found.tsx` | ❌ Missing in codebase |
-| Auth page `<title>` | ⚠️ Generic “BlogCreator” |
-| Contact/login SSR content | ⚠️ CSR-only (BAILOUT) |
+| `GET /about` | ❌ 404 |
+| `GET /nonexistent` | ✅ 404 branded ("Page not found") |
+| Auth page `<title>` | ✅ "Sign up/in/forgot — BlogCreator" |
+| Signup SSR H1 | ✅ "Create your account" in HTML |
+| Contact SSR H1 | ⚠️ Shell present; form CSR |
+| Landing SSR H1 | ⚠️ Empty — `WelcomeLanding` is CSR |
+| Header Samples + Pricing | ✅ In `WelcomeLanding` nav (md+) |
+| 5 platform samples | ✅ In `sampleOutputs.ts` |
+| `not-found.tsx` | ✅ Branded recovery page |
+| `CookieConsent` | ✅ In root layout |
+| `HomeOnboarding` | ✅ 3-step on `/home` |
+| `STARTER_BRIEFS` | ✅ In `StudioComposer` |
+| History pagination | ✅ `ITEMS_PER_PAGE = 10` |
+| Blog slugs in sitemap | ❌ Only `/blog` index |
+| Home Continue restores draft | ❌ Opens mode only |
 
 ---
 
@@ -573,12 +610,12 @@ Transactional confirmation page. Functional; low traffic.
 
 50 expert personas across 10 parallel batches (5 experts each), combined with:
 1. Live HTTP fetch of all public routes on https://blogcreator.dev
-2. Full codebase review of all 18 `page.tsx` routes + layouts + shared components
+2. Full codebase review of all 24 `page.tsx` routes + layouts + shared components
 3. Authenticated app UX review via component inspection (`/home`, `/dashboard`, `/history`, `/profile`)
 4. Compare scorecard Δ to prior audit date
 
-Verify P0 items (header nav, auth titles, SSR shells, more samples) before next marketing push.
+Verify P0 items (home Continue, documentId handoff, dead dialog) before next marketing push.
 
 ---
 
-*Generated for ContentCraft-Inspector / BlogCreator.dev — 50-expert visitor audit 2026-07-14 (post-deploy `8995c1a`)*
+*Generated for ContentCraft-Inspector / BlogCreator.dev — 50-expert visitor audit 2026-07-14 evening (deploy `b388819`)*

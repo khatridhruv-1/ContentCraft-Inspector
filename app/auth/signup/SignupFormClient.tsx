@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { User, Mail, Lock } from 'lucide-react';
 import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
+import OAuthButtons from '@/components/auth/OAuthButtons';
 import { cn } from '@/lib/utils';
 import { ErrorAlert } from '@/components/auth/ErrorAlert';
 import AuthTextField from '@/components/auth/AuthTextField';
@@ -191,6 +192,8 @@ export default function SignupFormClient() {
         <AuthSubmitButton loading={loading} loadingText="Creating account...">
           Create account
         </AuthSubmitButton>
+
+        <OAuthButtons mode="signup" />
 
         <p className="!mt-6 text-center text-sm text-slate-600">
           Already have an account?{' '}
