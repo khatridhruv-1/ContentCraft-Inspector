@@ -40,6 +40,7 @@ import {
   marketingSectionTitle,
   marketingSkipLink,
 } from '@/lib/marketing/marketingTheme';
+import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import { scrollRevealProps } from '@/lib/marketing/scrollReveal';
 import { useMountReveal } from '@/hooks/useMountReveal';
 import { cn } from '@/lib/utils';
