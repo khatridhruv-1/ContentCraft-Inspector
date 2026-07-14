@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { InitialMountLoader } from '@/components/loading/InitialMountLoader';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
 import { WELCOME_SEO_KEYWORDS } from '@/lib/marketing/welcomeContent';
 
@@ -34,5 +33,5 @@ export const metadata: Metadata = {
 };
 
 export default function IntegrateLayout({ children }: { children: React.ReactNode }) {
-  return <InitialMountLoader>{children}</InitialMountLoader>;
+  return children;
 }

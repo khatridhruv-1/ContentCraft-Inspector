@@ -6,8 +6,6 @@ export const metadata: Metadata = {
     'How BlogCreator collects, uses, and protects your data when you use our AI content platform.',
 };
 
-import { InitialMountLoader } from '@/components/loading/InitialMountLoader';
-
 export default function PrivacyLayout({ children }: { children: React.ReactNode }) {
-  return <InitialMountLoader>{children}</InitialMountLoader>;
+  return children;
 }

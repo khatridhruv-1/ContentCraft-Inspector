@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import Link from 'next/link';
 import { Mail, Sparkles, TrendingUp } from 'lucide-react';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
 import ScrollReveal from '@/components/marketing/ScrollReveal';
@@ -174,7 +175,13 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
             )}
 
             <p className="mt-4 text-center text-xs text-slate-500">
-              One email per day. Unsubscribe anytime. No spam.
+              One email per day. Unsubscribe anytime. No spam.{' '}
+              <Link
+                href="/newsletter/sample"
+                className={cn('font-medium text-violet-700 underline-offset-2 hover:underline', marketingFocusRing)}
+              >
+                Read a sample issue
+              </Link>
             </p>
           </div>
         </ScrollReveal>

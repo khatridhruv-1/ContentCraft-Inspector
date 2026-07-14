@@ -91,7 +91,7 @@ export default function ContactPage() {
           Contact <span className={marketingAccentSpan}>us</span>
         </>
       }
-      description="Questions about your account, billing, privacy, or how to use BlogCreator? Send us a message and we'll get back to you as soon as we can."
+      description="Questions about your account, billing, privacy, or how to use BlogCreator? Send us a message — we typically reply within one business day."
     >
       <div className="grid gap-4 sm:grid-cols-2 not-prose">
         <a

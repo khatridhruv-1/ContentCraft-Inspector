@@ -1,10 +1,11 @@
-/** Ensures loaders stay visible long enough to perceive (ms) */
-/** Long enough for the ~3s loader clip to start and loop once */
-export const PAGE_LOADER_MIN_MS = 1200;
+/** Minimum time auth-gated pages show the loading screen (avoids flash). */
+export const AUTH_SESSION_MIN_MS = 400;
 
-export async function waitForMinDisplay(startedAt: number, minMs = PAGE_LOADER_MIN_MS) {
+export async function waitForMinDisplay(
+  startedAt: number,
+  minMs = AUTH_SESSION_MIN_MS
+): Promise<void> {
   const elapsed = Date.now() - startedAt;
-  if (elapsed < minMs) {
-    await new Promise(resolve => setTimeout(resolve, minMs - elapsed));
-  }
+  if (elapsed >= minMs) return;
+  await new Promise(resolve => setTimeout(resolve, minMs - elapsed));
 }

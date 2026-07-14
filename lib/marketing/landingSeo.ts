@@ -39,8 +39,11 @@ export const LANDING_OPEN_GRAPH = {
   siteName: 'BlogCreator',
 };
 
+const OG_IMAGE_PATH = '/opengraph-image';
+
 export function buildLandingMetadata(): Metadata {
   const url = absoluteUrl(LANDING_PATH);
+  const ogImage = absoluteUrl(OG_IMAGE_PATH);
 
   return {
     title: LANDING_TITLE,
@@ -63,11 +66,20 @@ export function buildLandingMetadata(): Metadata {
     openGraph: {
       ...LANDING_OPEN_GRAPH,
       url,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: LANDING_TITLE,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: LANDING_TITLE,
       description: LANDING_DESCRIPTION,
+      images: [ogImage],
     },
     verification: {
       google: 'My38ZtvxrHM9e9S9bO58PbVeREwT6asGCoeWZziYE_U',
@@ -81,6 +93,7 @@ export const PUBLIC_MARKETING_PATHS = [
   '/help',
   '/integrate',
   '/contact',
+  '/newsletter/sample',
   '/privacy',
   '/terms',
   '/auth/login',

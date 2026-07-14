@@ -15,8 +15,12 @@ import ScrollReveal, { alternateScrollDirection } from '@/components/marketing/S
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import MarketingSectionDivider from '@/components/marketing/MarketingSectionDivider';
+import DashboardPreviewMock from '@/components/marketing/DashboardPreviewMock';
+import LandingMobileNav from '@/components/marketing/LandingMobileNav';
+import SocialProofStrip from '@/components/marketing/SocialProofStrip';
 import { useMarketingPageBackground } from '@/hooks/useMarketingPageBackground';
 import FaqSection from '@/app/welcome/FaqSection';
+import ChatGptComparisonSection from '@/app/welcome/ChatGptComparisonSection';
 import NewsletterSignup from '@/components/marketing/NewsletterSignup';
 import LandingIntegrationsSection from '@/app/welcome/LandingIntegrationsSection';
 import LandingPlatformSection from '@/app/welcome/LandingPlatformSection';
@@ -76,6 +80,7 @@ export default function WelcomeLanding() {
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-4">
+          <LandingMobileNav />
           <a
             href="#features"
             className={cn('hidden px-3 py-2 sm:inline', marketingGhostNav, marketingFocusRing)}
@@ -162,9 +167,8 @@ export default function WelcomeLanding() {
             ready={heroReady}
             className="mb-8 max-w-2xl text-balance text-lg leading-relaxed text-slate-600 md:text-xl"
           >
-            Generate blog posts, articles, and marketing content for your website, LinkedIn,
-            Quora, Medium, or Substack — with automatic keyword discovery, deep SEO analysis, and
-            one-command MCP, skill, and API integrations for your AI agents.
+            Generate platform-ready drafts for your website, LinkedIn, Quora, Medium, or Substack —
+            with keyword discovery, SEO analysis, and one-command MCP, skill, and API hooks.
           </EnterReveal>
 
           <div className="flex w-full justify-center">
@@ -196,8 +200,22 @@ export default function WelcomeLanding() {
             aria-hidden
           />
 
+          <EnterReveal direction="up" delay={0.55} ready={heroReady} className="mx-auto mt-10 w-full max-w-4xl px-2">
+            <DashboardPreviewMock />
+            <p className="mt-3 text-center text-xs text-slate-500">
+              Dashboard preview — generation and deep analysis in one workspace.{' '}
+              <a href="/help#preview" className={cn('font-medium text-violet-700 underline-offset-2 hover:underline', marketingFocusRing)}>
+                Full walkthrough
+              </a>
+            </p>
+          </EnterReveal>
+
           <MarketingSectionDivider />
         </section>
+
+        <SocialProofStrip />
+
+        <MarketingSectionDivider />
 
         <section
           id="features"
@@ -298,6 +316,10 @@ export default function WelcomeLanding() {
         <MarketingSectionDivider />
 
         <NewsletterSignup />
+
+        <MarketingSectionDivider />
+
+        <ChatGptComparisonSection />
 
         <MarketingSectionDivider />
 

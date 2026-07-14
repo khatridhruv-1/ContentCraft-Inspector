@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import './globals.css';
-import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 import { BRAND_ASSETS } from '@/lib/brand/assets';
 import { getSiteUrl } from '@/lib/marketing/siteUrl';
 
@@ -23,7 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="bg-gray-100" suppressHydrationWarning={true}>
-        <Suspense fallback={<PageLoadingScreen label="Loading page" />}>{children}</Suspense>
+        <Suspense fallback={null}>{children}</Suspense>
       </body>
     </html>
   );

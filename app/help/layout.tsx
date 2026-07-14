@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import HelpStructuredData from '@/components/marketing/HelpStructuredData';
-import { InitialMountLoader } from '@/components/loading/InitialMountLoader';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
 import { WELCOME_SEO_KEYWORDS } from '@/lib/marketing/welcomeContent';
 
@@ -32,7 +31,7 @@ export default function HelpLayout({ children }: { children: React.ReactNode }) 
   return (
     <>
       <HelpStructuredData />
-      <InitialMountLoader>{children}</InitialMountLoader>
+      {children}
     </>
   );
 }

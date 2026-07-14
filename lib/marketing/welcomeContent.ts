@@ -67,6 +67,52 @@ export const WELCOME_FAQ_ITEMS: WelcomeFaqItem[] = [
   },
 ];
 
+export type ComparisonCell = boolean | 'partial';
+
+export type ChatGptComparisonRow = {
+  feature: string;
+  blogcreator: ComparisonCell;
+  chatgpt: ComparisonCell;
+};
+
+export const CHATGPT_COMPARISON_ROWS: ChatGptComparisonRow[] = [
+  {
+    feature: 'Platform-specific drafts (web, LinkedIn, etc.)',
+    blogcreator: true,
+    chatgpt: 'partial',
+  },
+  {
+    feature: 'Live keyword discovery from search trends',
+    blogcreator: true,
+    chatgpt: false,
+  },
+  {
+    feature: 'Readability & SEO scoring',
+    blogcreator: true,
+    chatgpt: false,
+  },
+  {
+    feature: 'Content-gap & outline analysis',
+    blogcreator: true,
+    chatgpt: 'partial',
+  },
+  {
+    feature: 'Export to Word / Markdown',
+    blogcreator: true,
+    chatgpt: 'partial',
+  },
+  {
+    feature: 'MCP + agent skill + REST API',
+    blogcreator: true,
+    chatgpt: false,
+  },
+  {
+    feature: 'Draft history & project workspace',
+    blogcreator: true,
+    chatgpt: 'partial',
+  },
+];
+
 /** Memberstack-style hero doodle (SVG includes chevrons + handwritten label). */
 export const HERO_CTA_DOODLE_SRC = '/marketing/hero-cta-doodle.svg';
 

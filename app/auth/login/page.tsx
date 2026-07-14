@@ -77,10 +77,21 @@ function LoginForm() {
           : '/home';
       setIsRedirecting(true);
       router.push(safeUrl);
-    } catch {
+    } catch (err) {
+      const msg = (err as Error).message;
+      const normalized = msg.toLowerCase();
+
+      const isCredentialError =
+        normalized.includes('invalid login credentials') ||
+        normalized.includes('invalid email or password');
+
+      const friendlyMessage = isCredentialError
+        ? 'Invalid email or password. Please try again.'
+        : msg || 'Sign in failed. Please try again.';
+
       setError({
         field: 'general',
-        message: 'Invalid email or password. Please try again.',
+        message: friendlyMessage,
       });
       if (!shouldReduceMotion) {
         shakeControls.start({

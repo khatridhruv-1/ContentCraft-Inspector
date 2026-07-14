@@ -3,8 +3,8 @@
 import MarketingSectionDivider from '@/components/marketing/MarketingSectionDivider';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
-import IntegrationSection from '@/app/integrate/IntegrationSection';
-import FaqSection from '@/app/welcome/FaqSection';
+import HelpIntegrateCta from '@/app/help/HelpIntegrateCta';
+import HelpTroubleshootingSection from '@/app/help/HelpTroubleshootingSection';
 import ProductPreviewSection from '@/app/welcome/ProductPreviewSection';
 import SeoKeywordsSection from '@/app/welcome/SeoKeywordsSection';
 import UserGuideSection from '@/app/welcome/UserGuideSection';
@@ -39,20 +39,20 @@ export default function HelpPage() {
             How can we <span className={marketingAccentSpan}>help?</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-slate-600">
-            Guides, CLI integrations (MCP &amp; skill), SEO workflow details, product overview, and
-            answers to common questions.
+            Setup guides, SEO keyword workflow, product overview, and troubleshooting for common
+            technical issues.
           </p>
         </motion.div>
 
         <UserGuideSection />
         <MarketingSectionDivider />
-        <IntegrationSection />
+        <HelpIntegrateCta />
         <MarketingSectionDivider />
         <SeoKeywordsSection />
         <MarketingSectionDivider />
         <ProductPreviewSection />
         <MarketingSectionDivider />
-        <FaqSection />
+        <HelpTroubleshootingSection />
 
         <MarketingFooter className="mt-2" />
       </main>

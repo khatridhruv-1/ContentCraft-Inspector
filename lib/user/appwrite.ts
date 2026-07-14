@@ -64,7 +64,6 @@ export async function signup(email: string, password: string, name: string) {
   assertValidEmail(normalizedEmail);
 
   const supabase = getSupabaseAnon();
-  const admin = getSupabaseAdmin();
 
   const { data: created, error: createError } = await supabase.auth.signUp({
     email: normalizedEmail,
@@ -86,12 +85,6 @@ export async function signup(email: string, password: string, name: string) {
     throw new Error("Signup failed.");
   }
   if (!created.user) throw new Error("Signup failed.");
-
-  const { error: metadataError } = await admin.auth.admin.updateUserById(created.user.id, {
-    user_metadata: { full_name: name },
-  });
-
-  if (metadataError) throw new Error(metadataError.message || "Failed to update user profile.");
 
   return login(normalizedEmail, password);
 }
