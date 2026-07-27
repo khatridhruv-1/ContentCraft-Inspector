@@ -111,12 +111,12 @@ const darkRenderers = {
     <li className="text-[17px] leading-[1.75] text-white/80">{children}</li>
   ),
   blockquote: ({ children }: { children?: React.ReactNode }) => (
-    <blockquote className="my-4 border-l-4 border-violet-500/40 pl-4 italic text-white/65">
+    <blockquote className="my-4 border-l-4 border-teal-500/40 pl-4 italic text-white/65">
       {children}
     </blockquote>
   ),
   code: ({ children }: { children?: React.ReactNode }) => (
-    <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-sm text-violet-200">
+    <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-sm text-teal-200">
       {children}
     </code>
   ),
@@ -126,7 +126,7 @@ const darkRenderers = {
     </pre>
   ),
   a: ({ children, href }: { children?: React.ReactNode; href?: string }) => (
-    <MarkdownAnchor href={href} className="text-violet-400 underline hover:text-violet-300">
+    <MarkdownAnchor href={href} className="text-teal-400 underline hover:text-teal-300">
       {children}
     </MarkdownAnchor>
   ),

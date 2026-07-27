@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { SITE_EMAILS } from '@/lib/marketing/siteConfig';
 
 const fieldClassName =
-  'border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus-visible:ring-violet-500';
+  'border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus-visible:ring-teal-500';
 
 const SUPPORT_EMAIL = SITE_EMAILS.support;
 
@@ -54,6 +54,7 @@ export default function ContactFormClient() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const validate = (): boolean => {
     const next: Partial<Record<keyof FormState, string>> = {};
@@ -77,24 +78,36 @@ export default function ContactFormClient() {
     if (!validate()) return;
 
     setSubmitting(true);
+    setSubmitError(null);
 
-    const body = [
-      `Name: ${form.name.trim()}`,
-      `Email: ${form.email.trim()}`,
-      `Topic: ${CONTACT_TOPICS.find(t => t.value === form.topic)?.label ?? form.topic}`,
-      '',
-      form.message.trim(),
-    ].join('\n');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          topic: form.topic,
+          subject: form.subject.trim(),
+          message: form.message.trim(),
+        }),
+      });
 
-    const mailto = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(form.subject.trim())}&body=${encodeURIComponent(body)}`;
+      const data = (await res.json()) as { error?: string; message?: string };
 
-    window.location.href = mailto;
+      if (!res.ok) {
+        throw new Error(data.error || 'Could not send your message. Please try again.');
+      }
 
-    setTimeout(() => {
-      setSubmitting(false);
       setSubmitted(true);
       setForm(initialForm);
-    }, 600);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : 'Could not send your message. Please try again.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const update =
@@ -110,9 +123,9 @@ export default function ContactFormClient() {
         role="status"
         className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-900"
       >
-        <p className="font-semibold text-emerald-950">Your email client should open shortly.</p>
+        <p className="font-semibold text-emerald-950">Message sent</p>
         <p className="mt-1 text-emerald-800">
-          If it didn&apos;t open, email us directly at{' '}
+          We received your note and typically reply within one business day. You can also reach us at{' '}
           <a href={`mailto:${SUPPORT_EMAIL}`} className="underline underline-offset-2">
             {SUPPORT_EMAIL}
           </a>
@@ -239,12 +252,17 @@ export default function ContactFormClient() {
         type="submit"
         disabled={submitting}
         loading={submitting}
-        loadingText="Opening email..."
+        loadingText="Sending..."
         className="sm:!w-auto sm:min-w-[160px]"
         fullWidth={false}
       >
         Send message
       </MarketingPrimaryButton>
+      {submitError ? (
+        <p role="alert" className="text-sm text-red-600">
+          {submitError}
+        </p>
+      ) : null}
     </form>
   );
 }

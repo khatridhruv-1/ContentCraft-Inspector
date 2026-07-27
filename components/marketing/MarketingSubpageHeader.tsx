@@ -1,22 +1,36 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import BlogCreatorNavBrand from '@/components/brand/BlogCreatorNavBrand';
-import { marketingFocusRing, marketingMutedLink } from '@/lib/marketing/marketingTheme';
+import {
+  marketingFocusRing,
+  marketingMutedLink,
+  marketingPageContainer,
+  marketingPageContainerNarrow,
+  marketingPageContainerTight,
+} from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 interface MarketingSubpageHeaderProps {
   maxWidth?: '2xl' | '3xl' | '6xl';
 }
 
+const HEADER_CONTAINER = {
+  '2xl': marketingPageContainerTight,
+  '3xl': marketingPageContainerNarrow,
+  '6xl': marketingPageContainer,
+} as const;
+
 export default function MarketingSubpageHeader({
   maxWidth = '3xl',
 }: MarketingSubpageHeaderProps) {
-  const container =
-    maxWidth === '6xl' ? 'max-w-6xl' : maxWidth === '2xl' ? 'max-w-2xl' : 'max-w-3xl';
-
   return (
-    <header className="border-b border-slate-200 bg-white/70 px-4 py-4 backdrop-blur-sm sm:px-6">
-      <div className={cn('mx-auto flex min-w-0 items-center justify-between gap-2 sm:gap-4', container)}>
+    <header className="border-b border-slate-200 bg-white/70 py-4 backdrop-blur-sm">
+      <div
+        className={cn(
+          'flex min-w-0 items-center justify-between gap-2 sm:gap-4',
+          HEADER_CONTAINER[maxWidth]
+        )}
+      >
         <Link
           href="/"
           className={cn(

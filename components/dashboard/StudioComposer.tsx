@@ -77,7 +77,7 @@ export default function StudioComposer({
     >
       {isHero && !briefTrimmed ? (
         <div className="mb-4 text-center">
-          <div className="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+          <div className="mx-auto mb-2.5 flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
             <Wand2 className="h-5 w-5" aria-hidden />
           </div>
           <h3 className="text-base font-semibold text-slate-900">What are we creating?</h3>
@@ -110,7 +110,7 @@ export default function StudioComposer({
                   onBriefChange(example.brief);
                 }}
                 className={cn(
-                  'rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-xs text-slate-700 hover:border-violet-200 hover:bg-violet-50',
+                  'rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-xs text-slate-700 hover:border-teal-200 hover:bg-teal-50',
                   marketingFocusRing
                 )}
               >
@@ -128,7 +128,7 @@ export default function StudioComposer({
             Content brief
           </label>
           <div className={cn(marketingFieldShell, 'items-start gap-2 px-3 py-2.5')}>
-            <Wand2 className="mt-0.5 h-4 w-4 shrink-0 text-violet-500" aria-hidden />
+            <Wand2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-500" aria-hidden />
             <textarea
               ref={textareaRef}
               id="studio-brief"

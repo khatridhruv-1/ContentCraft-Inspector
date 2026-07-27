@@ -1,7 +1,7 @@
-export const LANDING_HERO_BADGE = 'Free AI Blog Generator · Platform-Based Drafts';
+export const LANDING_HERO_BADGE = 'Humanized drafts · Free';
 
-export const LANDING_HERO_TITLE_LINE1 = 'The AI Blog Generator';
-export const LANDING_HERO_TITLE_LINE2 = 'That Ranks and Converts';
+export const LANDING_HERO_TITLE_LINE1 = 'Content that sounds';
+export const LANDING_HERO_TITLE_LINE2 = 'like a person wrote it';
 
 export const LANDING_HERO_SUBHEAD =
-  'Generate platform-ready drafts for your website, LinkedIn, Quora, Medium, or Substack — with keyword discovery, SEO analysis, and one-command MCP, skill, and API hooks.';
+  'Platform-ready drafts for website, LinkedIn, Quora, Medium, and Substack — with keyword discovery and SEO checks that keep your practitioner voice intact.';

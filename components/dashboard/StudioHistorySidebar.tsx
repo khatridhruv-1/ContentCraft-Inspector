@@ -69,7 +69,7 @@ export default function StudioHistorySidebar({
             className={cn(
               'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors',
               searchOpen
-                ? 'border-violet-300 bg-violet-50 text-violet-800'
+                ? 'border-teal-300 bg-teal-50 text-teal-800'
                 : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50',
               marketingFocusRing
             )}
@@ -97,7 +97,7 @@ export default function StudioHistorySidebar({
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search by title or preview…"
               autoFocus
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-violet-300 focus:outline-none focus:ring-2 focus:ring-violet-200"
+              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-200"
             />
           </div>
         ) : null}
@@ -153,8 +153,8 @@ export default function StudioHistorySidebar({
                             ? 'bg-sky-600 text-white'
                             : 'bg-sky-100 text-sky-700'
                           : active
-                            ? 'bg-violet-600 text-white'
-                            : 'bg-violet-100 text-violet-700'
+                            ? 'bg-teal-600 text-white'
+                            : 'bg-teal-100 text-teal-700'
                       )}
                       aria-hidden
                     >
@@ -181,7 +181,7 @@ export default function StudioHistorySidebar({
                             'w-fit shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
                             mode === 'analyze'
                               ? 'bg-sky-50 text-sky-700'
-                              : 'bg-violet-50 text-violet-700'
+                              : 'bg-teal-50 text-teal-700'
                           )}
                         >
                           {modeLabel}

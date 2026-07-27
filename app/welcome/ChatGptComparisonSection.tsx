@@ -10,6 +10,7 @@ import {
   marketingFocusRing,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainerMedium,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -51,7 +52,7 @@ export default function ChatGptComparisonSection() {
       className={marketingLandingSection}
       aria-labelledby="comparison-heading"
     >
-      <div className="mx-auto max-w-4xl px-6">
+      <div className={marketingPageContainerMedium}>
         <ScrollReveal className={marketingSectionHeader}>
           <span className={marketingEyebrow}>Why not just ChatGPT?</span>
           <h2 id="comparison-heading" className={marketingSectionTitle}>
@@ -97,7 +98,7 @@ export default function ChatGptComparisonSection() {
                         <th scope="col" className="px-5 py-3 font-semibold text-slate-700 md:px-6">
                           Capability
                         </th>
-                        <th scope="col" className="px-4 py-3 font-semibold text-violet-800">
+                        <th scope="col" className="px-4 py-3 font-semibold text-teal-800">
                           BlogCreator
                         </th>
                         <th scope="col" className="px-4 py-3 font-semibold text-slate-600">

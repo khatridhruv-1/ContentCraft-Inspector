@@ -176,7 +176,7 @@ export default function StudioWorkspacePanel({
       {showHero ? (
         <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto p-4 sm:p-6">
           <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(139,92,246,0.04)_0%,_transparent_70%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(13, 148, 136,0.04)_0%,_transparent_70%)]"
             aria-hidden
           />
           <div className="relative mx-auto flex w-full max-w-2xl flex-1 items-center justify-center py-4">

@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'BlogCreator — Free AI Blog Generator & SEO Tool';
+export const alt = 'BlogCreator — Humanized Content for Every Platform';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -16,7 +16,7 @@ export default function OpenGraphImage() {
           flexDirection: 'column',
           justifyContent: 'center',
           padding: '72px 80px',
-          background: 'linear-gradient(135deg, #f8fafc 0%, #ede9fe 45%, #e0f2fe 100%)',
+          background: 'linear-gradient(135deg, #f8fafc 0%, #ccfbf1 45%, #e0f2fe 100%)',
           fontFamily: 'system-ui, sans-serif',
         }}
       >
@@ -24,40 +24,53 @@ export default function OpenGraphImage() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 16,
+            gap: 18,
             marginBottom: 32,
           }}
         >
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 14,
-              background: '#7c3aed',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: 28,
-              fontWeight: 800,
-            }}
-          >
-            B
-          </div>
-          <span style={{ fontSize: 28, fontWeight: 700, color: '#0f172a' }}>BlogCreator</span>
+          <svg width="56" height="56" viewBox="0 0 32 32" aria-hidden>
+            <rect width="32" height="32" rx="8" fill="#0f766e" />
+            <rect x="9" y="7" width="14" height="18" rx="2.5" fill="#ffffff" />
+            <path
+              d="M12 11.5h8"
+              stroke="#0f766e"
+              strokeOpacity="0.35"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M12 14.5h6"
+              stroke="#0f766e"
+              strokeOpacity="0.35"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M12.5 21C14.5 17.5 18 13.5 22 10"
+              stroke="#0d9488"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+              fill="none"
+            />
+            <circle cx="12.5" cy="21" r="1.5" fill="#0f172a" />
+          </svg>
+          <span style={{ fontSize: 32, fontWeight: 600, letterSpacing: '-0.025em' }}>
+            <span style={{ color: '#0f172a' }}>Blog</span>
+            <span style={{ color: '#0f766e' }}>Creator</span>
+          </span>
         </div>
 
         <div
           style={{
-            fontSize: 64,
+            fontSize: 56,
             fontWeight: 900,
             color: '#0f172a',
-            lineHeight: 1.05,
+            lineHeight: 1.08,
             letterSpacing: '-0.03em',
             maxWidth: 900,
           }}
         >
-          The AI Blog Generator That Ranks and Converts
+          Content that sounds like a person wrote it
         </div>
 
         <div
@@ -69,8 +82,7 @@ export default function OpenGraphImage() {
             maxWidth: 820,
           }}
         >
-          Platform-based drafts, keyword discovery, deep SEO analysis — plus MCP, skill, and API
-          integrations.
+          Humanized drafts for every platform — keyword discovery and SEO analysis included.
         </div>
 
         <div
@@ -80,7 +92,7 @@ export default function OpenGraphImage() {
             gap: 12,
           }}
         >
-          {['Free for everyone', '5 platforms', 'MCP + API'].map(label => (
+          {['Free for everyone', '5 platforms', 'Human voice'].map(label => (
             <div
               key={label}
               style={{

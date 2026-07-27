@@ -12,6 +12,7 @@ import {
   MARKETING_EASE,
   MARKETING_PAGE_GRADIENT,
   marketingGlassCard,
+  marketingPageContainer,
   marketingPageClass,
   marketingSkipLink,
 } from '@/lib/marketing/marketingTheme';
@@ -37,8 +38,8 @@ export default function AuthLayoutClient({ children }: AuthLayoutClientProps) {
       <MarketingDotGrid />
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="relative px-6 py-10 md:py-14">
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_420px]">
+      <main className={cn('relative py-12 md:py-16', marketingPageContainer)}>
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-14 xl:grid-cols-[minmax(0,1fr)_420px]">
           <motion.div
             id="auth-form"
             initial={reduced ? false : { opacity: 0, y: 16 }}
@@ -57,7 +58,7 @@ export default function AuthLayoutClient({ children }: AuthLayoutClientProps) {
           </div>
         </div>
 
-        <MarketingFooter className="mt-14" containerClassName="mx-auto w-full max-w-6xl" />
+        <MarketingFooter className="mt-14" />
       </main>
     </div>
   );

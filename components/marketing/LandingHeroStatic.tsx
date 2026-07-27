@@ -5,13 +5,14 @@ import {
   LANDING_HERO_TITLE_LINE1,
   LANDING_HERO_TITLE_LINE2,
 } from '@/lib/marketing/landingHeroContent';
-import { marketingLandingHero } from '@/lib/marketing/marketingTheme';
+import { marketingAccentSpan } from '@/lib/marketing/marketingTheme';
+import { cn } from '@/lib/utils';
 
-/** SSR hero shell — visible in initial HTML for crawlers and no-JS users. */
+/** SSR hero content — padding comes from the parent landing hero shell. */
 export default function LandingHeroStatic() {
   return (
-    <section className={marketingLandingHero} aria-labelledby="hero-heading-ssr">
-      <span className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-sm font-medium text-slate-700">
+    <>
+      <span className="mb-7 inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-sm font-medium text-slate-700">
         {LANDING_HERO_BADGE}
         <span className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">
           Free for everyone
@@ -20,10 +21,10 @@ export default function LandingHeroStatic() {
 
       <h1
         id="hero-heading-ssr"
-        className="mb-5 text-balance text-5xl font-black tracking-tight leading-[1.05] text-slate-900 md:text-7xl lg:text-[5.5rem]"
+        className="mb-5 text-balance text-4xl font-black tracking-tight leading-[1.08] text-slate-900 sm:text-5xl md:text-6xl lg:text-7xl"
       >
         {LANDING_HERO_TITLE_LINE1}
-        <span className="mt-1 block">{LANDING_HERO_TITLE_LINE2}</span>
+        <span className={cn('mt-1 block', marketingAccentSpan)}>{LANDING_HERO_TITLE_LINE2}</span>
       </h1>
 
       <p className="mb-8 max-w-2xl text-balance text-lg leading-relaxed text-slate-600 md:text-xl">
@@ -33,7 +34,7 @@ export default function LandingHeroStatic() {
       <div className="flex w-full flex-col items-center justify-center gap-3 sm:flex-row">
         <Link
           href="/auth/signup"
-          className="inline-flex shrink-0 items-center justify-center rounded-full bg-violet-600 px-6 py-3 text-sm font-semibold text-white hover:bg-violet-700"
+          className="inline-flex shrink-0 items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800"
         >
           Get started free
         </Link>
@@ -44,6 +45,6 @@ export default function LandingHeroStatic() {
           See sample output
         </Link>
       </div>
-    </section>
+    </>
   );
 }

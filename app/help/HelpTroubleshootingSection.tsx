@@ -10,6 +10,7 @@ import {
   marketingAccentSpan,
   marketingEyebrow,
   marketingLandingSection,
+  marketingPageContainerNarrow,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -34,7 +35,7 @@ export default function HelpTroubleshootingSection() {
       className={marketingLandingSection}
       aria-labelledby="troubleshooting-heading"
     >
-      <div className="mx-auto max-w-3xl px-6">
+      <div className={marketingPageContainerNarrow}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -64,7 +65,7 @@ export default function HelpTroubleshootingSection() {
                 className={cn(
                   'rounded-xl border transition-colors duration-200',
                   isOpen
-                    ? 'border-violet-200 bg-violet-50/40'
+                    ? 'border-teal-200 bg-teal-50/40'
                     : 'border-slate-200 bg-white hover:border-slate-300'
                 )}
               >
@@ -74,7 +75,7 @@ export default function HelpTroubleshootingSection() {
                   aria-expanded={isOpen}
                   aria-controls={`help-trouble-answer-${index}`}
                   onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className="flex w-full items-start gap-3 px-4 py-3.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
+                  className="flex w-full items-start gap-3 px-4 py-3.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                     <Icon className="h-4 w-4" aria-hidden />
@@ -100,7 +101,7 @@ export default function HelpTroubleshootingSection() {
                     id={`help-trouble-answer-${index}`}
                     role="region"
                     aria-labelledby={`help-trouble-btn-${index}`}
-                    className="border-t border-violet-100/80 px-4 pb-4 pl-[3.75rem] pr-5 text-sm leading-relaxed text-slate-600"
+                    className="border-t border-teal-100/80 px-4 pb-4 pl-[3.75rem] pr-5 text-sm leading-relaxed text-slate-600"
                   >
                     {item.answer}
                   </div>

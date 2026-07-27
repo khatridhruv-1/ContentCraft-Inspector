@@ -124,7 +124,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <DashboardResultCard title="Content structure" icon={<List className="h-4 w-4 text-violet-400" />}>
+      <DashboardResultCard title="Content structure" icon={<List className="h-4 w-4 text-teal-400" />}>
         {outlineResult.outline.length > 0 ? (
           <ul className="space-y-3">
             {outlineResult.outline.map((item, index) => (
@@ -136,7 +136,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" aria-hidden />
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal-400" aria-hidden />
                 <span>{item.text}</span>
               </motion.li>
             ))}
@@ -148,7 +148,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
         )}
       </DashboardResultCard>
 
-      <DashboardResultCard title="Improvement suggestions" icon={<Lightbulb className="h-4 w-4 text-violet-400" />}>
+      <DashboardResultCard title="Improvement suggestions" icon={<Lightbulb className="h-4 w-4 text-teal-400" />}>
         <ul className="space-y-3">
           {outlineResult.suggestions.map((suggestion, index) => (
             <motion.li key={index} className={dashboardListItem} initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: index * 0.05 }}>
@@ -159,7 +159,7 @@ const OutlinePanel: React.FC<OutlinePanelProps> = ({
         </ul>
       </DashboardResultCard>
 
-      <DashboardResultCard title="Content gaps" icon={<AlertTriangle className="h-4 w-4 text-violet-400" />}>
+      <DashboardResultCard title="Content gaps" icon={<AlertTriangle className="h-4 w-4 text-teal-400" />}>
         <ul className="space-y-3">
           {outlineResult.contentGaps.map((gap, index) => (
             <motion.li key={index} className={dashboardListItem} initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: index * 0.05 }}>

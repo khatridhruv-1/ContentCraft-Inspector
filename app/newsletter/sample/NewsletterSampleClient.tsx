@@ -11,7 +11,9 @@ import {
   marketingFocusRing,
   marketingGlassCard,
   marketingMutedLink,
+  marketingPageContainerTight,
   marketingPageClass,
+  marketingSubpageMain,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
@@ -23,8 +25,8 @@ export default function NewsletterSampleClient() {
 
   return (
     <div className={cn('min-h-screen bg-slate-50', marketingPageClass)}>
-      <header className="border-b border-slate-200 bg-white/80 px-4 py-4 backdrop-blur-sm sm:px-6">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
+      <header className="border-b border-slate-200 bg-white/80 py-4 backdrop-blur-sm">
+        <div className={cn(marketingPageContainerTight, 'flex items-center justify-between gap-4')}>
           <Link
             href="/#newsletter"
             className={cn(
@@ -42,8 +44,8 @@ export default function NewsletterSampleClient() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-6 py-10 md:py-14">
-        <p className="text-sm font-medium text-violet-700">BlogCreator Daily — sample archive</p>
+      <main className={marketingSubpageMain}>
+        <p className="text-sm font-medium text-teal-700">BlogCreator Daily — sample archive</p>
 
         <div className="mt-4 flex flex-wrap gap-2">
           {NEWSLETTER_SAMPLE_ISSUES.map(item => (
@@ -53,7 +55,7 @@ export default function NewsletterSampleClient() {
               className={cn(
                 'rounded-full border px-3 py-1 text-xs font-medium',
                 item.id === issue.id
-                  ? 'border-violet-300 bg-violet-50 text-violet-900'
+                  ? 'border-teal-300 bg-teal-50 text-teal-900'
                   : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300',
                 marketingFocusRing
               )}
@@ -101,7 +103,7 @@ export default function NewsletterSampleClient() {
           <Link
             href="/samples"
             className={cn(
-              'text-sm font-semibold text-violet-700 underline-offset-2 hover:underline',
+              'text-sm font-semibold text-teal-700 underline-offset-2 hover:underline',
               marketingFocusRing
             )}
           >

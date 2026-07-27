@@ -17,13 +17,13 @@ export const studioSectionLabel =
 export const studioCanvas = cn(marketingGlassCard, 'bg-white');
 
 export const studioChip =
-  'inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:border-violet-200 hover:bg-violet-50/50 hover:text-slate-800';
+  'inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:border-teal-200 hover:bg-teal-50/50 hover:text-slate-800';
 
 export const studioChipActive =
-  'border-violet-300 bg-violet-50 text-violet-900 ring-1 ring-violet-200';
+  'border-teal-300 bg-teal-50 text-teal-900 ring-1 ring-teal-200';
 
 export const studioFormatChip =
-  'inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-violet-200 hover:bg-violet-50/60 hover:text-violet-900';
+  'inline-flex shrink-0 items-center rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-teal-200 hover:bg-teal-50/60 hover:text-teal-900';
 
 export const studioField =
   'min-w-0 flex-1 resize-none border-0 bg-transparent text-[15px] leading-relaxed text-slate-900 outline-none placeholder:text-slate-400 focus:ring-0';

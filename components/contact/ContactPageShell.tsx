@@ -7,7 +7,9 @@ import {
   marketingAccentSpan,
   marketingLink,
   marketingPageClass,
+  marketingPageContainerNarrow,
   marketingSectionTitle,
+  marketingSubpageMain,
 } from '@/lib/marketing/marketingTheme';
 import { SITE_EMAILS } from '@/lib/marketing/siteConfig';
 import { cn } from '@/lib/utils';
@@ -27,8 +29,8 @@ export default function ContactPageShell({ children }: ContactPageShellProps) {
     >
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="px-4 py-12 sm:px-6">
-        <div className="mx-auto mb-14 max-w-6xl text-center">
+      <main className={marketingSubpageMain}>
+        <div className="mb-12 text-center md:mb-14">
           <h1 className={cn(marketingSectionTitle, 'text-balance break-words')}>
             Contact <span className={marketingAccentSpan}>us</span>
           </h1>
@@ -38,14 +40,14 @@ export default function ContactPageShell({ children }: ContactPageShellProps) {
           </p>
         </div>
 
-        <div className="mx-auto max-w-3xl">
+        <div className={marketingPageContainerNarrow}>
           <div className="prose-legal space-y-8 break-words text-slate-600">
             <div className="grid gap-4 sm:grid-cols-2 not-prose">
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
                 className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white/60 p-4 transition-colors hover:border-slate-300 hover:bg-white/80"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-700">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-100 text-teal-700">
                   <Mail className="h-4 w-4" aria-hidden />
                 </span>
                 <span>

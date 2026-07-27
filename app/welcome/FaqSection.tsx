@@ -15,14 +15,13 @@ import {
   Plug,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import Link from 'next/link';
 import { WELCOME_FAQ_ITEMS } from '@/lib/marketing/welcomeContent';
 import {
   MARKETING_EASE,
   marketingAccentSpan,
   marketingEyebrow,
-  marketingFocusRing,
   marketingLandingSection,
+  marketingPageContainer,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -110,14 +109,14 @@ function FaqAccordionItem({
         className={cn(
           'group relative rounded-xl border transition-all duration-300',
           isOpen
-            ? 'border-violet-200 bg-violet-50/50 shadow-sm'
+            ? 'border-teal-200 bg-teal-50/50 shadow-sm'
             : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'
         )}
       >
         <span
           aria-hidden
           className={cn(
-            'absolute left-0 top-0 h-full w-0.5 rounded-l-xl bg-violet-400 transition-opacity duration-200',
+            'absolute left-0 top-0 h-full w-0.5 rounded-l-xl bg-teal-400 transition-opacity duration-200',
             isOpen ? 'opacity-100' : 'opacity-0'
           )}
         />
@@ -128,7 +127,7 @@ function FaqAccordionItem({
           onClick={onToggle}
           aria-expanded={isOpen}
           aria-controls={`faq-answer-${index}`}
-          className="flex w-full items-start gap-3 px-4 py-3.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
+          className="flex w-full items-start gap-3 px-4 py-3.5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
         >
           <span
             className={cn(
@@ -201,7 +200,7 @@ function FaqColumn({
       className="flex min-w-0 flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
     >
       <div className="mb-5 shrink-0">
-        <div className="mb-2.5 h-1 w-10 rounded-full bg-violet-400" aria-hidden />
+        <div className="mb-2.5 h-1 w-10 rounded-full bg-teal-400" aria-hidden />
         <h3 className="text-base font-bold text-slate-900">{column.label}</h3>
         <p className="mt-0.5 text-xs text-slate-500">{column.description}</p>
       </div>
@@ -253,7 +252,7 @@ export default function FaqSection({ compact = false }: { compact?: boolean }) {
       className={marketingLandingSection}
       aria-labelledby="faq-heading"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className={marketingPageContainer}>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -267,7 +266,7 @@ export default function FaqSection({ compact = false }: { compact?: boolean }) {
             <span className={marketingAccentSpan}>questions</span>
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-lg text-slate-600">
-            Answers about AI content generation, keyword discovery, SEO analysis, pricing, and
+            Answers about humanized content, keyword discovery, SEO analysis, pricing, and
             privacy.
           </p>
         </motion.div>
@@ -289,24 +288,6 @@ export default function FaqSection({ compact = false }: { compact?: boolean }) {
             />
           ))}
         </motion.div>
-
-        {compact && (
-          <p className="mt-6 text-center text-sm text-slate-600">
-            More on{' '}
-            <Link href="/pricing" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
-              pricing
-            </Link>
-            ,{' '}
-            <Link href="/help#troubleshooting" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
-              troubleshooting
-            </Link>
-            , and{' '}
-            <Link href="/integrate" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
-              integrations
-            </Link>
-            .
-          </p>
-        )}
       </div>
     </section>
   );

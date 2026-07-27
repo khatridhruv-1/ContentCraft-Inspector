@@ -6,9 +6,9 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { User, Mail, Lock } from 'lucide-react';
 import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
-import OAuthButtons from '@/components/auth/OAuthButtons';
 import { cn } from '@/lib/utils';
 import { ErrorAlert } from '@/components/auth/ErrorAlert';
+import OAuthButtons from '@/components/auth/OAuthButtons';
 import AuthTextField from '@/components/auth/AuthTextField';
 import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
 import AuthFormStagger from '@/components/auth/AuthFormStagger';
@@ -55,7 +55,7 @@ export default function SignupFormClient() {
 
   const renderPasswordStrength = () => {
     const strength = getPasswordStrength(password);
-    const barColors = ['bg-red-400', 'bg-amber-400', 'bg-violet-400', 'bg-emerald-400'];
+    const barColors = ['bg-red-400', 'bg-amber-400', 'bg-teal-400', 'bg-emerald-400'];
     const label = getStrengthLabel(password, strength);
     const barsFilled = password.length < 6 ? 1 : Math.max(strength, 1);
     const barColor =

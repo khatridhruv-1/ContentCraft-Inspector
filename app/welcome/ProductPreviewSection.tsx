@@ -6,6 +6,7 @@ import {
   marketingAccentSpan,
   marketingEyebrow,
   marketingLandingSection,
+  marketingPageContainer,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -21,7 +22,7 @@ export default function ProductPreviewSection() {
       className={marketingLandingSection}
       aria-labelledby="preview-heading"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className={marketingPageContainer}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -32,10 +33,10 @@ export default function ProductPreviewSection() {
           <span className={cn('mb-4', marketingEyebrow)}>Product preview</span>
           <h2 id="preview-heading" className={marketingSectionTitle}>
             One workspace for{' '}
-            <span className={marketingAccentSpan}>generation and analysis</span>
+            <span className={marketingAccentSpan}>drafting and analysis</span>
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base text-slate-600">
-            Discover keywords, generate drafts, then run SEO, readability, and content-gap
+            Discover keywords, write humanized drafts, then run SEO, readability, and content-gap
             analysis — without switching tools.
           </p>
         </motion.div>

@@ -7,6 +7,7 @@ import { Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { login } from '@/lib/user/appwrite';
 import { ErrorAlert } from '@/components/auth/ErrorAlert';
+import OAuthButtons from '@/components/auth/OAuthButtons';
 import AuthTextField from '@/components/auth/AuthTextField';
 import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
 import AuthFormStagger from '@/components/auth/AuthFormStagger';
@@ -14,8 +15,6 @@ import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
 import { marketingLink } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
-import OAuthButtons from '@/components/auth/OAuthButtons';
-
 interface ValidationError {
   field: string;
   message: string;
@@ -111,9 +110,9 @@ export default function LoginFormClient() {
   return (
     <>
       {returnLabel && (
-        <p className="-mt-3 mb-6 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-900/90">
+        <p className="-mt-3 mb-6 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-900/90">
           After sign in you&apos;ll return to{' '}
-          <span className="font-semibold text-violet-950">{returnLabel}</span>.
+          <span className="font-semibold text-teal-950">{returnLabel}</span>.
         </p>
       )}
 
@@ -158,7 +157,7 @@ export default function LoginFormClient() {
             Sign in
           </AuthSubmitButton>
 
-          <OAuthButtons mode="login" />
+          <OAuthButtons mode="login" returnUrl={returnUrl} />
 
           <p className="!mt-6 text-center text-sm text-slate-600">
             New here?{' '}

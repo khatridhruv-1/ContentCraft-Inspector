@@ -117,7 +117,7 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <DashboardResultCard title="Search deeper" icon={<Search className="h-4 w-4 text-violet-400" />}>
+      <DashboardResultCard title="Search deeper" icon={<Search className="h-4 w-4 text-teal-400" />}>
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
             type="text"
@@ -144,13 +144,13 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
       {isLoading ? <DashboardPanelLoading label="Updating results…" /> : null}
 
       {tavilyData?.answer ? (
-        <DashboardResultCard title="Summary" icon={<BookOpen className="h-4 w-4 text-violet-400" />}>
+        <DashboardResultCard title="Summary" icon={<BookOpen className="h-4 w-4 text-teal-400" />}>
           <p className="text-sm leading-relaxed text-slate-600">{tavilyData.answer}</p>
         </DashboardResultCard>
       ) : null}
 
       {tavilyData?.relatedQueries?.length ? (
-        <DashboardResultCard title="Related questions" icon={<HelpCircle className="h-4 w-4 text-violet-400" />}>
+        <DashboardResultCard title="Related questions" icon={<HelpCircle className="h-4 w-4 text-teal-400" />}>
           <ul className="space-y-2">
             {tavilyData.relatedQueries.map((query, index) => (
               <motion.li
@@ -168,7 +168,7 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
       ) : null}
 
       {tavilyData?.results?.length ? (
-        <DashboardResultCard title="Related links" icon={<ExternalLink className="h-4 w-4 text-violet-400" />}>
+        <DashboardResultCard title="Related links" icon={<ExternalLink className="h-4 w-4 text-teal-400" />}>
           <ul className="space-y-3">
             {tavilyData.results.map((item, index) => (
               <motion.li
@@ -184,7 +184,7 @@ const InfoGainPanel: React.FC<InfoGainPanelProps> = ({
                   rel="noopener noreferrer"
                   className="block p-3 transition-colors hover:bg-white"
                 >
-                  <h4 className="flex items-center gap-2 text-sm font-semibold text-violet-300">
+                  <h4 className="flex items-center gap-2 text-sm font-semibold text-teal-300">
                     {item.title}
                     <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden />
                   </h4>

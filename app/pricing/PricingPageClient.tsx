@@ -16,8 +16,12 @@ import {
   marketingEyebrow,
   marketingFocusRing,
   marketingGlassCard,
+  marketingPageContainer,
+  marketingPageContainerMedium,
+  marketingPageContainerTight,
   marketingPageClass,
   marketingSectionTitle,
+  marketingSubpageMainWide,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -34,12 +38,12 @@ export default function PricingPageClient() {
       <MarketingDotGrid />
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="px-6 py-10 md:py-14">
+      <main className={marketingSubpageMainWide}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: MARKETING_EASE }}
-          className="mx-auto max-w-4xl text-center"
+          className={cn(marketingPageContainerMedium, 'text-center')}
         >
           <span className={marketingEyebrow}>Pricing</span>
           <h1 className={cn('mt-4', marketingSectionTitle)}>
@@ -53,14 +57,14 @@ export default function PricingPageClient() {
           </p>
         </motion.div>
 
-        <div className="mx-auto mt-10 grid max-w-4xl gap-6 md:grid-cols-2">
+        <div className={cn(marketingPageContainerMedium, 'mt-10 grid gap-6 md:grid-cols-2')}>
           {PRICING_TIERS.map(tier => (
             <article
               key={tier.id}
               className={cn(
                 marketingGlassCard,
                 'flex flex-col p-6 md:p-8',
-                tier.highlighted && 'ring-2 ring-violet-300'
+                tier.highlighted && 'ring-2 ring-teal-300'
               )}
             >
               <h2 className="text-xl font-bold text-slate-900">{tier.name}</h2>
@@ -102,7 +106,7 @@ export default function PricingPageClient() {
           ))}
         </div>
 
-        <div className="mx-auto mt-12 max-w-2xl space-y-4">
+        <div className={cn(marketingPageContainerTight, 'mt-12 space-y-4')}>
           <h2 className="text-center text-lg font-bold text-slate-900">Pricing FAQ</h2>
           {PRICING_FAQ.map(item => (
             <div key={item.question} className={cn(marketingGlassCard, 'p-5')}>

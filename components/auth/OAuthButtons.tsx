@@ -13,7 +13,13 @@ const PROVIDERS: { id: OAuthProvider; label: string }[] = [
   { id: 'github', label: 'GitHub' },
 ];
 
-export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
+export default function OAuthButtons({
+  mode,
+  returnUrl,
+}: {
+  mode: 'login' | 'signup';
+  returnUrl?: string | null;
+}) {
   const [loading, setLoading] = useState<OAuthProvider | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,10 +28,14 @@ export default function OAuthButtons({ mode }: { mode: 'login' | 'signup' }) {
     setError(null);
     try {
       const supabase = getSupabaseBrowser();
+      const callbackUrl = new URL(absoluteUrl('/auth/callback'));
+      if (returnUrl && returnUrl.startsWith('/') && !returnUrl.startsWith('//')) {
+        callbackUrl.searchParams.set('returnUrl', returnUrl);
+      }
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: absoluteUrl('/home'),
+          redirectTo: callbackUrl.toString(),
         },
       });
       if (oauthError) throw oauthError;

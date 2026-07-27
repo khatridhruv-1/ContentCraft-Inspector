@@ -8,6 +8,7 @@ import {
   marketingEyebrow,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainer,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -26,8 +27,8 @@ const STEPS = [
   },
   {
     icon: Wand2,
-    title: 'Generate SEO-ready content',
-    description: 'AI weaves those keywords naturally into a human-sounding draft with inline links.',
+    title: 'Draft SEO-ready content',
+    description: 'Those keywords are woven naturally into a human-sounding draft with inline links.',
   },
 ] as const;
 
@@ -36,7 +37,7 @@ const SAMPLE_KEYWORDS = [
   'SEO blog writing',
   'B2B content trends',
   'keyword research tips',
-  'AI content workflow',
+  'humanized content workflow',
 ];
 
 export default function SeoKeywordsSection() {
@@ -48,7 +49,7 @@ export default function SeoKeywordsSection() {
       className={marketingLandingSection}
       aria-labelledby="seo-keywords-heading"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className={marketingPageContainer}>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -63,7 +64,7 @@ export default function SeoKeywordsSection() {
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
             No manual keyword research. Enter a topic and we discover what people search for —
-            then generate content optimized to rank.
+            then draft humanized content built to rank.
           </p>
         </motion.div>
 
@@ -78,7 +79,7 @@ export default function SeoKeywordsSection() {
                 transition={{ duration: 0.5, delay: index * 0.08, ease: MARKETING_EASE }}
                 className="flex gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-700">
                   <Icon className="h-5 w-5" aria-hidden />
                 </div>
                 <div>
@@ -98,7 +99,7 @@ export default function SeoKeywordsSection() {
             className={cn(marketingGlassCard, 'overflow-hidden p-6 md:p-8')}
           >
             <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
-              <Sparkles className="h-3.5 w-3.5 text-violet-500" aria-hidden />
+              <Sparkles className="h-3.5 w-3.5 text-teal-500" aria-hidden />
               Live preview
             </div>
 

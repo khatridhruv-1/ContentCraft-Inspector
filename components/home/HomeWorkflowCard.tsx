@@ -54,7 +54,7 @@ export default function HomeWorkflowCard({ workflow, index, onSelect }: HomeWork
 
       <div className="mt-5 flex items-center justify-end">
         <ArrowRight
-          className="h-4 w-4 shrink-0 text-slate-300 transition-colors group-hover:translate-x-0.5 group-hover:text-violet-600"
+          className="h-4 w-4 shrink-0 text-slate-300 transition-colors group-hover:translate-x-0.5 group-hover:text-teal-600"
           aria-hidden
         />
       </div>

@@ -11,10 +11,14 @@ function getAnonConfig() {
 }
 
 function getAdminConfig() {
-  const { url } = getAnonConfig();
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Admin client needs only the Supabase URL + service role key.
+  // The anon key is not required and making it a hard dependency breaks server-side routes
+  // when `NEXT_PUBLIC_SUPABASE_ANON_KEY` isn't present in production.
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!url) throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable');
 
-  if (!serviceRoleKey) throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY environment variable");
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceRoleKey) throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable');
 
   return { url, serviceRoleKey };
 }

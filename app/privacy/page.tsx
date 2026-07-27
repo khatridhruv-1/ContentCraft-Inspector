@@ -21,10 +21,10 @@ export default function PrivacyPage() {
       <LegalSection id="introduction" title="1. Introduction">
         <p>
           BlogCreator (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;)
-          provides an AI-powered content workspace for generating, editing, and analyzing written
-          content. This Privacy Policy explains how we collect, use, disclose, and safeguard
-          information when you use our website, applications, and related services (collectively, the
-          &quot;Service&quot;).
+          provides a content workspace for drafting, editing, and analyzing written content with a
+          focus on humanized, platform-ready output. This Privacy Policy explains how we collect,
+          use, disclose, and safeguard information when you use our website, applications, and
+          related services (collectively, the &quot;Service&quot;).
         </p>
         <p>
           By using the Service, you agree to the collection and use of information in accordance with
@@ -40,7 +40,7 @@ export default function PrivacyPage() {
         </p>
         <p>
           <strong className="text-white/90">Content you provide.</strong> We process text and prompts
-          you submit for AI generation, editing, SEO analysis, readability scoring, and AI-detection
+          you submit for drafting, editing, SEO analysis, readability scoring, and authenticity
           (&quot;Realness Score&quot;) features. This includes drafts, projects, and exported content
           stored in your workspace.
         </p>
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
         <ul className="list-disc space-y-2 pl-5">
           <li>Provide, maintain, and improve the Service</li>
           <li>Authenticate users and manage accounts</li>
-          <li>Process AI generation and analysis requests you initiate</li>
+          <li>Process drafting and analysis requests you initiate</li>
           <li>Respond to support inquiries and send service-related notices</li>
           <li>Monitor security, prevent fraud, and enforce our Terms of Service</li>
           <li>Comply with legal obligations</li>

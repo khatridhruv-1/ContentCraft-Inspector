@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu } from 'lucide-react';
@@ -12,7 +12,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { marketingFocusRing, marketingGhostNav } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
@@ -32,17 +31,7 @@ const PAGE_LINKS = [
 
 export default function LandingMobileNav() {
   const router = useRouter();
-  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || !isMobile) {
-    return null;
-  }
 
   const closeAndNavigate = (href: string) => {
     setOpen(false);
@@ -52,7 +41,7 @@ export default function LandingMobileNav() {
   };
 
   return (
-    <div className="shrink-0">
+    <div className="hidden max-md:flex shrink-0">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button

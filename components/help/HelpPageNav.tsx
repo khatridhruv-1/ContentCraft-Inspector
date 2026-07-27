@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { marketingFocusRing } from '@/lib/marketing/marketingTheme';
+import { marketingFocusRing, marketingPageContainer } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 const TABS = [
@@ -31,7 +31,7 @@ export default function HelpPageNav() {
   return (
     <nav
       aria-label="Help sections"
-      className="mx-auto mb-8 flex max-w-6xl flex-wrap justify-center gap-2 px-6"
+      className={cn(marketingPageContainer, 'mb-8 flex flex-wrap justify-center gap-2')}
     >
       {TABS.map(tab => (
         <button
@@ -41,7 +41,7 @@ export default function HelpPageNav() {
           className={cn(
             'rounded-full px-4 py-2 text-sm font-medium transition-colors',
             active === tab.id
-              ? 'bg-violet-100 text-violet-900'
+              ? 'bg-teal-100 text-teal-900'
               : 'bg-white/70 text-slate-600 hover:bg-white',
             marketingFocusRing
           )}

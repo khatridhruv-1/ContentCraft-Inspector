@@ -3,6 +3,7 @@
 import {
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainerMedium,
   marketingSectionHeader,
   marketingSectionTitle,
   marketingAccentSpan,
@@ -29,8 +30,8 @@ const SIDE_BY_SIDE = {
 
 export default function ChatGptSideBySideWidget() {
   return (
-    <section className={cn(marketingLandingSection, 'pt-0')} aria-labelledby="side-by-side-heading">
-      <div className="mx-auto max-w-5xl px-6">
+    <section className={marketingLandingSection} aria-labelledby="side-by-side-heading">
+      <div className={marketingPageContainerMedium}>
         <div className={marketingSectionHeader}>
           <span className={marketingEyebrow}>Same brief</span>
           <h2 id="side-by-side-heading" className={marketingSectionTitle}>
@@ -51,7 +52,7 @@ export default function ChatGptSideBySideWidget() {
                 className={cn(
                   marketingGlassCard,
                   'p-5 md:p-6',
-                  key === 'blogcreator' && 'ring-2 ring-violet-200'
+                  key === 'blogcreator' && 'ring-2 ring-teal-200'
                 )}
               >
                 <h3 className="text-sm font-bold text-slate-900">{col.title}</h3>

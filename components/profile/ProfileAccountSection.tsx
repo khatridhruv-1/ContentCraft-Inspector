@@ -105,8 +105,8 @@ export default function ProfileAccountSection({
 
         <SettingRow
           icon={Calendar}
-          iconSurface="bg-violet-50"
-          iconColor="text-violet-700"
+          iconSurface="bg-teal-50"
+          iconColor="text-teal-700"
           title="Member since"
           description={memberSince ? undefined : 'Join date unavailable'}
         >

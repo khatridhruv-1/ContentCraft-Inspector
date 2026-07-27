@@ -13,6 +13,7 @@ import {
   marketingGlassCard,
   marketingInput,
   marketingLandingSection,
+  marketingPageContainer,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -28,6 +29,7 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
+  const [emailSent, setEmailSent] = useState(true);
 
   useEffect(() => {
     fetch('/api/newsletter/stats')
@@ -42,6 +44,7 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setEmailSent(true);
 
     const trimmed = email.trim();
     if (!trimmed) {
@@ -63,14 +66,20 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
         body: JSON.stringify({ email: trimmed, source: 'landing' }),
       });
 
-      const data = (await res.json()) as { message?: string; error?: string };
+      const data = (await res.json()) as {
+        message?: string;
+        error?: string;
+        emailSent?: boolean;
+      };
 
       if (!res.ok) {
         setError(data.error || 'Something went wrong. Please try again.');
         return;
       }
 
-      setSuccess(data.message || 'You are subscribed!');
+      const message = data.message || 'You are subscribed!';
+      setSuccess(message);
+      setEmailSent(data.emailSent !== false);
       setEmail('');
     } catch {
       setError('Network error. Please try again.');
@@ -85,7 +94,7 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
       className={cn(marketingLandingSection, className)}
       aria-labelledby="newsletter-heading"
     >
-      <div className="mx-auto w-full max-w-6xl px-6">
+      <div className={marketingPageContainer}>
         <ScrollReveal>
           <div className={marketingSectionHeader}>
             <span className={marketingEyebrow}>
@@ -99,7 +108,7 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
               Subscribe to BlogCreator Daily — fresh editorial content on what people are searching
               for right now, written in a clear practitioner voice.
               {subscriberCount !== null && subscriberCount > 0 && (
-                <span className="mt-1 block text-sm font-medium text-violet-700">
+                <span className="mt-1 block text-sm font-medium text-teal-700">
                   Join {subscriberCount.toLocaleString()}+ subscribers
                 </span>
               )}
@@ -116,7 +125,7 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
           >
             <div className="mb-6 grid gap-4 sm:grid-cols-2">
               <div className="flex items-start gap-3 rounded-xl border border-slate-200/80 bg-white/80 p-4">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-700">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700">
                   <TrendingUp className="h-5 w-5" aria-hidden />
                 </span>
                 <div>
@@ -133,7 +142,7 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
                 <div>
                   <p className="text-sm font-semibold text-slate-900">Humanized writing</p>
                   <p className="mt-1 text-sm text-slate-600">
-                    Editorial drafts — not generic AI listicles or hype.
+                    Editorial drafts — not generic listicles or hype.
                   </p>
                 </div>
               </div>
@@ -142,12 +151,19 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
             {success ? (
               <div
                 role="status"
-                className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800"
+                className={cn(
+                  'rounded-xl border px-5 py-4 text-sm',
+                  emailSent
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                    : 'border-amber-200 bg-amber-50 text-amber-900'
+                )}
               >
                 <p className="font-semibold">{success}</p>
-                <p className="mt-1 text-emerald-700">
-                  Your first daily issue arrives tomorrow morning.
-                </p>
+                {emailSent && (
+                  <p className="mt-1 text-emerald-700">
+                    Your first daily issue arrives tomorrow morning.
+                  </p>
+                )}
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row" noValidate>
@@ -193,7 +209,7 @@ export default function NewsletterSignup({ className }: NewsletterSignupProps) {
               One email per day. Unsubscribe anytime. No spam.{' '}
               <Link
                 href="/newsletter/sample"
-                className={cn('font-medium text-violet-700 underline-offset-2 hover:underline', marketingFocusRing)}
+                className={cn('font-medium text-teal-700 underline-offset-2 hover:underline', marketingFocusRing)}
               >
                 Read a sample issue
               </Link>

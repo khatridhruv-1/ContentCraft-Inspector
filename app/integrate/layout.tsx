@@ -4,7 +4,7 @@ import { WELCOME_SEO_KEYWORDS } from '@/lib/marketing/welcomeContent';
 
 const TITLE = 'Integrations — BlogCreator';
 const DESCRIPTION =
-  'Add BlogCreator to your AI assistant in one CLI command. MCP tools or cross-platform agent skill — no API keys required.';
+  'Add BlogCreator to your writing workflow in one CLI command. MCP tools or cross-platform agent skill — no API keys required.';
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     ...WELCOME_SEO_KEYWORDS,
     'BlogCreator MCP',
     'agent skill',
-    'AI content API',
+    'content API',
     'CLI integration',
   ],
   alternates: {

@@ -1,14 +1,17 @@
 'use client';
 
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Quote } from 'lucide-react';
 import ScrollReveal from '@/components/marketing/ScrollReveal';
 import { BETA_TESTIMONIALS } from '@/lib/marketing/testimonials';
 import {
+  MARKETING_EASE,
   marketingAccentSpan,
   marketingEyebrow,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainer,
   marketingSectionHeader,
   marketingSectionTitle,
   marketingFocusRing,
@@ -23,12 +26,14 @@ function getInitials(name: string): string {
 }
 
 export default function BetaTestimonialsSection() {
+  const reduced = useReducedMotion();
+
   return (
     <section
       className={marketingLandingSection}
       aria-labelledby="testimonials-heading"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className={marketingPageContainer}>
         <ScrollReveal className={marketingSectionHeader}>
           <span className={marketingEyebrow}>Early beta feedback</span>
           <h2 id="testimonials-heading" className={marketingSectionTitle}>
@@ -42,15 +47,22 @@ export default function BetaTestimonialsSection() {
 
         <div className="grid gap-4 md:grid-cols-3">
           {BETA_TESTIMONIALS.map((item, index) => (
-            <ScrollReveal key={item.name} delay={index * 0.06}>
-              <article className={cn(marketingGlassCard, 'flex h-full flex-col p-5 md:p-6')}>
-                <Quote className="mb-3 h-5 w-5 text-violet-400" aria-hidden />
+            <ScrollReveal key={item.name} delay={index * 0.08}>
+              <motion.article
+                whileHover={
+                  reduced
+                    ? undefined
+                    : { y: -4, transition: { duration: 0.25, ease: MARKETING_EASE } }
+                }
+                className={cn(marketingGlassCard, 'flex h-full flex-col p-5 md:p-6')}
+              >
+                <Quote className="mb-3 h-5 w-5 text-teal-400" aria-hidden />
                 <blockquote className="flex-1 text-sm leading-relaxed text-slate-700">
                   &ldquo;{item.quote}&rdquo;
                 </blockquote>
                 <footer className="mt-4 flex items-center gap-3 border-t border-slate-200 pt-4">
                   <span
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-bold text-teal-800"
                     aria-hidden
                   >
                     {getInitials(item.name)}
@@ -62,7 +74,7 @@ export default function BetaTestimonialsSection() {
                     </p>
                   </div>
                 </footer>
-              </article>
+              </motion.article>
             </ScrollReveal>
           ))}
         </div>
@@ -71,12 +83,15 @@ export default function BetaTestimonialsSection() {
           <Link
             href="/samples"
             className={cn(
-              'inline-flex items-center gap-2 text-sm font-semibold text-violet-700 underline-offset-4 hover:underline',
+              'group inline-flex items-center gap-2 text-sm font-semibold text-teal-700 underline-offset-4 hover:underline',
               marketingFocusRing
             )}
           >
             Read sample outputs
-            <ArrowRight className="h-4 w-4" aria-hidden />
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+              aria-hidden
+            />
           </Link>
         </ScrollReveal>
       </div>

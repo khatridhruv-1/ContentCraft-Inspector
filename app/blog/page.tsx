@@ -8,6 +8,7 @@ import {
   marketingAccentSpan,
   marketingGlassCard,
   marketingPageClass,
+  marketingSubpageMain,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
@@ -27,7 +28,7 @@ export default function BlogIndexPage() {
     >
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="mx-auto max-w-3xl px-6 py-12">
+      <main className={marketingSubpageMain}>
         <h1 className={marketingSectionTitle}>
           Content <span className={marketingAccentSpan}>insights</span>
         </h1>

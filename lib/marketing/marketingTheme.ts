@@ -1,12 +1,14 @@
-/** Shared design tokens — light, minimal, production-ready */
+/** Shared design tokens — ink + teal production identity */
 
 import { cn } from '@/lib/utils';
 
-export const MARKETING_BG = '#f8fafc';
+export const MARKETING_BG = '#f4f9f8';
 export const MARKETING_SURFACE = '#ffffff';
 export const MARKETING_FIELD_BG = '#ffffff';
 
-export const MARKETING_PAGE_GRADIENT = MARKETING_BG;
+/** Soft teal/sky mist — no violet wash */
+export const MARKETING_PAGE_GRADIENT =
+  'linear-gradient(180deg, #f0fafa 0%, #f4f9f8 28%, #eef6fb 62%, #f8fafc 100%)';
 
 export const MARKETING_EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -20,25 +22,28 @@ export const marketingNavPill =
   'border border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-sm shadow-slate-900/[0.03]';
 
 export const marketingFocusRing =
-  'focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
+  'focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white';
 
-export const marketingLink = 'text-slate-700 hover:text-slate-900 transition-colors';
+export const marketingLink = 'text-teal-800 hover:text-slate-900 transition-colors';
 
 export const marketingMutedLink = 'text-slate-500 hover:text-slate-800 transition-colors';
 
+export const marketingHeroEyebrow =
+  'inline-flex items-center rounded-full border border-teal-200/80 bg-white px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-teal-800 shadow-sm sm:px-4 sm:text-xs';
+
 export const marketingEyebrow =
-  'inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-slate-600';
+  'inline-flex items-center gap-2 rounded-full border border-teal-200/80 bg-teal-50/80 px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-teal-900';
 
 export const marketingLabel = 'text-sm font-medium text-slate-700';
 
 export const marketingFieldShell =
-  'flex w-full items-center gap-1.5 rounded-lg border border-slate-200 bg-white py-0 shadow-sm transition-colors hover:border-slate-300 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-400/20 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
+  'flex w-full items-center gap-1.5 rounded-lg border border-slate-200 bg-white py-0 shadow-sm transition-colors hover:border-slate-300 focus-within:border-teal-600 focus-within:ring-2 focus-within:ring-teal-600/20 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50';
 
 export const marketingInput =
-  'min-h-11 rounded-lg border border-slate-200 bg-white px-3 text-[15px] text-slate-900 shadow-sm placeholder:text-slate-400 transition-colors hover:border-slate-300 focus-visible:border-slate-400 focus-visible:ring-2 focus-visible:ring-slate-400/20 focus-visible:ring-offset-0';
+  'min-h-11 rounded-lg border border-slate-200 bg-white px-3 text-[15px] text-slate-900 shadow-sm placeholder:text-slate-400 transition-colors hover:border-slate-300 focus-visible:border-teal-600 focus-visible:ring-2 focus-visible:ring-teal-600/20 focus-visible:ring-offset-0';
 
 export const marketingTextarea =
-  'min-h-[120px] resize-y rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[15px] text-slate-900 shadow-sm placeholder:text-slate-400 transition-colors hover:border-slate-300 focus-visible:border-slate-400 focus-visible:ring-2 focus-visible:ring-slate-400/20 focus-visible:ring-offset-0';
+  'min-h-[120px] resize-y rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[15px] text-slate-900 shadow-sm placeholder:text-slate-400 transition-colors hover:border-slate-300 focus-visible:border-teal-600 focus-visible:ring-2 focus-visible:ring-teal-600/20 focus-visible:ring-offset-0';
 
 export const marketingAuthInput =
   'min-w-0 flex-1 border-0 bg-transparent py-0 text-[15px] text-slate-900 outline-none ring-0 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-0';
@@ -47,12 +52,12 @@ export const marketingAuthInput =
 export const marketingButtonBase =
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0';
 
-/** Uses semantic primary tokens — always present in the CSS bundle (unlike slate utilities). */
+/** Deep ink primary — hardcoded so dark-mode theme tokens cannot flip CTAs white */
 export const marketingPrimaryButtonCore = cn(
   marketingButtonBase,
-  'border border-primary bg-primary text-primary-foreground shadow-sm',
-  'hover:bg-primary/90',
-  'active:opacity-95'
+  'border border-slate-900 bg-slate-900 text-white shadow-sm',
+  'hover:bg-slate-800 hover:border-slate-800',
+  'active:bg-slate-950 active:border-slate-950'
 );
 
 export const marketingPrimaryButtonSizes = {
@@ -88,28 +93,54 @@ export const marketingSkipLink =
   'sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:inline-flex focus:h-9 focus:items-center focus:rounded-lg focus:bg-slate-900 focus:px-4 focus:text-sm focus:font-medium focus:text-white focus:shadow-sm';
 
 export const marketingSectionTitle =
-  'text-4xl font-black tracking-tight text-slate-900 md:text-5xl';
+  'text-3xl font-black tracking-tight text-slate-900 md:text-4xl lg:text-5xl';
 
-export const marketingAccentSpan = 'text-slate-700';
+export const marketingAccentSpan = 'text-teal-800';
+
+/** Accent line for hero / section titles — solid color so text never goes invisible */
+export const marketingGradientText = 'text-teal-800';
 
 export const marketingIconTile =
-  'flex items-center justify-center rounded-lg bg-slate-100 text-slate-700';
+  'flex items-center justify-center rounded-lg bg-teal-50 text-teal-800';
 export const marketingIconTileSm = 'h-10 w-10';
 export const marketingIconTileMd = 'h-12 w-12';
 
-export const marketingPageContainer = 'mx-auto w-full max-w-6xl px-6 md:px-8';
+/** Shared horizontal gutters — use on nav, sections (via containers), and footers */
+export const marketingPageGutter = 'px-6 sm:px-8 lg:px-12';
 
-/** Welcome / marketing landing — hero bottom + section rhythm */
-export const marketingLandingHero =
-  'relative flex flex-col items-center overflow-visible px-6 pt-32 pb-0 text-center';
+export const marketingPageContainer = 'mx-auto w-full max-w-6xl px-6 sm:px-8 lg:px-12';
 
-/** Sections after a divider — top spacing comes from the divider */
-export const marketingLandingSection = 'relative scroll-mt-24 px-6 pb-10 md:pb-12';
+export const marketingPageContainerMedium =
+  'mx-auto w-full max-w-4xl px-6 sm:px-8 lg:px-12';
 
-export const marketingSectionHeader = 'mb-8 text-center md:mb-10';
+export const marketingPageContainerNarrow =
+  'mx-auto w-full max-w-3xl px-6 sm:px-8 lg:px-12';
 
-/** Equal space above and below every section line */
-export const marketingSectionDividerWrap = 'mx-auto w-full max-w-6xl px-6 py-6 md:py-8';
+export const marketingPageContainerTight =
+  'mx-auto w-full max-w-2xl px-6 sm:px-8 lg:px-12';
+
+/** Marketing subpages — consistent vertical + horizontal rhythm */
+export const marketingSubpageMain =
+  'mx-auto w-full max-w-3xl px-6 py-12 sm:px-8 md:py-16 lg:px-12';
+
+export const marketingSubpageMainWide =
+  'mx-auto w-full max-w-6xl px-6 py-12 sm:px-8 md:py-16 lg:px-12';
+
+/**
+ * Landing hero — nav clearance only; inner content owns vertical rhythm.
+ */
+export const marketingLandingHero = cn(
+  'relative z-0 flex flex-col',
+  'pt-[4.75rem] md:pt-[5.25rem]'
+);
+
+/** Landing sections — consistent vertical band */
+export const marketingLandingSection = 'relative scroll-mt-24 py-16 md:py-20 lg:py-24';
+
+export const marketingSectionHeader = 'mb-10 text-center md:mb-12';
+
+/** Divider line — no extra vertical padding (sections own the rhythm) */
+export const marketingSectionDividerWrap = cn(marketingPageContainer, 'py-0');
 
 export const marketingSectionDividerLine =
   'h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent';

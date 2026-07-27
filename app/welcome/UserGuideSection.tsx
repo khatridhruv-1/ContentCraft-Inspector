@@ -8,6 +8,7 @@ import {
   marketingEyebrow,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainer,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -19,8 +20,8 @@ const steps = [
     icon: UserPlus,
     title: 'Create your account',
     description: 'Create your free account. Takes less than 60 seconds.',
-    iconSurface: 'bg-violet-100',
-    iconColor: 'text-violet-700',
+    iconSurface: 'bg-teal-100',
+    iconColor: 'text-teal-700',
   },
   {
     number: 2,
@@ -33,16 +34,18 @@ const steps = [
   {
     number: 3,
     icon: Wand2,
-    title: 'Generate content',
-    description: 'Enter a topic — we pull trending keywords and related search terms from the web, then draft SEO-ready content in seconds.',
-    iconSurface: 'bg-violet-100',
-    iconColor: 'text-violet-700',
+    title: 'Draft humanized content',
+    description:
+      'Enter a topic — we pull trending keywords from the web, then draft platform-ready content in a clear practitioner voice.',
+    iconSurface: 'bg-teal-100',
+    iconColor: 'text-teal-700',
   },
   {
     number: 4,
     icon: BarChart2,
-    title: 'Analyze & optimize',
-    description: 'Run Deep Analysis for SEO insights, outlines, and content gaps — then publish with confidence.',
+    title: 'Analyze & publish',
+    description:
+      'Run Deep Analysis for SEO insights, outlines, and content gaps — then publish with confidence.',
     iconSurface: 'bg-sky-50',
     iconColor: 'text-sky-700',
   },
@@ -68,7 +71,7 @@ export default function UserGuideSection() {
       className={marketingLandingSection}
       aria-labelledby="guide-heading"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className={marketingPageContainer}>
       <motion.div
         initial={{ opacity: 0, y: 22 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -81,7 +84,7 @@ export default function UserGuideSection() {
           Up and running in <span className={marketingAccentSpan}>four steps</span>
         </h2>
         <p className="mt-4 text-slate-600 max-w-xl mx-auto text-lg">
-          From sign-up to publishing — a simple path to your first piece of AI-powered content.
+          From sign-up to publishing — a simple path to your first humanized draft.
         </p>
       </motion.div>
 

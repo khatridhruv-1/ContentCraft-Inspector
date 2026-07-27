@@ -48,7 +48,7 @@ export default function ProfileWorkspacePanel({
     >
       <div className={profileGlassPanel}>
         <div
-          className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl"
+          className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-teal-500/10 blur-3xl"
           aria-hidden
         />
         <div

@@ -13,7 +13,7 @@
   position: absolute;
   inset: 0.35rem;
   border-radius: 50%;
-  border: 2px solid rgba(124, 58, 237, 0.28);
+  border: 2px solid rgba(13, 148, 136, 0.28);
   animation: loaderRipple 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
   opacity: 0;
 }
@@ -192,7 +192,7 @@
     102deg,
     #0f172a 0%,
     #0f172a 38%,
-    rgba(139, 92, 246, 0.55) 50%,
+    rgba(13, 148, 136, 0.55) 50%,
     #0f172a 62%,
     #0f172a 100%
   );
@@ -295,7 +295,7 @@
   position: absolute;
   inset: -15%;
   border-radius: 50%;
-  border: 1px solid rgba(124, 58, 237, 0.22);
+  border: 1px solid rgba(13, 148, 136, 0.22);
   animation: loaderRipple 2.2s ease-out infinite;
   opacity: 0;
 }

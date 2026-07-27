@@ -5,30 +5,30 @@ import { absoluteUrl } from '@/lib/marketing/siteUrl';
 export const LANDING_PATH = '/';
 
 export const LANDING_TITLE =
-  'BlogCreator — Free AI Blog Generator, Content Generator & SEO Tool';
+  'BlogCreator — Humanized Content for Every Platform';
 
 export const LANDING_DESCRIPTION =
-  'Free AI blog generator and content generator. Pick a platform — website, LinkedIn, Quora, Medium, or Substack — and create format-ready drafts with keyword discovery and SEO analysis.';
+  'Create humanized, platform-ready drafts for website, LinkedIn, Quora, Medium, or Substack — with keyword discovery and SEO analysis that keep your voice intact.';
 
 export const LANDING_KEYWORDS = [
+  'humanized content',
+  'humanized content generator',
   'blog generator',
-  'AI blog generator',
   'free blog generator',
   'content generator',
-  'AI content generator',
+  'platform-based content',
   'article generator',
   'SEO content generator',
-  'AI writing tool',
+  'human writing tool',
   'blog post generator',
   'keyword discovery tool',
-  'content marketing AI',
+  'content marketing',
   'readability checker',
   'content gap analysis',
   'LinkedIn post generator',
   'Medium article generator',
   'platform-based content generator',
-  'MCP content generation',
-  'AI content API',
+  'practitioner content workflow',
 ] as const;
 
 export const LANDING_OPEN_GRAPH = {

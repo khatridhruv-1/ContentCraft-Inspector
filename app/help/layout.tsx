@@ -5,12 +5,12 @@ import { WELCOME_SEO_KEYWORDS } from '@/lib/marketing/welcomeContent';
 
 const TITLE = 'Help Center — BlogCreator';
 const DESCRIPTION =
-  'Setup guides, SEO keyword workflow, product overview, and FAQs for BlogCreator — AI content generation and deep SEO analysis.';
+  'Setup guides, SEO keyword workflow, product overview, and FAQs for BlogCreator — humanized content and deep SEO analysis.';
 
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  keywords: [...WELCOME_SEO_KEYWORDS, 'BlogCreator help', 'AI content FAQ'],
+  keywords: [...WELCOME_SEO_KEYWORDS, 'BlogCreator help', 'humanized content FAQ'],
   alternates: {
     canonical: '/help',
   },

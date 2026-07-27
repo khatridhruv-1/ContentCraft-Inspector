@@ -9,13 +9,6 @@ export type BetaTestimonial = {
 export const BETA_TESTIMONIALS: BetaTestimonial[] = [
   {
     quote:
-      'I replaced three tabs — ChatGPT for drafting, a keyword tool, and a readability checker — with BlogCreator. My first website post took 20 minutes end to end.',
-    name: 'Priya M.',
-    role: 'Content lead',
-    context: 'B2B SaaS startup',
-  },
-  {
-    quote:
       'Platform mode for LinkedIn actually changes the structure. Short paragraphs, strong hook — not a blog post dumped into a feed.',
     name: 'James T.',
     role: 'Solo creator',
@@ -26,6 +19,13 @@ export const BETA_TESTIMONIALS: BetaTestimonial[] = [
       'Installed the MCP tool in Cursor in one command. My agent now calls generate_content without me pasting API keys into config files.',
     name: 'Alex R.',
     role: 'Software engineer',
-    context: 'AI-assisted workflows',
+    context: 'Agent workflows',
+  },
+  {
+    quote:
+      'First website post took 20 minutes end to end — then I spun LinkedIn versions from the same brief. Replaced ChatGPT, a keyword tool, and a readability checker.',
+    name: 'Priya M.',
+    role: 'Content lead',
+    context: 'B2B SaaS',
   },
 ];

@@ -36,7 +36,7 @@ export function StudioWorkspaceSkeleton() {
 
       <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden bg-slate-50/40 p-6 md:p-10">
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(139,92,246,0.05)_0%,_transparent_70%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(13, 148, 136,0.05)_0%,_transparent_70%)]"
           aria-hidden
         />
         <div

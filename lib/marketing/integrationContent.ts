@@ -38,16 +38,16 @@ export const INTEGRATION_SKILL_PLATFORMS = [
   'Skills-capable agents',
   'Editors & terminals',
   'Cross-platform',
-  'Any AI agent',
+  'Any writing agent',
 ] as const;
 
-export const INTEGRATION_AGENT_PLATFORMS_LABEL = 'editors, terminals, and AI agents';
+export const INTEGRATION_AGENT_PLATFORMS_LABEL = 'editors, terminals, and writing agents';
 
-export const INTEGRATION_HERO_EYEBROW = 'AI agent integrations';
+export const INTEGRATION_HERO_EYEBROW = 'Workflow integrations';
 
-export const INTEGRATION_HERO_TITLE = 'Use BlogCreator in any AI agent';
+export const INTEGRATION_HERO_TITLE = 'Use BlogCreator in your writing stack';
 
-export const INTEGRATION_HERO_TITLE_ACCENT = 'any AI agent';
+export const INTEGRATION_HERO_TITLE_ACCENT = 'your writing stack';
 
 export const INTEGRATION_HERO_SUBTITLE =
   'One CLI command connects MCP tools or an agent skill to our hosted API. Works across editors and agents — no API keys on your machine.';
@@ -56,7 +56,7 @@ export const INTEGRATION_INSTALL_OPTIONS = [
   {
     id: 'mcp' as const,
     title: 'MCP Tool',
-    tagline: 'Native tools in agent chat — generate, analyze, outline',
+    tagline: 'Native tools in agent chat — draft, analyze, outline',
     steps: [
       'Run the command in Terminal (bash) — AI chat cannot run install scripts for you',
       'Installer auto-registers in detected MCP client configs when present',
@@ -110,6 +110,6 @@ export const INTEGRATION_API_ROUTES = [
 
 export const INTEGRATION_LANDING_STEPS = [
   'Copy the install command and run it in Terminal (bash) — not inside AI chat.',
-  'Restart your editor or AI agent so it picks up the MCP tool or skill.',
+  'Restart your editor or agent so it picks up the MCP tool or skill.',
   'Ask your agent to generate SEO content with BlogCreator — it calls our hosted API for you.',
 ] as const;

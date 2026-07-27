@@ -9,6 +9,7 @@ import {
   marketingFocusRing,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainer,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -20,7 +21,7 @@ const USE_CASES = [
     title: 'Solo bloggers',
     quote:
       'I draft for my website, run keyword discovery, and fix SEO gaps before I hit publish — all in one tab.',
-    surface: 'bg-violet-50 text-violet-700',
+    surface: 'bg-teal-50 text-teal-700',
   },
   {
     icon: Linkedin,
@@ -41,10 +42,10 @@ const USE_CASES = [
 export default function SocialProofStrip() {
   return (
     <section
-      className={cn(marketingLandingSection, 'pt-0')}
+      className={marketingLandingSection}
       aria-labelledby="social-proof-heading"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className={marketingPageContainer}>
         <ScrollReveal className={marketingSectionHeader}>
           <span className={marketingEyebrow}>Example workflows</span>
           <h2 id="social-proof-heading" className={marketingSectionTitle}>
@@ -85,7 +86,7 @@ export default function SocialProofStrip() {
           <Link
             href="/help#preview"
             className={cn(
-              'inline-flex items-center gap-2 text-sm font-semibold text-violet-700 underline-offset-4 hover:underline',
+              'inline-flex items-center gap-2 text-sm font-semibold text-teal-700 underline-offset-4 hover:underline',
               marketingFocusRing
             )}
           >

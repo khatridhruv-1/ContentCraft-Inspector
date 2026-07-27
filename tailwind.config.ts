@@ -5,6 +5,19 @@ const config: Config = {
   safelist: [
     'md:hidden',
     'max-md:flex',
+    'hidden',
+    'pt-32',
+    'pb-8',
+    'pb-10',
+    'md:pb-10',
+    {
+      pattern:
+        /^(bg|text|border|hover:bg|hover:text|hover:border|active:bg|focus:bg|focus-visible:bg|data-\[state=active\]:bg)-teal-(50|100|200|300|400|500|600|700|800|900|950)$/,
+    },
+    {
+      pattern:
+        /^(bg|text|border|hover:bg|hover:text|hover:border|active:bg)-teal-(50|100|200|300|400|500|600|700|800|900|950)\/(5|10|20|30|40|45|50|60|70|80|90)$/,
+    },
     {
       pattern:
         /^(bg|text|border|hover:bg|hover:text|hover:border|active:bg|focus:bg|focus-visible:bg|data-\[state=active\]:bg)-slate-(50|100|200|300|400|500|600|700|800|900|950)$/,
@@ -38,6 +51,10 @@ const config: Config = {
         primary: {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
+        },
+        brand: {
+          DEFAULT: 'hsl(var(--brand))',
+          foreground: 'hsl(var(--brand-foreground))',
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
@@ -116,8 +133,8 @@ const config: Config = {
           '90%': { transform: 'translateX(2px)' },
         },
         'pulse-glow': {
-          '0%, 100%': { boxShadow: '0 0 0 0 rgba(99, 102, 241, 0)' },
-          '50%': { boxShadow: '0 0 20px 6px rgba(99, 102, 241, 0.25)' },
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(13, 148, 136, 0)' },
+          '50%': { boxShadow: '0 0 20px 6px rgba(13, 148, 136, 0.22)' },
         },
       },
       animation: {

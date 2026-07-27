@@ -11,19 +11,19 @@ export type BlogPost = {
 export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'platform-first-ai-content',
-    title: 'Why platform-first AI beats generic chat for content teams',
+    title: 'Why platform-first drafting beats generic chat for content teams',
     excerpt:
-      'Destination-first generation changes the economics of weekly publishing — here is what practitioners are doing differently.',
+      'Destination-first writing changes the economics of weekly publishing — here is what practitioners are doing differently.',
     date: 'July 8, 2026',
-    readMinutes: 6,
-    keywords: ['AI content workflow', 'platform-specific writing', 'content marketing'],
-    body: `Most teams still treat AI as a blank-page typing assistant. The better frame: pick where the piece will live first, then generate structure, tone, and length for that channel.
+    readMinutes: 1,
+    keywords: ['humanized content', 'platform-specific writing', 'content marketing'],
+    body: `Most teams still treat a blank chat box as their writing desk. The better frame: pick where the piece will live first, then shape structure, tone, and length for that channel.
 
 LinkedIn is not a compressed blog post. Quora is not a landing page in disguise. Medium essays need a narrative arc that feed posts do not.
 
-When generation starts with platform intent, editors spend time on ideas — not reformatting.
+When drafting starts with platform intent, editors spend time on ideas — not reformatting.
 
-**What to try this week:** Take one pillar topic. Generate website, LinkedIn, and newsletter versions from the same brief. Compare edit time versus your old ChatGPT → Docs loop.`,
+**What to try this week:** Take one pillar topic. Draft website, LinkedIn, and newsletter versions from the same brief. Compare edit time versus your old chat → Docs loop.`,
   },
   {
     slug: 'keyword-discovery-before-editing',
@@ -31,22 +31,22 @@ When generation starts with platform intent, editors spend time on ideas — not
     excerpt:
       'Live search-intent signals should shape the draft — not get bolted on in a second pass.',
     date: 'July 3, 2026',
-    readMinutes: 5,
+    readMinutes: 1,
     keywords: ['keyword research', 'SEO writing', 'content strategy'],
-    body: `The hidden tax in most AI workflows is the "SEO pass" — a second round where someone tries to weave keywords into prose that was never built for search intent.
+    body: `The hidden tax in most content workflows is the "SEO pass" — a second round where someone tries to weave keywords into prose that was never built for search intent.
 
-Practitioners getting better results run keyword discovery on the brief before generation. High-intent terms land in headings and intros naturally because the outline was shaped around them.
+Practitioners getting better results run keyword discovery on the brief before drafting. High-intent terms land in headings and intros naturally because the outline was shaped around them.
 
-**Practical rhythm:** Map one buyer question from sales calls → run discovery → generate → gap analysis → publish. One loop, one tab.`,
+**Practical rhythm:** Map one buyer question from sales calls → run discovery → draft → gap analysis → publish. One loop, one tab.`,
   },
   {
     slug: 'mcp-content-generation-for-developers',
-    title: 'MCP content tools: generate and analyze without local API keys',
+    title: 'MCP content tools: draft and analyze without local API keys',
     excerpt:
       'How developer teams wire BlogCreator into Cursor and other agents with one install command.',
     date: 'June 28, 2026',
-    readMinutes: 4,
-    keywords: ['MCP', 'AI agents', 'developer workflow'],
+    readMinutes: 1,
+    keywords: ['MCP', 'agents', 'developer workflow'],
     body: `Agent-native content workflows should not require pasting API keys into five config files.
 
 Hosted MCP tools let agents call generate, analyze, and outline against your production API — authenticated through the install script, not scattered secrets on disk.
@@ -59,7 +59,7 @@ Hosted MCP tools let agents call generate, analyze, and outline against your pro
     excerpt:
       'When SEO metrics help — and when they distract from answering the query in the first 200 words.',
     date: 'June 20, 2026',
-    readMinutes: 5,
+    readMinutes: 1,
     keywords: ['readability', 'SEO analysis', 'content quality'],
     body: `Teams sometimes optimize for green readability badges while the draft still fails the only test that matters: does it answer the search query immediately?
 
@@ -71,15 +71,15 @@ Pair readability with content-gap analysis — fix missing subtopics before you 
     slug: 'newsletter-workflow-without-generic-ai',
     title: 'A newsletter workflow that does not sound like a robot wrote it',
     excerpt:
-      'Three editorial checks before you hit send on AI-assisted newsletter drafts.',
+      'Three editorial checks before you hit send on humanized newsletter drafts.',
     date: 'June 12, 2026',
-    readMinutes: 4,
+    readMinutes: 1,
     keywords: ['newsletter writing', 'Substack', 'editorial workflow'],
     body: `Substack readers scan on mobile. Short blocks. One idea per paragraph. A first line that could only come from your experience.
 
-Generate with newsletter structure baked in, then add one specific detail — a client story, a number, a contrarian line — that search snippets cannot fake.
+Draft with newsletter structure baked in, then add one specific detail — a client story, a number, a contrarian line — that search snippets cannot fake.
 
-Subscribe to BlogCreator Daily for weekly practitioner notes on what is actually working in AI-assisted publishing.`,
+Subscribe to BlogCreator Daily for weekly practitioner notes on what is actually working in humanized publishing.`,
   },
 ];
 

@@ -2,13 +2,19 @@
 
 import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import { PenLine } from 'lucide-react';
 import { SAMPLE_OUTPUTS } from '@/lib/marketing/sampleOutputs';
+import ScrollReveal from '@/components/marketing/ScrollReveal';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
 import {
+  marketingAccentSpan,
+  marketingEyebrow,
   marketingFocusRing,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainerMedium,
+  marketingSectionHeader,
+  marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
@@ -47,53 +53,77 @@ export default function TryTopicWidget() {
   };
 
   return (
-    <section className={cn(marketingLandingSection, 'pt-0')} aria-labelledby="try-topic-heading">
-      <div className="mx-auto max-w-2xl px-6">
-        <div className={cn(marketingGlassCard, 'p-5 md:p-6')}>
-          <h2 id="try-topic-heading" className="text-xl font-bold text-slate-900 dark:text-slate-100">
-            Try a topic — no signup required
+    <section className={marketingLandingSection} aria-labelledby="try-topic-heading">
+      <div className={marketingPageContainerMedium}>
+        <ScrollReveal className={marketingSectionHeader}>
+          <span className={marketingEyebrow}>Try it live</span>
+          <h2 id="try-topic-heading" className={marketingSectionTitle}>
+            Preview a topic —{' '}
+            <span className={marketingAccentSpan}>no signup</span>
           </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            See a watermarked sample excerpt matched to your topic type. Full generation with keywords
-            and analysis is free after signup.
+          <p className="mx-auto mt-4 max-w-xl text-base text-slate-600">
+            See a sample excerpt in the right platform format. Full drafts with keywords and
+            analysis are free after you create an account.
           </p>
-          <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
-            <input
-              type="text"
-              value={topic}
-              onChange={e => setTopic(e.target.value)}
-              placeholder="e.g. B2B SaaS onboarding emails"
-              className={cn(
-                'flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100',
-                marketingFocusRing
-              )}
-            />
-            <MarketingPrimaryButton type="submit" size="sm" className="!w-auto sm:min-w-[140px]" fullWidth={false}>
-              <Sparkles className="mr-1.5 h-4 w-4" aria-hidden />
-              Preview
-            </MarketingPrimaryButton>
-          </form>
-          {preview && (
-            <div className="mt-4 rounded-xl border border-dashed border-violet-200 bg-violet-50/50 p-4 text-sm leading-relaxed text-slate-700 dark:border-violet-800 dark:bg-violet-950/30 dark:text-slate-300">
-              {sampleLabel ? (
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-400">
-                  Showing {sampleLabel} sample format
-                </p>
-              ) : null}
-              {preview.split('\n\n').map((block, i) => (
-                <p key={i} className={block.startsWith('**') ? 'font-semibold text-slate-900 dark:text-slate-100' : 'mt-2'}>
-                  {block.replace(/\*\*/g, '')}
-                </p>
-              ))}
-              <Link
-                href="/auth/signup"
-                className="mt-3 inline-block text-sm font-semibold text-violet-700 underline-offset-2 hover:underline dark:text-violet-400"
+        </ScrollReveal>
+
+        <ScrollReveal delay={0.06}>
+          <div className={cn(marketingGlassCard, 'p-6 md:p-8')}>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
+              <label htmlFor="try-topic-input" className="sr-only">
+                Topic
+              </label>
+              <input
+                id="try-topic-input"
+                type="text"
+                value={topic}
+                onChange={e => setTopic(e.target.value)}
+                placeholder="e.g. B2B SaaS onboarding emails"
+                className={cn(
+                  'h-12 flex-1 rounded-lg border border-slate-200 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400',
+                  marketingFocusRing
+                )}
+              />
+              <MarketingPrimaryButton
+                type="submit"
+                size="md"
+                className="!h-12 !w-auto sm:min-w-[140px]"
+                fullWidth={false}
               >
-                Generate the full draft — free
-              </Link>
-            </div>
-          )}
-        </div>
+                <PenLine className="h-4 w-4" aria-hidden />
+                Preview
+              </MarketingPrimaryButton>
+            </form>
+
+            {preview && (
+              <div className="mt-5 rounded-xl border border-dashed border-teal-200 bg-teal-50/50 p-5 text-sm leading-relaxed text-slate-700">
+                {sampleLabel ? (
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-teal-700">
+                    Showing {sampleLabel} sample format
+                  </p>
+                ) : null}
+                {preview.split('\n\n').map((block, i) => (
+                  <p
+                    key={i}
+                    className={
+                      block.startsWith('**')
+                        ? 'font-semibold text-slate-900'
+                        : 'mt-2'
+                    }
+                  >
+                    {block.replace(/\*\*/g, '')}
+                  </p>
+                ))}
+                <Link
+                  href="/auth/signup"
+                  className="mt-4 inline-block text-sm font-semibold text-teal-700 underline-offset-2 hover:underline"
+                >
+                  Draft the full piece — free
+                </Link>
+              </div>
+            )}
+          </div>
+        </ScrollReveal>
       </div>
     </section>
   );

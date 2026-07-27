@@ -4,6 +4,7 @@ import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
 import IntegrateVerifySection from '@/app/integrate/IntegrateVerifySection';
+import IntegrateApiDocsSection from '@/app/integrate/IntegrateApiDocsSection';
 import IntegrationSection from '@/app/integrate/IntegrationSection';
 import {
   INTEGRATION_HERO_EYEBROW,
@@ -15,7 +16,9 @@ import {
   MARKETING_EASE,
   MARKETING_PAGE_GRADIENT,
   marketingEyebrow,
+  marketingPageContainer,
   marketingPageClass,
+  marketingSubpageMainWide,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -31,12 +34,12 @@ export default function IntegratePage() {
       <MarketingDotGrid />
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="relative pb-12 pt-8 md:pt-10">
+      <main className="relative pb-12 pt-10 md:pt-12">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: MARKETING_EASE }}
-          className="mx-auto max-w-6xl px-6 text-center"
+          className={cn(marketingPageContainer, 'text-center')}
         >
           <span className={marketingEyebrow}>{INTEGRATION_HERO_EYEBROW}</span>
           <h1 className="mt-5 text-balance text-3xl font-bold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
@@ -58,6 +61,7 @@ export default function IntegratePage() {
         </motion.div>
 
         <IntegrationSection />
+        <IntegrateApiDocsSection />
         <IntegrateVerifySection />
 
         <MarketingFooter className="relative mt-12" />

@@ -10,6 +10,7 @@ import {
   marketingFocusRing,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainerMedium,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -28,9 +29,9 @@ export default function LandingIntegrationsTeaser() {
       className={marketingLandingSection}
       aria-labelledby="integrations-heading"
     >
-      <div className="mx-auto max-w-4xl px-6">
+      <div className={marketingPageContainerMedium}>
         <ScrollReveal className={marketingSectionHeader}>
-          <span className={marketingEyebrow}>AI agent integrations</span>
+          <span className={marketingEyebrow}>Workflow integrations</span>
           <h2 id="integrations-heading" className={marketingSectionTitle}>
             One command for{' '}
             <span className={marketingAccentSpan}>Cursor, Claude &amp; more</span>
@@ -50,7 +51,7 @@ export default function LandingIntegrationsTeaser() {
             <ul className="flex flex-1 flex-col gap-2 text-sm text-slate-700">
               {TEASER_POINTS.map(({ icon: Icon, label }) => (
                 <li key={label} className="flex items-center gap-2">
-                  <Icon className="h-4 w-4 shrink-0 text-violet-600" aria-hidden />
+                  <Icon className="h-4 w-4 shrink-0 text-teal-600" aria-hidden />
                   {label}
                 </li>
               ))}

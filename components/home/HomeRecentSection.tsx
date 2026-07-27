@@ -56,7 +56,7 @@ export default function HomeRecentSection({
                 onClick={() => onOpen(item)}
                 className={cn(
                   marketingGlassCard,
-                  'group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:border-violet-200',
+                  'group flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:border-teal-200',
                   marketingFocusRing
                 )}
               >
@@ -66,14 +66,14 @@ export default function HomeRecentSection({
                     {formatRelativeTime(item.updatedAt || item.createdAt)}
                   </span>
                   {modeLabel ? (
-                    <span className="font-medium text-violet-700">{modeLabel}</span>
+                    <span className="font-medium text-teal-700">{modeLabel}</span>
                   ) : null}
                 </span>
                 <p className="min-w-0 flex-1 truncate text-sm font-medium text-slate-800">
                   {previewText(item.content) || 'Untitled draft'}
                 </p>
                 <ArrowRight
-                  className="h-4 w-4 shrink-0 text-slate-300 transition-colors group-hover:text-violet-600"
+                  className="h-4 w-4 shrink-0 text-slate-300 transition-colors group-hover:text-teal-600"
                   aria-hidden
                 />
               </button>

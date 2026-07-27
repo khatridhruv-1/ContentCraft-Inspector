@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { HELP_TROUBLESHOOTING_ITEMS } from '@/lib/marketing/helpContent';
-import { marketingFocusRing } from '@/lib/marketing/marketingTheme';
+import { marketingFocusRing, marketingPageContainerTight } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 const STATIC_RESULTS = [
@@ -27,7 +27,7 @@ export default function HelpSearch() {
   }, [query]);
 
   return (
-    <div className="mx-auto mb-8 max-w-xl px-6">
+    <div className={cn(marketingPageContainerTight, 'mb-8')}>
       <label htmlFor="help-search" className="sr-only">
         Search help
       </label>

@@ -1,21 +1,17 @@
 import Link from 'next/link';
 import BlogCreatorLogo from '@/components/brand/BlogCreatorLogo';
-import { marketingMutedLink } from '@/lib/marketing/marketingTheme';
+import { marketingMutedLink, marketingPageContainer } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 export const FOOTER_NAV_LINKS = [
   { label: 'About', href: '/about' },
-  { label: 'Samples', href: '/samples' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Newsletter', href: '/#newsletter' },
-  { label: 'Help Center', href: '/help' },
+  { label: 'Help', href: '/help' },
   { label: 'Integrations', href: '/integrate' },
-  { label: 'Status', href: '/status' },
-  { label: 'Changelog', href: '/changelog' },
-  { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Terms of Service', href: '/terms' },
   { label: 'Contact', href: '/contact' },
+  { label: 'Privacy', href: '/privacy' },
+  { label: 'Terms', href: '/terms' },
 ] as const;
 
 export type FooterNavLink = { label: string; href: string };
@@ -28,13 +24,13 @@ interface MarketingFooterProps {
 
 export default function MarketingFooter({
   className,
-  containerClassName = 'mx-auto w-full max-w-6xl px-4 sm:px-6',
+  containerClassName = marketingPageContainer,
   extraLinks = [],
 }: MarketingFooterProps) {
   const links: FooterNavLink[] = [...extraLinks, ...FOOTER_NAV_LINKS];
 
   return (
-    <footer className={cn('border-t border-slate-200 bg-white/50 py-10', className)}>
+    <footer className={cn('border-t border-slate-200 bg-white/50 py-12 md:py-14', className)}>
       <div className={containerClassName}>
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-between">
           <Link

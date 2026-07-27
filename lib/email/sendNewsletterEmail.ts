@@ -14,8 +14,7 @@ function buildResubscribeUrl(): string {
 
 export async function sendWelcomeNewsletterEmail(subscriber: NewsletterSubscriber): Promise<void> {
   if (!isEmailConfigured()) {
-    console.warn('RESEND_API_KEY not set — skipping welcome email.');
-    return;
+    throw new Error('RESEND_API_KEY is not set');
   }
 
   const unsubscribeUrl = buildUnsubscribeUrl(subscriber.unsubscribe_token);

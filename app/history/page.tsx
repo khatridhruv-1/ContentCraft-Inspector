@@ -162,7 +162,7 @@ export default function HistoryPage() {
   const getModeColor = (mode: HistoryMode) => {
     const colors: Record<string, string> = {
       'ai-generate': 'bg-blue-100 text-blue-800',
-      analyze: 'bg-purple-100 text-purple-800',
+      analyze: 'bg-teal-100 text-teal-800',
     };
     return colors[mode] ?? 'bg-gray-100 text-gray-600';
   };
@@ -362,7 +362,7 @@ export default function HistoryPage() {
             <button
               type="button"
               onClick={() => router.push('/dashboard?mode=ai-generate')}
-              className="mt-4 text-sm font-semibold text-violet-700 underline-offset-2 hover:underline"
+              className="mt-4 text-sm font-semibold text-teal-700 underline-offset-2 hover:underline"
             >
               Create your first draft
             </button>
@@ -404,7 +404,7 @@ export default function HistoryPage() {
                     setShowDetails(false);
                     void openInStudio(selectedItem);
                   }}
-                  className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+                  className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700"
                 >
                   Open in studio
                 </button>

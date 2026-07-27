@@ -8,13 +8,14 @@ import {
   marketingFocusRing,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainerNarrow,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 export default function HelpIntegrateCta() {
   return (
     <section className={marketingLandingSection} aria-labelledby="help-integrate-heading">
-      <div className="mx-auto max-w-3xl px-6">
+      <div className={marketingPageContainerNarrow}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -25,7 +26,7 @@ export default function HelpIntegrateCta() {
             'flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:text-left md:p-8'
           )}
         >
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
             <Terminal className="h-6 w-6" aria-hidden />
           </div>
           <div className="min-w-0 flex-1">

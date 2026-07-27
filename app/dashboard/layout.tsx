@@ -5,7 +5,7 @@ import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
 
 export const metadata: Metadata = {
   title: 'Dashboard — BlogCreator',
-  description: 'Generate AI content and run deep analysis in your workspace.',
+  description: 'Draft humanized content and run deep analysis in your workspace.',
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

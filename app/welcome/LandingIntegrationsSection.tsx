@@ -22,6 +22,7 @@ import {
   marketingFocusRing,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainer,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
@@ -30,7 +31,7 @@ import { cn } from '@/lib/utils';
 
 const HIGHLIGHT_ICONS = { mcp: Plug, skill: Sparkles } as const;
 const HIGHLIGHT_STYLES = {
-  mcp: { iconSurface: 'bg-violet-100', iconColor: 'text-violet-700', tag: 'MCP' },
+  mcp: { iconSurface: 'bg-teal-100', iconColor: 'text-teal-700', tag: 'MCP' },
   skill: { iconSurface: 'bg-sky-50', iconColor: 'text-sky-700', tag: 'Skill' },
 } as const;
 
@@ -48,12 +49,12 @@ export default function LandingIntegrationsSection() {
       className={marketingLandingSection}
       aria-labelledby="integrations-heading"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className={marketingPageContainer}>
         <ScrollReveal direction="up" className={marketingSectionHeader}>
-          <span className={cn('mb-4', marketingEyebrow)}>AI agent integrations</span>
+          <span className={cn('mb-4', marketingEyebrow)}>Workflow integrations</span>
           <h2 id="integrations-heading" className={marketingSectionTitle}>
             Use BlogCreator in{' '}
-            <span className={marketingAccentSpan}>any AI agent</span>
+            <span className={marketingAccentSpan}>your writing stack</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
             {INTEGRATION_HERO_SUBTITLE} Or call our REST API directly from your own apps and
@@ -199,7 +200,7 @@ export default function LandingIntegrationsSection() {
               {INTEGRATION_MCP_TOOLS.map(tool => (
                 <code
                   key={tool}
-                  className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-0.5 font-mono text-xs font-semibold text-violet-800"
+                  className="rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 font-mono text-xs font-semibold text-teal-800"
                 >
                   {tool}
                 </code>

@@ -6,12 +6,11 @@ import { LANDING_PLATFORMS } from '@/lib/marketing/landingPlatforms';
 import {
   marketingAccentSpan,
   marketingEyebrow,
-  marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainer,
   marketingSectionHeader,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
-import { scrollRevealProps } from '@/lib/marketing/scrollReveal';
 import { cn } from '@/lib/utils';
 
 export default function LandingPlatformSection() {
@@ -23,34 +22,36 @@ export default function LandingPlatformSection() {
       className={marketingLandingSection}
       aria-labelledby="platforms-heading"
     >
-      <div className="mx-auto max-w-6xl">
-        <ScrollReveal direction="up" className={marketingSectionHeader}>
-          <span className={cn('mb-4', marketingEyebrow)}>Platform-based generation</span>
-          <h2 id="platforms-heading" className={marketingSectionTitle}>
-            Generate content for{' '}
-            <span className={marketingAccentSpan}>where you publish</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-            Pick a platform before you generate — BlogCreator drafts in the right format, length,
-            and voice for your website, LinkedIn, Quora, Medium, or Substack.
-          </p>
+      <div className={marketingPageContainer}>
+        <ScrollReveal direction="up" className={cn(marketingSectionHeader, 'md:text-left')}>
+          <div className="md:max-w-2xl">
+            <span className={cn('mb-4', marketingEyebrow)}>Where you publish</span>
+            <h2 id="platforms-heading" className={marketingSectionTitle}>
+              One brief.{' '}
+              <span className={marketingAccentSpan}>Five native formats.</span>
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
+              Pick the destination first — BlogCreator shapes length, structure, and voice for
+              that channel so you stop reformatting generic chat output.
+            </p>
+          </div>
         </ScrollReveal>
 
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-          {LANDING_PLATFORMS.map(({ id, label, description }, i) => (
+        <ol className="divide-y divide-slate-200 border-y border-slate-200">
+          {LANDING_PLATFORMS.map(({ id, label, description }, index) => (
             <motion.li
               key={id}
-              {...scrollRevealProps(i % 2 === 0 ? 'left' : 'right', {
-                delay: i * 0.06,
-                reduced,
-              })}
-              className={cn(marketingGlassCard, 'list-none p-5 md:p-6')}
+              initial={reduced ? false : { opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.45, delay: index * 0.05 }}
+              className="grid gap-2 py-6 sm:grid-cols-[minmax(10rem,14rem)_1fr] sm:gap-8 md:py-7"
             >
-              <h3 className="mb-2 text-lg font-bold text-slate-900">{label}</h3>
-              <p className="text-sm leading-relaxed text-slate-600">{description}</p>
+              <p className="text-sm font-bold text-slate-900 md:text-base">{label}</p>
+              <p className="text-sm leading-relaxed text-slate-600 md:text-[15px]">{description}</p>
             </motion.li>
           ))}
-        </ul>
+        </ol>
       </div>
     </section>
   );

@@ -54,7 +54,7 @@ export default function HomeWorkspacePanel({
     >
       <div className={cn(marketingGlassCard, 'relative overflow-hidden p-6 md:p-8')}>
         <div
-          className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl"
+          className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-teal-500/10 blur-3xl"
           aria-hidden
         />
         <div

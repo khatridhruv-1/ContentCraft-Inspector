@@ -29,13 +29,17 @@ export async function sendEmail(input: {
   subject: string;
   html: string;
   text: string;
+  replyTo?: string;
+  fromName?: string;
 }): Promise<void> {
   const resend = getResend();
   const from = getNewsletterFromEmail();
+  const fromLabel = input.fromName ?? 'BlogCreator Daily';
 
   const { error } = await resend.emails.send({
-    from: `BlogCreator Daily <${from}>`,
+    from: `${fromLabel} <${from}>`,
     to: input.to,
+    replyTo: input.replyTo,
     subject: input.subject,
     html: input.html,
     text: input.text,

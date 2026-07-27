@@ -206,7 +206,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <DashboardResultCard title="Content score" icon={<Zap className="h-4 w-4 text-violet-400" />}>
+      <DashboardResultCard title="Content score" icon={<Zap className="h-4 w-4 text-teal-400" />}>
         <div className="flex items-center justify-center py-2">
           <motion.div
             className="relative h-40 w-40"
@@ -244,13 +244,13 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
       </DashboardResultCard>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <MetricCard icon={<Type className="h-4 w-4 text-violet-400" />} label="Word count" value={wordCount} />
-        <MetricCard icon={<Clock className="h-4 w-4 text-violet-400" />} label="Reading time" value={`${readingTime} min`} />
-        <MetricCard icon={<Type className="h-4 w-4 text-violet-400" />} label="Readability" value={`${Math.round(analysis.readability)}%`} />
-        <MetricCard icon={<AlertCircle className="h-4 w-4 text-violet-400" />} label="Tone" value={analysis.tone} />
+        <MetricCard icon={<Type className="h-4 w-4 text-teal-400" />} label="Word count" value={wordCount} />
+        <MetricCard icon={<Clock className="h-4 w-4 text-teal-400" />} label="Reading time" value={`${readingTime} min`} />
+        <MetricCard icon={<Type className="h-4 w-4 text-teal-400" />} label="Readability" value={`${Math.round(analysis.readability)}%`} />
+        <MetricCard icon={<AlertCircle className="h-4 w-4 text-teal-400" />} label="Tone" value={analysis.tone} />
       </div>
 
-      <DashboardResultCard title="Key insights" icon={<AlertCircle className="h-4 w-4 text-violet-400" />}>
+      <DashboardResultCard title="Key insights" icon={<AlertCircle className="h-4 w-4 text-teal-400" />}>
         <ul className="space-y-3">
           {analysis.keyInsights.map((insight, index) => (
             <motion.li key={index} className={dashboardListItem} initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: index * 0.05 }}>
@@ -261,7 +261,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
         </ul>
       </DashboardResultCard>
 
-      <DashboardResultCard title="Suggested improvements" icon={<Zap className="h-4 w-4 text-violet-400" />}>
+      <DashboardResultCard title="Suggested improvements" icon={<Zap className="h-4 w-4 text-teal-400" />}>
         <ul className="space-y-3">
           {analysis.improvements.map((improvement, index) => (
             <motion.li key={index} className={dashboardListItem} initial={{ x: -12, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: index * 0.05 }}>

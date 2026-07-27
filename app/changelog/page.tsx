@@ -6,6 +6,7 @@ import {
   marketingAccentSpan,
   marketingGlassCard,
   marketingPageClass,
+  marketingSubpageMain,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
@@ -44,7 +45,7 @@ const ENTRIES = [
     date: '2026-06-01',
     title: 'Platform launch',
     items: [
-      'Five-platform AI generation',
+      'Five-platform humanized drafts',
       'Keyword discovery and SEO analysis',
       'MCP tool and agent skill install',
       'Free tier for all users',
@@ -60,7 +61,7 @@ export default function ChangelogPage() {
     >
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="mx-auto max-w-2xl px-6 py-12">
+      <main className={marketingSubpageMain}>
         <h1 className={marketingSectionTitle}>
           Product <span className={marketingAccentSpan}>changelog</span>
         </h1>
@@ -69,7 +70,7 @@ export default function ChangelogPage() {
         <div className="mt-10 space-y-6">
           {ENTRIES.map(entry => (
             <article key={entry.date} className={cn(marketingGlassCard, 'p-5 md:p-6')}>
-              <p className="text-xs font-semibold text-violet-600">{entry.date}</p>
+              <p className="text-xs font-semibold text-teal-600">{entry.date}</p>
               <h2 className="mt-1 text-lg font-bold text-slate-900">{entry.title}</h2>
               <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-slate-600">
                 {entry.items.map(item => (

@@ -56,26 +56,29 @@ export default function TermsPage() {
 
       <LegalSection id="service" title="4. The Service">
         <p>
-          BlogCreator provides tools for AI-assisted content generation, editing, SEO and
-          readability analysis, and AI-detection scoring. Features may vary by plan. We may modify,
+          BlogCreator provides tools for humanized content drafting, editing, SEO and
+          readability analysis, and authenticity scoring. Features may vary by plan. We may modify,
           suspend, or discontinue features with reasonable notice where practicable.
         </p>
         <p>
-          The Service is provided on an &quot;as is&quot; and &quot;as available&quot; basis. AI
-          outputs are generated automatically and may contain errors, bias, or inaccuracies. You are
+          The Service is provided on an &quot;as is&quot; and &quot;as available&quot; basis. Generated
+          outputs may contain errors, bias, or inaccuracies. You are
           solely responsible for reviewing and using outputs appropriately.
         </p>
       </LegalSection>
 
       <LegalSection id="plans" title="5. Plans and billing">
         <p>
-          We offer free and paid subscription plans. Free plans may include usage limits (such as
-          monthly generation caps). Paid plans are billed according to the pricing shown at signup or
-          in your account settings.
+          During the public beta, the Free plan includes unlimited generations for individual use —
+          no credit card required. We may introduce fair-use limits or a paid Pro tier later; if we
+          do, we will announce changes before they take effect, and existing free accounts will keep
+          core access as described on our pricing page.
         </p>
         <p>
-          Subscriptions renew automatically unless cancelled before the renewal date. Refunds are
-          handled according to our refund policy stated at purchase or required by applicable law.
+          Paid plans (when offered) are billed according to the pricing shown at signup or in your
+          account settings. Subscriptions renew automatically unless cancelled before the renewal
+          date. Refunds are handled according to our refund policy stated at purchase or required by
+          applicable law.
         </p>
       </LegalSection>
 

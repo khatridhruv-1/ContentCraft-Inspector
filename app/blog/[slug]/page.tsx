@@ -7,9 +7,14 @@ import { BLOG_POSTS, getBlogPost } from '@/lib/marketing/blogPosts';
 import {
   MARKETING_PAGE_GRADIENT,
   marketingPageClass,
+  marketingSubpageMain,
 } from '@/lib/marketing/marketingTheme';
 import { absoluteUrl } from '@/lib/marketing/siteUrl';
 import { cn } from '@/lib/utils';
+import {
+  isFullBoldBlock,
+  renderInlineMarkdown,
+} from '@/lib/marketing/renderMarkdown';
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -40,8 +45,8 @@ export default async function BlogPostPage({ params }: PageProps) {
     >
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="mx-auto max-w-2xl px-6 py-12">
-        <Link href="/blog" className="text-sm font-medium text-violet-700 hover:underline">
+      <main className={marketingSubpageMain}>
+        <Link href="/blog" className="text-sm font-medium text-teal-700 hover:underline">
           ← All articles
         </Link>
         <p className="mt-6 text-xs text-slate-500">
@@ -52,14 +57,14 @@ export default async function BlogPostPage({ params }: PageProps) {
         </h1>
         <div className="prose-legal mt-8 space-y-4 text-base leading-relaxed text-slate-700">
           {post.body.split('\n\n').map((block, i) => {
-            if (block.startsWith('**') && block.endsWith('**')) {
+            if (isFullBoldBlock(block)) {
               return (
                 <p key={i} className="font-semibold text-slate-900">
                   {block.replace(/\*\*/g, '')}
                 </p>
               );
             }
-            return <p key={i}>{block}</p>;
+            return <p key={i}>{renderInlineMarkdown(block)}</p>;
           })}
         </div>
       </main>

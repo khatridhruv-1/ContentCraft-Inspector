@@ -6,7 +6,7 @@ export const PRICING_TIERS = [
     period: 'forever',
     description: 'Everything you need to draft, analyze, and publish — no credit card.',
     features: [
-      'AI generation for 5 platforms',
+      'Humanized drafts for 5 platforms',
       'Unlimited generations during beta',
       'Automatic keyword discovery',
       'Deep SEO & readability analysis',

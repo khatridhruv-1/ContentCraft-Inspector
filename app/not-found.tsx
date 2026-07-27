@@ -23,7 +23,7 @@ export default function NotFound() {
       <MarketingSubpageHeader maxWidth="6xl" />
 
       <main className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center">
-        <p className="text-sm font-semibold uppercase tracking-wide text-violet-600">404</p>
+        <p className="text-sm font-semibold uppercase tracking-wide text-teal-600">404</p>
         <h1 className={`${marketingSectionTitle} mt-2 text-balance`}>
           Page not <span className={marketingAccentSpan}>found</span>
         </h1>
@@ -31,25 +31,25 @@ export default function NotFound() {
           The page you are looking for does not exist or may have moved.
         </p>
         <nav className="mt-8 flex flex-wrap justify-center gap-3 text-sm font-semibold">
-          <Link href="/" className="text-violet-700 underline-offset-4 hover:underline">
+          <Link href="/" className="text-teal-700 underline-offset-4 hover:underline">
             Home
           </Link>
-          <Link href="/samples" className="text-violet-700 underline-offset-4 hover:underline">
+          <Link href="/samples" className="text-teal-700 underline-offset-4 hover:underline">
             Samples
           </Link>
-          <Link href="/pricing" className="text-violet-700 underline-offset-4 hover:underline">
+          <Link href="/pricing" className="text-teal-700 underline-offset-4 hover:underline">
             Pricing
           </Link>
-          <Link href="/blog" className="text-violet-700 underline-offset-4 hover:underline">
+          <Link href="/blog" className="text-teal-700 underline-offset-4 hover:underline">
             Blog
           </Link>
-          <Link href="/integrate" className="text-violet-700 underline-offset-4 hover:underline">
+          <Link href="/integrate" className="text-teal-700 underline-offset-4 hover:underline">
             Integrations
           </Link>
-          <Link href="/help" className="text-violet-700 underline-offset-4 hover:underline">
+          <Link href="/help" className="text-teal-700 underline-offset-4 hover:underline">
             Help Center
           </Link>
-          <Link href="/contact" className="text-violet-700 underline-offset-4 hover:underline">
+          <Link href="/contact" className="text-teal-700 underline-offset-4 hover:underline">
             Contact
           </Link>
         </nav>

@@ -31,7 +31,7 @@ export const STARTER_BRIEFS = [
     label: 'LinkedIn hook',
     platform: 'linkedin' as const,
     brief:
-      'Why platform-specific AI drafts beat generic chat output — contrarian take for B2B creators, short paragraphs, strong hook.',
+      'Why platform-specific drafts beat generic chat output — contrarian take for B2B creators, short paragraphs, strong hook.',
   },
   {
     label: 'Quora credibility',

@@ -44,9 +44,9 @@ export const dashboardResultCardTitle =
 
 export const dashboardResultCardBody = 'p-4';
 
-export const dashboardMetricValue = 'text-2xl font-bold text-violet-600';
+export const dashboardMetricValue = 'text-2xl font-bold text-teal-600';
 
 export const dashboardListItem =
   'flex items-start gap-3 border-b border-slate-200 pb-3 text-sm text-slate-600 last:border-0 last:pb-0';
 
-export const dashboardBullet = 'mt-1 text-violet-500';
+export const dashboardBullet = 'mt-1 text-teal-500';

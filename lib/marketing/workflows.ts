@@ -23,9 +23,9 @@ export const BLOGCREATOR_WORKFLOWS: BlogCreatorWorkflow[] = [
       'Choose a platform — website, LinkedIn, Quora, Medium, or Substack — then draft with auto-discovered keywords woven into format-specific, publish-ready content.',
     shortDescription: 'Platform picker + keyword discovery + tone control in one flow.',
     icon: Wand2,
-    iconSurface: 'bg-violet-100',
-    iconColor: 'text-violet-700',
-    hoverBorder: 'hover:border-violet-200',
+    iconSurface: 'bg-teal-100',
+    iconColor: 'text-teal-700',
+    hoverBorder: 'hover:border-teal-200',
     tag: 'AI Powered',
   },
   {

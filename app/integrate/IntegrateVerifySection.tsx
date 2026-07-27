@@ -7,13 +7,14 @@ import {
   MARKETING_EASE,
   marketingGlassCard,
   marketingLandingSection,
+  marketingPageContainerNarrow,
   marketingFocusRing,
 } from '@/lib/marketing/marketingTheme';
 import { INTEGRATION_GITHUB_REPO_URL } from '@/lib/marketing/integrationContent';
 import { cn } from '@/lib/utils';
 
 const VERIFY_STEPS = [
-  'Restart your editor or AI agent after install',
+  'Restart your editor or agent after install',
   'Ask your agent: "Use BlogCreator to generate a short blog outline about content marketing"',
   'Confirm you see a structured outline response (not a generic chat reply)',
 ] as const;
@@ -40,7 +41,7 @@ export default function IntegrateVerifySection() {
       className={marketingLandingSection}
       aria-labelledby="verify-heading"
     >
-      <div className="mx-auto max-w-3xl px-6">
+      <div className={marketingPageContainerNarrow}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -81,11 +82,11 @@ export default function IntegrateVerifySection() {
 
           <p className="mt-5 text-sm text-slate-600">
             Still stuck?{' '}
-            <Link href="/help#troubleshooting" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
+            <Link href="/help#troubleshooting" className={cn('font-semibold text-teal-700', marketingFocusRing)}>
               Help troubleshooting
             </Link>{' '}
             or{' '}
-            <Link href="/contact" className={cn('font-semibold text-violet-700', marketingFocusRing)}>
+            <Link href="/contact" className={cn('font-semibold text-teal-700', marketingFocusRing)}>
               contact support
             </Link>
             {' · '}
@@ -93,7 +94,7 @@ export default function IntegrateVerifySection() {
               href={INTEGRATION_GITHUB_REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className={cn('font-semibold text-violet-700', marketingFocusRing)}
+              className={cn('font-semibold text-teal-700', marketingFocusRing)}
             >
               GitHub repo
             </a>

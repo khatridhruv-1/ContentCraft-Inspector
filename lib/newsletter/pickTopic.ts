@@ -4,7 +4,7 @@ import type { DiscoveredKeyword } from '@/types/seo';
 
 const TREND_SEEDS = [
   'content marketing and SEO trends',
-  'AI writing and creator economy trends',
+  'Humanized writing and creator economy trends',
   'search engine optimization trends',
   'digital marketing and growth trends',
   'social media content trends',
