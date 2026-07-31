@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "pages:build": "next build && npx next-on-pages --skip-build",
-    "pages:deploy": "npx wrangler pages deploy .vercel/output/static --project-name contentcraft-inspector --branch main",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "pages:deploy": "npx wrangler pages deploy .vercel/output/static --project-name contentcraft-inspector --branch master --commit-dirty=true",
     "start": "next start",
     "lint": "next lint",
     "db:start": "supabase start",
