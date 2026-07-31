@@ -249,7 +249,11 @@ export default function Dashboard() {
 
   return (
     <div
-      className={cn('relative flex h-dvh min-h-0 flex-col overflow-hidden', marketingBgClass, marketingPageClass)}
+      className={cn(
+        'marketing-page relative flex h-dvh min-h-0 flex-col overflow-hidden',
+        marketingBgClass,
+        marketingPageClass
+      )}
       style={{ background: MARKETING_PAGE_GRADIENT }}
     >
       <MarketingDotGrid />

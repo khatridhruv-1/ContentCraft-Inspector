@@ -51,12 +51,12 @@ function emailShell(body: string, footerNote: string, unsubscribeUrl?: string): 
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:32px;">
           <tr>
             <td>
-              <p style="margin:0 0 8px;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#7c3aed;">BlogCreator Daily</p>
+              <p style="margin:0 0 8px;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#0f766e;">BlogCreator Daily</p>
               ${body}
               <hr style="margin:28px 0;border:none;border-top:1px solid #e2e8f0;" />
               <p style="margin:0;font-size:13px;line-height:1.5;color:#64748b;">${footerNote}</p>
               <p style="margin:12px 0 0;font-size:13px;">
-                <a href="${siteUrl}" style="color:#7c3aed;text-decoration:none;font-weight:600;">blogcreator.dev</a>
+                <a href="${siteUrl}" style="color:#0f766e;text-decoration:none;font-weight:600;">blogcreator.dev</a>
               </p>
               ${unsubscribeBlock}
             </td>
@@ -164,7 +164,7 @@ export function buildUnsubscribeConfirmationEmail(resubscribeUrl: string): {
      </p>
      <p style="margin:0;font-size:16px;line-height:1.65;color:#334155;">
        Changed your mind?
-       <a href="${resubscribeUrl}" style="color:#7c3aed;text-decoration:none;font-weight:600;">Resubscribe on blogcreator.dev</a>
+       <a href="${resubscribeUrl}" style="color:#0f766e;text-decoration:none;font-weight:600;">Resubscribe on blogcreator.dev</a>
      </p>`,
     'This confirms your unsubscribe request. No further action is needed.'
   );

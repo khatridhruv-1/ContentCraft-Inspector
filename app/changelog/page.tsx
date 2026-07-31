@@ -24,7 +24,7 @@ const ENTRIES = [
     title: 'Conversion & trust improvements',
     items: [
       'Pricing and samples pages',
-      'Beta testimonials and case study',
+      'Testimonials and case study',
       'Auth health check endpoint',
       'Expanded platform samples (5 channels)',
       'Header nav Samples + Pricing links',

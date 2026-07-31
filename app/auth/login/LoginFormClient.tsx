@@ -11,10 +11,10 @@ import OAuthButtons from '@/components/auth/OAuthButtons';
 import AuthTextField from '@/components/auth/AuthTextField';
 import AuthSubmitButton from '@/components/auth/AuthSubmitButton';
 import AuthFormStagger from '@/components/auth/AuthFormStagger';
-import { MARKETING_EASE } from '@/lib/marketing/marketingTheme';
-import { marketingLink } from '@/lib/marketing/marketingTheme';
+import { MARKETING_EASE, marketingLink } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 import PageLoadingScreen from '@/components/loading/PageLoadingScreen';
+
 interface ValidationError {
   field: string;
   message: string;
@@ -110,7 +110,7 @@ export default function LoginFormClient() {
   return (
     <>
       {returnLabel && (
-        <p className="-mt-3 mb-6 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-900/90">
+        <p className="-mt-2 mb-6 rounded-xl border border-teal-200/80 bg-white/70 px-4 py-3 text-sm text-teal-900/90">
           After sign in you&apos;ll return to{' '}
           <span className="font-semibold text-teal-950">{returnLabel}</span>.
         </p>
@@ -118,6 +118,8 @@ export default function LoginFormClient() {
 
       <motion.form onSubmit={handleSubmit} animate={shakeControls}>
         <AuthFormStagger>
+          <OAuthButtons mode="login" returnUrl={returnUrl} placement="above" />
+
           <AuthTextField
             id="email"
             name="email"
@@ -157,14 +159,12 @@ export default function LoginFormClient() {
             Sign in
           </AuthSubmitButton>
 
-          <OAuthButtons mode="login" returnUrl={returnUrl} />
-
-          <p className="!mt-6 text-center text-sm text-slate-600">
+          <p className="!mt-5 text-center text-sm text-slate-600">
             New here?{' '}
             <Link
               href="/auth/signup"
               className={cn(
-                'font-semibold text-slate-900 underline-offset-2 hover:underline',
+                'font-semibold text-teal-800 underline-offset-2 hover:underline',
                 marketingLink
               )}
             >

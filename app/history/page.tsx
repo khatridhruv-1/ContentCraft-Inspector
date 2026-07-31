@@ -186,7 +186,14 @@ export default function HistoryPage() {
 
   if (!user && !loading) {
     return (
-      <div className={cn('relative flex min-h-dvh flex-col', marketingBgClass, marketingPageClass)}>
+      <div
+        className={cn(
+          'marketing-page relative flex min-h-dvh flex-col',
+          marketingBgClass,
+          marketingPageClass
+        )}
+        style={{ background: MARKETING_PAGE_GRADIENT }}
+      >
         <HomeNav />
         <div className={cn('flex flex-1 items-center justify-center px-6 py-12', homeContainer)}>
           <p className="text-center text-slate-500">Please log in to view your history.</p>
@@ -198,7 +205,11 @@ export default function HistoryPage() {
   if (loading) {
     return (
       <div
-        className={cn('relative flex min-h-dvh flex-col', marketingBgClass, marketingPageClass)}
+        className={cn(
+          'marketing-page relative flex min-h-dvh flex-col',
+          marketingBgClass,
+          marketingPageClass
+        )}
         style={{ background: MARKETING_PAGE_GRADIENT }}
       >
         <HomeNav />
@@ -216,7 +227,11 @@ export default function HistoryPage() {
 
   return (
     <div
-      className={cn('relative flex min-h-dvh flex-col', marketingBgClass, marketingPageClass)}
+      className={cn(
+        'marketing-page relative flex min-h-dvh flex-col',
+        marketingBgClass,
+        marketingPageClass
+      )}
       style={{ background: MARKETING_PAGE_GRADIENT }}
     >
       <a href="#history-main" className={marketingSkipLink}>
@@ -320,7 +335,7 @@ export default function HistoryPage() {
                       </button>
                       <button
                         type="button"
-                        className="text-left text-sm font-medium text-blue-600 hover:text-blue-800"
+                        className="text-left text-sm font-medium text-teal-700 hover:text-teal-900"
                         onClick={() => openInStudio(item)}
                       >
                         Open in studio

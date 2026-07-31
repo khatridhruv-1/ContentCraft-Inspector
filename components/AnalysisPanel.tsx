@@ -217,8 +217,8 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
             <svg className="h-full w-full" viewBox="0 0 100 100" aria-hidden>
               <defs>
                 <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: '#8b5cf6', stopOpacity: 1 }} />
-                  <stop offset="100%" style={{ stopColor: '#a78bfa', stopOpacity: 1 }} />
+                  <stop offset="0%" style={{ stopColor: '#0d9488', stopOpacity: 1 }} />
+                  <stop offset="100%" style={{ stopColor: '#14b8a6', stopOpacity: 1 }} />
                 </linearGradient>
               </defs>
               <circle className="text-slate-200" cx="50" cy="50" r="40" fill="transparent" strokeWidth="8" stroke="currentColor" />

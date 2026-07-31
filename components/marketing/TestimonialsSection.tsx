@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Quote } from 'lucide-react';
 import ScrollReveal from '@/components/marketing/ScrollReveal';
-import { BETA_TESTIMONIALS } from '@/lib/marketing/testimonials';
+import { TESTIMONIALS } from '@/lib/marketing/testimonials';
 import {
   MARKETING_EASE,
   marketingAccentSpan,
@@ -25,7 +25,7 @@ function getInitials(name: string): string {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
-export default function BetaTestimonialsSection() {
+export default function TestimonialsSection() {
   const reduced = useReducedMotion();
 
   return (
@@ -35,18 +35,18 @@ export default function BetaTestimonialsSection() {
     >
       <div className={marketingPageContainer}>
         <ScrollReveal className={marketingSectionHeader}>
-          <span className={marketingEyebrow}>Early beta feedback</span>
+          <span className={marketingEyebrow}>Customer feedback</span>
           <h2 id="testimonials-heading" className={marketingSectionTitle}>
-            What beta testers{' '}
+            What users{' '}
             <span className={marketingAccentSpan}>are saying</span>
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base text-slate-600">
-            Quotes from private beta users — July 2026. Names used with permission.
+            Quotes from early users — July 2026. Names used with permission.
           </p>
         </ScrollReveal>
 
         <div className="grid gap-4 md:grid-cols-3">
-          {BETA_TESTIMONIALS.map((item, index) => (
+          {TESTIMONIALS.map((item, index) => (
             <ScrollReveal key={item.name} delay={index * 0.08}>
               <motion.article
                 whileHover={

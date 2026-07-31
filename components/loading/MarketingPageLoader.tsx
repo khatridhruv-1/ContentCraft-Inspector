@@ -9,7 +9,7 @@ type MarketingPageLoaderProps = {
 };
 
 /**
- * Ranked Draft Pulse — logo breathe, violet ripples, orbiting workflow dots,
+ * Ranked Draft Pulse — logo breathe, teal ripples, orbiting workflow dots,
  * drafting lines + SEO bars echoing the BlogCreator icon.
  */
 export function MarketingPageLoader({ className }: MarketingPageLoaderProps) {

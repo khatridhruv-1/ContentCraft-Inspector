@@ -8,6 +8,7 @@ import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
 import { NEWSLETTER_SAMPLE_ISSUES } from '@/lib/newsletter/sampleIssue';
 import {
+  MARKETING_PAGE_GRADIENT,
   marketingFocusRing,
   marketingGlassCard,
   marketingMutedLink,
@@ -24,8 +25,11 @@ export default function NewsletterSampleClient() {
     NEWSLETTER_SAMPLE_ISSUES.find(i => i.id === issueId) ?? NEWSLETTER_SAMPLE_ISSUES[0];
 
   return (
-    <div className={cn('min-h-screen bg-slate-50', marketingPageClass)}>
-      <header className="border-b border-slate-200 bg-white/80 py-4 backdrop-blur-sm">
+    <div
+      className={cn('marketing-page min-h-screen', marketingPageClass)}
+      style={{ background: MARKETING_PAGE_GRADIENT }}
+    >
+      <header className="border-b border-slate-200 bg-white/70 py-4 backdrop-blur-sm">
         <div className={cn(marketingPageContainerTight, 'flex items-center justify-between gap-4')}>
           <Link
             href="/#newsletter"

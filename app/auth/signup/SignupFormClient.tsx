@@ -133,6 +133,8 @@ export default function SignupFormClient() {
   return (
     <motion.form onSubmit={handleSubmit} autoComplete="on">
       <AuthFormStagger>
+        <OAuthButtons mode="signup" placement="above" />
+
         <AuthTextField
           id="name"
           name="name"
@@ -177,35 +179,24 @@ export default function SignupFormClient() {
 
         <ErrorAlert message={error?.field === 'general' ? error.message : ''} />
 
-        <p className="text-xs leading-relaxed text-slate-500">
-          By continuing, you agree to our{' '}
-          <Link href="/terms" className={marketingLink}>
-            Terms
-          </Link>{' '}
-          and{' '}
-          <Link href="/privacy" className={marketingLink}>
-            Privacy Policy
-          </Link>
-          .
-        </p>
-
         <AuthSubmitButton loading={loading} loadingText="Creating account...">
           Create account
         </AuthSubmitButton>
 
-        <OAuthButtons mode="signup" />
-
-        <p className="!mt-6 text-center text-sm text-slate-600">
+        <p className="!mt-5 text-center text-sm text-slate-600">
           Already have an account?{' '}
           <Link
             href="/auth/login"
             className={cn(
-              'font-semibold text-slate-900 underline-offset-2 hover:underline',
+              'font-semibold text-teal-800 underline-offset-2 hover:underline',
               marketingLink
             )}
           >
             Sign in
           </Link>
+        </p>
+        <p className="!mt-3 text-center text-xs text-slate-500">
+          Free forever · No credit card
         </p>
       </AuthFormStagger>
     </motion.form>

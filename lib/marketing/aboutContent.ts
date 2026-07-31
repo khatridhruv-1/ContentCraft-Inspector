@@ -23,7 +23,7 @@ export const ABOUT_FOUNDERS: AboutTeamMember[] = [
 ];
 
 export const ABOUT_PROOF_POINTS = [
-  '4 posts in her first week — beta case study',
+  '4 posts in her first week — customer story',
   'MCP install in one Terminal command',
   'Platform-native LinkedIn structure, not blog dumps',
 ] as const;

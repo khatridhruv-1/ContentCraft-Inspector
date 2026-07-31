@@ -21,11 +21,11 @@ export default function AuthFormStagger({ children }: { children: ReactNode }) {
   const reduced = useReducedMotion();
 
   if (reduced) {
-    return <div className="space-y-5">{children}</div>;
+    return <div className="space-y-4">{children}</div>;
   }
 
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="space-y-5">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
       {Children.map(children, (child, index) => (
         <motion.div key={index} variants={item}>
           {child}

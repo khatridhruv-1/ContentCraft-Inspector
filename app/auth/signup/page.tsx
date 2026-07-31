@@ -6,8 +6,9 @@ export default function SignupPage() {
     <>
       <AuthFormHeaderStatic
         badge="Get started"
-        title="Create your account"
-        subtitle="Free for everyone · Set up in under two minutes."
+        title="Create your"
+        titleAccent="workspace"
+        subtitle="Humanized drafts for the platforms you publish on."
       />
       <SignupFormClient />
     </>

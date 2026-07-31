@@ -25,10 +25,7 @@ interface AuthTextFieldProps {
   placeholder?: string;
 }
 
-const fieldShell = cn(
-  'auth-field flex h-11 w-full pl-2.5 pr-2',
-  marketingFieldShell
-);
+const fieldShell = cn('auth-field flex h-11 w-full pl-3 pr-2', marketingFieldShell);
 
 export default function AuthTextField({
   id,

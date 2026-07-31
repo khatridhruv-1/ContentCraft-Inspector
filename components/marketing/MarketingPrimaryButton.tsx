@@ -46,7 +46,8 @@ export default function MarketingPrimaryButton({
       className={cn(
         marketingPrimaryButtonCore,
         marketingPrimaryButtonSizes[size],
-        fullWidth === false && size === 'md' && 'w-auto',
+        fullWidth === false && 'w-auto',
+        fullWidth === true && 'w-full',
         'group',
         marketingFocusRing,
         className

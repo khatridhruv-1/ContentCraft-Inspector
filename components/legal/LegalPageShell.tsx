@@ -9,6 +9,7 @@ import {
   MARKETING_EASE,
   MARKETING_PAGE_GRADIENT,
   marketingPageClass,
+  marketingPageContainer,
   marketingSectionTitle,
 } from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
@@ -28,17 +29,17 @@ export default function LegalPageShell({
 
   return (
     <div
-      className={`marketing-page min-h-screen overflow-x-hidden ${marketingPageClass}`}
+      className={cn('marketing-page min-h-screen overflow-x-hidden', marketingPageClass)}
       style={{ background: MARKETING_PAGE_GRADIENT }}
     >
       <MarketingSubpageHeader maxWidth="6xl" />
 
-      <main className="px-4 py-12 sm:px-6">
+      <main className={cn(marketingPageContainer, 'py-12 md:py-16')}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: MARKETING_EASE }}
-          className="mx-auto mb-14 max-w-6xl text-center"
+          className="mb-14 text-center"
         >
           <h1 className={cn(marketingSectionTitle, 'text-balance break-words')}>{heading}</h1>
           {description && (

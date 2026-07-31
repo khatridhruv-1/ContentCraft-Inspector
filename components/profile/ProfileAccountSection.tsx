@@ -117,8 +117,8 @@ export default function ProfileAccountSection({
 
         <SettingRow
           icon={Fingerprint}
-          iconSurface="bg-indigo-50"
-          iconColor="text-indigo-700"
+          iconSurface="bg-teal-50"
+          iconColor="text-teal-800"
           title="User ID"
           description="For support"
         >

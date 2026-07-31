@@ -58,7 +58,7 @@ export default function HomeWorkspacePanel({
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -bottom-24 -left-12 h-40 w-40 rounded-full bg-indigo-500/8 blur-3xl"
+          className="pointer-events-none absolute -bottom-24 -left-12 h-40 w-40 rounded-full bg-teal-500/10 blur-3xl"
           aria-hidden
         />
 

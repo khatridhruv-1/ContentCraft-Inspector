@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
-import { BETA_CASE_STUDY } from '@/lib/marketing/caseStudy';
+import { CASE_STUDY } from '@/lib/marketing/caseStudy';
 import { ABOUT_FOUNDERS, ABOUT_PROOF_POINTS, ABOUT_ORIGIN } from '@/lib/marketing/aboutContent';
-import { BETA_TESTIMONIALS } from '@/lib/marketing/testimonials';
+import { TESTIMONIALS } from '@/lib/marketing/testimonials';
 import {
   MARKETING_PAGE_GRADIENT,
   marketingAccentSpan,
@@ -80,13 +80,13 @@ export default function AboutPage() {
         </section>
 
         <section className={cn(marketingGlassCard, 'mt-6 p-6 md:p-8')}>
-          <h2 className="text-lg font-bold text-slate-900">Proof from beta</h2>
-          <p className="mt-3 text-sm leading-relaxed text-slate-600">{BETA_CASE_STUDY.summary}</p>
+          <h2 className="text-lg font-bold text-slate-900">Customer stories</h2>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">{CASE_STUDY.summary}</p>
           <p className="mt-2 text-2xl font-black tracking-tight text-slate-900">
-            {BETA_CASE_STUDY.metric}
+            {CASE_STUDY.metric}
           </p>
           <ul className="mt-4 flex flex-wrap gap-2">
-            {BETA_CASE_STUDY.highlights.map(item => (
+            {CASE_STUDY.highlights.map(item => (
               <li
                 key={item}
                 className="rounded-lg bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-800"
@@ -96,12 +96,12 @@ export default function AboutPage() {
             ))}
           </ul>
           <footer className="mt-4 border-t border-slate-200 pt-4 text-sm text-slate-500">
-            <span className="font-semibold text-slate-900">{BETA_CASE_STUDY.attribution}</span>
+            <span className="font-semibold text-slate-900">{CASE_STUDY.attribution}</span>
             {' · '}
-            {BETA_CASE_STUDY.role} at {BETA_CASE_STUDY.company}
+            {CASE_STUDY.role} at {CASE_STUDY.company}
           </footer>
           <ul className="mt-6 space-y-4 border-t border-slate-200 pt-6">
-            {BETA_TESTIMONIALS.map(item => (
+            {TESTIMONIALS.map(item => (
               <li key={item.name}>
                 <blockquote className="text-sm italic leading-relaxed text-slate-700">
                   &ldquo;{item.quote}&rdquo;

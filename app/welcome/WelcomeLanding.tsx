@@ -10,7 +10,7 @@ import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButto
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingDotGrid from '@/components/marketing/MarketingDotGrid';
 import LandingMobileNav from '@/components/marketing/LandingMobileNav';
-import BetaTestimonialsSection from '@/components/marketing/BetaTestimonialsSection';
+import TestimonialsSection from '@/components/marketing/TestimonialsSection';
 import TryTopicWidget from '@/components/marketing/TryTopicWidget';
 import LandingIntegrationsTeaser from '@/app/welcome/LandingIntegrationsTeaser';
 import FaqSection from '@/app/welcome/FaqSection';
@@ -176,7 +176,7 @@ export default function WelcomeLanding({ heroSlot }: WelcomeLandingProps) {
 
         <TryTopicWidget />
 
-        <BetaTestimonialsSection />
+        <TestimonialsSection />
 
         <ChatGptComparisonSection />
 
@@ -187,11 +187,11 @@ export default function WelcomeLanding({ heroSlot }: WelcomeLandingProps) {
         <FaqSection compact />
 
         <section
-          className="relative scroll-mt-24 py-16 md:py-20 lg:py-24"
+          className={cn('relative scroll-mt-24', 'py-10 md:py-12 lg:py-14')}
           aria-labelledby="closing-cta-heading"
         >
           <div className={cn(marketingPageContainer)}>
-            <div className="relative overflow-hidden rounded-2xl border border-teal-200/70 bg-gradient-to-br from-teal-50 via-white to-sky-50 px-6 py-12 text-center md:px-12 md:py-16">
+            <div className="relative overflow-hidden rounded-2xl border border-teal-200/70 bg-gradient-to-br from-teal-50 via-white to-sky-50 px-6 py-10 text-center md:px-12 md:py-12">
               <div
                 className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-teal-300/20 blur-3xl"
                 aria-hidden
@@ -204,7 +204,7 @@ export default function WelcomeLanding({ heroSlot }: WelcomeLandingProps) {
                 <span className={marketingAccentSpan}>actually publish on</span>?
               </h2>
               <p className="relative mx-auto mt-4 max-w-lg text-base leading-relaxed text-slate-600">
-                Free during beta. Humanized drafts, keyword discovery, and SEO analysis — no credit
+                Free forever. Humanized drafts, keyword discovery, and SEO analysis — no credit
                 card.
               </p>
               <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">

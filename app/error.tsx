@@ -2,7 +2,14 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { MARKETING_PAGE_GRADIENT, marketingFocusRing, marketingPageClass } from '@/lib/marketing/marketingTheme';
+import BlogCreatorNavBrand from '@/components/brand/BlogCreatorNavBrand';
+import {
+  MARKETING_PAGE_GRADIENT,
+  marketingAccentSpan,
+  marketingFocusRing,
+  marketingPageClass,
+  marketingSectionTitle,
+} from '@/lib/marketing/marketingTheme';
 import { cn } from '@/lib/utils';
 
 export default function Error({
@@ -18,12 +25,20 @@ export default function Error({
 
   return (
     <div
-      className={cn('flex min-h-screen flex-col items-center justify-center px-6', marketingPageClass)}
+      className={cn(
+        'marketing-page flex min-h-screen flex-col items-center justify-center px-6',
+        marketingPageClass
+      )}
       style={{ background: MARKETING_PAGE_GRADIENT }}
     >
-      <p className="text-xs font-semibold uppercase tracking-widest text-teal-800">Something went wrong</p>
-      <h1 className="mt-3 text-center text-3xl font-black tracking-tight text-slate-900 md:text-4xl">
-        We hit an unexpected error
+      <Link href="/" className={cn('mb-8', marketingFocusRing)} aria-label="BlogCreator home">
+        <BlogCreatorNavBrand />
+      </Link>
+      <p className="text-xs font-semibold uppercase tracking-widest text-teal-800">
+        Something went wrong
+      </p>
+      <h1 className={cn(marketingSectionTitle, 'mt-3 text-center text-balance')}>
+        We hit an unexpected <span className={marketingAccentSpan}>error</span>
       </h1>
       <p className="mt-3 max-w-md text-center text-sm leading-relaxed text-slate-600">
         Try again. If it keeps happening, return home or contact support.

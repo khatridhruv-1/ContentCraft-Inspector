@@ -69,10 +69,10 @@ export default function TermsPage() {
 
       <LegalSection id="plans" title="5. Plans and billing">
         <p>
-          During the public beta, the Free plan includes unlimited generations for individual use —
-          no credit card required. We may introduce fair-use limits or a paid Pro tier later; if we
-          do, we will announce changes before they take effect, and existing free accounts will keep
-          core access as described on our pricing page.
+          The Free plan includes unlimited generations for individual use — no credit card required.
+          We may introduce fair-use limits or a paid Pro tier later; if we do, we will announce
+          changes before they take effect, and existing free accounts will keep core access as
+          described on our pricing page.
         </p>
         <p>
           Paid plans (when offered) are billed according to the pricing shown at signup or in your

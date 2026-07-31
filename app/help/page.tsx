@@ -32,7 +32,7 @@ export default function HelpPage() {
 
   return (
     <div
-      className={`min-h-screen ${marketingPageClass}`}
+      className={cn('marketing-page min-h-screen', marketingPageClass)}
       style={{ background: MARKETING_PAGE_GRADIENT }}
     >
       <MarketingSubpageHeader maxWidth="6xl" />

@@ -8,8 +8,9 @@ export default function LoginPage() {
     <>
       <AuthFormHeaderStatic
         badge="Welcome back"
-        title="Sign in to your workspace"
-        subtitle="Pick up drafts, edits, and analysis right where you left off."
+        title="Sign in to"
+        titleAccent="BlogCreator"
+        subtitle="Pick up drafts and analysis where you left off."
       />
       <Suspense fallback={<PageLoadingScreen label="Loading sign in" />}>
         <LoginFormClient />

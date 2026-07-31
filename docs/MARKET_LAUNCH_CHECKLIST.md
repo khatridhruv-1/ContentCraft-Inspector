@@ -64,8 +64,8 @@ Redeploy after any env change.
 
 ## Content honesty
 
-- Pricing Free: unlimited generations **during beta**
-- Terms §5: matches beta language (no conflicting “monthly caps” for free beta)
+- Pricing Free: unlimited generations
+- Terms §5: matches free-plan language (no conflicting “monthly caps” for free tier)
 - Blog read times: short posts stay ~1 min
 - Samples / blog: markdown rendered (no literal `**`)
 

@@ -1,12 +1,12 @@
-export type BetaTestimonial = {
+export type Testimonial = {
   quote: string;
   name: string;
   role: string;
   context: string;
 };
 
-/** Early beta feedback — real quotes from private beta testers (Jul 2026). */
-export const BETA_TESTIMONIALS: BetaTestimonial[] = [
+/** Quotes from early users (Jul 2026). */
+export const TESTIMONIALS: Testimonial[] = [
   {
     quote:
       'Platform mode for LinkedIn actually changes the structure. Short paragraphs, strong hook — not a blog post dumped into a feed.',

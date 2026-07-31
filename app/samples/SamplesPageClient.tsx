@@ -4,18 +4,17 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, ChevronDown } from 'lucide-react';
-import BlogCreatorNavBrand from '@/components/brand/BlogCreatorNavBrand';
+import { ChevronDown } from 'lucide-react';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import MarketingPrimaryButton from '@/components/marketing/MarketingPrimaryButton';
+import MarketingSubpageHeader from '@/components/marketing/MarketingSubpageHeader';
 import { SAMPLE_OUTPUTS } from '@/lib/marketing/sampleOutputs';
 import {
   MARKETING_EASE,
+  MARKETING_PAGE_GRADIENT,
   marketingAccentSpan,
   marketingFocusRing,
   marketingGlassCard,
-  marketingMutedLink,
-  marketingPageContainerNarrow,
   marketingPageClass,
   marketingSubpageMain,
 } from '@/lib/marketing/marketingTheme';
@@ -59,21 +58,11 @@ export default function SamplesPageClient() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
-    <div className={cn('min-h-screen bg-slate-50', marketingPageClass)}>
-      <header className="border-b border-slate-200 bg-white/80 py-4 backdrop-blur-sm">
-        <div className={cn(marketingPageContainerNarrow, 'flex items-center justify-between gap-4')}>
-          <Link
-            href="/"
-            className={cn('inline-flex items-center gap-2 text-sm', marketingMutedLink, marketingFocusRing)}
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden />
-            Back to home
-          </Link>
-          <Link href="/" aria-label="BlogCreator home" className={marketingFocusRing}>
-            <BlogCreatorNavBrand />
-          </Link>
-        </div>
-      </header>
+    <div
+      className={cn('marketing-page min-h-screen', marketingPageClass)}
+      style={{ background: MARKETING_PAGE_GRADIENT }}
+    >
+      <MarketingSubpageHeader maxWidth="3xl" />
 
       <main className={marketingSubpageMain}>
         <motion.div

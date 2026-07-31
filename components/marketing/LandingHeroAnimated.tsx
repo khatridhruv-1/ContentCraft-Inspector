@@ -97,7 +97,7 @@ export default function LandingHeroAnimated() {
         initial={reduced ? false : { y: 16, opacity: 0 }}
         animate={ready ? { y: 0, opacity: 1 } : reduced ? undefined : { y: 16, opacity: 0 }}
         transition={{ duration: 0.6, delay: 0.1, ease: MARKETING_EASE }}
-        className="w-full pb-12 pt-6 sm:pb-16 md:pb-20 lg:pb-24"
+        className="w-full pb-8 pt-4 sm:pb-10 md:pb-12"
       >
         <div className="relative">
           <div

@@ -63,8 +63,8 @@ export const marketingPrimaryButtonCore = cn(
 export const marketingPrimaryButtonSizes = {
   sm: 'h-9 px-4 text-sm font-medium',
   md: 'h-11 w-full px-5 text-sm font-medium',
-  lg: 'h-12 px-8 text-base font-semibold shadow-md',
-  xl: 'h-14 px-8 text-base font-bold shadow-lg',
+  lg: 'h-12 w-full px-8 text-base font-semibold shadow-md',
+  xl: 'h-14 w-full px-8 text-base font-bold shadow-lg',
 } as const;
 
 export const marketingGhostButton = cn(
@@ -135,9 +135,9 @@ export const marketingLandingHero = cn(
 );
 
 /** Landing sections — consistent vertical band */
-export const marketingLandingSection = 'relative scroll-mt-24 py-16 md:py-20 lg:py-24';
+export const marketingLandingSection = 'relative scroll-mt-24 py-10 md:py-12 lg:py-14';
 
-export const marketingSectionHeader = 'mb-10 text-center md:mb-12';
+export const marketingSectionHeader = 'mb-6 text-center md:mb-8';
 
 /** Divider line — no extra vertical padding (sections own the rhythm) */
 export const marketingSectionDividerWrap = cn(marketingPageContainer, 'py-0');
