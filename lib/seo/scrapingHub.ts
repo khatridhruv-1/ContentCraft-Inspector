@@ -77,7 +77,11 @@ async function scrapingHubRequest<T>(
       payload?.detail ||
       payload?.error ||
       `Scraping Hub request failed (HTTP ${response.status}).`;
-    throw new Error(message);
+    throw new Error(
+      response.status === 401 || response.status === 403
+        ? `Scraping Hub auth failed: ${message}. Check SCRAPING_HUB_API_KEY.`
+        : message
+    );
   }
 
   if (!payload) {

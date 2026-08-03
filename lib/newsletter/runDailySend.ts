@@ -2,6 +2,7 @@ import { sendDailyNewsletterToSubscriber } from '@/lib/email/sendNewsletterEmail
 import { isEmailConfigured } from '@/lib/email/resend';
 import { generateDailyNewsletterIssue } from '@/lib/newsletter/generateDailyIssue';
 import { listActiveSubscribers, logNewsletterIssue } from '@/lib/newsletter/subscribers';
+import { OllamaAuthError } from '@/lib/ai/ollama';
 
 export type DailyNewsletterSendResult = {
   message: string;
@@ -10,6 +11,11 @@ export type DailyNewsletterSendResult = {
   failed: number;
   failures: string[];
 };
+
+function stageError(stage: string, hint: string, error: unknown): Error {
+  const detail = error instanceof Error ? error.message : String(error);
+  return new Error(`[${stage}] ${detail} — ${hint}`);
+}
 
 export async function runDailyNewsletterSend(): Promise<DailyNewsletterSendResult> {
   if (!process.env.OLLAMA_API_KEY?.trim() || !process.env.SCRAPING_HUB_API_KEY?.trim()) {
@@ -24,13 +30,52 @@ export async function runDailyNewsletterSend(): Promise<DailyNewsletterSendResul
     throw new Error('Supabase admin env is not configured.');
   }
 
-  const subscribers = await listActiveSubscribers();
+  let subscribers;
+  try {
+    subscribers = await listActiveSubscribers();
+  } catch (error) {
+    throw stageError(
+      'supabase',
+      'Check NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY match the same project (service_role key, not anon).',
+      error
+    );
+  }
 
   if (!subscribers.length) {
     return { message: 'No active subscribers.', sent: 0, failed: 0, failures: [] };
   }
 
-  const issue = await generateDailyNewsletterIssue();
+  console.log(`[daily-newsletter] ${subscribers.length} active subscriber(s); generating issue…`);
+
+  let issue;
+  try {
+    issue = await generateDailyNewsletterIssue();
+  } catch (error) {
+    if (error instanceof OllamaAuthError) {
+      throw stageError(
+        'ollama',
+        'Check OLLAMA_API_KEY at https://ollama.com/settings/keys (Cloud API key, not SSH).',
+        error
+      );
+    }
+
+    const detail = error instanceof Error ? error.message.toLowerCase() : '';
+    if (detail.includes('scraping') || detail.includes('api key') || detail.includes('401')) {
+      throw stageError(
+        'scraping-hub-or-ollama',
+        'Verify SCRAPING_HUB_API_KEY and OLLAMA_API_KEY. Topic pick hits Scraping Hub first; content gen hits Ollama.',
+        error
+      );
+    }
+
+    throw stageError(
+      'generate',
+      'Failed while picking topic (Scraping Hub) or drafting content (Ollama).',
+      error
+    );
+  }
+
+  console.log(`[daily-newsletter] Topic: ${issue.topic}; sending…`);
 
   let sent = 0;
   const failures: string[] = [];
@@ -46,11 +91,23 @@ export async function runDailyNewsletterSend(): Promise<DailyNewsletterSendResul
     }
   }
 
-  await logNewsletterIssue({
-    topic: issue.topic,
-    contentPreview: issue.content,
-    subscriberCount: sent,
-  });
+  if (sent === 0 && failures.length > 0) {
+    throw stageError(
+      'resend',
+      'Check RESEND_API_KEY and that NEWSLETTER_FROM_EMAIL is a verified sender domain.',
+      new Error(failures[0] ?? 'All sends failed')
+    );
+  }
+
+  try {
+    await logNewsletterIssue({
+      topic: issue.topic,
+      contentPreview: issue.content,
+      subscriberCount: sent,
+    });
+  } catch (error) {
+    console.error('[daily-newsletter] Issue log failed (sends may still have succeeded):', error);
+  }
 
   return {
     message: 'Daily newsletter sent.',

@@ -118,8 +118,7 @@ export async function ollamaChat({
 
     if (response.status === 401 || response.status === 403) {
       throw new OllamaAuthError(
-        message ||
-          'Ollama API authentication failed. Check that OLLAMA_API_KEY is an Ollama Cloud API key (not an SSH key).'
+        `Ollama auth failed: ${message || 'invalid credentials'}. Check OLLAMA_API_KEY at ollama.com/settings/keys (Cloud API key, not SSH).`
       );
     }
 
