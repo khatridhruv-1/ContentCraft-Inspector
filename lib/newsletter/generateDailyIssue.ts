@@ -1,8 +1,7 @@
-import { generateContentFromTopic } from '@/lib/ai/generateContent';
 import {
-  buildDailyNewsletterBrief,
   dailyNewsletterSubject,
 } from '@/lib/newsletter/editorialBrief';
+import { generateNewsletterEssay } from '@/lib/newsletter/generateNewsletterEssay';
 import { pickDailyNewsletterTopic } from '@/lib/newsletter/pickTopic';
 
 export type DailyNewsletterIssue = {
@@ -17,7 +16,6 @@ function headlineFromContent(content: string): string | null {
   const match = content.match(/^#\s+(.+)$/m);
   const headline = match?.[1]?.trim();
   if (!headline || headline.length < 12 || headline.length > 110) return null;
-  // Reject instruction-looking titles.
   if (/^write\b/i.test(headline) || /practitioner editorial/i.test(headline)) return null;
   return headline;
 }
@@ -25,11 +23,8 @@ function headlineFromContent(content: string): string | null {
 export async function generateDailyNewsletterIssue(): Promise<DailyNewsletterIssue> {
   const { topic, keywords, fromTrends, recentTopics } = await pickDailyNewsletterTopic();
 
-  const result = await generateContentFromTopic({
-    rawBrief: buildDailyNewsletterBrief(topic, recentTopics),
-    platform: 'substack',
-    tone: 'editorial',
-  });
+  // Dedicated letter-style path — do not use the product SEO explainer pipeline.
+  const content = await generateNewsletterEssay(topic, recentTopics);
 
   const displayKeywords = fromTrends
     ? keywords
@@ -38,12 +33,11 @@ export async function generateDailyNewsletterIssue(): Promise<DailyNewsletterIss
         .slice(0, 5)
     : [];
 
-  const displayTopic =
-    headlineFromContent(result.content) ?? dailyNewsletterSubject(topic);
+  const displayTopic = headlineFromContent(content) ?? dailyNewsletterSubject(topic);
 
   return {
     topic: displayTopic,
-    content: result.content,
+    content,
     keywords: displayKeywords,
     fromTrends,
   };
