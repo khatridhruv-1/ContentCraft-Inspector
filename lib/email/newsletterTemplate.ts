@@ -66,13 +66,35 @@ function markdownToEmailHtml(content: string): string {
   return parts.join('\n');
 }
 
-function emailShell(body: string, footerNote: string, unsubscribeUrl?: string): string {
+function emailShell(
+  body: string,
+  options: {
+    footerNote?: string;
+    unsubscribeUrl?: string;
+    showSitePromo?: boolean;
+  } = {}
+): string {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || PRODUCTION_SITE_URL;
+  const { footerNote, unsubscribeUrl, showSitePromo = false } = options;
+
   const unsubscribeBlock = unsubscribeUrl
     ? `<p style="margin:20px 0 0;font-size:12px;line-height:1.5;color:#94a3b8;">
         <a href="${unsubscribeUrl}" style="color:#64748b;text-decoration:underline;">Unsubscribe</a>
       </p>`
     : '';
+
+  const footerNoteBlock = footerNote
+    ? `<p style="margin:0 0 14px;font-size:13px;line-height:1.55;color:#64748b;">${footerNote}</p>`
+    : '';
+
+  const promoBlock = showSitePromo
+    ? `<a href="${siteUrl}" style="display:inline-block;background:#0f766e;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.02em;padding:11px 18px;border-radius:4px;">Try BlogCreator</a>
+       <p style="margin:16px 0 0;font-size:12px;">
+         <a href="${siteUrl}" style="color:#0f766e;text-decoration:none;font-weight:600;">blogcreator.dev</a>
+       </p>`
+    : '';
+
+  const hasFooterChrome = Boolean(footerNoteBlock || promoBlock || unsubscribeBlock);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -98,18 +120,19 @@ function emailShell(body: string, footerNote: string, unsubscribeUrl?: string): 
           <tr>
             <td style="padding:32px 32px 28px;">
               ${body}
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 0;">
+              ${
+                hasFooterChrome
+                  ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 0;">
                 <tr>
                   <td style="padding:20px 0 0;border-top:1px solid #e2e8f0;">
-                    <p style="margin:0 0 14px;font-size:13px;line-height:1.55;color:#64748b;">${footerNote}</p>
-                    <a href="${siteUrl}" style="display:inline-block;background:#0f766e;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.02em;padding:11px 18px;border-radius:4px;">Try BlogCreator</a>
-                    <p style="margin:16px 0 0;font-size:12px;">
-                      <a href="${siteUrl}" style="color:#0f766e;text-decoration:none;font-weight:600;">blogcreator.dev</a>
-                    </p>
+                    ${footerNoteBlock}
+                    ${promoBlock}
                     ${unsubscribeBlock}
                   </td>
                 </tr>
-              </table>
+              </table>`
+                  : ''
+              }
             </td>
           </tr>
         </table>
@@ -139,8 +162,11 @@ export function buildWelcomeEmail(unsubscribeUrl: string): { subject: string; ht
      <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.7;color:#334155;">
        Your first issue arrives with the next send. Expect one clear idea, not a dump of links.
      </p>`,
-    'You received this because you subscribed at blogcreator.dev.',
-    unsubscribeUrl
+    {
+      footerNote: 'You received this because you subscribed at blogcreator.dev.',
+      unsubscribeUrl,
+      showSitePromo: true,
+    }
   );
 
   return { subject, html, text };
@@ -181,18 +207,16 @@ export function buildDailyNewsletterEmail(input: {
     ? `<p style="margin:0 0 22px;font-size:12px;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">Also trending · ${escapeHtml(input.keywords.join(' · '))}</p>`
     : '';
 
-  const footerNote = showTrends
-    ? 'Humanized editorial from live search signals. Reply with the channel you are rewriting this week (LinkedIn, SEO brief, or newsletter) if you want a tighter angle next.'
-    : 'A short editorial from BlogCreator Daily. Reply with the channel you are rewriting this week (LinkedIn, SEO brief, or newsletter) if you want a tighter angle next.';
-
   const html = emailShell(
     `<p style="margin:0 0 6px;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:#64748b;">${escapeHtml(dateLabel)}</p>
      <h1 style="margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.25;color:#0f172a;">${escapeHtml(input.topic)}</h1>
      <p style="margin:0 0 22px;padding:12px 14px;border-left:3px solid #0f766e;background:#f0fdfa;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.55;color:#0f766e;font-style:italic;">${escapeHtml(dekLine(input.content, input.topic))}</p>
      ${keywordHtml}
      ${markdownToEmailHtml(input.content)}`,
-    footerNote,
-    input.unsubscribeUrl
+    {
+      unsubscribeUrl: input.unsubscribeUrl,
+      showSitePromo: false,
+    }
   );
 
   return { subject, html, text };
@@ -222,7 +246,9 @@ export function buildUnsubscribeConfirmationEmail(resubscribeUrl: string): {
        Changed your mind?
        <a href="${resubscribeUrl}" style="color:#0f766e;text-decoration:none;font-weight:600;">Resubscribe on blogcreator.dev</a>
      </p>`,
-    'This confirms your unsubscribe request. No further action is needed.'
+    {
+      footerNote: 'This confirms your unsubscribe request. No further action is needed.',
+    }
   );
 
   return { subject, html, text };
