@@ -30,13 +30,14 @@ export async function sendWelcomeNewsletterEmail(subscriber: NewsletterSubscribe
 
 export async function sendDailyNewsletterToSubscriber(
   subscriber: NewsletterSubscriber,
-  issue: { topic: string; content: string; keywords: string[] }
+  issue: { topic: string; content: string; keywords: string[]; fromTrends?: boolean }
 ): Promise<void> {
   const unsubscribeUrl = buildUnsubscribeUrl(subscriber.unsubscribe_token);
   const email = buildDailyNewsletterEmail({
     topic: issue.topic,
     content: issue.content,
     keywords: issue.keywords,
+    fromTrends: issue.fromTrends,
     unsubscribeUrl,
   });
 

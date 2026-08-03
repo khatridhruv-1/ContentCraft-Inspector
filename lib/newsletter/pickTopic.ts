@@ -4,7 +4,7 @@ import type { DiscoveredKeyword } from '@/types/seo';
 
 const TREND_SEEDS = [
   'content marketing and SEO trends',
-  'Humanized writing and creator economy trends',
+  'humanized writing and creator economy trends',
   'search engine optimization trends',
   'digital marketing and growth trends',
   'social media content trends',
@@ -32,18 +32,29 @@ function pickBestKeyword(
   return sorted[0] ?? null;
 }
 
+function isSeedOnlyKeywords(seed: string, keywords: DiscoveredKeyword[]): boolean {
+  if (keywords.length === 0) return true;
+  if (keywords.length > 1) return false;
+  return keywords[0]?.keyword.trim().toLowerCase() === seed.trim().toLowerCase();
+}
+
 export async function pickDailyNewsletterTopic(): Promise<{
   topic: string;
   keywords: DiscoveredKeyword[];
+  fromTrends: boolean;
 }> {
   const recentTopics = new Set(await getRecentIssueTopics());
   const seed = TREND_SEEDS[daySeedIndex()];
 
   try {
     const keywords = await discoverKeywordsForTopic(seed);
+    if (isSeedOnlyKeywords(seed, keywords)) {
+      return { topic: seed, keywords, fromTrends: false };
+    }
+
     const best = pickBestKeyword(keywords, recentTopics);
     const topic = best?.keyword ?? seed;
-    return { topic, keywords };
+    return { topic, keywords, fromTrends: true };
   } catch (error) {
     console.warn(
       '[daily-newsletter] Keyword discovery failed; using seed topic fallback:',
@@ -59,6 +70,7 @@ export async function pickDailyNewsletterTopic(): Promise<{
           trendScore: 0.5,
         },
       ],
+      fromTrends: false,
     };
   }
 }
