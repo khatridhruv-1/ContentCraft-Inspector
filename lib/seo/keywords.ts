@@ -89,7 +89,20 @@ export async function discoverKeywordsForTopic(rawInput: string): Promise<Discov
     throw new Error('Topic is required for keyword discovery.');
   }
 
-  const topicTrends = await fetchTrendingByTopic(resolved.searchTopic);
+  let topicTrends: Array<{ keyword: string; score: number | null }> = [];
+  try {
+    topicTrends = await fetchTrendingByTopic(resolved.searchTopic);
+  } catch (error) {
+    console.warn('Scraping Hub trending topic failed; using topic fallback:', error);
+    return [
+      {
+        keyword: resolved.topic.slice(0, 80),
+        searchVolume: null,
+        competition: null,
+        trendScore: 0.5,
+      },
+    ];
+  }
 
   let trendingWords: Array<{ keyword: string; score: number | null }> = [];
   if (topicTrends.length < 8) {

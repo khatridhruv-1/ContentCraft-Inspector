@@ -38,7 +38,7 @@ jobs:
           SCRAPING_HUB_API_URL: ${{ vars.SCRAPING_HUB_API_URL }}
         run: |
           missing=0
-          for key in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY RESEND_API_KEY OLLAMA_API_KEY SCRAPING_HUB_API_KEY; do
+          for key in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY RESEND_API_KEY OLLAMA_API_KEY; do
             if [ -z "${!key}" ]; then
               echo "Missing required secret/env: $key"
               missing=1
@@ -47,6 +47,9 @@ jobs:
           if [ "$missing" -ne 0 ]; then
             echo "Configure the secrets listed above in GitHub → Settings → Secrets and variables → Actions."
             exit 1
+          fi
+          if [ -z "$SCRAPING_HUB_API_KEY" ]; then
+            echo "Warning: SCRAPING_HUB_API_KEY not set — daily send will use seed topic fallback."
           fi
 
           npx tsx scripts/send-daily-newsletter.ts

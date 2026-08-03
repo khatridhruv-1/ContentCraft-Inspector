@@ -18,8 +18,8 @@ function stageError(stage: string, hint: string, error: unknown): Error {
 }
 
 export async function runDailyNewsletterSend(): Promise<DailyNewsletterSendResult> {
-  if (!process.env.OLLAMA_API_KEY?.trim() || !process.env.SCRAPING_HUB_API_KEY?.trim()) {
-    throw new Error('AI services not configured (OLLAMA_API_KEY / SCRAPING_HUB_API_KEY).');
+  if (!process.env.OLLAMA_API_KEY?.trim()) {
+    throw new Error('OLLAMA_API_KEY is not set.');
   }
 
   if (!isEmailConfigured()) {
@@ -28,6 +28,12 @@ export async function runDailyNewsletterSend(): Promise<DailyNewsletterSendResul
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || !process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()) {
     throw new Error('Supabase admin env is not configured.');
+  }
+
+  if (!process.env.SCRAPING_HUB_API_KEY?.trim()) {
+    console.warn(
+      '[daily-newsletter] SCRAPING_HUB_API_KEY missing — using seed topic fallback (fix the secret for better topics).'
+    );
   }
 
   let subscribers;
@@ -59,18 +65,9 @@ export async function runDailyNewsletterSend(): Promise<DailyNewsletterSendResul
       );
     }
 
-    const detail = error instanceof Error ? error.message.toLowerCase() : '';
-    if (detail.includes('scraping') || detail.includes('api key') || detail.includes('401')) {
-      throw stageError(
-        'scraping-hub-or-ollama',
-        'Verify SCRAPING_HUB_API_KEY and OLLAMA_API_KEY. Topic pick hits Scraping Hub first; content gen hits Ollama.',
-        error
-      );
-    }
-
     throw stageError(
       'generate',
-      'Failed while picking topic (Scraping Hub) or drafting content (Ollama).',
+      'Failed while drafting content (Ollama). Scraping Hub failures should fall back to a seed topic.',
       error
     );
   }
