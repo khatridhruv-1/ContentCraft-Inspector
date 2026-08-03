@@ -12,13 +12,16 @@ export type DailyNewsletterIssue = {
 export async function generateDailyNewsletterIssue(): Promise<DailyNewsletterIssue> {
   const { topic, keywords, fromTrends } = await pickDailyNewsletterTopic();
 
-  // Pin length via reading-time parse (~400–600 words) and dial an editorial brief.
+  // Keep the subject line as `topic`. Instructions go after so briefIntent does not
+  // treat the full prompt as the article title.
   const rawBrief = [
-    `Write a 2-3 minute read newsletter essay on: ${topic}.`,
-    'Practitioner editorial voice: opinionated, concrete, human — not corporate marketing.',
+    topic,
+    'Write a 2-3 minute read Substack newsletter essay on this topic.',
+    'Practitioner editorial voice: opinionated, concrete, human, not corporate marketing.',
     'Open with the core insight in the first paragraph (no warm-up).',
     'Use exactly two ## sections after the title.',
-    'One specific example or observation. No em-dashes. End with one short reply-worthy question.',
+    'One specific example or observation. No em-dashes.',
+    'End with one short reply-worthy question.',
   ].join(' ');
 
   const result = await generateContentFromTopic({
@@ -35,7 +38,8 @@ export async function generateDailyNewsletterIssue(): Promise<DailyNewsletterIss
     : [];
 
   return {
-    topic: result.topic,
+    // Always use the curated topic for email subject/H1 — never the model/prompt string.
+    topic,
     content: result.content,
     keywords: displayKeywords,
     fromTrends,
