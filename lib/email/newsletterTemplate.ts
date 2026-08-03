@@ -182,8 +182,8 @@ export function buildDailyNewsletterEmail(input: {
     : '';
 
   const footerNote = showTrends
-    ? 'Humanized editorial from live search signals. Reply with feedback anytime.'
-    : 'A short editorial from BlogCreator Daily. Reply with feedback anytime.';
+    ? 'Humanized editorial from live search signals. Reply with the channel you are rewriting this week (LinkedIn, SEO brief, or newsletter) if you want a tighter angle next.'
+    : 'A short editorial from BlogCreator Daily. Reply with the channel you are rewriting this week (LinkedIn, SEO brief, or newsletter) if you want a tighter angle next.';
 
   const html = emailShell(
     `<p style="margin:0 0 6px;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:#64748b;">${escapeHtml(dateLabel)}</p>

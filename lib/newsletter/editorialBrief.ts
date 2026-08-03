@@ -3,18 +3,27 @@
  * (AI-slop openers, fake anonymized case studies, LinkedIn-bro antithesis,
  * meta "thought leadership about thought leadership").
  */
-export function buildDailyNewsletterBrief(topic: string): string {
+export function buildDailyNewsletterBrief(
+  topic: string,
+  recentTopics: string[] = []
+): string {
+  const recentLine =
+    recentTopics.length > 0
+      ? `ANTI-REPEAT: recent issues covered [${recentTopics.slice(0, 12).join('; ')}]. Do not reuse those theses, scaffold phrases, or "what failure will you share?" closers. Pick a fresh stake and format for THIS topic.`
+      : 'ANTI-REPEAT: do not default to authenticity-vs-polish sermons or "what failure will you share?" closers.';
+
   return [
     topic,
     'Write a 2 minute read Substack newsletter essay on this topic (target 400–520 words, HARD MAX 550).',
     'FORM: one # title as a sharp editorial headline a subscriber would open (not a vague "X trends" label); exactly two ## sections; max ~5 short paragraphs per section.',
     'SECTION JOBS: ##1 diagnoses one current habit/problem for this topic; ##2 gives what to do Monday (tactics). Section 2 must not restate section 1.',
-    'VOICE: short letter to a working marketer/founder. Smart peer. Editorial "I" = judgment and observed patterns only — never fake biography, never "I recently read a thread" without a real source URL.',
-    'OPEN: sentence 1–2 state the insight and address "you". Ban: "The era of X is over", "For years… But today…", "Here\'s the thing", "In today\'s fast-paced…".',
+    'VOICE: short letter to the subscriber; open in "you" by sentence 2. Smart peer. Editorial "I" = judgment and observed publishing patterns only — never fake biography, never "I recently read a thread" without a real source URL.',
+    'OPEN: sentence 1–2 state the insight. Ban: "The era of X is over", "For years… But today…", "Here\'s the thing", "In today\'s fast-paced…", "It\'s no secret", "we\'ve all been there". Cap "you must / stop / start".',
     'PROOF: one concrete workflow friction or named public pattern. NEVER invent anonymized founders, clients, dollar losses, lead counts, or percent metrics. Prefer operational nouns (tickets, drafts, edit passes, subject lines) over abstractions (transparency, texture, authority).',
-    'BANNED / REWRITE: "from a mile away", "messy middle", "shiny case study", "radical transparency", "let the details do the heavy lifting", "Stop trying to X. Start Y.", "Your audience can smell", "They do not need X. They need Y." loops, "game-changer", "leverage", "delve", "unlock".',
+    'BANNED / REWRITE: "from a mile away", "messy middle", "shiny case study", "radical transparency", "let the details do the heavy lifting", "Stop trying to X. Start Y.", "Your audience can smell", "They do not need X. They need Y." loops, "game-changer", "leverage", "delve", "unlock", "navigate the landscape", "Moreover", "Furthermore".',
     'ANGLE: stay faithful to this topic\'s domain. If the topic is meta (thought leadership), pick ONE operational sub-angle (proof format, distribution, review loop) — do not sermonize "be authentic".',
-    'CLOSE: one short reply-worthy question tied to THIS issue\'s evidence. No product pitch. No summary sermon after the last tactic. No em-dashes.',
+    recentLine,
+    'CLOSE: one short reply-worthy question tied to THIS issue\'s tactic. No product pitch. No summary sermon after the last tactic. No em-dashes.',
   ].join(' ');
 }
 

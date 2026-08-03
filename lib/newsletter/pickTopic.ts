@@ -42,19 +42,21 @@ export async function pickDailyNewsletterTopic(): Promise<{
   topic: string;
   keywords: DiscoveredKeyword[];
   fromTrends: boolean;
+  recentTopics: string[];
 }> {
-  const recentTopics = new Set(await getRecentIssueTopics());
+  const recentList = await getRecentIssueTopics();
+  const recentTopics = new Set(recentList);
   const seed = TREND_SEEDS[daySeedIndex()];
 
   try {
     const keywords = await discoverKeywordsForTopic(seed);
     if (isSeedOnlyKeywords(seed, keywords)) {
-      return { topic: seed, keywords, fromTrends: false };
+      return { topic: seed, keywords, fromTrends: false, recentTopics: recentList };
     }
 
     const best = pickBestKeyword(keywords, recentTopics);
     const topic = best?.keyword ?? seed;
-    return { topic, keywords, fromTrends: true };
+    return { topic, keywords, fromTrends: true, recentTopics: recentList };
   } catch (error) {
     console.warn(
       '[daily-newsletter] Keyword discovery failed; using seed topic fallback:',
@@ -71,6 +73,7 @@ export async function pickDailyNewsletterTopic(): Promise<{
         },
       ],
       fromTrends: false,
+      recentTopics: recentList,
     };
   }
 }

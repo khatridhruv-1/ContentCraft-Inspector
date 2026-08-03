@@ -23,10 +23,10 @@ function headlineFromContent(content: string): string | null {
 }
 
 export async function generateDailyNewsletterIssue(): Promise<DailyNewsletterIssue> {
-  const { topic, keywords, fromTrends } = await pickDailyNewsletterTopic();
+  const { topic, keywords, fromTrends, recentTopics } = await pickDailyNewsletterTopic();
 
   const result = await generateContentFromTopic({
-    rawBrief: buildDailyNewsletterBrief(topic),
+    rawBrief: buildDailyNewsletterBrief(topic, recentTopics),
     platform: 'substack',
     tone: 'editorial',
   });
