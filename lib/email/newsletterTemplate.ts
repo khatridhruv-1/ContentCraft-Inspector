@@ -14,6 +14,22 @@ function inlineFormat(text: string): string {
     .replace(/\*([^*]+)\*/g, '<em>$1</em>');
 }
 
+/** First substantive sentence as a mobile dek / pull-quote under the H1. */
+function dekLine(content: string, fallback: string): string {
+  const withoutTitle = content.replace(/^#\s+.+$/m, '').trim();
+  const paragraph = withoutTitle.split(/\n+/).map(line => line.trim()).find(line => {
+    if (!line || line.startsWith('#')) return false;
+    const plain = line.replace(/^[*_]+|[*_]+$/g, '').trim();
+    return plain.length >= 40;
+  });
+  if (!paragraph) return fallback;
+  const plain = paragraph.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1').trim();
+  if (plain.length <= 160) return plain;
+  const cut = plain.slice(0, 157);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > 80 ? cut.slice(0, lastSpace) : cut).trim()}…`;
+}
+
 function markdownToEmailHtml(content: string): string {
   const lines = content.split('\n');
   const parts: string[] = [];
@@ -144,7 +160,7 @@ export function buildDailyNewsletterEmail(input: {
     year: 'numeric',
   });
 
-  const subject = `Today's trend: ${input.topic}`;
+  const subject = input.topic;
   const showTrends = Boolean(input.fromTrends) && input.keywords.length > 0;
   const keywordLine = showTrends ? `Also trending: ${input.keywords.join(', ')}` : '';
 
@@ -171,7 +187,8 @@ export function buildDailyNewsletterEmail(input: {
 
   const html = emailShell(
     `<p style="margin:0 0 6px;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:#64748b;">${escapeHtml(dateLabel)}</p>
-     <h1 style="margin:0 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.25;color:#0f172a;">${escapeHtml(input.topic)}</h1>
+     <h1 style="margin:0 0 10px;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.25;color:#0f172a;">${escapeHtml(input.topic)}</h1>
+     <p style="margin:0 0 22px;padding:12px 14px;border-left:3px solid #0f766e;background:#f0fdfa;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.55;color:#0f766e;font-style:italic;">${escapeHtml(dekLine(input.content, input.topic))}</p>
      ${keywordHtml}
      ${markdownToEmailHtml(input.content)}`,
     footerNote,

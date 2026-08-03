@@ -73,12 +73,13 @@ ${READING_LENGTH_RULE}
   substack: `
 ━━━ PLATFORM: SUBSTACK ━━━
 - Newsletter essay for email subscribers — intimate, direct, high signal.
-- # Subject-style title; write to "you" where natural.
-- First paragraph delivers the promise of the topic — no filler intro.
-- ${sectionCount} ## sections; conversational but structured like a letter from someone who knows the space.
-- One personal observation per piece. No em-dashes (—).
-- Lighter on SEO tricks; heavier on clarity and practical insight.
-- Soft close — reflection or one question for replies (no hard sell, no "visit my site").
+- # Title: sharp editorial headline readers would open (not a vague "X trends" label).
+- Write to "you" where natural. First paragraph delivers the insight — no filler intro.
+- Exactly ${compact ? '2' : sectionCount} ## sections with specific headings (not "Introduction").
+- Conversational letter from a practitioner who knows the work — not a LinkedIn thinkpiece template.
+- Prefer one recognizable workflow friction or public pattern over invented anonymous case studies or fake metrics.
+- Ban rote openers ("The era of X is over") and antithesis closers ("Stop trying to X. Start Y.").
+- No em-dashes (—). Soft close — one reply-worthy question (no hard sell, no "visit my site").
 ${READING_LENGTH_RULE}
 `.trim(),
   };

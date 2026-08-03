@@ -1,4 +1,8 @@
 import { generateContentFromTopic } from '@/lib/ai/generateContent';
+import {
+  buildDailyNewsletterBrief,
+  dailyNewsletterSubject,
+} from '@/lib/newsletter/editorialBrief';
 import { pickDailyNewsletterTopic } from '@/lib/newsletter/pickTopic';
 
 export type DailyNewsletterIssue = {
@@ -9,23 +13,20 @@ export type DailyNewsletterIssue = {
   fromTrends: boolean;
 };
 
+function headlineFromContent(content: string): string | null {
+  const match = content.match(/^#\s+(.+)$/m);
+  const headline = match?.[1]?.trim();
+  if (!headline || headline.length < 12 || headline.length > 110) return null;
+  // Reject instruction-looking titles.
+  if (/^write\b/i.test(headline) || /practitioner editorial/i.test(headline)) return null;
+  return headline;
+}
+
 export async function generateDailyNewsletterIssue(): Promise<DailyNewsletterIssue> {
   const { topic, keywords, fromTrends } = await pickDailyNewsletterTopic();
 
-  // Keep the subject line as `topic`. Instructions go after so briefIntent does not
-  // treat the full prompt as the article title.
-  const rawBrief = [
-    topic,
-    'Write a 2-3 minute read Substack newsletter essay on this topic.',
-    'Practitioner editorial voice: opinionated, concrete, human, not corporate marketing.',
-    'Open with the core insight in the first paragraph (no warm-up).',
-    'Use exactly two ## sections after the title.',
-    'One specific example or observation. No em-dashes.',
-    'End with one short reply-worthy question.',
-  ].join(' ');
-
   const result = await generateContentFromTopic({
-    rawBrief,
+    rawBrief: buildDailyNewsletterBrief(topic),
     platform: 'substack',
     tone: 'editorial',
   });
@@ -37,9 +38,11 @@ export async function generateDailyNewsletterIssue(): Promise<DailyNewsletterIss
         .slice(0, 5)
     : [];
 
+  const displayTopic =
+    headlineFromContent(result.content) ?? dailyNewsletterSubject(topic);
+
   return {
-    // Always use the curated topic for email subject/H1 — never the model/prompt string.
-    topic,
+    topic: displayTopic,
     content: result.content,
     keywords: displayKeywords,
     fromTrends,

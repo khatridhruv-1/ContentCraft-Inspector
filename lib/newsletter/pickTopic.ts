@@ -3,13 +3,13 @@ import { getRecentIssueTopics } from '@/lib/newsletter/subscribers';
 import type { DiscoveredKeyword } from '@/types/seo';
 
 const TREND_SEEDS = [
-  'content marketing and SEO trends',
-  'humanized writing and creator economy trends',
-  'search engine optimization trends',
-  'digital marketing and growth trends',
-  'social media content trends',
-  'B2B marketing and thought leadership trends',
-  'newsletter and creator monetization trends',
+  'why polished founder posts stop converting B2B buyers',
+  'turning support tickets into publishable creator stories',
+  'keyword clusters vs stuffing for practitioner SEO pages',
+  'LinkedIn essays that read human after AI drafting',
+  'newsletter subject lines that survive the morning skim',
+  'when GEO and SEO need different source pages',
+  'pricing a niche newsletter without sounding desperate',
 ] as const;
 
 function daySeedIndex(): number {
