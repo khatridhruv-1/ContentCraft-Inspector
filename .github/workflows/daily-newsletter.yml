@@ -2,22 +2,50 @@ name: Daily Newsletter
 
 on:
   schedule:
+    # 09:00 UTC daily
     - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
   send:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
-      - name: Trigger daily newsletter
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and send daily newsletter
         env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://blogcreator.dev' }}
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || 'https://blogcreator.dev' }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NEWSLETTER_FROM_EMAIL: ${{ secrets.NEWSLETTER_FROM_EMAIL }}
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          OLLAMA_MODEL: ${{ vars.OLLAMA_MODEL }}
+          OLLAMA_API_HOST: ${{ vars.OLLAMA_API_HOST }}
+          SCRAPING_HUB_API_KEY: ${{ secrets.SCRAPING_HUB_API_KEY }}
+          SCRAPING_HUB_API_URL: ${{ vars.SCRAPING_HUB_API_URL }}
         run: |
-          if [ -z "$CRON_SECRET" ]; then
-            echo "CRON_SECRET is not configured in GitHub repository secrets."
+          missing=0
+          for key in NEXT_PUBLIC_SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY RESEND_API_KEY OLLAMA_API_KEY SCRAPING_HUB_API_KEY; do
+            if [ -z "${!key}" ]; then
+              echo "Missing required secret/env: $key"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "Configure the secrets listed above in GitHub → Settings → Secrets and variables → Actions."
             exit 1
           fi
 
-          curl -fsS -X GET "${SITE_URL}/api/cron/daily-newsletter" \
-            -H "Authorization: Bearer ${CRON_SECRET}"
+          npx tsx scripts/send-daily-newsletter.ts

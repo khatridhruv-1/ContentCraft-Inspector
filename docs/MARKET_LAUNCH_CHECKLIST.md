@@ -32,7 +32,7 @@ Confirm the live site shows the new teal accents (not violet) after deploy.
 | `SUPABASE_SERVICE_ROLE_KEY` | Newsletter subscribe, admin |
 | `RESEND_API_KEY` | Welcome email, contact, daily newsletter |
 | `NEWSLETTER_FROM_EMAIL` | Verified sender (e.g. `newsletter@blogcreator.dev`) |
-| `CRON_SECRET` | Daily newsletter cron auth |
+| `CRON_SECRET` | Optional: manual `/api/cron/daily-newsletter` auth (daily send uses GitHub Actions) |
 | `OLLAMA_API_KEY` | Daily issue generation |
 | `SCRAPING_HUB_API_KEY` | Trend topics for newsletter |
 | `GROQ_API_KEY` | Analyze / outline (product) |
@@ -45,7 +45,7 @@ Redeploy after any env change.
    - `https://blogcreator.dev/auth/callback`
    - `https://blogcreator.dev/**` (or your Pages preview URL if testing)
 2. **Resend** → Domain `blogcreator.dev` verified; test send to your inbox.
-3. **GitHub Actions** → Secret `CRON_SECRET` matches Cloudflare; workflow **Daily Newsletter** runs at 09:00 UTC.
+3. **GitHub Actions** → workflow **Daily Newsletter** runs at 09:00 UTC via `scripts/send-daily-newsletter.ts` (not Cloudflare — Workers would time out on AI generation). Required Action secrets: `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `OLLAMA_API_KEY`, `SCRAPING_HUB_API_KEY`; optional `NEWSLETTER_FROM_EMAIL`. Optional vars: `SITE_URL`, `OLLAMA_MODEL`.
 
 ## Smoke tests (manual)
 

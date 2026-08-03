@@ -7,6 +7,7 @@
     "build": "next build",
     "pages:build": "npx @cloudflare/next-on-pages",
     "pages:deploy": "npx wrangler pages deploy .vercel/output/static --project-name contentcraft-inspector --branch master --commit-dirty=true",
+    "newsletter:send-daily": "npx tsx scripts/send-daily-newsletter.ts",
     "start": "next start",
     "lint": "next lint",
     "db:start": "supabase start",
